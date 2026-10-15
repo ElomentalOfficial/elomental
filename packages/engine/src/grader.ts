@@ -1,0 +1,104 @@
+import { ALL_DIGITS, PEERS, bit, type Grid } from './grid.ts';
+import { TECHNIQUES, type SolverState, type Step, type TechniqueId, type TechniqueLevel } from './techniques.ts';
+
+/**
+ * Grades a puzzle by solving it the way a person would: at every step it
+ * applies the easiest technique that makes progress. Difficulty comes from
+ * which techniques were needed and how often, not from the clue count.
+ */
+
+export interface GradeOptions {
+  /** Only use techniques up to this level. Defaults to 3 (all). */
+  maxLevel?: TechniqueLevel;
+  /** Keep every step (for hints, replays and soundness tests). */
+  recordSteps?: boolean;
+}
+
+export interface GradeResult {
+  /** False when the allowed techniques got stuck before the grid was full. */
+  solved: boolean;
+  /** Hardest technique used, or null if no step was taken. */
+  hardest: TechniqueId | null;
+  level: 0 | TechniqueLevel;
+  /** Total effort: the sum of technique weights over every step. */
+  score: number;
+  /** Starting Elo-style rating for ranked play; recalibrated from real results later. */
+  rating: number;
+  counts: Partial<Record<TechniqueId, number>>;
+  steps: Step[];
+}
+
+export function createSolverState(puzzle: Grid): SolverState {
+  const values = Uint8Array.from(puzzle);
+  const cands = new Uint16Array(81);
+  for (let c = 0; c < 81; c++) {
+    if (values[c]) continue;
+    let used = 0;
+    for (const p of PEERS[c]) used |= bit(values[p]);
+    cands[c] = ALL_DIGITS & ~used;
+  }
+  return { values, cands };
+}
+
+export function applyStep(state: SolverState, step: Step): void {
+  for (const [c, d] of step.placements) {
+    state.values[c] = d;
+    state.cands[c] = 0;
+    for (const p of PEERS[c]) state.cands[p] &= ~bit(d);
+  }
+  for (const [c, d] of step.eliminations) state.cands[c] &= ~bit(d);
+}
+
+/**
+ * Seed rating. The hardest technique sets the band; extra effort beyond
+ * singles moves the puzzle within it. Singles-only puzzles land around
+ * 160-250, X-Wing puzzles around 850+, Jellyfish around 1300+.
+ */
+function estimateRating(hardestWeight: number, advancedEffort: number): number {
+  return Math.round(100 + 60 * hardestWeight + 4 * advancedEffort);
+}
+
+export function grade(puzzle: Grid, options: GradeOptions = {}): GradeResult {
+  const maxLevel = options.maxLevel ?? 3;
+  const techniques = TECHNIQUES.filter((t) => t.level <= maxLevel);
+  const state = createSolverState(puzzle);
+  const counts: Partial<Record<TechniqueId, number>> = {};
+  const steps: Step[] = [];
+  let remaining = 0;
+  for (const d of state.values) if (!d) remaining++;
+
+  let hardest: (typeof TECHNIQUES)[number] | null = null;
+  let score = 0;
+  let advancedEffort = 0;
+
+  while (remaining > 0) {
+    let step: Step | null = null;
+    let used: (typeof TECHNIQUES)[number] | null = null;
+    for (const t of techniques) {
+      step = t.find(state);
+      if (step) {
+        used = t;
+        break;
+      }
+    }
+    if (!step || !used) break;
+
+    applyStep(state, step);
+    remaining -= step.placements.length;
+    counts[used.id] = (counts[used.id] ?? 0) + 1;
+    score += used.weight;
+    if (used.level > 1) advancedEffort += used.weight;
+    if (!hardest || used.weight > hardest.weight) hardest = used;
+    if (options.recordSteps) steps.push(step);
+  }
+
+  return {
+    solved: remaining === 0,
+    hardest: hardest?.id ?? null,
+    level: hardest?.level ?? 0,
+    score,
+    rating: estimateRating(hardest?.weight ?? 0, advancedEffort),
+    counts,
+    steps,
+  };
+}
