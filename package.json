@@ -5,7 +5,9 @@
     "packages/*"
   ],
   "scripts": {
-    "test": "npm test --workspaces",
-    "typecheck": "npm run typecheck --workspaces"
+    "dev": "npm run dev -w @elomental/web",
+    "build": "npm run build -w @elomental/web",
+    "test": "npm test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
   }
 }

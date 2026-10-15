@@ -1,0 +1,12 @@
+{
+  "name": "Elomental",
+  "short_name": "Elomental",
+  "description": "Competitive Sudoku",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#020910",
+  "theme_color": "#020910",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
