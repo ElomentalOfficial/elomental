@@ -41,8 +41,10 @@ const SAVE_KEY = 'elomental:game';
 const MAX_MISTAKES = 3;
 /** Hints per game (Casual · Easy only), so a puzzle can't be solved on hints alone. */
 const MAX_HINTS = 10;
-const LONG_PRESS_MS = 380;
-const MOVE_TOLERANCE = 10;
+/** Hold this long to open the notes wheel; quick taps stay well under it. */
+const LONG_PRESS_MS = 230;
+/** Or drag this far from the square to open it immediately (swipe-to-note). */
+const SWIPE_START = 14;
 
 export function loadSavedGame(): SavedGame | null {
   const saved = readJson<SavedGame>(SAVE_KEY);
@@ -454,6 +456,7 @@ function gameScreen(game: SavedGame): Screen {
   const cellFrom = (target: EventTarget | null) => (target as HTMLElement | null)?.closest<HTMLElement>('[data-cell]');
 
   function openWheel(cell: number, x: number, y: number) {
+    endPressFeedback();
     cells[cell].classList.add('noting');
     wheel = openNotesWheel({
       x,
@@ -487,6 +490,8 @@ function gameScreen(game: SavedGame): Screen {
     } catch {
       // Synthetic or already-released pointers can't be captured; the gesture still works on the board.
     }
+    // Immediate feedback while the hold builds up (a ring fills around the square).
+    cells[cell].classList.add('pressing');
     press = {
       id: event.pointerId,
       x: event.clientX,
@@ -497,27 +502,35 @@ function gameScreen(game: SavedGame): Screen {
       }, LONG_PRESS_MS),
     };
   });
+  const endPressFeedback = () => {
+    for (const c of board.querySelectorAll('.cell.pressing')) c.classList.remove('pressing');
+  };
   // Move/up/cancel are tracked on the window, not the board: once the wheel opens it
   // covers the board, and iOS doesn't reliably honour pointer capture for touch, so
   // the lift can land on the wheel's overlay instead. Missing it is what left the
   // wheel stuck open with no way to close it.
   const onPressMove = (event: PointerEvent) => {
     if (!press || event.pointerId !== press.id) return;
-    if (wheel) wheel.move(event.clientX, event.clientY);
-    else if (Math.hypot(event.clientX - press.x, event.clientY - press.y) > MOVE_TOLERANCE) {
+    if (!wheel && Math.hypot(event.clientX - press.x, event.clientY - press.y) > SWIPE_START) {
+      // Swipe shortcut: dragging off a square means "note", so open at once
+      // instead of waiting for the long-press. Nothing else uses drags on the board.
       clearTimeout(press.timer);
-      press = null;
+      endPressFeedback();
+      openWheel(press.cell, press.x, press.y);
     }
+    wheel?.move(event.clientX, event.clientY);
   };
   const onPressUp = (event: PointerEvent) => {
     if (!press || event.pointerId !== press.id) return;
     clearTimeout(press.timer);
+    endPressFeedback();
     press = null;
     wheel?.release(event.clientX, event.clientY);
   };
   const onPressCancel = (event: PointerEvent) => {
     if (!press || event.pointerId !== press.id) return;
     clearTimeout(press.timer);
+    endPressFeedback();
     press = null;
     // The system took the touch away: drop the wheel without adding anything.
     wheel?.close();
@@ -602,7 +615,7 @@ function gameScreen(game: SavedGame): Screen {
       {
         target: board,
         title: 'Take notes',
-        text: 'Long-press a square and a wheel of numbers appears. Slide toward one and lift to pencil it in (or out). Lift without sliding to cancel.',
+        text: 'Long-press a square for the notes wheel, slide toward a number and lift to pencil it in (or out). Faster: just swipe from the square toward the number. Lift without choosing to cancel.',
         gesture: 'hold-slide',
       },
       {

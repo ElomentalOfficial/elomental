@@ -50,8 +50,12 @@
   --wheel-bg: var(--c-second-bright);
   --wheel-text: var(--c-bg);
   --wheel-on: var(--accent);
-  --glass-bg: rgba(52, 53, 48, 0.58);
-  --glass-border: rgba(255, 255, 229, 0.14);
+  --glass-bg: rgba(255, 255, 229, 0.1);
+  --glass-border: rgba(255, 255, 229, 0.24);
+  --glass-sheen: rgba(255, 255, 229, 0.16);
+  --glass-hover: rgba(255, 255, 229, 0.14);
+  --glass-divider: rgba(255, 255, 229, 0.2);
+  --glass-hub: rgba(38, 39, 33, 0.35);
   --modal-bg: var(--c-highlight);
   --primary-bg: var(--accent);
   --primary-text: var(--c-bright);
@@ -91,8 +95,12 @@
   --wheel-bg: var(--c-crimson);
   --wheel-text: var(--c-bright);
   --wheel-on: var(--accent);
-  --glass-bg: rgba(255, 255, 229, 0.55);
-  --glass-border: rgba(121, 67, 65, 0.14);
+  --glass-bg: rgba(255, 255, 229, 0.42);
+  --glass-border: rgba(255, 255, 255, 0.7);
+  --glass-sheen: rgba(255, 255, 255, 0.55);
+  --glass-hover: rgba(121, 67, 65, 0.1);
+  --glass-divider: rgba(121, 67, 65, 0.16);
+  --glass-hub: rgba(255, 255, 229, 0.55);
   --modal-bg: var(--c-bright);
   --primary-bg: var(--accent);
   --primary-text: var(--c-bright);
@@ -1201,95 +1209,97 @@ h2 {
 }
 
 /* ---------- Notes wheel ---------- */
-/* A frosted-glass disc with digits round the edge and a liquid drop that is
-   pulled from the centre toward the digit the finger slides to. */
+/* Segmented frosted-glass ring: blur 18px over a translucent tint, a 1px light
+   edge and a top reflection; the picked segment brightens and an accent blob
+   springs under its digit. Opens in ~0.1s so rapid note-taking stays fast. */
 .wheel-layer {
   position: fixed;
   inset: 0;
   z-index: 30;
   touch-action: none;
-  transition: opacity 0.18s ease;
+  transition: opacity 0.1s ease-out;
 }
 .wheel-layer.closing {
   opacity: 0;
 }
 .wheel {
-  --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --tip-x: 0px;
-  --tip-y: 0px;
-  --lean-x: 0px;
-  --lean-y: 0px;
-  --angle: -90deg;
+  --bx: 0px;
+  --by: 0px;
   position: absolute;
   width: 0;
   height: 0;
+  animation: wheel-open 0.1s ease-out;
 }
-.wheel-glass {
-  position: absolute;
-  width: var(--disc);
-  height: var(--disc);
-  left: calc(var(--disc) / -2);
-  top: calc(var(--disc) / -2);
-  border-radius: 50%;
-  background: var(--glass-bg);
-  border: 1px solid var(--glass-border);
-  -webkit-backdrop-filter: blur(16px) saturate(1.5);
-  backdrop-filter: blur(16px) saturate(1.5);
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  transform: translate(var(--lean-x), var(--lean-y));
-  transition: transform 0.4s var(--spring);
-  animation: glass-open 0.32s var(--spring);
-}
-@keyframes glass-open {
+@keyframes wheel-open {
   from {
-    transform: scale(0.55);
+    transform: scale(0.9);
     opacity: 0;
   }
 }
-/* The liquid: hub (centre), neck (stretching capsule) and tip (the drop). */
-.liquid-hub,
-.liquid-tip,
-.liquid-neck {
+.wheel-glass {
   position: absolute;
-  background: var(--accent);
-}
-.liquid-hub {
-  width: 40px;
-  height: 40px;
-  left: -20px;
-  top: -20px;
+  width: 208px;
+  height: 208px;
+  left: -104px;
+  top: -104px;
   border-radius: 50%;
-  transition: transform 0.35s var(--spring);
-  animation: glass-open 0.32s var(--spring);
+  background: radial-gradient(120% 90% at 30% 0%, var(--glass-sheen), transparent 55%), var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  backdrop-filter: blur(18px) saturate(1.6);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 var(--glass-border);
 }
-.liquid-tip {
+.wheel-ring {
+  position: absolute;
+  inset: 0;
+}
+.wheel-ring .seg {
+  fill: transparent;
+  transition: fill 0.12s ease-out;
+}
+.wheel-ring .seg.hover {
+  fill: var(--glass-hover);
+}
+.wheel-ring .dividers line,
+.wheel-ring .hub-edge {
+  stroke: var(--glass-divider);
+  stroke-width: 1;
+  fill: none;
+}
+.wheel-hub {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  left: -40px;
+  top: -40px;
+  display: grid;
+  place-items: center;
+  padding: 26px;
+  border-radius: 50%;
+  background: var(--glass-hub);
+  color: var(--text);
+  opacity: 0.85;
+}
+/* The liquid blob: rises out of the hub on the first pick, then glides between segments. */
+.wheel-blob {
+  position: absolute;
   width: 46px;
   height: 46px;
   left: -23px;
   top: -23px;
   border-radius: 50%;
-  transform: translate(0, 0) scale(0.5);
-  transition: transform 0.42s var(--spring);
+  background: var(--accent);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transform: translate(0, 0) scale(0);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.liquid-neck {
-  left: 0;
-  top: -16px;
-  width: 74px;
-  height: 32px;
-  border-radius: 16px;
-  transform-origin: 0 50%;
-  transform: rotate(var(--angle)) scaleX(0);
-  transition: transform 0.3s cubic-bezier(0.5, 1.4, 0.6, 1);
+.wheel.picking .wheel-blob {
+  transform: translate(var(--bx), var(--by)) scale(1);
 }
-.wheel.pouring .liquid-hub {
-  transform: scale(0.82);
-}
-.wheel.pouring .liquid-tip {
-  transform: translate(var(--tip-x), var(--tip-y)) scale(1);
-}
-.wheel.pouring .liquid-neck {
-  /* Thinner than the hub and tip, so it reads as a stretched neck of liquid. */
-  transform: rotate(var(--angle)) scaleX(1) scaleY(0.72);
+.wheel-blob.from-hub {
+  transition-duration: 0.24s;
 }
 .wheel-digit {
   position: absolute;
@@ -1304,20 +1314,13 @@ h2 {
   font-weight: 800;
   font-size: 20px;
   transform: translate(var(--x), var(--y));
-  transition: color 0.15s ease, transform 0.3s var(--spring);
-  animation: digit-in 0.3s var(--spring) backwards;
-}
-@keyframes digit-in {
-  from {
-    transform: translate(0, 0) scale(0.3);
-    opacity: 0;
-  }
+  transition: color 0.12s ease-out, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 /* A note already in the cell: a small accent dot under the digit. */
 .wheel-digit.on::after {
   content: '';
   position: absolute;
-  bottom: 5px;
+  bottom: 4px;
   width: 6px;
   height: 6px;
   border-radius: 50%;
@@ -1325,10 +1328,19 @@ h2 {
 }
 .wheel-digit.hover {
   color: var(--on-accent);
-  transform: translate(var(--x), var(--y)) scale(1.18);
+  transform: translate(var(--x), var(--y)) scale(1.12);
 }
 .wheel-digit.hover.on::after {
   background: var(--on-accent);
+}
+/* Hold feedback: a ring fills around the square while the long-press builds. */
+.cell.pressing {
+  animation: press-ring 0.23s linear forwards;
+}
+@keyframes press-ring {
+  to {
+    box-shadow: inset 0 0 0 3px var(--accent);
+  }
 }
 
 

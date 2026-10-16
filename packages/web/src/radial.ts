@@ -1,19 +1,19 @@
+import { ICONS } from './icons.ts';
 import { h } from './ui.ts';
 
 /**
- * Notes wheel: long-press a cell and a frosted-glass disc appears with the
- * digits 1-9 around its edge (1 at the top, clockwise). Slide toward a digit:
- * a liquid drop is pulled out of the centre and stretches onto it. Lift to
- * toggle that note; lift without reaching a digit to cancel. The wheel only
- * exists while the finger is down, so it can't get stuck on screen.
- *
- * The liquid is three accent shapes (a centre blob, a neck and a tip) moved
- * with springy transitions. No SVG filters, which are unreliable on iOS.
+ * Notes wheel: a frosted-glass ring of nine segments (1 at the top, clockwise)
+ * around a hub, opened by a long-press or by swiping off a square. Pointing
+ * at a segment lights it and springs a small accent blob under its digit;
+ * lifting toggles that note, lifting anywhere else cancels. It only exists
+ * while the finger is down, so it can't get stuck on screen.
  */
 
-const RADIUS = 74; // centre to digit
-const DISC = 2 * RADIUS + 54; // glass diameter
-const DEAD_ZONE = 24;
+const R_IN = 40; // hub radius
+const R_OUT = 104; // ring outer radius
+const R_DIGIT = (R_IN + R_OUT) / 2;
+const SIZE = R_OUT * 2;
+const DEAD_ZONE = 22;
 const STEP = 360 / 9;
 
 export interface NotesWheel {
@@ -23,6 +23,32 @@ export interface NotesWheel {
   close(): void;
 }
 
+const rad = (deg: number) => (deg * Math.PI) / 180;
+const point = (r: number, deg: number) => `${(R_OUT + r * Math.cos(rad(deg))).toFixed(2)} ${(R_OUT + r * Math.sin(rad(deg))).toFixed(2)}`;
+
+/** Annular sector for digit d, in the ring's own 0..SIZE coordinates. */
+function segmentPath(d: number): string {
+  const mid = -90 + (d - 1) * STEP;
+  const a = mid - STEP / 2;
+  const b = mid + STEP / 2;
+  return `M${point(R_OUT, a)} A${R_OUT} ${R_OUT} 0 0 1 ${point(R_OUT, b)} L${point(R_IN, b)} A${R_IN} ${R_IN} 0 0 0 ${point(R_IN, a)}Z`;
+}
+
+const RING_SVG = (() => {
+  const dividers = Array.from({ length: 9 }, (_, k) => {
+    const deg = -90 - STEP / 2 + k * STEP;
+    return `<line x1="${point(R_IN, deg).replace(' ', '" y1="')}" x2="${point(R_OUT, deg).replace(' ', '" y2="')}"/>`;
+  }).join('');
+  const segments = Array.from({ length: 9 }, (_, i) => `<path class="seg" data-seg="${i + 1}" d="${segmentPath(i + 1)}"/>`).join('');
+  return (
+    `<svg class="wheel-ring" viewBox="0 0 ${SIZE} ${SIZE}" aria-hidden="true">` +
+    `<g class="segs">${segments}</g>` +
+    `<g class="dividers">${dividers}</g>` +
+    `<circle class="hub-edge" cx="${R_OUT}" cy="${R_OUT}" r="${R_IN}"/>` +
+    `</svg>`
+  );
+})();
+
 export function openNotesWheel(options: {
   x: number;
   y: number;
@@ -31,38 +57,34 @@ export function openNotesWheel(options: {
   onToggle(digit: number): void;
   onClose(): void;
 }): NotesWheel {
-  const margin = DISC / 2 + 8;
+  const margin = R_OUT + 8;
   const cx = Math.min(Math.max(options.x, margin), innerWidth - margin);
   const cy = Math.min(Math.max(options.y, margin), innerHeight - margin);
   let hovered = 0;
   let closed = false;
 
-  const digits: HTMLElement[] = [];
-  const glass = h('div', { class: 'wheel-glass' });
-  const neck = h('div', { class: 'liquid-neck' });
-  const tip = h('div', { class: 'liquid-tip' });
-  const hub = h('div', { class: 'liquid-hub' });
+  const blob = h('div', { class: 'wheel-blob' });
   const wheel = h(
     'div',
     { class: 'wheel', attrs: { role: 'dialog', 'aria-label': 'Slide toward a number to add or remove a note' } },
-    glass,
-    neck,
-    hub,
-    tip,
+    h('div', { class: 'wheel-glass', html: RING_SVG }),
+    blob,
+    h('div', { class: 'wheel-hub', html: ICONS.pencil }),
   );
   wheel.style.left = `${cx}px`;
   wheel.style.top = `${cy}px`;
-  wheel.style.setProperty('--disc', `${DISC}px`);
+  const segs = [...wheel.querySelectorAll<SVGPathElement>('.seg')];
+
+  const digits: HTMLElement[] = [];
   for (let d = 1; d <= 9; d++) {
-    const angle = ((-90 + (d - 1) * STEP) * Math.PI) / 180;
+    const deg = -90 + (d - 1) * STEP;
     const digit = h('span', {
       class: `wheel-digit${options.notes & (1 << d) ? ' on' : ''}`,
       text: String(d),
-      attrs: { 'aria-label': `Note ${d}` },
+      attrs: { 'aria-label': `Note ${d}${options.notes & (1 << d) ? ', set' : ''}` },
     });
-    digit.style.setProperty('--x', `${Math.cos(angle) * RADIUS}px`);
-    digit.style.setProperty('--y', `${Math.sin(angle) * RADIUS}px`);
-    digit.style.animationDelay = `${40 + (d - 1) * 12}ms`;
+    digit.style.setProperty('--x', `${Math.cos(rad(deg)) * R_DIGIT}px`);
+    digit.style.setProperty('--y', `${Math.sin(rad(deg)) * R_DIGIT}px`);
     digits[d] = digit;
     wheel.append(digit);
   }
@@ -70,7 +92,7 @@ export function openNotesWheel(options: {
   // Transparent layer that only exists while the finger is down; any other touch closes it.
   const layer = h('div', { class: 'wheel-layer' }, wheel);
   document.body.append(layer);
-  navigator.vibrate?.(10);
+  navigator.vibrate?.(8);
   layer.addEventListener('touchstart', (event) => event.preventDefault(), { passive: false });
   layer.addEventListener('pointerdown', (event) => {
     event.preventDefault();
@@ -87,39 +109,30 @@ export function openNotesWheel(options: {
     return (Math.round((((angle % 360) + 360) % 360) / STEP) % 9) + 1;
   }
 
-  let lastDeg = -90;
-  /** Pull the liquid toward digit `d` (0 = settle back into the centre). */
-  function pour(d: number) {
-    if (!d) {
-      wheel.classList.remove('pouring');
-      return;
-    }
-    // Keep the angle continuous (9 → 1 turns 40°, not 320°) so the neck swings the short way.
-    let deg = -90 + (d - 1) * STEP;
-    while (deg - lastDeg > 180) deg -= 360;
-    while (deg - lastDeg < -180) deg += 360;
-    lastDeg = deg;
-    const rad = (deg * Math.PI) / 180;
-    wheel.style.setProperty('--angle', `${deg}deg`);
-    wheel.style.setProperty('--tip-x', `${Math.cos(rad) * RADIUS}px`);
-    wheel.style.setProperty('--tip-y', `${Math.sin(rad) * RADIUS}px`);
-    // The glass leans a little toward the drop, like a surface under tension.
-    wheel.style.setProperty('--lean-x', `${Math.cos(rad) * 5}px`);
-    wheel.style.setProperty('--lean-y', `${Math.sin(rad) * 5}px`);
-    wheel.classList.add('pouring');
-  }
-
   function move(x: number, y: number) {
     if (closed) return;
     const digit = digitAt(x, y);
     if (digit === hovered) return;
-    if (hovered) digits[hovered].classList.remove('hover');
-    hovered = digit;
-    pour(digit);
     if (hovered) {
-      digits[hovered].classList.add('hover');
-      navigator.vibrate?.(6);
+      digits[hovered].classList.remove('hover');
+      segs[hovered - 1].classList.remove('hover');
     }
+    const from = hovered;
+    hovered = digit;
+    if (!hovered) {
+      wheel.classList.remove('picking');
+      return;
+    }
+    const deg = -90 + (hovered - 1) * STEP;
+    // First pick: the blob rises out of the hub. After that it slides between segments.
+    if (!from) blob.classList.add('from-hub');
+    else blob.classList.remove('from-hub');
+    wheel.style.setProperty('--bx', `${Math.cos(rad(deg)) * R_DIGIT}px`);
+    wheel.style.setProperty('--by', `${Math.sin(rad(deg)) * R_DIGIT}px`);
+    wheel.classList.add('picking');
+    digits[hovered].classList.add('hover');
+    segs[hovered - 1].classList.add('hover');
+    navigator.vibrate?.(5);
   }
 
   function release(x: number, y: number) {
@@ -133,7 +146,7 @@ export function openNotesWheel(options: {
     if (closed) return;
     closed = true;
     layer.classList.add('closing');
-    setTimeout(() => layer.remove(), 180);
+    setTimeout(() => layer.remove(), 110);
     options.onClose();
   }
 
