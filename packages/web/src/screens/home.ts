@@ -9,7 +9,11 @@ import {
   formatSeconds,
   getClash,
   isValidCode,
+  listClashes,
   newCode,
+  statusOf,
+  type ClashResult,
+  type ClashStatus,
   normalizeCode,
   saveClash,
   seedOf,
@@ -159,6 +163,7 @@ function openClash(leave: (go: () => void) => void, prefill = '') {
   const created = h('div', { class: 'clash-created' });
   const create = (difficulty: Difficulty) => {
     const code = newCode(difficulty);
+    saveClash(code, {}); // listed in the log right away
     created.replaceChildren(
       h('p', { class: 'note', text: `Your ${difficulty} code. Send it now or after you play: your time goes with the result.` }),
       h('div', { class: 'clash-code', attrs: { 'aria-label': `Code ${code.split('').join(' ')}` } }, ...code.split('').map((ch) => h('span', { text: ch }))),
@@ -219,6 +224,16 @@ function openClash(leave: (go: () => void) => void, prefill = '') {
     h('div', { class: 'divider', text: 'or create one' }),
     picker,
     created,
+    listClashes().length
+      ? h('button', {
+          class: 'btn clash-log-btn',
+          text: 'Clash log',
+          onclick: () => {
+            close();
+            openClashLog(leave);
+          },
+        })
+      : null,
   );
   const close = openModal(sheet);
   if (!prefill) setTimeout(() => input.focus(), 260);
@@ -289,6 +304,53 @@ function extractCode(text: string): string {
   return normalizeCode(fromLink ?? upperWord ?? text);
 }
 
+const STATUS_LABEL: Record<ClashStatus, string> = {
+  won: 'Won',
+  lost: 'Lost',
+  draw: 'Draw',
+  waiting: 'Waiting',
+  unplayed: 'Not played',
+};
+
+/**
+ * Every clash on this device, newest first: who won, or what it is waiting
+ * for. Tapping one opens its comparison (or starts it, if not played yet).
+ */
+function openClashLog(leave: (go: () => void) => void) {
+  const entries = listClashes().slice(0, 8);
+  const row = ({ code, record }: (typeof entries)[number]) => {
+    const status = statusOf(record);
+    const time = (r?: ClashResult) => (r ? (r.solved ? formatSeconds(r.seconds) : 'DNF') : '—');
+    return h(
+      'button',
+      {
+        class: 'log-row',
+        attrs: { 'aria-label': `Clash ${code}, ${record.difficulty}, ${STATUS_LABEL[status]}` },
+        onclick: () => {
+          close();
+          if (record.mine) showClashRecord(code);
+          else openClash(leave, code);
+        },
+      },
+      h('span', { class: 'log-code' }, h('strong', { text: code }), h('small', { text: capitalize(record.difficulty) })),
+      h('span', { class: 'log-times', text: `${time(record.mine)} vs ${time(record.theirs)}` }),
+      h('span', { class: `log-status ${status}`, text: STATUS_LABEL[status] }),
+    );
+  };
+  const close = openModal(
+    h(
+      'div',
+      { class: 'sheet clash-log' },
+      closeButton(() => close()),
+      h('h2', { text: 'Clash log' }),
+      h('p', { class: 'note', text: 'You vs friend. A result appears once its link is opened on this phone.' }),
+      h('div', { class: 'log-list' }, ...entries.map(row)),
+    ),
+  );
+}
+
+const capitalize = (s: string) => s[0].toUpperCase() + s.slice(1);
+
 /** The comparison for a clash this device has already played. */
 function showClashRecord(code: string) {
   const record = getClash(code);
@@ -299,7 +361,9 @@ function showClashRecord(code: string) {
       'div',
       { class: 'result clash-result' },
       h('h2', { class: verdict.tone, text: verdict.title }),
-      record.theirs ? null : h('p', { class: 'note', text: 'Still waiting on your friend. Send them the link again?' }),
+      record.theirs
+        ? null
+        : h('p', { class: 'note', text: "Waiting for your friend's result. Open the result link they send you and it lands here." }),
       clashTable(code, record.mine, record.theirs),
       h('div', { class: 'actions' }, shareButton(code, record.mine, record.theirs ? 'Send result' : 'Challenge a friend'), h('button', { class: 'btn', text: 'Close', onclick: () => close() })),
     ),

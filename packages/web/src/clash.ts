@@ -30,10 +30,12 @@ export interface ClashResult {
   hints: number;
 }
 
-interface ClashRecord {
+export interface ClashRecord {
   difficulty: Difficulty;
   mine?: ClashResult;
   theirs?: ClashResult;
+  /** Last change (ms), for ordering the log. */
+  updated?: number;
 }
 
 const STORE_KEY = 'elomental:clashes';
@@ -105,10 +107,27 @@ export function getClash(code: string): ClashRecord {
 
 export function saveClash(code: string, update: Partial<ClashRecord>): ClashRecord {
   const all = loadAll();
-  const next = { ...getClash(code), ...update };
+  const next = { ...getClash(code), ...update, updated: Date.now() };
   all[code] = next;
   writeJson(STORE_KEY, all);
   return next;
+}
+
+/** Every clash this device knows about, newest first. */
+export function listClashes(): { code: string; record: ClashRecord }[] {
+  return Object.entries(loadAll())
+    .map(([code, record]) => ({ code, record }))
+    .sort((a, b) => (b.record.updated ?? 0) - (a.record.updated ?? 0));
+}
+
+export type ClashStatus = 'won' | 'lost' | 'draw' | 'waiting' | 'unplayed';
+
+/** Where a clash stands from this device's side. */
+export function statusOf(record: ClashRecord): ClashStatus {
+  if (!record.mine) return 'unplayed';
+  if (!record.theirs) return 'waiting';
+  const result = compare(record.mine, record.theirs);
+  return result > 0 ? 'won' : result < 0 ? 'lost' : 'draw';
 }
 
 // --- Deciding the winner ----------------------------------------------------------

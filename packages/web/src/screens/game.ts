@@ -512,7 +512,12 @@ function gameScreen(game: SavedGame): Screen {
         'div',
         { class: 'result clash-result' },
         h('h2', { class: verdict.tone, text: verdict.title }),
-        theirs ? null : h('p', { class: 'note', text: 'Send your result to your friend. Whoever plays second sees who won.' }),
+        h('p', {
+          class: 'note',
+          text: theirs
+            ? 'Send your result back so your friend sees who won too.'
+            : "Send your result to your friend. When their result link comes back, open it here and you'll see who won. Both results stay in the Clash log.",
+        }),
         clashTable(code, mine, theirs),
         rewards.childElementCount ? rewards : null,
         h(

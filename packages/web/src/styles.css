@@ -45,6 +45,9 @@
   --cell-text: var(--c-bright);
   /* Correct player digits look exactly like the givens; only mistakes stand out. */
   --cell-user: var(--cell-text);
+  /* Figma: every square holding the focused digit is filled terracotta. */
+  --same-bg: #b0613c;
+  --same-text: var(--c-bright);
   --select: var(--c-second-bright);
   --key-bg: var(--c-second-bright);
   --key-text: var(--c-bg);
@@ -94,6 +97,8 @@
   --cell-cross: var(--c-mud);
   --cell-text: var(--c-crimson);
   --cell-user: var(--cell-text);
+  --same-bg: #dba791;
+  --same-text: var(--c-crimson);
   --select: var(--c-crimson);
   --key-bg: var(--c-crimson);
   --key-text: var(--c-bright);
@@ -1135,6 +1140,59 @@ html[data-nav='back'] .screen.setup {
   padding: 0 8px;
   font-size: 18px;
 }
+.clash-log-btn {
+  min-height: 44px;
+  font-size: 17px;
+}
+.log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+.log-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  text-align: left;
+  font-family: var(--serif);
+}
+.log-row:active {
+  transform: scale(0.98);
+}
+.log-code {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+.log-code strong {
+  font-size: 17px;
+  letter-spacing: 0.06em;
+}
+.log-code small {
+  font-size: 12px;
+  color: var(--muted);
+}
+.log-times {
+  font-size: 15px;
+  color: var(--muted);
+  text-align: center;
+}
+.log-status {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 13px;
+  background: var(--surface);
+}
+.log-status.won {
+  background: var(--accent);
+  color: var(--on-accent);
+}
 .clash-table {
   display: flex;
   flex-direction: column;
@@ -1342,16 +1400,17 @@ html.standalone .toast {
 .cell.cross {
   background: var(--cell-cross);
 }
-/* Every cell holding the focused digit loses its background. */
-/* Figma update: every square holding the focused digit shows it in the accent. */
-.cell.same {
-  color: var(--accent);
-}
 .cell.selected {
   box-shadow: inset 0 0 0 2px var(--select);
 }
 .cell.filled {
   color: var(--cell-user);
+}
+/* Figma: every square holding the focused digit, given or entered, is filled.
+   Comes after .filled so the player's own digits light up too. */
+.cell.same {
+  background: var(--same-bg);
+  color: var(--same-text);
 }
 /* A wrong entry flips to an accent-filled square: no third colour, and the
    change in fill (not just hue) keeps it readable for colour-blind players. */
