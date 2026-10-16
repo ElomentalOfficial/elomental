@@ -602,7 +602,7 @@ function gameScreen(game: SavedGame): Screen {
       {
         target: board,
         title: 'Take notes',
-        text: 'Long-press a square and a fan of numbers opens. Slide onto one and lift to pencil it in (or out). Lift without sliding to cancel.',
+        text: 'Long-press a square and a wheel of numbers appears. Slide toward one and lift to pencil it in (or out). Lift without sliding to cancel.',
         gesture: 'hold-slide',
       },
       {
