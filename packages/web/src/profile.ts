@@ -31,11 +31,22 @@ const PITY_LIMIT = 40;
 
 const DUST: Record<Difficulty | 'daily' | 'ranked', number> = { easy: 4, medium: 8, hard: 15, daily: 12, ranked: 20 };
 
-export const RANKED_TIME_MS: Record<Difficulty, number> = {
-  easy: 8 * 60_000,
-  medium: 15 * 60_000,
-  hard: 25 * 60_000,
+/** Par solve time per ranked tier. The clock always counts up; speed against par scales Elo gains. */
+export const PAR_MS: Record<Difficulty, number> = {
+  easy: 6 * 60_000,
+  medium: 12 * 60_000,
+  hard: 20 * 60_000,
 };
+
+/** Multiplier bonus applied to a ranked Elo gain, e.g. 0.15 = +15%. */
+export function speedBonus(elapsedMs: number, difficulty: Difficulty): number {
+  const ratio = elapsedMs / PAR_MS[difficulty];
+  if (ratio <= 0.5) return 0.25;
+  if (ratio <= 0.75) return 0.15;
+  if (ratio <= 1) return 0.1;
+  if (ratio <= 2) return 0;
+  return -0.25;
+}
 
 export function loadProfile(): Profile {
   return {
@@ -100,12 +111,14 @@ export interface ResultInput {
   dateKey?: string;
   won: boolean;
   mistakes: number;
+  hints: number;
+  elapsedMs: number;
 }
 
 export interface Outcome {
   dust: number;
   crown: boolean;
-  elo?: { before: number; after: number; protectedLoss: boolean };
+  elo?: { before: number; after: number; protectedLoss: boolean; bonus: number };
   daily?: { done: number; days: number; monthComplete: boolean };
 }
 
@@ -115,7 +128,7 @@ export function recordResult(input: ResultInput): Outcome {
 
   if (input.won) {
     const base = input.mode === 'casual' ? DUST[input.difficulty] : DUST[input.mode];
-    outcome.dust = Math.max(1, base - input.mistakes * 2);
+    outcome.dust = Math.max(1, base - input.mistakes * 2 - input.hints);
     profile.dust += outcome.dust;
     profile.pity++;
     if (profile.pity >= PITY_LIMIT || Math.random() < DROP_CHANCE) {
@@ -127,10 +140,12 @@ export function recordResult(input: ResultInput): Outcome {
 
   if (input.mode === 'ranked') {
     const before = profile.elo;
-    const delta = eloDelta(before, input.rating, input.won, profile.rankedGames);
+    let delta = eloDelta(before, input.rating, input.won, profile.rankedGames);
+    const bonus = input.won && delta > 0 ? speedBonus(input.elapsedMs, input.difficulty) : 0;
+    delta = Math.round(delta * (1 + bonus));
     profile.elo = Math.max(0, before + delta);
     profile.rankedGames++;
-    outcome.elo = { before, after: profile.elo, protectedLoss: !input.won && delta === 0 };
+    outcome.elo = { before, after: profile.elo, protectedLoss: !input.won && delta === 0, bonus };
   }
 
   if (input.mode === 'daily' && input.dateKey) {

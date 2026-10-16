@@ -41,7 +41,7 @@ export function mount(screen: Screen): void {
 const openModals = new Set<() => void>();
 
 export function openModal(content: HTMLElement, options: { dismissible?: boolean; class?: string } = {}): () => void {
-  const panel = h('div', { class: `modal rough ${options.class ?? ''}` }, content);
+  const panel = h('div', { class: `modal ${options.class ?? ''}` }, content);
   const backdrop = h('div', { class: 'backdrop' }, panel);
   const close = () => {
     openModals.delete(close);
@@ -62,14 +62,14 @@ function closeAllModals(): void {
 }
 
 export function toast(message: string): void {
-  const el = h('div', { class: 'toast rough-wide', text: message });
+  const el = h('div', { class: 'toast', text: message });
   document.body.append(el);
   setTimeout(() => el.classList.add('out'), 1900);
   setTimeout(() => el.remove(), 2300);
 }
 
 export function formatTime(ms: number): string {
-  const total = Math.max(0, Math.ceil(ms / 1000));
+  const total = Math.max(0, Math.floor(ms / 1000));
   const minutes = Math.floor(total / 60);
   const seconds = total % 60;
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;

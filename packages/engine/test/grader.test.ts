@@ -5,6 +5,7 @@ import {
   createRng,
   generatePuzzle,
   grade,
+  nextPlacement,
   parseGrid,
   randomSolvedGrid,
   type Grid,
@@ -72,6 +73,20 @@ test('a solved grid needs no steps; a single gap is a full house', () => {
   const result = grade(puzzle, { recordSteps: true });
   assert.equal(result.hardest, 'fullHouse');
   assert.deepEqual(result.steps[0].placements, [[30, solution[30]]]);
+});
+
+test('nextPlacement walks a puzzle to its solution', () => {
+  for (const difficulty of ['easy', 'hard'] as const) {
+    const generated = generatePuzzle({ difficulty, seed: `hint-${difficulty}` });
+    const grid = parseGrid(generated.puzzle);
+    const solution = parseGrid(generated.solution);
+    for (let hint = nextPlacement(grid); hint; hint = nextPlacement(grid)) {
+      assert.equal(grid[hint.cell], 0);
+      assert.equal(hint.digit, solution[hint.cell]);
+      grid[hint.cell] = hint.digit;
+    }
+    assert.deepEqual(grid, solution);
+  }
 });
 
 test('harder tiers get higher seed ratings', () => {

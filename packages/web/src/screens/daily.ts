@@ -15,7 +15,7 @@ export function dailyScreen(): Screen {
   const monthName = new Date(year, month - 1, 1).toLocaleString('en', { month: 'long' });
 
   const calendar = h('div', { class: 'calendar' });
-  for (const w of WEEKDAYS) calendar.append(h('span', { class: 'weekday sc', text: w }));
+  for (const w of WEEKDAYS) calendar.append(h('span', { class: 'weekday', text: w }));
   for (let i = 0; i < firstWeekday; i++) calendar.append(h('span'));
 
   let done = 0;
@@ -29,7 +29,8 @@ export function dailyScreen(): Screen {
       h(
         'button',
         {
-          class: `day rough v${(d % 4) + 1} ${state}`,
+          class: `day ${state}`,
+          attrs: { 'aria-label': `${monthName} ${d}: ${state}` },
           onclick: () => {
             if (state === 'missed') toast('Missed squares can be restored with tokens — coming later');
           },
@@ -43,13 +44,14 @@ export function dailyScreen(): Screen {
   const saved = loadSavedGame();
   const resumable = saved?.config.mode === 'daily' && saved.config.dateKey === today ? saved : null;
   const doneToday = !!profile.daily[today];
-  const hours = Math.floor(nextResetIn() / 3_600_000);
-  const minutes = Math.floor((nextResetIn() % 3_600_000) / 60_000);
+  const untilReset = nextResetIn();
+  const hours = Math.floor(untilReset / 3_600_000);
+  const minutes = Math.floor((untilReset % 3_600_000) / 60_000);
 
   const action = doneToday
-    ? h('div', { class: 'done-today sc', html: `${ICONS.check}<span>Today's square is complete</span>` })
+    ? h('div', { class: 'done-today', html: `${ICONS.check}<span>Today's square is complete</span>` })
     : h('button', {
-        class: 'btn btn-gold rough-wide sc',
+        class: 'btn btn-primary',
         text: resumable ? "Continue today's square" : "Play today's square",
         onclick: () =>
           resumable
@@ -63,21 +65,21 @@ export function dailyScreen(): Screen {
     h(
       'div',
       { class: 'subbar' },
-      h('button', { class: 'icon-btn rough', html: ICONS.back, attrs: { 'aria-label': 'Back' }, onclick: () => mount(homeScreen()) }),
-      h('h1', { class: 'sc', text: 'Daily Square' }),
+      h('button', { class: 'icon-btn', html: ICONS.back, attrs: { 'aria-label': 'Back' }, onclick: () => mount(homeScreen()) }),
+      h('h1', { text: 'Daily Square' }),
       h('span', { class: 'icon-btn-spacer' }),
     ),
-    h('div', { class: 'month-head' }, h('h2', { class: 'sc', text: `${monthName} ${year}` }), h('span', { class: 'sc', text: `${done} / ${days}` })),
+    h('div', { class: 'month-head' }, h('h2', { text: `${monthName} ${year}` }), h('span', { text: `${done} / ${days}` })),
     calendar,
     h(
       'div',
-      { class: 'reward-card rough-wide' },
+      { class: 'reward-card' },
       h('span', { class: `avatar-reward ${done === days ? 'unlocked' : ''}`, html: done === days ? ICONS.crown : ICONS.lock }),
       h(
         'div',
         {},
-        h('strong', { class: 'sc', text: `${monthName} avatar` }),
-        h('p', { text: done === days ? 'Unlocked — well played.' : `Complete every square this month to unlock it.` }),
+        h('strong', { text: `${monthName} avatar` }),
+        h('p', { text: done === days ? 'Unlocked — well played.' : 'Complete every square this month to unlock it.' }),
       ),
     ),
     action,

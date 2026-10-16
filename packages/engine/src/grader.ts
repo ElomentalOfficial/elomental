@@ -49,6 +49,35 @@ export function applyStep(state: SolverState, step: Step): void {
   for (const [c, d] of step.eliminations) state.cands[c] &= ~bit(d);
 }
 
+export interface Hint {
+  cell: number;
+  digit: number;
+  technique: TechniqueId;
+}
+
+/**
+ * The next cell a person would fill and the technique that finds it, using
+ * only the digits currently on the board. Elimination steps (pairs, wings,
+ * ...) are applied silently until one of them unlocks a placement.
+ */
+export function nextPlacement(puzzle: Grid, maxLevel: TechniqueLevel = 3): Hint | null {
+  const state = createSolverState(puzzle);
+  const techniques = TECHNIQUES.filter((t) => t.level <= maxLevel);
+  for (;;) {
+    let step: Step | null = null;
+    for (const t of techniques) {
+      step = t.find(state);
+      if (step) break;
+    }
+    if (!step) return null;
+    if (step.placements.length) {
+      const [cell, digit] = step.placements[0];
+      return { cell, digit, technique: step.technique };
+    }
+    applyStep(state, step);
+  }
+}
+
 /**
  * Seed rating. The hardest technique sets the band; extra effort beyond
  * singles moves the puzzle within it. Singles-only puzzles land around

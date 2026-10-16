@@ -1,7 +1,8 @@
-import { BOXES, BOX_OF, COL_OF, PEERS, ROW_OF, type Difficulty } from '@elomental/engine';
+import { BOXES, COL_OF, PEERS, ROW_OF, TECHNIQUE_BY_ID, nextPlacement, type Difficulty } from '@elomental/engine';
 import { ICONS } from '../icons.ts';
-import { RANKED_TIME_MS, recordResult, type Mode, type Outcome } from '../profile.ts';
+import { PAR_MS, recordResult, type Mode, type Outcome } from '../profile.ts';
 import { requestPuzzle } from '../puzzles.ts';
+import { openNotesWheel, type NotesWheel } from '../radial.ts';
 import { readJson, removeKey, writeJson } from '../storage.ts';
 import { formatTime, h, mount, openModal, toast, type Screen } from '../ui.ts';
 import { dailyScreen } from './daily.ts';
@@ -15,7 +16,6 @@ export interface GameConfig {
   rating: number;
   seed: string;
   dateKey?: string;
-  timeLimitMs?: number;
 }
 
 interface Change {
@@ -29,36 +29,42 @@ export interface SavedGame {
   values: number[];
   notes: number[];
   mistakes: number;
+  hints: number;
   elapsedMs: number;
-  /** Wall-clock start; ranked time keeps running even while the tab is hidden. */
+  /** Wall-clock start; the ranked clock keeps running while the tab is hidden. */
   startedAt: number;
   history: Change[][];
 }
 
 const SAVE_KEY = 'elomental:game';
 const MAX_MISTAKES = 3;
+const LONG_PRESS_MS = 380;
+const MOVE_TOLERANCE = 10;
 
-export const loadSavedGame = (): SavedGame | null => readJson<SavedGame>(SAVE_KEY);
+export function loadSavedGame(): SavedGame | null {
+  const saved = readJson<SavedGame>(SAVE_KEY);
+  if (saved) saved.hints ??= 0;
+  return saved;
+}
 
 export async function startGame(options: { mode: Mode; difficulty: Difficulty; seed?: string; dateKey?: string }) {
   mount(loadingScreen());
   try {
     const p = await requestPuzzle({ difficulty: options.difficulty, seed: options.seed });
-    const config: GameConfig = {
-      mode: options.mode,
-      difficulty: options.difficulty,
-      puzzle: p.puzzle,
-      solution: p.solution,
-      rating: p.rating,
-      seed: p.seed,
-      dateKey: options.dateKey,
-      timeLimitMs: options.mode === 'ranked' ? RANKED_TIME_MS[options.difficulty] : undefined,
-    };
     const game: SavedGame = {
-      config,
+      config: {
+        mode: options.mode,
+        difficulty: options.difficulty,
+        puzzle: p.puzzle,
+        solution: p.solution,
+        rating: p.rating,
+        seed: p.seed,
+        dateKey: options.dateKey,
+      },
       values: [...p.puzzle].map(Number),
       notes: new Array(81).fill(0),
       mistakes: 0,
+      hints: 0,
       elapsedMs: 0,
       startedAt: Date.now(),
       history: [],
@@ -78,45 +84,41 @@ export function resumeGame(game: SavedGame): void {
 
 function loadingScreen(): Screen {
   return {
-    el: h(
-      'div',
-      { class: 'screen loading' },
-      h('div', { class: 'loader rough' }),
-      h('p', { class: 'sc', text: 'Forging your square…' }),
-    ),
+    el: h('div', { class: 'screen loading' }, h('div', { class: 'loader' }), h('p', { text: 'Forging your square…' })),
   };
 }
 
 const MODE_LABEL: Record<Mode, string> = { casual: 'Casual', daily: 'Daily Square', ranked: 'Ranked' };
+const capitalize = (s: string) => s[0].toUpperCase() + s.slice(1);
 
 function gameScreen(game: SavedGame): Screen {
   const { config } = game;
   const ranked = config.mode === 'ranked';
+  const hintsAllowed = config.mode === 'casual' && config.difficulty === 'easy';
   const given = [...config.puzzle].map((ch) => ch !== '0');
   const solution = [...config.solution].map(Number);
 
   let selected = given.indexOf(false);
+  /** Digit whose cells lose their background so they stand out. */
+  let focusDigit = 0;
   let notesMode = false;
   let paused = false;
   let finished = false;
 
   // --- Top bar -------------------------------------------------------------
-  const leftButton = h('button', { class: 'bar-btn rough-wide sc', text: ranked ? 'Concede' : 'Home' });
+  const leftButton = h('button', { class: 'bar-btn', text: ranked ? 'Concede' : 'Home' });
   const timer = h('div', { class: 'timer' });
-  const pauseButton = h('button', { class: 'icon-btn rough', html: ICONS.pause, attrs: { 'aria-label': 'Pause' } });
-  const rightSlot = ranked
-    ? h('div', { class: 'ranked-chip sc', html: `${ICONS.sword}<span>Ranked</span>` })
-    : pauseButton;
+  const pauseButton = h('button', { class: 'bar-btn bar-icon', html: ICONS.pause, attrs: { 'aria-label': 'Pause' } });
+  if (ranked) pauseButton.style.visibility = 'hidden';
 
-  // --- Status row ----------------------------------------------------------
-  const strikes = Array.from({ length: MAX_MISTAKES }, () => h('span', { class: 'strike', html: ICONS.close }));
+  const skulls = Array.from({ length: MAX_MISTAKES }, () => h('span', { class: 'skull', html: ICONS.skull }));
   const status = h(
     'div',
     { class: 'status' },
-    h('div', { class: 'mistakes' }, h('span', { class: 'sc', text: 'Mistake' }), ...strikes),
+    h('div', { class: 'mistakes', attrs: { 'aria-label': 'Mistakes' } }, ...skulls),
     h('div', {
-      class: 'puzzle-info sc',
-      text: `${MODE_LABEL[config.mode]} · ${config.mode === 'daily' ? 'Medium' : config.difficulty}`,
+      class: 'puzzle-info',
+      text: `${MODE_LABEL[config.mode]} · ${config.mode === 'daily' ? 'Medium' : capitalize(config.difficulty)}`,
     }),
   );
 
@@ -126,7 +128,7 @@ function gameScreen(game: SavedGame): Screen {
   for (let b = 0; b < 9; b++) {
     const box = h('div', { class: 'box' });
     for (const c of BOXES[b]) {
-      const cell = h('div', { class: `cell rough v${((c * 7 + b) % 4) + 1}`, attrs: { 'data-cell': String(c) } });
+      const cell = h('div', { class: 'cell', attrs: { 'data-cell': String(c), role: 'gridcell' } });
       cells[c] = cell;
       box.append(cell);
     }
@@ -134,34 +136,35 @@ function gameScreen(game: SavedGame): Screen {
   }
   const pauseCover = h(
     'button',
-    { class: 'pause-cover sc', onclick: () => setPaused(false) },
+    { class: 'pause-cover', onclick: () => setPaused(false) },
     h('span', { class: 'play-badge', html: ICONS.play }),
     'Paused',
   );
   const boardWrap = h('div', { class: 'board-wrap' }, board, pauseCover);
 
-  // --- Tools and number pad ------------------------------------------------
-  const notesButton = h('button', { class: 'tool rough-wide sc', html: `${ICONS.pencil}<span>Notes</span>` });
-  const undoButton = h('button', { class: 'tool rough-wide sc', html: `${ICONS.undo}<span>Undo</span>` });
-  const tools = h('div', { class: 'tools' }, notesButton, undoButton);
-
+  // --- Pad -----------------------------------------------------------------
   const keys: HTMLElement[] = [];
-  const pad = h('div', { class: 'pad rough' });
+  const pad = h('div', { class: 'pad' });
   for (let d = 1; d <= 9; d++) {
-    const key = h('button', { class: `key rough v${(d % 4) + 1}`, text: String(d), attrs: { 'data-digit': String(d) } });
+    const key = h('button', { class: 'key', text: String(d), attrs: { 'data-digit': String(d) } });
     keys[d] = key;
     pad.append(key);
   }
-  pad.append(h('button', { class: 'key key-erase rough v2', html: ICONS.close, attrs: { 'data-digit': '0', 'aria-label': 'Erase' } }));
+  pad.append(h('button', { class: 'key key-erase', html: ICONS.eraser, attrs: { 'data-digit': '0', 'aria-label': 'Erase' } }));
+
+  const hintButton = h('button', {
+    class: `action${hintsAllowed ? '' : ' locked'}`,
+    html: `${hintsAllowed ? ICONS.bulb : ICONS.lock}<span>Hint</span>`,
+  });
+  const undoButton = h('button', { class: 'action', html: `${ICONS.undo}<span>Undo</span>` });
 
   const el = h(
     'div',
     { class: `screen game mode-${config.mode}` },
-    h('div', { class: 'topbar' }, leftButton, timer, rightSlot),
+    h('div', { class: 'topbar' }, leftButton, timer, pauseButton),
     status,
     boardWrap,
-    tools,
-    pad,
+    h('div', { class: 'controls' }, pad, h('div', { class: 'actions-row' }, hintButton, undoButton)),
   );
 
   // --- State changes -------------------------------------------------------
@@ -177,32 +180,33 @@ function gameScreen(game: SavedGame): Screen {
     }
   }
 
-  function input(digit: number) {
-    if (finished || paused || selected < 0 || given[selected]) return;
-    if (digit === 0) return erase();
-    const cell = selected;
+  const editable = (cell: number) => cell >= 0 && !given[cell] && !finished && !paused;
 
-    if (notesMode) {
-      if (game.values[cell]) return;
-      commit([{ cell, value: 0, notes: game.notes[cell] ^ (1 << digit) }]);
-    } else {
-      if (game.values[cell] === digit) return;
-      const changes: Change[] = [{ cell, value: digit, notes: 0 }];
-      const correct = digit === solution[cell];
-      if (correct) {
-        // Clear this digit from the notes of every peer, like pencil marks on paper.
-        for (const p of PEERS[cell]) {
-          if (game.notes[p] & (1 << digit)) changes.push({ cell: p, value: game.values[p], notes: game.notes[p] & ~(1 << digit) });
-        }
+  function toggleNote(cell: number, digit: number) {
+    if (!editable(cell) || game.values[cell]) return;
+    commit([{ cell, value: 0, notes: game.notes[cell] ^ (1 << digit) }]);
+    render();
+    save();
+  }
+
+  function place(cell: number, digit: number) {
+    if (game.values[cell] === digit) return;
+    const changes: Change[] = [{ cell, value: digit, notes: 0 }];
+    const correct = digit === solution[cell];
+    if (correct) {
+      // Clear this digit from the notes of every peer, like pencil marks on paper.
+      for (const p of PEERS[cell]) {
+        if (game.notes[p] & (1 << digit)) changes.push({ cell: p, value: game.values[p], notes: game.notes[p] & ~(1 << digit) });
       }
-      commit(changes);
-      if (!correct) {
-        game.mistakes++;
-        navigator.vibrate?.(40);
-        cells[cell].classList.remove('shake');
-        void cells[cell].offsetWidth;
-        cells[cell].classList.add('shake');
-      }
+    }
+    commit(changes);
+    focusDigit = digit;
+    if (!correct) {
+      game.mistakes++;
+      navigator.vibrate?.(40);
+      cells[cell].classList.remove('shake');
+      void cells[cell].offsetWidth;
+      cells[cell].classList.add('shake');
     }
     render();
     save();
@@ -210,8 +214,20 @@ function gameScreen(game: SavedGame): Screen {
     else if (game.mistakes >= MAX_MISTAKES) finish(false, 'mistakes');
   }
 
+  function input(digit: number) {
+    if (finished || paused || selected < 0) return;
+    if (digit === 0) return erase();
+    if (!editable(selected) || (game.values[selected] && game.values[selected] === solution[selected])) {
+      // Pressing a digit on a locked cell just highlights every cell with that digit.
+      focusDigit = focusDigit === digit ? 0 : digit;
+      return render();
+    }
+    if (notesMode) toggleNote(selected, digit);
+    else place(selected, digit);
+  }
+
   function erase() {
-    if (given[selected] || (!game.values[selected] && !game.notes[selected])) return;
+    if (!editable(selected) || (!game.values[selected] && !game.notes[selected])) return;
     commit([{ cell: selected, value: 0, notes: 0 }]);
     render();
     save();
@@ -229,9 +245,25 @@ function gameScreen(game: SavedGame): Screen {
     save();
   }
 
+  function hint() {
+    if (finished || paused) return;
+    if (!hintsAllowed) return toast('Hints are only available in Casual · Easy');
+    // Only correct digits count as known; a wrong entry must not mislead the hint.
+    const known = Uint8Array.from(game.values, (v, c) => (v === solution[c] ? v : 0));
+    const next = nextPlacement(known);
+    if (!next) return;
+    game.hints++;
+    selected = next.cell;
+    place(next.cell, next.digit);
+    cells[next.cell].classList.add('hinted');
+    setTimeout(() => cells[next.cell].classList.remove('hinted'), 900);
+    toast(`${TECHNIQUE_BY_ID[next.technique].name}: ${next.digit}`);
+  }
+
   function select(cell: number) {
     if (finished || paused) return;
     selected = cell;
+    focusDigit = game.values[cell];
     render();
   }
 
@@ -245,20 +277,16 @@ function gameScreen(game: SavedGame): Screen {
 
   // --- Rendering -----------------------------------------------------------
   function render() {
-    const selectedValue = selected >= 0 ? game.values[selected] : 0;
     for (let c = 0; c < 81; c++) {
       const value = game.values[c];
       const cell = cells[c];
-      const related =
-        selected >= 0 &&
-        c !== selected &&
-        (ROW_OF[c] === ROW_OF[selected] || COL_OF[c] === COL_OF[selected] || BOX_OF[c] === BOX_OF[selected]);
+      const cross = selected >= 0 && c !== selected && (ROW_OF[c] === ROW_OF[selected] || COL_OF[c] === COL_OF[selected]);
       cell.classList.toggle('given', given[c]);
       cell.classList.toggle('filled', !given[c] && value > 0);
       cell.classList.toggle('wrong', !given[c] && value > 0 && value !== solution[c]);
       cell.classList.toggle('selected', c === selected);
-      cell.classList.toggle('peer', related);
-      cell.classList.toggle('same', c !== selected && selectedValue > 0 && value === selectedValue);
+      cell.classList.toggle('cross', cross);
+      cell.classList.toggle('same', focusDigit > 0 && value === focusDigit);
 
       const key = value ? `v${value}` : game.notes[c] ? `n${game.notes[c]}` : '';
       if (cell.dataset.k === key) continue;
@@ -275,16 +303,16 @@ function gameScreen(game: SavedGame): Screen {
       } else cell.textContent = '';
     }
 
-    strikes.forEach((s, i) => s.classList.toggle('used', i < game.mistakes));
+    skulls.forEach((s, i) => s.classList.toggle('used', i < game.mistakes));
     for (let d = 1; d <= 9; d++) {
       let placed = 0;
       for (let c = 0; c < 81; c++) if (game.values[c] === d && solution[c] === d) placed++;
       keys[d].classList.toggle('done', placed === 9);
     }
-    notesButton.classList.toggle('on', notesMode);
+    el.classList.toggle('notes-mode', notesMode);
   }
 
-  // --- Clock ---------------------------------------------------------------
+  // --- Clock (always counts up) ---------------------------------------------
   let last = performance.now();
   function tick() {
     const now = performance.now();
@@ -295,25 +323,20 @@ function gameScreen(game: SavedGame): Screen {
       game.elapsedMs += Math.min(now - last, 1000);
     }
     last = now;
-    if (ranked && config.timeLimitMs) {
-      const left = config.timeLimitMs - game.elapsedMs;
-      timer.textContent = formatTime(left);
-      timer.classList.toggle('urgent', left < 60_000);
-      if (left <= 0 && !finished) finish(false, 'time');
-    } else {
-      timer.textContent = formatTime(game.elapsedMs);
-    }
+    timer.textContent = formatTime(game.elapsedMs);
+    if (ranked) timer.classList.toggle('over-par', game.elapsedMs > PAR_MS[config.difficulty]);
   }
   const clock = setInterval(tick, 250);
   const autosave = setInterval(save, 2000);
 
   // --- Finish --------------------------------------------------------------
-  function finish(won: boolean, reason: 'solved' | 'mistakes' | 'time' | 'concede') {
+  function finish(won: boolean, reason: 'solved' | 'mistakes' | 'concede') {
     if (finished) return;
     finished = true;
     tick();
     removeKey(SAVE_KEY);
     selected = -1;
+    focusDigit = 0;
     render();
     el.classList.add(won ? 'won' : 'lost');
     const outcome = recordResult({
@@ -323,35 +346,29 @@ function gameScreen(game: SavedGame): Screen {
       dateKey: config.dateKey,
       won,
       mistakes: game.mistakes,
+      hints: game.hints,
+      elapsedMs: game.elapsedMs,
     });
     setTimeout(() => showResult(won, reason, outcome), won ? 650 : 350);
   }
 
   function showResult(won: boolean, reason: string, outcome: Outcome) {
-    const titles: Record<string, string> = {
-      solved: 'Square Complete',
-      mistakes: 'Three Strikes',
-      time: "Time's Up",
-      concede: 'Conceded',
-    };
+    const titles: Record<string, string> = { solved: 'Square Complete', mistakes: 'Three Strikes', concede: 'Conceded' };
     const rows: (HTMLElement | null)[] = [
       statRow('Time', formatTime(game.elapsedMs)),
       statRow('Mistakes', `${game.mistakes} / ${MAX_MISTAKES}`),
     ];
+    if (game.hints) rows.push(statRow('Hints', String(game.hints)));
     if (outcome.elo) {
       const delta = outcome.elo.after - outcome.elo.before;
-      rows.push(
-        statRow(
-          'Elo',
-          `${outcome.elo.before} → ${outcome.elo.after} (${delta >= 0 ? '+' : ''}${delta})`,
-          delta > 0 ? 'gold' : '',
-        ),
-      );
+      rows.push(statRow('Elo', `${outcome.elo.before} → ${outcome.elo.after} (${delta >= 0 ? '+' : ''}${delta})`, delta > 0 ? 'good' : ''));
+      if (outcome.elo.bonus > 0) rows.push(h('p', { class: 'note good', text: `Speed bonus +${Math.round(outcome.elo.bonus * 100)}% — under par time` }));
+      if (outcome.elo.bonus < 0) rows.push(h('p', { class: 'note', text: `Slow finish ${Math.round(outcome.elo.bonus * 100)}% — over twice par time` }));
       if (outcome.elo.protectedLoss) rows.push(h('p', { class: 'note', text: 'Below 500 Elo your rating is protected — no points lost.' }));
     }
     if (outcome.daily) {
       rows.push(statRow('This month', `${outcome.daily.done} / ${outcome.daily.days} squares`));
-      if (outcome.daily.monthComplete) rows.push(h('p', { class: 'note gold', text: 'Month complete — avatar unlocked!' }));
+      if (outcome.daily.monthComplete) rows.push(h('p', { class: 'note good', text: 'Month complete — avatar unlocked!' }));
     }
 
     const rewards = h('div', { class: 'rewards' });
@@ -360,9 +377,9 @@ function gameScreen(game: SavedGame): Screen {
 
     const again =
       config.mode === 'daily'
-        ? h('button', { class: 'btn btn-light rough-wide sc', text: 'Calendar', onclick: () => mount(dailyScreen()) })
+        ? h('button', { class: 'btn btn-primary', text: 'Calendar', onclick: () => mount(dailyScreen()) })
         : h('button', {
-            class: 'btn btn-light rough-wide sc',
+            class: 'btn btn-primary',
             text: ranked ? 'Next match' : 'New square',
             onclick: () => void startGame({ mode: config.mode, difficulty: config.difficulty }),
           });
@@ -371,15 +388,10 @@ function gameScreen(game: SavedGame): Screen {
       h(
         'div',
         { class: 'result' },
-        h('h2', { class: `sc ${won ? 'gold' : ''}`, text: titles[reason] }),
+        h('h2', { class: won ? 'good' : '', text: titles[reason] }),
         h('div', { class: 'stats' }, ...rows),
         rewards.childElementCount ? rewards : null,
-        h(
-          'div',
-          { class: 'actions' },
-          again,
-          h('button', { class: 'btn btn-dark rough-wide sc', text: 'Home', onclick: () => mount(homeScreen()) }),
-        ),
+        h('div', { class: 'actions' }, again, h('button', { class: 'btn', text: 'Home', onclick: () => mount(homeScreen()) })),
       ),
       { dismissible: false },
     );
@@ -395,38 +407,87 @@ function gameScreen(game: SavedGame): Screen {
           'div',
           { class: 'actions' },
           h('button', {
-            class: 'btn btn-gold rough-wide sc',
+            class: 'btn btn-primary',
             text: 'Concede',
             onclick: () => {
               close();
               finish(false, 'concede');
             },
           }),
-          h('button', { class: 'btn btn-dark rough-wide sc', text: 'Keep playing', onclick: () => close() }),
+          h('button', { class: 'btn', text: 'Keep playing', onclick: () => close() }),
         ),
       ),
     );
   }
 
-  // --- Events --------------------------------------------------------------
-  // pointerdown instead of click: instant response and no 300 ms tap delay.
+  // --- Board gestures: tap selects, long-press opens the notes wheel --------
+  let press: { id: number; x: number; y: number; cell: number; timer: number } | null = null;
+  let wheel: NotesWheel | null = null;
+
+  const cellFrom = (target: EventTarget | null) => (target as HTMLElement | null)?.closest<HTMLElement>('[data-cell]');
+
+  function openWheel(cell: number, x: number, y: number) {
+    cells[cell].classList.add('noting');
+    wheel = openNotesWheel({
+      x,
+      y,
+      notes: game.notes[cell],
+      onToggle: (digit) => toggleNote(cell, digit),
+      onClose: () => {
+        cells[cell].classList.remove('noting');
+        wheel = null;
+      },
+    });
+  }
+
   board.addEventListener('pointerdown', (event) => {
-    const cell = (event.target as HTMLElement).closest<HTMLElement>('[data-cell]');
-    if (!cell) return;
+    const target = cellFrom(event.target);
+    if (!target || wheel) return;
     event.preventDefault();
-    select(Number(cell.dataset.cell));
+    const cell = Number(target.dataset.cell);
+    select(cell);
+    if (!editable(cell) || game.values[cell]) return;
+    if (event.button === 2) return openWheel(cell, event.clientX, event.clientY); // right-click on desktop
+    try {
+      // Keep receiving moves while the finger slides off the board toward a wheel digit.
+      board.setPointerCapture(event.pointerId);
+    } catch {
+      // Synthetic or already-released pointers can't be captured; the gesture still works on the board.
+    }
+    press = {
+      id: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+      cell,
+      timer: window.setTimeout(() => {
+        if (press) openWheel(press.cell, press.x, press.y);
+      }, LONG_PRESS_MS),
+    };
   });
+  board.addEventListener('pointermove', (event) => {
+    if (!press || event.pointerId !== press.id) return;
+    if (wheel) wheel.move(event.clientX, event.clientY);
+    else if (Math.hypot(event.clientX - press.x, event.clientY - press.y) > MOVE_TOLERANCE) {
+      clearTimeout(press.timer);
+      press = null;
+    }
+  });
+  const endPress = (event: PointerEvent) => {
+    if (!press || event.pointerId !== press.id) return;
+    clearTimeout(press.timer);
+    press = null;
+    if (wheel) wheel.release(event.clientX, event.clientY);
+  };
+  board.addEventListener('pointerup', endPress);
+  board.addEventListener('pointercancel', endPress);
+
   pad.addEventListener('pointerdown', (event) => {
     const key = (event.target as HTMLElement).closest<HTMLElement>('[data-digit]');
     if (!key) return;
     event.preventDefault();
     input(Number(key.dataset.digit));
   });
-  notesButton.addEventListener('pointerdown', (event) => {
-    event.preventDefault();
-    notesMode = !notesMode;
-    render();
-  });
+  hintButton.addEventListener('click', hint);
   undoButton.addEventListener('pointerdown', (event) => {
     event.preventDefault();
     undo();
@@ -440,11 +501,17 @@ function gameScreen(game: SavedGame): Screen {
   });
 
   const onKey = (event: KeyboardEvent) => {
-    if (event.target instanceof HTMLInputElement) return;
-    if (/^[1-9]$/.test(event.key)) input(Number(event.key));
+    if (wheel) {
+      if (event.key === 'Escape') wheel.close();
+      return;
+    }
+    const digitKey = event.code.startsWith('Digit') ? Number(event.code.slice(5)) : NaN;
+    if (event.shiftKey && digitKey >= 1 && digitKey <= 9) toggleNote(selected, digitKey);
+    else if (/^[1-9]$/.test(event.key)) input(Number(event.key));
     else if (event.key === 'Backspace' || event.key === 'Delete' || event.key === '0') input(0);
     else if (event.key === 'n' || event.key === 'N') {
       notesMode = !notesMode;
+      toast(notesMode ? 'Notes mode on' : 'Notes mode off');
       render();
     } else if ((event.ctrlKey || event.metaKey) && event.key === 'z') undo();
     else if (event.key.startsWith('Arrow') && selected >= 0) {
@@ -467,6 +534,7 @@ function gameScreen(game: SavedGame): Screen {
   window.addEventListener('keydown', onKey);
   document.addEventListener('visibilitychange', onHide);
 
+  focusDigit = selected >= 0 ? game.values[selected] : 0;
   render();
   tick();
 
@@ -474,6 +542,7 @@ function gameScreen(game: SavedGame): Screen {
     el,
     destroy() {
       save();
+      wheel?.close();
       clearInterval(clock);
       clearInterval(autosave);
       window.removeEventListener('keydown', onKey);
@@ -483,5 +552,5 @@ function gameScreen(game: SavedGame): Screen {
 }
 
 function statRow(label: string, value: string, valueClass = ''): HTMLElement {
-  return h('div', { class: 'stat' }, h('span', { class: 'sc', text: label }), h('strong', { class: valueClass, text: value }));
+  return h('div', { class: 'stat' }, h('span', { text: label }), h('strong', { class: valueClass, text: value }));
 }

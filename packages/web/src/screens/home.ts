@@ -4,65 +4,75 @@ import { PROTECTED_BELOW, loadProfile, rankTitle, rankedDifficulty } from '../pr
 import { h, mount, openModal, toast, type Screen } from '../ui.ts';
 import { dailyScreen } from './daily.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
+import { setupScreen } from './setup.ts';
 
 function tile(area: string, icon: string, label: string, onTap: () => void, ...extra: (HTMLElement | null)[]) {
   return h(
     'button',
-    { class: `tile rough v${(area.length % 4) + 1} area-${area}`, onclick: onTap },
+    { class: `tile area-${area}`, onclick: onTap },
     h('span', { class: 'tile-icon', html: icon }),
-    h('span', { class: 'tile-label sc', text: label }),
+    h('span', { class: 'tile-label', text: label }),
     ...extra,
   );
 }
 
+/** Layout from the Figma home frame: profile card with the Setup notch, then the mode tiles. */
 export function homeScreen(): Screen {
   const profile = loadProfile();
   const saved = loadSavedGame();
+  const inProgress = (mode: string) => (saved?.config.mode === mode ? h('span', { class: 'badge', text: 'In progress' }) : null);
 
-  const header = h(
-    'header',
-    { class: 'home-header' },
-    h('div', { class: 'wordmark sc', html: 'Elo<span>mental</span>' }),
+  const profileCard = h(
+    'section',
+    { class: 'profile-card area-profile' },
     h(
       'div',
-      { class: 'wallet' },
-      h('span', { class: 'chip', html: `${ICONS.dust}<b>${profile.dust}</b>`, attrs: { title: 'Dust Stones' } }),
-      h('span', { class: 'chip', html: `${ICONS.crown}<b>${profile.crowns}</b>`, attrs: { title: 'Rusted Crowns' } }),
+      { class: 'profile-main' },
+      h('span', { class: 'avatar' }),
+      h('strong', { class: 'profile-name', text: 'Guest' }),
+      h('span', { class: 'profile-rank', text: rankTitle(profile.elo) }),
+    ),
+    h(
+      'div',
+      { class: 'profile-stats' },
+      stat(String(profile.elo), 'Elo'),
+      stat(String(profile.dust), 'Dust', ICONS.dust),
+      stat(String(profile.crowns), 'Crowns', ICONS.crown),
+    ),
+    h(
+      'div',
+      { class: 'setup-notch' },
+      h(
+        'button',
+        { class: 'tile tile-setup', onclick: () => mount(setupScreen()) },
+        h('span', { class: 'tile-icon', html: ICONS.gear }),
+        h('span', { class: 'tile-label', text: 'Setup' }),
+      ),
     ),
   );
-
-  const user = h(
-    'button',
-    { class: 'tile tile-user rough v1 area-user', onclick: () => toast('Profiles arrive with accounts') },
-    h('span', { class: 'avatar' }),
-    h('span', { class: 'tile-label sc', text: 'Guest' }),
-    h('span', { class: 'user-title sc', text: `${rankTitle(profile.elo)} · ${profile.elo} Elo` }),
-  );
-
-  const resumeBadge = (mode: string) =>
-    saved?.config.mode === mode ? h('span', { class: 'badge sc', text: 'In progress' }) : null;
 
   const grid = h(
     'div',
     { class: 'home-grid' },
-    user,
-    tile('settings', ICONS.gear, 'Settings', () => toast('Settings are coming soon')),
-    tile('store', ICONS.bag, 'Store', () => toast('The store opens later')),
-    tile('events', ICONS.flag, 'Events', () => toast('No events yet')),
-    tile('leader', ICONS.star, 'Leaderboard', () => toast('Leaderboards need accounts')),
-    tile('casual', ICONS.feather, 'Casual Mode', openCasual, resumeBadge('casual')),
-    tile('daily', ICONS.calendar, 'Daily Square', () => mount(dailyScreen()), resumeBadge('daily')),
-    tile(
-      'ranked',
-      ICONS.sword,
-      'Ranked Mode',
-      openRanked,
-      h('span', { class: 'tile-sub sc', text: `${profile.elo} Elo` }),
-      resumeBadge('ranked'),
-    ),
+    profileCard,
+    tile('daily', ICONS.clock, 'Daily Square', () => mount(dailyScreen()), inProgress('daily')),
+    tile('store', ICONS.gem, 'Store', () => toast('The store opens later')),
+    tile('leader', ICONS.burst, 'Leaderboard', () => toast('Leaderboards need accounts')),
+    tile('casual', ICONS.leaf, 'Casual', openCasual, inProgress('casual')),
+    tile('ranked', ICONS.flame, 'Play Ranked', openRanked, inProgress('ranked')),
   );
 
-  return { el: h('div', { class: 'screen home' }, header, grid) };
+  return { el: h('div', { class: 'screen home' }, grid) };
+}
+
+function stat(value: string, label: string, icon?: string): HTMLElement {
+  return h(
+    'div',
+    { class: 'stat-chip' },
+    icon ? h('span', { class: 'stat-icon', html: icon }) : null,
+    h('strong', { text: value }),
+    h('span', { text: label }),
+  );
 }
 
 function openCasual() {
@@ -76,19 +86,19 @@ function openCasual() {
       'div',
       { class: 'sheet' },
       closeButton(() => close()),
-      h('span', { class: 'sheet-icon', html: ICONS.feather }),
-      h('h2', { class: 'sc', text: 'Casual Mode' }),
-      h('p', { text: 'No pressure, no Elo. Pick your difficulty.' }),
+      h('span', { class: 'sheet-icon casual', html: ICONS.leaf }),
+      h('h2', { text: 'Casual' }),
+      h('p', { text: 'No pressure, no Elo. Hints are on in Easy.' }),
       saved?.config.mode === 'casual'
         ? h('button', {
-            class: 'btn btn-gold rough-wide sc',
+            class: 'btn btn-primary',
             text: `Resume ${saved.config.difficulty}`,
             onclick: () => resumeGame(saved),
           })
         : null,
-      h('button', { class: 'btn btn-light rough-wide sc', text: 'Easy', onclick: () => choose('easy') }),
-      h('button', { class: 'btn btn-light rough-wide sc', text: 'Medium', onclick: () => choose('medium') }),
-      h('button', { class: 'btn btn-light rough-wide sc', text: 'Hard', onclick: () => choose('hard') }),
+      h('button', { class: 'btn', text: 'Easy', onclick: () => choose('easy') }),
+      h('button', { class: 'btn', text: 'Medium', onclick: () => choose('medium') }),
+      h('button', { class: 'btn', text: 'Hard', onclick: () => choose('hard') }),
     ),
   );
 }
@@ -101,14 +111,17 @@ function openRanked() {
   const close = openModal(
     h(
       'div',
-      { class: 'sheet ranked-sheet' },
+      { class: 'sheet' },
       closeButton(() => close()),
-      h('span', { class: 'sheet-icon big', html: ICONS.sword }),
-      h('p', { class: 'ranked-copy', html: 'Be aware, you will start a round of a <span class="gold">RANKED</span> game. You can lose or win elo points.' }),
+      h('span', { class: 'sheet-icon ranked', html: ICONS.flame }),
+      h('p', {
+        class: 'ranked-copy',
+        html: 'Be aware, you will start a round of a <strong>RANKED</strong> game. You can lose or win elo points.',
+      }),
       h(
         'p',
         { class: 'note' },
-        `${profile.elo} Elo · ${difficulty} squares` +
+        `${profile.elo} Elo · ${difficulty} squares · faster solves earn bonus Elo` +
           (profile.elo < PROTECTED_BELOW ? ` · losses are free below ${PROTECTED_BELOW}` : ''),
       ),
       h('button', {
@@ -121,7 +134,6 @@ function openRanked() {
         },
       }),
     ),
-    { class: 'modal-ranked' },
   );
 }
 
