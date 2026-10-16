@@ -111,7 +111,7 @@ function gameScreen(game: SavedGame): Screen {
   const pauseButton = h('button', { class: 'bar-btn bar-icon', html: ICONS.pause, attrs: { 'aria-label': 'Pause' } });
   if (ranked) pauseButton.style.visibility = 'hidden';
 
-  const skulls = Array.from({ length: MAX_MISTAKES }, () => h('span', { class: 'skull', html: ICONS.skull }));
+  const skulls = Array.from({ length: MAX_MISTAKES }, () => h('span', { class: 'skull', html: ICONS.mistake }));
   const status = h(
     'div',
     { class: 'status' },
@@ -154,7 +154,7 @@ function gameScreen(game: SavedGame): Screen {
 
   const hintButton = h('button', {
     class: `action${hintsAllowed ? '' : ' locked'}`,
-    html: `${hintsAllowed ? ICONS.bulb : ICONS.lock}<span>Hint</span>`,
+    html: `${hintsAllowed ? ICONS.hint : ICONS.lock}<span>Hint</span>`,
   });
   const undoButton = h('button', { class: 'action', html: `${ICONS.undo}<span>Undo</span>` });
 
@@ -162,9 +162,16 @@ function gameScreen(game: SavedGame): Screen {
     'div',
     { class: `screen game mode-${config.mode}` },
     h('div', { class: 'topbar' }, leftButton, timer, pauseButton),
+    h('div', { class: 'separator', html: ICONS.separator }),
     status,
     boardWrap,
-    h('div', { class: 'controls' }, pad, h('div', { class: 'actions-row' }, hintButton, undoButton)),
+    h(
+      'div',
+      { class: 'controls' },
+      h('div', { class: 'separator', html: ICONS.separator }),
+      pad,
+      h('div', { class: 'actions-row' }, hintButton, undoButton),
+    ),
   );
 
   // --- State changes -------------------------------------------------------
@@ -440,9 +447,15 @@ function gameScreen(game: SavedGame): Screen {
     });
   }
 
+  // iOS runs its own long-press (text selection, magnifier, callout) off the touch
+  // events and then cancels our pointer mid-gesture. Cancelling touchstart keeps the
+  // whole gesture ours; pointer events still fire.
+  board.addEventListener('touchstart', (event) => event.preventDefault(), { passive: false });
+
   board.addEventListener('pointerdown', (event) => {
     const target = cellFrom(event.target);
-    if (!target || wheel) return;
+    if (!target) return;
+    wheel?.close(); // never let a half-finished wheel block the board
     event.preventDefault();
     const cell = Number(target.dataset.cell);
     select(cell);
@@ -472,14 +485,19 @@ function gameScreen(game: SavedGame): Screen {
       press = null;
     }
   });
-  const endPress = (event: PointerEvent) => {
+  board.addEventListener('pointerup', (event) => {
     if (!press || event.pointerId !== press.id) return;
     clearTimeout(press.timer);
     press = null;
-    if (wheel) wheel.release(event.clientX, event.clientY);
-  };
-  board.addEventListener('pointerup', endPress);
-  board.addEventListener('pointercancel', endPress);
+    wheel?.release(event.clientX, event.clientY);
+  });
+  board.addEventListener('pointercancel', (event) => {
+    if (!press || event.pointerId !== press.id) return;
+    clearTimeout(press.timer);
+    press = null;
+    // The system took the touch away: leave the wheel open for tapping instead of losing it.
+    wheel?.hold();
+  });
 
   pad.addEventListener('pointerdown', (event) => {
     const key = (event.target as HTMLElement).closest<HTMLElement>('[data-digit]');

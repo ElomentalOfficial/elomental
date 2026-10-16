@@ -12,8 +12,15 @@ export function getTheme(): Theme {
 
 export function applyTheme(theme: Theme = getTheme()): void {
   document.documentElement.dataset.theme = theme;
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', META_COLOR[theme]);
+  setBarColor(META_COLOR[theme]);
 }
+
+/** iOS tints the status bar (and the area behind it) from theme-color. */
+export function setBarColor(color: string): void {
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color);
+}
+
+export const WELCOME_COLOR = META_COLOR.dark;
 
 export function setTheme(theme: Theme): void {
   writeJson(KEY, theme);

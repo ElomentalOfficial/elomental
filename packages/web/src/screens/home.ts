@@ -45,7 +45,7 @@ export function homeScreen(): Screen {
       h(
         'button',
         { class: 'tile tile-setup', onclick: () => mount(setupScreen()) },
-        h('span', { class: 'tile-icon', html: ICONS.gear }),
+        h('span', { class: 'tile-icon', html: ICONS.setup }),
         h('span', { class: 'tile-label', text: 'Setup' }),
       ),
     ),
@@ -55,11 +55,11 @@ export function homeScreen(): Screen {
     'div',
     { class: 'home-grid' },
     profileCard,
-    tile('daily', ICONS.clock, 'Daily Square', () => mount(dailyScreen()), inProgress('daily')),
-    tile('store', ICONS.gem, 'Store', () => toast('The store opens later')),
-    tile('leader', ICONS.burst, 'Leaderboard', () => toast('Leaderboards need accounts')),
-    tile('casual', ICONS.leaf, 'Casual', openCasual, inProgress('casual')),
-    tile('ranked', ICONS.flame, 'Play Ranked', openRanked, inProgress('ranked')),
+    tile('daily', ICONS.daily, 'Daily Square', () => mount(dailyScreen()), inProgress('daily')),
+    tile('store', ICONS.store, 'Store', () => toast('The store opens later')),
+    tile('leader', ICONS.leaderboard, 'Leaderboard', () => toast('Leaderboards need accounts')),
+    tile('casual', ICONS.casual, 'Casual', openCasual, inProgress('casual')),
+    tile('ranked', ICONS.ranked, 'Play Ranked', openRanked, inProgress('ranked')),
   );
 
   return { el: h('div', { class: 'screen home' }, grid) };
@@ -86,7 +86,7 @@ function openCasual() {
       'div',
       { class: 'sheet' },
       closeButton(() => close()),
-      h('span', { class: 'sheet-icon casual', html: ICONS.leaf }),
+      h('span', { class: 'sheet-icon casual', html: ICONS.casual }),
       h('h2', { text: 'Casual' }),
       h('p', { text: 'No pressure, no Elo. Hints are on in Easy.' }),
       saved?.config.mode === 'casual'
@@ -113,7 +113,7 @@ function openRanked() {
       'div',
       { class: 'sheet' },
       closeButton(() => close()),
-      h('span', { class: 'sheet-icon ranked', html: ICONS.flame }),
+      h('span', { class: 'sheet-icon ranked', html: ICONS.ranked }),
       h('p', {
         class: 'ranked-copy',
         html: 'Be aware, you will start a round of a <strong>RANKED</strong> game. You can lose or win elo points.',

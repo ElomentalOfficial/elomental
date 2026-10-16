@@ -15,6 +15,8 @@ const STEP = 360 / 9;
 export interface NotesWheel {
   move(x: number, y: number): void;
   release(x: number, y: number): void;
+  /** Switch to tap mode (digits tappable, tap outside closes). */
+  hold(): void;
   close(): void;
 }
 
@@ -54,6 +56,8 @@ export function openNotesWheel(options: {
   const backdrop = h('div', { class: 'wheel-backdrop' }, wheel);
   document.body.append(backdrop);
   navigator.vibrate?.(12);
+  // Same as the board: keep iOS's own long-press and selection out of the wheel.
+  backdrop.addEventListener('touchstart', (event) => event.preventDefault(), { passive: false });
 
   // Tap mode: after a lift without a pick, digits are tappable and a tap outside closes.
   backdrop.addEventListener('pointerdown', (event) => {
@@ -98,10 +102,17 @@ export function openNotesWheel(options: {
       options.onToggle(hovered);
       close();
     } else if (!moved) {
-      backdrop.classList.add('tap-mode');
+      hold();
     } else {
       close();
     }
+  }
+
+  function hold() {
+    if (closed) return;
+    if (hovered) bubbles[hovered].classList.remove('hover');
+    hovered = 0;
+    backdrop.classList.add('tap-mode');
   }
 
   function close() {
@@ -112,5 +123,5 @@ export function openNotesWheel(options: {
     options.onClose();
   }
 
-  return { move, release, close };
+  return { move, release, hold, close };
 }

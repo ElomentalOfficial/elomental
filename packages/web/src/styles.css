@@ -50,6 +50,11 @@
   --modal-bg: var(--c-highlight);
   --primary-bg: var(--c-lava);
   --primary-text: var(--c-bright);
+  /* Colours taken from the Figma icon exports. */
+  --separator: #40413c;
+  --mistake-on: var(--c-bright);
+  --mistake-off: #40413c;
+  --eraser-shade: #abb480;
 }
 
 :root[data-theme='light'] {
@@ -83,12 +88,28 @@
   --modal-bg: var(--c-bright);
   --primary-bg: var(--c-lava);
   --primary-text: var(--c-bright);
+  --separator: #e8e8cc;
+  --mistake-on: var(--c-crimson);
+  --mistake-off: var(--c-mud);
+  --eraser-shade: #ffa981;
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+/* Nothing in the app is selectable text; this also covers modals and the
+   notes wheel, which live outside #app. */
+*,
+*::before,
+*::after {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+html {
+  touch-action: manipulation;
 }
 
 /* App shell, not a document: nothing scrolls, bounces, zooms or pulls to refresh. */
@@ -107,8 +128,18 @@ body {
   position: fixed;
   inset: 0;
 }
+/* While the welcome ribbon shows, everything behind it is dark in both themes. */
+html.welcome-active,
+html.welcome-active body {
+  background: var(--c-bg);
+}
+/*
+ * Fill the fixed body rather than using 100dvh: in an iOS home-screen app with
+ * a translucent status bar, 100dvh leaves a strip the size of the status bar
+ * uncovered at the bottom.
+ */
 #app {
-  height: 100dvh;
+  height: 100%;
   display: flex;
   justify-content: center;
   touch-action: none;
@@ -304,9 +335,14 @@ h2 {
   justify-content: space-between;
   padding: 26px 8px 18px;
 }
+/* Icon boxes use the exported Figma sizes. */
 .area-daily .tile-icon {
-  width: 34px;
-  height: 34px;
+  width: 32px;
+  height: 33px;
+}
+.area-leader .tile-icon {
+  width: 51px;
+  height: 32px;
 }
 .area-daily .tile-label {
   font-size: 14px;
@@ -320,8 +356,8 @@ h2 {
   grid-area: store;
 }
 .area-store .tile-icon {
-  width: 44px;
-  height: 44px;
+  width: 43px;
+  height: 32px;
 }
 .area-leader {
   grid-area: leader;
@@ -337,10 +373,13 @@ h2 {
   background: var(--c-lava);
   color: var(--c-bright);
 }
-.area-casual .tile-icon,
+.area-casual .tile-icon {
+  width: 32px;
+  height: 32px;
+}
 .area-ranked .tile-icon {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 43px;
 }
 .badge {
   position: absolute;
@@ -401,6 +440,7 @@ h2 {
 .tile-setup .tile-icon {
   width: 32px;
   height: 32px;
+  color: var(--tile-text);
 }
 .tile-setup .tile-label {
   font-size: 13px;
@@ -870,27 +910,32 @@ h2 {
 .timer.over-par {
   color: var(--muted);
 }
+.separator {
+  height: 2px;
+  flex: none;
+  margin: 0 calc(-1 * var(--gutter));
+  color: var(--separator);
+}
 .status {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 30px;
+  height: 22px;
   flex: none;
-  padding: 8px 4px 0;
-  border-top: 1px solid var(--line);
+  padding: 0 4px;
 }
 .mistakes {
   display: flex;
-  gap: 4px;
+  gap: 5px;
 }
 .skull {
   width: 19px;
-  height: 19px;
-  opacity: 0.25;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  height: 18px;
+  color: var(--mistake-off);
+  transition: color 0.2s ease, transform 0.2s ease;
 }
 .skull.used {
-  opacity: 1;
+  color: var(--mistake-on);
   transform: scale(1.1);
 }
 .puzzle-info {
@@ -1029,8 +1074,10 @@ h2 {
   flex-direction: column;
   gap: 8px;
   margin-top: auto;
-  padding: 14px 4px 0;
-  border-top: 1px solid var(--line);
+  padding: 0 4px;
+}
+.controls .separator {
+  margin: 0 calc(-4px - var(--gutter)) 6px;
 }
 .pad {
   display: grid;
@@ -1055,9 +1102,14 @@ h2 {
   opacity: 0.3;
 }
 .key-erase {
+  display: grid;
+  place-items: center;
   background: var(--erase-bg);
   color: var(--erase-text);
-  padding: calc(var(--key-h) * 0.24);
+}
+.key-erase svg {
+  width: 32px;
+  height: 33px;
 }
 .actions-row {
   display: grid;

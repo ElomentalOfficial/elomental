@@ -1,3 +1,4 @@
+import { WELCOME_COLOR, applyTheme, setBarColor } from '../theme.ts';
 import { h, mount, type Screen } from '../ui.ts';
 import { homeScreen } from './home.ts';
 
@@ -47,6 +48,10 @@ export function welcomeScreen(): Screen {
       `</svg>`,
   });
 
+  // Keep the page and the iOS status bar dark behind the ribbon, whatever the theme.
+  document.documentElement.classList.add('welcome-active');
+  setBarColor(WELCOME_COLOR);
+
   let done = false;
   const next = () => {
     if (done) return;
@@ -57,5 +62,12 @@ export function welcomeScreen(): Screen {
   const timer = setTimeout(next, DURATION_MS);
   el.addEventListener('click', next);
 
-  return { el, destroy: () => clearTimeout(timer) };
+  return {
+    el,
+    destroy() {
+      clearTimeout(timer);
+      document.documentElement.classList.remove('welcome-active');
+      applyTheme();
+    },
+  };
 }
