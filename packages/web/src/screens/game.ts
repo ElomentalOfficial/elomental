@@ -6,7 +6,6 @@ import {
   PEERS,
   ROWS,
   ROW_OF,
-  TECHNIQUE_BY_ID,
   nextPlacement,
   type Difficulty,
 } from '@elomental/engine';
@@ -15,6 +14,8 @@ import { HINT_ELO_PENALTY, PAR_MS, recordResult, type Mode, type Outcome } from 
 import { requestPuzzle } from '../puzzles.ts';
 import { openNotesWheel, type NotesWheel } from '../radial.ts';
 import { readJson, removeKey, writeJson } from '../storage.ts';
+import { explainHint, type Marks } from '../explain.ts';
+import { runHintCoach } from '../hintCoach.ts';
 import { markTutorialDone, runTutorial, tutorialDone, type TutorialStep } from '../tutorial.ts';
 import { formatTime, goBack, h, mount, openModal, toast, type Screen } from '../ui.ts';
 import { dailyScreen } from './daily.ts';
@@ -299,21 +300,57 @@ function gameScreen(game: SavedGame): Screen {
     save();
   }
 
-  function hint() {
-    if (finished || paused) return;
+  /**
+   * A hint opens an explained walkthrough (like sudoku.com): the relevant
+   * squares light up and a card explains the logic step by step, ending with
+   * "Place N". The hint counts as soon as it opens, and the clock is frozen
+   * while it is on screen (ranked included).
+   */
+  async function hint() {
+    if (finished || paused || coaching) return;
     if (game.hints >= MAX_HINTS) return toast(`No hints left — ${MAX_HINTS} per game`);
     // Only correct digits count as known; a wrong entry must not mislead the hint.
     const known = Uint8Array.from(game.values, (v, c) => (v === solution[c] ? v : 0));
     const next = nextPlacement(known);
-    if (!next) return;
+    if (!next) return toast('No logical step found from here');
     game.hints++;
-    selected = next.cell;
-    place(next.cell, next.digit);
-    cells[next.cell].classList.add('hinted');
-    setTimeout(() => cells[next.cell].classList.remove('hinted'), 900);
-    const left = MAX_HINTS - game.hints;
-    const cost = ranked ? ` · Elo gain −${Math.round(HINT_ELO_PENALTY * 100 * game.hints)}%` : '';
-    toast(`${TECHNIQUE_BY_ID[next.technique].name}: ${next.digit} · ${left} left${cost}`);
+    coaching = true;
+    selected = -1;
+    focusDigit = 0;
+    render();
+    save();
+
+    board.classList.add('explaining');
+    const placed = await runHintCoach({
+      stages: explainHint(next, known),
+      placeLabel: `Place ${next.digit}`,
+      show: markHint,
+    });
+    markHint({});
+    board.classList.remove('explaining');
+    coaching = false;
+    last = performance.now();
+
+    if (placed && game.values[next.cell] !== next.digit) {
+      selected = next.cell;
+      place(next.cell, next.digit);
+      cells[next.cell].classList.add('hinted');
+      setTimeout(() => cells[next.cell].classList.remove('hinted'), 900);
+    } else render();
+    if (ranked) toast(`Elo gain −${Math.round(HINT_ELO_PENALTY * 100 * game.hints)}% for hints this game`);
+  }
+
+  /** Apply a stage's highlights to the board. */
+  function markHint(marks: Marks) {
+    const focus = new Set(marks.focus ?? []);
+    const ring = new Set(marks.ring ?? []);
+    const ruled = new Set(marks.ruled ?? []);
+    for (let c = 0; c < 81; c++) {
+      cells[c].classList.toggle('hx-focus', focus.has(c));
+      cells[c].classList.toggle('hx-ring', ring.has(c));
+      cells[c].classList.toggle('hx-ruled', ruled.has(c));
+      cells[c].classList.toggle('hx-target', marks.target === c);
+    }
   }
 
   function renderHintButton() {
@@ -608,7 +645,7 @@ function gameScreen(game: SavedGame): Screen {
     event.preventDefault();
     input(Number(key.dataset.digit));
   });
-  hintButton.addEventListener('click', hint);
+  hintButton.addEventListener('click', () => void hint());
   undoButton.addEventListener('pointerdown', (event) => {
     event.preventDefault();
     undo();
@@ -622,6 +659,7 @@ function gameScreen(game: SavedGame): Screen {
   });
 
   const onKey = (event: KeyboardEvent) => {
+    if (coaching) return; // tutorial or hint explanation on screen
     if (wheel) {
       if (event.key === 'Escape') wheel.close();
       return;

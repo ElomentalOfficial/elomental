@@ -53,7 +53,15 @@ export interface Step {
   technique: TechniqueId;
   placements: CellDigit[];
   eliminations: CellDigit[];
+  /** The unit (0-8 rows, 9-17 columns, 18-26 boxes) the deduction is about, when there is one. */
+  unit?: number;
+  /** The cells that form the pattern (pair, wing, fish...), for explaining the step. */
+  pattern?: number[];
+  /** The digits the pattern is about. */
+  digits?: number[];
 }
+
+type StepContext = Pick<Step, 'unit' | 'pattern' | 'digits'>;
 
 export interface Technique {
   id: TechniqueId;
@@ -64,14 +72,15 @@ export interface Technique {
   find(state: SolverState): Step | null;
 }
 
-const placement = (technique: TechniqueId, cell: number, digit: number): Step => ({
+const placement = (technique: TechniqueId, cell: number, digit: number, unit?: number): Step => ({
   technique,
   placements: [[cell, digit]],
   eliminations: [],
+  ...(unit === undefined ? {} : { unit }),
 });
 
-const elimination = (technique: TechniqueId, eliminations: CellDigit[]): Step | null =>
-  eliminations.length ? { technique, placements: [], eliminations } : null;
+const elimination = (technique: TechniqueId, eliminations: CellDigit[], context: StepContext = {}): Step | null =>
+  eliminations.length ? { technique, placements: [], eliminations, ...context } : null;
 
 /** Empty cells among `cells` that still have `digit` as a candidate. */
 function withCandidate(state: SolverState, cells: number[], digit: number): number[] {
@@ -100,7 +109,8 @@ function* combinations<T>(items: readonly T[], size: number, start = 0, prefix: 
 // --- Level 1: singles ------------------------------------------------------
 
 function findFullHouse(state: SolverState): Step | null {
-  for (const unit of UNITS) {
+  for (let u = 0; u < UNITS.length; u++) {
+    const unit = UNITS[u];
     let empty = -1;
     let count = 0;
     for (const c of unit) {
@@ -109,18 +119,19 @@ function findFullHouse(state: SolverState): Step | null {
         count++;
       }
     }
-    if (count === 1) return placement('fullHouse', empty, lowestDigit(ALL_DIGITS & ~placedMask(state, unit)));
+    if (count === 1) return placement('fullHouse', empty, lowestDigit(ALL_DIGITS & ~placedMask(state, unit)), u);
   }
   return null;
 }
 
 function findHiddenSingle(state: SolverState): Step | null {
-  for (const unit of UNITS) {
+  for (let u = 0; u < UNITS.length; u++) {
+    const unit = UNITS[u];
     const placed = placedMask(state, unit);
     for (let d = 1; d <= 9; d++) {
       if (placed & bit(d)) continue;
       const cells = withCandidate(state, unit, d);
-      if (cells.length === 1) return placement('hiddenSingle', cells[0], d);
+      if (cells.length === 1) return placement('hiddenSingle', cells[0], d, u);
     }
   }
   return null;
@@ -154,6 +165,7 @@ function findPointing(state: SolverState): Step | null {
         withCandidate(state, line, d)
           .filter((c) => BOX_OF[c] !== b)
           .map((c): CellDigit => [c, d]),
+        { unit: 18 + b, pattern: cells, digits: [d] },
       );
       if (step) return step;
     }
@@ -175,6 +187,7 @@ function findClaiming(state: SolverState): Step | null {
         withCandidate(state, BOXES[box], d)
           .filter((c) => !line.includes(c))
           .map((c): CellDigit => [c, d]),
+        { unit: u, pattern: cells, digits: [d] },
       );
       if (step) return step;
     }
@@ -185,7 +198,8 @@ function findClaiming(state: SolverState): Step | null {
 /** N cells in a unit whose candidates together are exactly N digits. */
 function nakedSubset(id: TechniqueId, size: number) {
   return (state: SolverState): Step | null => {
-    for (const unit of UNITS) {
+    for (let u = 0; u < UNITS.length; u++) {
+      const unit = UNITS[u];
       const cells = unit.filter((c) => {
         const n = state.values[c] === 0 ? popcount(state.cands[c]) : 0;
         return n >= 2 && n <= size;
@@ -200,7 +214,7 @@ function nakedSubset(id: TechniqueId, size: number) {
           if (state.values[c] !== 0 || combo.includes(c)) continue;
           for (const d of digitsOf(state.cands[c] & union)) eliminations.push([c, d]);
         }
-        const step = elimination(id, eliminations);
+        const step = elimination(id, eliminations, { unit: u, pattern: combo, digits: digitsOf(union) });
         if (step) return step;
       }
     }
@@ -211,7 +225,8 @@ function nakedSubset(id: TechniqueId, size: number) {
 /** N digits in a unit that only fit in the same N cells: those cells lose every other candidate. */
 function hiddenSubset(id: TechniqueId, size: number) {
   return (state: SolverState): Step | null => {
-    for (const unit of UNITS) {
+    for (let u = 0; u < UNITS.length; u++) {
+      const unit = UNITS[u];
       const placed = placedMask(state, unit);
       // For each open digit: a 9-bit mask of the unit positions where it can go.
       const spots: { digit: number; where: number }[] = [];
@@ -239,7 +254,8 @@ function hiddenSubset(id: TechniqueId, size: number) {
           const c = unit[i];
           for (const d of digitsOf(state.cands[c] & ~digits)) eliminations.push([c, d]);
         }
-        const step = elimination(id, eliminations);
+        const pattern = unit.filter((_, i) => where & (1 << i));
+        const step = elimination(id, eliminations, { unit: u, pattern, digits: digitsOf(digits) });
         if (step) return step;
       }
     }
@@ -281,7 +297,14 @@ function fish(id: TechniqueId, size: number) {
               if (state.values[c] === 0 && state.cands[c] & b) eliminations.push([c, d]);
             }
           }
-          const step = elimination(id, eliminations);
+          const pattern: number[] = [];
+          for (const line of baseLines) {
+            for (let cross = 0; cross < 9; cross++) {
+              const c = cellAt(line, cross);
+              if (state.values[c] === 0 && state.cands[c] & b) pattern.push(c);
+            }
+          }
+          const step = elimination(id, eliminations, { pattern, digits: [d] });
           if (step) return step;
         }
       }
@@ -321,7 +344,10 @@ function findXyWing(state: SolverState): Step | null {
       const bm = (pm & ~shared) | z;
       for (const b of bivalue) {
         if (b === a || b === pivot || !isPeer(pivot, b) || state.cands[b] !== bm) continue;
-        const step = elimination('xyWing', seenByAll(state, z, [a, b], [pivot, a, b]));
+        const step = elimination('xyWing', seenByAll(state, z, [a, b], [pivot, a, b]), {
+          pattern: [pivot, a, b],
+          digits: [lowestDigit(z)],
+        });
         if (step) return step;
       }
     }
@@ -338,7 +364,10 @@ function findXyzWing(state: SolverState): Step | null {
     for (const [a, b] of combinations(pincers, 2)) {
       if (state.cands[a] === state.cands[b]) continue;
       const z = state.cands[a] & state.cands[b];
-      const step = elimination('xyzWing', seenByAll(state, z, [pivot, a, b], [pivot, a, b]));
+      const step = elimination('xyzWing', seenByAll(state, z, [pivot, a, b], [pivot, a, b]), {
+        pattern: [pivot, a, b],
+        digits: [lowestDigit(z)],
+      });
       if (step) return step;
     }
   }

@@ -8,6 +8,7 @@ import {
   nextPlacement,
   parseGrid,
   randomSolvedGrid,
+  UNITS,
   type Grid,
   type Step,
   type TechniqueId,
@@ -83,6 +84,12 @@ test('nextPlacement walks a puzzle to its solution', () => {
     for (let hint = nextPlacement(grid); hint; hint = nextPlacement(grid)) {
       assert.equal(grid[hint.cell], 0);
       assert.equal(hint.digit, solution[hint.cell]);
+      // Singles that live in a unit say which unit, and the target is in it.
+      if (hint.technique === 'hiddenSingle' || hint.technique === 'fullHouse') {
+        assert.ok(hint.unit !== undefined && UNITS[hint.unit].includes(hint.cell));
+      }
+      // Every prior elimination step names the pattern it relied on.
+      for (const step of hint.prior) assert.ok(step.pattern && step.pattern.length > 0, step.technique);
       grid[hint.cell] = hint.digit;
     }
     assert.deepEqual(grid, solution);

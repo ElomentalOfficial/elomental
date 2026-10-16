@@ -53,16 +53,22 @@ export interface Hint {
   cell: number;
   digit: number;
   technique: TechniqueId;
+  /** For Full House / Hidden Single: the unit the placement is found in. */
+  unit?: number;
+  /** Elimination steps (pairs, wings, ...) that had to happen first, in order. */
+  prior: Step[];
 }
 
 /**
  * The next cell a person would fill and the technique that finds it, using
  * only the digits currently on the board. Elimination steps (pairs, wings,
- * ...) are applied silently until one of them unlocks a placement.
+ * ...) are applied until one of them unlocks a placement, and returned in
+ * `prior` so the hint can be explained step by step.
  */
 export function nextPlacement(puzzle: Grid, maxLevel: TechniqueLevel = 3): Hint | null {
   const state = createSolverState(puzzle);
   const techniques = TECHNIQUES.filter((t) => t.level <= maxLevel);
+  const prior: Step[] = [];
   for (;;) {
     let step: Step | null = null;
     for (const t of techniques) {
@@ -72,8 +78,9 @@ export function nextPlacement(puzzle: Grid, maxLevel: TechniqueLevel = 3): Hint 
     if (!step) return null;
     if (step.placements.length) {
       const [cell, digit] = step.placements[0];
-      return { cell, digit, technique: step.technique };
+      return { cell, digit, technique: step.technique, unit: step.unit, prior };
     }
+    prior.push(step);
     applyStep(state, step);
   }
 }
