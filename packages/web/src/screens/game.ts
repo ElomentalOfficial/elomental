@@ -11,7 +11,7 @@ import {
   type Difficulty,
 } from '@elomental/engine';
 import { ICONS } from '../icons.ts';
-import { PAR_MS, recordResult, type Mode, type Outcome } from '../profile.ts';
+import { HINT_ELO_PENALTY, PAR_MS, recordResult, type Mode, type Outcome } from '../profile.ts';
 import { requestPuzzle } from '../puzzles.ts';
 import { openNotesWheel, type NotesWheel } from '../radial.ts';
 import { readJson, removeKey, writeJson } from '../storage.ts';
@@ -50,8 +50,8 @@ export interface SavedGame {
 
 const SAVE_KEY = 'elomental:game';
 const MAX_MISTAKES = 3;
-/** Hints per game (Casual · Easy only), so a puzzle can't be solved on hints alone. */
-const MAX_HINTS = 10;
+/** Hints per game, in every mode. Each one trims Stardust; in Ranked it also costs Elo (profile.ts). */
+const MAX_HINTS = 3;
 /** Hold this long to open the notes wheel; quick taps stay well under it. */
 const LONG_PRESS_MS = 230;
 /** Or drag this far from the square to open it immediately (swipe-to-note). */
@@ -110,7 +110,6 @@ const capitalize = (s: string) => s[0].toUpperCase() + s.slice(1);
 function gameScreen(game: SavedGame): Screen {
   const { config } = game;
   const ranked = config.mode === 'ranked';
-  const hintsAllowed = config.mode === 'casual' && config.difficulty === 'easy';
   const given = [...config.puzzle].map((ch) => ch !== '0');
   const solution = [...config.solution].map(Number);
 
@@ -173,8 +172,8 @@ function gameScreen(game: SavedGame): Screen {
   pad.append(h('button', { class: 'key key-erase', html: ICONS.eraser, attrs: { 'data-digit': '0', 'aria-label': 'Erase' } }));
 
   const hintButton = h('button', {
-    class: `action${hintsAllowed ? '' : ' locked'}`,
-    html: `${hintsAllowed ? ICONS.hint : ICONS.lock}<span>Hint</span>`,
+    class: 'action',
+    html: `${ICONS.hint}<span>Hint</span>`,
   });
   const undoButton = h('button', { class: 'action', html: `${ICONS.undo}<span>Undo</span>` });
 
@@ -302,7 +301,6 @@ function gameScreen(game: SavedGame): Screen {
 
   function hint() {
     if (finished || paused) return;
-    if (!hintsAllowed) return toast('Hints are only available in Casual · Easy');
     if (game.hints >= MAX_HINTS) return toast(`No hints left — ${MAX_HINTS} per game`);
     // Only correct digits count as known; a wrong entry must not mislead the hint.
     const known = Uint8Array.from(game.values, (v, c) => (v === solution[c] ? v : 0));
@@ -314,15 +312,11 @@ function gameScreen(game: SavedGame): Screen {
     cells[next.cell].classList.add('hinted');
     setTimeout(() => cells[next.cell].classList.remove('hinted'), 900);
     const left = MAX_HINTS - game.hints;
-    toast(`${TECHNIQUE_BY_ID[next.technique].name}: ${next.digit} · ${left} hint${left === 1 ? '' : 's'} left`);
+    const cost = ranked ? ` · Elo gain −${Math.round(HINT_ELO_PENALTY * 100 * game.hints)}%` : '';
+    toast(`${TECHNIQUE_BY_ID[next.technique].name}: ${next.digit} · ${left} left${cost}`);
   }
 
   function renderHintButton() {
-    if (!hintsAllowed) {
-      hintButton.setAttribute('aria-disabled', 'true');
-      hintButton.setAttribute('aria-label', 'Hint, only in Casual Easy');
-      return;
-    }
     const left = MAX_HINTS - game.hints;
     hintButton.classList.toggle('locked', left <= 0);
     hintButton.setAttribute('aria-disabled', String(left <= 0));
@@ -454,6 +448,10 @@ function gameScreen(game: SavedGame): Screen {
       rows.push(eloRow);
       if (outcome.elo.bonus > 0) rows.push(h('p', { class: 'note good', text: `Speed bonus +${Math.round(outcome.elo.bonus * 100)}% — under par time` }));
       if (outcome.elo.bonus < 0) rows.push(h('p', { class: 'note', text: `Slow finish ${Math.round(outcome.elo.bonus * 100)}% — over twice par time` }));
+      if (outcome.elo.hintCut > 0) {
+        const n = game.hints;
+        rows.push(h('p', { class: 'note', text: `${n} hint${n === 1 ? '' : 's'} used: Elo gain −${Math.round(outcome.elo.hintCut * 100)}%` }));
+      }
       if (outcome.elo.protectedLoss) rows.push(h('p', { class: 'note', text: 'Below 500 Elo your rating is protected — no points lost.' }));
     }
     if (outcome.daily) {
@@ -695,16 +693,14 @@ function gameScreen(game: SavedGame): Screen {
         text: 'Takes back your last move. Mistakes still count, though.',
         gesture: 'tap',
       },
-      ...(hintsAllowed
-        ? [
-            {
-              target: hintButton,
-              title: 'Hints',
-              text: `Casual · Easy only: fills in the next logical square. ${MAX_HINTS} per game, and each one trims your Stardust.`,
-              gesture: 'tap' as const,
-            },
-          ]
-        : []),
+      {
+        target: hintButton,
+        title: 'Hints',
+        text:
+          `Fills in the next logical square. ${MAX_HINTS} per game and each one trims your Stardust` +
+          (ranked ? ` — in Ranked, each also cuts your Elo gain by ${Math.round(HINT_ELO_PENALTY * 100)}%.` : '.'),
+        gesture: 'tap',
+      },
     ];
     // Wait for the page turnstile to settle so the spotlight lands on the final positions.
     setTimeout(() => {

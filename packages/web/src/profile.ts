@@ -38,6 +38,14 @@ export const PAR_MS: Record<Difficulty, number> = {
   hard: 20 * 60_000,
 };
 
+/**
+ * Each hint used in a ranked game cuts the Elo gain by this fraction, so two
+ * players who finish the same square in the same time don't earn the same if
+ * one of them leaned on hints (3 hints keep only a quarter of the gain).
+ * Losses are never made bigger by hints.
+ */
+export const HINT_ELO_PENALTY = 0.25;
+
 /** Multiplier bonus applied to a ranked Elo gain, e.g. 0.15 = +15%. */
 export function speedBonus(elapsedMs: number, difficulty: Difficulty): number {
   const ratio = elapsedMs / PAR_MS[difficulty];
@@ -118,7 +126,7 @@ export interface ResultInput {
 export interface Outcome {
   dust: number;
   crown: boolean;
-  elo?: { before: number; after: number; protectedLoss: boolean; bonus: number };
+  elo?: { before: number; after: number; protectedLoss: boolean; bonus: number; hintCut: number };
   daily?: { done: number; days: number; monthComplete: boolean };
 }
 
@@ -141,11 +149,14 @@ export function recordResult(input: ResultInput): Outcome {
   if (input.mode === 'ranked') {
     const before = profile.elo;
     let delta = eloDelta(before, input.rating, input.won, profile.rankedGames);
-    const bonus = input.won && delta > 0 ? speedBonus(input.elapsedMs, input.difficulty) : 0;
-    delta = Math.round(delta * (1 + bonus));
+    const gained = input.won && delta > 0;
+    const bonus = gained ? speedBonus(input.elapsedMs, input.difficulty) : 0;
+    // Speed bonus first, then the hint cut, so hints can't be "earned back" by speed alone.
+    const hintCut = gained ? Math.min(1, input.hints * HINT_ELO_PENALTY) : 0;
+    delta = Math.round(delta * (1 + bonus) * (1 - hintCut));
     profile.elo = Math.max(0, before + delta);
     profile.rankedGames++;
-    outcome.elo = { before, after: profile.elo, protectedLoss: !input.won && delta === 0, bonus };
+    outcome.elo = { before, after: profile.elo, protectedLoss: !input.won && delta === 0, bonus, hintCut };
   }
 
   if (input.mode === 'daily' && input.dateKey) {

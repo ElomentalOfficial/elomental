@@ -1,7 +1,7 @@
 import type { Difficulty } from '@elomental/engine';
 import { ICONS } from '../icons.ts';
 import { enableTilt, turnstileIn, turnstileOut } from '../motion.ts';
-import { PROTECTED_BELOW, loadProfile, rankTitle, rankedDifficulty } from '../profile.ts';
+import { HINT_ELO_PENALTY, PROTECTED_BELOW, loadProfile, rankTitle, rankedDifficulty } from '../profile.ts';
 import { h, mount, navigatingBack, openModal, toast, type Screen } from '../ui.ts';
 import { dailyScreen } from './daily.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
@@ -97,7 +97,7 @@ function openCasual(leave: (go: () => void) => void) {
       closeButton(() => close()),
       h('span', { class: 'sheet-icon casual', html: ICONS.casual }),
       h('h2', { text: 'Casual' }),
-      h('p', { text: 'No pressure, no Elo. Hints are on in Easy.' }),
+      h('p', { text: 'No pressure, no Elo. 3 hints per game.' }),
       saved?.config.mode === 'casual'
         ? h('button', {
             class: 'btn btn-primary',
@@ -133,7 +133,7 @@ function openRanked(leave: (go: () => void) => void) {
       h(
         'p',
         { class: 'note' },
-        `${profile.elo} Elo · faster solves earn bonus Elo` +
+        `${profile.elo} Elo · faster solves earn bonus Elo · each hint cuts your gain by ${HINT_ELO_PENALTY * 100}%` +
           (profile.elo < PROTECTED_BELOW ? ` · losses are free below ${PROTECTED_BELOW}` : ''),
       ),
       h('button', {
