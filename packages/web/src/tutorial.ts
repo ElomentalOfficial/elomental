@@ -81,12 +81,22 @@ export function runTutorial(steps: TutorialStep[]): Promise<void> {
       next.textContent = index === steps.length - 1 ? "Let's play" : 'Next';
       skip.style.visibility = index === steps.length - 1 ? 'hidden' : 'visible';
 
-      // Put the card on whichever side of the spotlight has more room.
-      const below = innerHeight - r.bottom;
-      card.style.top = '';
+      // Place the card where it fits inside the *visible* area (Safari's toolbars
+      // can cover part of the layout viewport): below the spotlight, else above,
+      // else pinned to the bottom of what is visible, overlapping the spotlight.
+      const view = window.visualViewport;
+      const viewTop = view?.offsetTop ?? 0;
+      const viewBottom = viewTop + (view?.height ?? innerHeight);
+      const gap = 14;
+      const edge = 12;
+      card.style.top = '0px';
       card.style.bottom = '';
-      if (below > r.top) card.style.top = `${r.bottom + 18}px`;
-      else card.style.bottom = `${innerHeight - r.top + 18}px`;
+      const cardHeight = card.offsetHeight;
+      let top: number;
+      if (r.bottom + gap + cardHeight <= viewBottom - edge) top = r.bottom + gap;
+      else if (r.top - gap - cardHeight >= viewTop + edge) top = r.top - gap - cardHeight;
+      else top = viewBottom - edge - cardHeight;
+      card.style.top = `${Math.max(viewTop + edge, top)}px`;
       card.classList.remove('enter');
       void card.offsetWidth;
       card.classList.add('enter');
