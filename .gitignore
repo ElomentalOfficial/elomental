@@ -1,3 +1,4 @@
 node_modules/
 *.jsonl
 dist/
+mood_board/
