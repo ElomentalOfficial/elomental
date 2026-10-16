@@ -236,6 +236,11 @@ svg {
   width: 100%;
   height: 100%;
 }
+/* Icons exported per theme (icons.ts `themed`). */
+:root[data-theme='light'] .ic-dark,
+:root[data-theme='dark'] .ic-light {
+  display: none;
+}
 h1,
 h2 {
   font-weight: 800;
@@ -453,12 +458,12 @@ html[data-nav='back'] .screen.setup {
 }
 /* Icon boxes use the exported Figma sizes. */
 .area-daily .tile-icon {
-  width: 32px;
-  height: 33px;
+  width: 40px;
+  height: 40px;
 }
 .area-leader .tile-icon {
-  width: 51px;
-  height: 32px;
+  width: 54px;
+  height: 35px;
 }
 .area-daily .tile-label {
   font-size: 14px;
@@ -472,8 +477,8 @@ html[data-nav='back'] .screen.setup {
   grid-area: store;
 }
 .area-store .tile-icon {
-  width: 43px;
-  height: 32px;
+  width: 48px;
+  height: 40px;
 }
 .area-leader {
   grid-area: leader;
@@ -491,12 +496,12 @@ html[data-nav='back'] .screen.setup {
   color: var(--c-bright);
 }
 .area-casual .tile-icon {
-  width: 32px;
-  height: 32px;
+  width: 38px;
+  height: 40px;
 }
 .area-ranked .tile-icon {
-  width: 32px;
-  height: 43px;
+  width: 36px;
+  height: 44px;
 }
 .profile-card {
   grid-area: profile;
@@ -542,9 +547,8 @@ html[data-nav='back'] .screen.setup {
   padding: 8px;
 }
 .tile-setup .tile-icon {
-  width: 32px;
-  height: 32px;
-  color: var(--tile-text);
+  width: 34px;
+  height: 34px;
 }
 .tile-setup .tile-label {
   font-size: 13px;
