@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="12" fill="#262721"/>
-  <path d="M14 0h36v52l-18-10-18 10z" fill="#636945"/>
-  <g font-family="Marcellus, Georgia, serif" font-size="11" text-anchor="middle" fill="#E8E8CE">
-    <text x="22" y="17">E</text><text x="32" y="17" fill="#262721">L</text><text x="42" y="17">O</text>
-    <text x="22" y="28">M</text><text x="32" y="28">E</text><text x="42" y="28" fill="#262721">N</text>
-    <text x="22" y="39" fill="#262721">T</text><text x="32" y="39">A</text><text x="42" y="39">L</text>
+  <rect width="64" height="64" fill="#262721"/>
+  <path d="M12.2 0h39.6v57.6L32 48.6l-19.8 9z" fill="#636945"/>
+  <g font-family="Marcellus, Georgia, serif" font-size="9.6" text-anchor="middle" fill="#E8E8CE">
+    <text x="21.4" y="17.3">E</text><text x="32" y="17.3" fill="#262721">L</text><text x="42.6" y="17.3">O</text>
+    <text x="21.4" y="28.5">M</text><text x="32" y="28.5">E</text><text x="42.6" y="28.5" fill="#262721">N</text>
+    <text x="21.4" y="39.7" fill="#262721">T</text><text x="32" y="39.7">A</text><text x="42.6" y="39.7">L</text>
   </g>
 </svg>

@@ -62,10 +62,11 @@ function closeAllModals(): void {
 }
 
 export function toast(message: string): void {
-  const el = h('div', { class: 'toast', text: message });
+  for (const old of document.querySelectorAll('.toast')) old.remove(); // one at a time
+  const el = h('div', { class: 'toast', attrs: { role: 'status' }, text: message });
   document.body.append(el);
-  setTimeout(() => el.classList.add('out'), 1900);
-  setTimeout(() => el.remove(), 2300);
+  setTimeout(() => el.classList.add('out'), 2400);
+  setTimeout(() => el.remove(), 2800);
 }
 
 export function formatTime(ms: number): string {

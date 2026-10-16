@@ -11,6 +11,10 @@
       // Apply the saved theme before first paint so there is no flash. The welcome
       // ribbon is always dark, so the page (and iOS status bar) start dark too.
       document.documentElement.classList.add('welcome-active');
+      // Home-screen web app (iOS sets navigator.standalone): needs layout workarounds.
+      if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) {
+        document.documentElement.classList.add('standalone');
+      }
       try {
         document.documentElement.dataset.theme =
           JSON.parse(localStorage.getItem('elomental:theme')) === 'light' ? 'light' : 'dark';
@@ -25,6 +29,8 @@
     <title>Elomental</title>
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <!-- iOS only reads a PNG touch icon; without it Safari falls back to the domain root's icon. -->
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

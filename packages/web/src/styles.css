@@ -126,12 +126,47 @@ body {
 }
 body {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* Stretch past iOS's short standalone viewport (measured in viewport.ts). */
+  bottom: calc(-1 * var(--standalone-gap, 0px));
+}
+/*
+ * iOS 26 tints its status-bar fade from the page's literal colour, not from
+ * CSS variables or theme-color, so the page colours are spelled out here.
+ */
+html,
+html body {
+  background: #262721;
+}
+html[data-theme='light'],
+html[data-theme='light'] body {
+  background: #ffffe5;
 }
 /* While the welcome ribbon shows, everything behind it is dark in both themes. */
 html.welcome-active,
 html.welcome-active body {
-  background: var(--c-bg);
+  background: #262721;
+}
+/* A solid plate under the status bar so the iOS fade blends into the page colour. */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top);
+  z-index: 50;
+  pointer-events: none;
+  background: #262721;
+}
+html[data-theme='light']:not(.welcome-active) body::before {
+  background: #ffffe5;
+}
+/* iOS dims ~30px below the status bar in home-screen mode; keep controls clear of it. */
+html.standalone .screen:not(.welcome) {
+  padding-top: calc(env(safe-area-inset-top) + 26px);
 }
 /*
  * Fill the fixed body rather than using 100dvh: in an iOS home-screen app with
@@ -177,6 +212,25 @@ h2 {
   padding: max(var(--gutter), env(safe-area-inset-top)) var(--gutter) max(var(--gutter), env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
+}
+
+/* Sub-screens turnstile in from the left hinge, like a Windows Phone page. */
+.screen.daily,
+.screen.setup,
+.screen.game,
+.screen.loading {
+  transform-origin: 0 50%;
+  animation: page-in 0.42s cubic-bezier(0.1, 0.9, 0.2, 1) both;
+}
+@keyframes page-in {
+  from {
+    transform: perspective(1200px) rotateY(55deg);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
 }
 
 /* ---------- Buttons ---------- */
@@ -311,11 +365,31 @@ h2 {
   gap: 14px;
   padding: 10px;
   text-align: center;
-  transition: transform 0.08s ease, filter 0.15s ease;
+  /* The press tilt (motion.ts) sets transform inline; this eases it in and out. */
+  transition: transform 0.14s ease-out, filter 0.15s ease;
+  will-change: transform;
 }
 .tile:active {
-  transform: scale(0.97);
   filter: brightness(1.08);
+}
+/* Everything that flips on a live tile lives in the face. */
+.tile-face {
+  display: flex;
+  flex-direction: inherit;
+  align-items: center;
+  justify-content: inherit;
+  gap: inherit;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+}
+.live-big {
+  font-size: 34px;
+  font-weight: 800;
+  line-height: 1;
+}
+.area-ranked .live-big {
+  font-size: 44px;
 }
 .tile-icon {
   width: 36px;
@@ -684,18 +758,22 @@ h2 {
 .backdrop {
   position: fixed;
   inset: 0;
+  bottom: calc(-1 * var(--standalone-gap, 0px));
   z-index: 10;
-  background: rgba(20, 21, 17, 0.6);
+  background: rgba(20, 21, 17, 0.45);
+  -webkit-backdrop-filter: blur(7px);
+  backdrop-filter: blur(7px);
   display: grid;
   place-items: center;
   padding: var(--gutter);
   animation: fade 0.18s ease;
   touch-action: none;
 }
+/* Narrower than the page so its edges never line up with the tiles behind it. */
 .modal {
   position: relative;
   width: 100%;
-  max-width: 380px;
+  max-width: min(340px, calc(100vw - 64px));
   border-radius: 10px;
   background: var(--modal-bg);
   color: var(--text);
@@ -832,26 +910,39 @@ h2 {
   font-family: var(--serif);
   font-size: 19px;
 }
+/* Centred with margins, not translateX, so the drop animation is purely vertical. */
 .toast {
   position: fixed;
-  left: 50%;
-  bottom: max(28px, calc(env(safe-area-inset-bottom) + 16px));
-  transform: translateX(-50%);
-  z-index: 40;
-  width: max-content;
+  top: calc(env(safe-area-inset-top) + 14px);
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  z-index: 60;
+  width: fit-content;
   max-width: calc(100vw - 32px);
   padding: 12px 20px;
   border-radius: var(--radius);
   background: var(--c-lava);
   color: var(--c-bright);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
   font-weight: 700;
   font-size: 14px;
   text-align: center;
-  animation: rise 0.2s ease;
-  transition: opacity 0.35s ease;
+  animation: drop 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+html.standalone .toast {
+  top: calc(env(safe-area-inset-top) + 32px);
+}
+@keyframes drop {
+  from {
+    transform: translateY(-140%);
+    opacity: 0;
+  }
 }
 .toast.out {
   opacity: 0;
+  transform: translateY(-60%);
 }
 
 /* ---------- Loading ---------- */
@@ -1143,6 +1234,7 @@ h2 {
 .wheel-backdrop {
   position: fixed;
   inset: 0;
+  bottom: calc(-1 * var(--standalone-gap, 0px));
   z-index: 30;
   touch-action: none;
   transition: background 0.15s ease, opacity 0.12s ease;

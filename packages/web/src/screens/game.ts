@@ -118,7 +118,8 @@ function gameScreen(game: SavedGame): Screen {
     h('div', { class: 'mistakes', attrs: { 'aria-label': 'Mistakes' } }, ...skulls),
     h('div', {
       class: 'puzzle-info',
-      text: `${MODE_LABEL[config.mode]} · ${config.mode === 'daily' ? 'Medium' : capitalize(config.difficulty)}`,
+      // Only Casual shows its difficulty; Daily and Ranked keep it hidden.
+      text: config.mode === 'casual' ? `Casual · ${capitalize(config.difficulty)}` : MODE_LABEL[config.mode],
     }),
   );
 
