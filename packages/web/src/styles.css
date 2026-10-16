@@ -33,8 +33,12 @@
   --surface-2: var(--c-highlight-2);
   --tile: var(--c-highlight);
   --tile-text: var(--c-bright);
-  --profile-bg: var(--c-second-bright);
-  --profile-text: var(--c-bg);
+  /* Dark home: the profile card is a dark Highlight surface with light text (Figma update). */
+  --profile-bg: var(--c-highlight-2);
+  --profile-text: var(--c-bright);
+  --chip-bg: rgba(38, 39, 33, 0.35);
+  --avatar-bg: var(--c-highlight);
+  --avatar-ring: rgba(255, 255, 229, 0.14);
   --bar-bg: var(--c-highlight-2);
   --cell: var(--c-highlight);
   --cell-cross: var(--c-highlight-2);
@@ -82,6 +86,9 @@
   --tile-text: var(--c-crimson);
   --profile-bg: var(--c-second-bright);
   --profile-text: var(--c-crimson);
+  --chip-bg: rgba(38, 39, 33, 0.07);
+  --avatar-bg: var(--c-bright);
+  --avatar-ring: var(--c-mud);
   --bar-bg: var(--c-mud);
   --cell: var(--c-second-bright);
   --cell-cross: var(--c-mud);
@@ -523,13 +530,9 @@ h2 {
   width: clamp(72px, 14dvh, 120px);
   aspect-ratio: 1;
   border-radius: 50%;
-  background: var(--c-mud);
-  box-shadow: inset 0 0 0 6px var(--c-rock);
+  background: var(--avatar-bg);
+  box-shadow: inset 0 0 0 6px var(--avatar-ring);
   margin-bottom: 8px;
-}
-:root[data-theme='light'] .avatar {
-  background: var(--c-bright);
-  box-shadow: inset 0 0 0 6px var(--c-mud);
 }
 .profile-name {
   font-size: 22px;
@@ -553,7 +556,7 @@ h2 {
   gap: 2px;
   padding: 10px 4px;
   border-radius: var(--radius);
-  background: rgba(38, 39, 33, 0.07);
+  background: var(--chip-bg);
 }
 .stat-chip strong {
   font-size: 18px;
