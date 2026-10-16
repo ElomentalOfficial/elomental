@@ -28,14 +28,15 @@ export function installZoomGuards(): void {
     { passive: false },
   );
 
-  // Two-finger touches start a pinch even before gesturestart fires.
-  document.addEventListener(
-    'touchmove',
-    (event) => {
-      if (event.touches.length > 1) event.preventDefault();
-    },
-    { passive: false },
-  );
+  // Nothing in the app scrolls, so no drag may move the page (iOS sometimes
+  // scrolls a fixed, overflow-hidden page anyway). Pointer events — board, notes
+  // wheel — still arrive; this only stops the browser's own panning and pinching.
+  document.addEventListener('touchmove', (event) => event.preventDefault(), { passive: false });
+  const pin = () => {
+    if (window.scrollX || window.scrollY) window.scrollTo(0, 0);
+  };
+  window.addEventListener('scroll', pin, { passive: true });
+  window.visualViewport?.addEventListener('scroll', pin);
 
   // Text selection and the long-press menu (the notes wheel owns long-press).
   document.addEventListener('selectstart', (event) => event.preventDefault());
@@ -51,4 +52,26 @@ export function installZoomGuards(): void {
     requestAnimationFrame(() => (viewport.content = content));
   };
   window.visualViewport?.addEventListener('resize', reset);
+}
+
+/** What the device reports about the screen, for Setup's device info. */
+export function deviceInfo(): string[] {
+  const probe = document.createElement('div');
+  probe.style.cssText =
+    'position:fixed;top:0;left:0;visibility:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)';
+  document.body.append(probe);
+  const cs = getComputedStyle(probe);
+  const insets = [cs.paddingTop, cs.paddingRight, cs.paddingBottom, cs.paddingLeft].map((v) => parseFloat(v)).join(' / ');
+  probe.remove();
+  const app = document.getElementById('app')!.getBoundingClientRect();
+  const nav = navigator as Navigator & { standalone?: boolean };
+  return [
+    `home-screen app: ${nav.standalone === true || matchMedia('(display-mode: standalone)').matches ? 'yes' : 'no'}`,
+    `screen: ${screen.width}×${screen.height} @${devicePixelRatio}x`,
+    `window: ${innerWidth}×${innerHeight}`,
+    `visual viewport: ${Math.round(visualViewport?.width ?? 0)}×${Math.round(visualViewport?.height ?? 0)} (top ${Math.round(visualViewport?.offsetTop ?? 0)})`,
+    `app area: ${Math.round(app.width)}×${Math.round(app.height)} (top ${Math.round(app.top)})`,
+    `safe areas (t/r/b/l): ${insets}`,
+    `status bar style: ${document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]')?.getAttribute('content')}`,
+  ];
 }

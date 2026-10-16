@@ -126,24 +126,11 @@ body {
 }
 body {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  /* Stretch past iOS's short standalone viewport (see --standalone-gap below). */
-  bottom: calc(-1 * var(--standalone-gap, 0px));
+  inset: 0;
 }
 /*
- * In an iOS home-screen app with a translucent status bar, fixed layers stop
- * short of the bottom by exactly the status-bar height (your screenshots: a
- * ~59pt strip). Measuring it from JS reported 0, so use the inset directly.
- * It is 0 in the browser and in landscape, so this only acts where the bug is.
- */
-html.standalone {
-  --standalone-gap: env(safe-area-inset-top);
-}
-/*
- * iOS 26 tints its status-bar fade from the page's literal colour, not from
- * CSS variables or theme-color, so the page colours are spelled out here.
+ * Literal page colours (not variables): iOS samples the page colour for the
+ * status-bar area, and the opaque status bar (index.html) uses theme-color.
  */
 html,
 html body {
@@ -158,34 +145,7 @@ html.welcome-active,
 html.welcome-active body {
   background: #262721;
 }
-/*
- * A solid plate under the status bar so the iOS fade blends into the page
- * colour. It sits below popups and the notes wheel (z-index 10+), so their
- * dimming and blur cover the status-bar area too instead of leaving a band.
- */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: env(safe-area-inset-top);
-  z-index: 5;
-  pointer-events: none;
-  background: #262721;
-}
-html[data-theme='light']:not(.welcome-active) body::before {
-  background: #ffffe5;
-}
-/* iOS dims ~30px below the status bar in home-screen mode; keep controls clear of it. */
-html.standalone .screen:not(.welcome) {
-  padding-top: calc(env(safe-area-inset-top) + 26px);
-}
-/*
- * Fill the fixed body rather than using 100dvh: in an iOS home-screen app with
- * a translucent status bar, 100dvh leaves a strip the size of the status bar
- * uncovered at the bottom.
- */
+/* Fill the fixed body (more reliable on iOS than 100dvh). */
 #app {
   height: 100%;
   display: flex;
@@ -598,6 +558,19 @@ h2 {
   font-size: 15px;
   color: var(--muted);
 }
+.device-info summary {
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.device-info pre {
+  margin-top: 10px;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: var(--muted);
+}
 .segmented {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -748,7 +721,6 @@ h2 {
 .backdrop {
   position: fixed;
   inset: 0;
-  bottom: calc(-1 * var(--standalone-gap, 0px));
   z-index: 10;
   /* Heavy blur smears the page behind into a soft colour field; the gradient deepens it toward the bottom. */
   background: linear-gradient(180deg, rgba(20, 21, 17, 0.2), rgba(20, 21, 17, 0.55));
@@ -921,9 +893,6 @@ h2 {
   text-align: center;
   animation: drop 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.2);
   transition: opacity 0.35s ease, transform 0.35s ease;
-}
-html.standalone .toast {
-  top: calc(env(safe-area-inset-top) + 32px);
 }
 @keyframes drop {
   from {
@@ -1236,7 +1205,6 @@ html.standalone .toast {
 .wheel-layer {
   position: fixed;
   inset: 0;
-  bottom: calc(-1 * var(--standalone-gap, 0px));
   z-index: 30;
   touch-action: none;
   transition: opacity 0.14s ease;
@@ -1306,7 +1274,6 @@ html.standalone .toast {
 .coach-layer {
   position: fixed;
   inset: 0;
-  bottom: calc(-1 * var(--standalone-gap, 0px));
   z-index: 40;
   touch-action: none;
   animation: fade 0.25s ease;

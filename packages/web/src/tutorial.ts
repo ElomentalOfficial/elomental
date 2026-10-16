@@ -39,10 +39,19 @@ export function runTutorial(steps: TutorialStep[]): Promise<void> {
       h('div', { class: 'coach-actions' }, skip, next),
     );
     const layer = h('div', { class: 'coach-layer' }, spotlight, finger, card);
-    // The layer swallows every touch so the game can't be played underneath.
-    layer.addEventListener('touchstart', (event) => event.preventDefault(), { passive: false });
+    // The layer swallows touches so the game can't be played underneath, but never
+    // on the buttons: on iOS, cancelling touchstart also cancels the tap's click,
+    // which is what froze Next and Skip.
+    const onButton = (event: Event) => !!(event.target as HTMLElement | null)?.closest?.('button');
+    layer.addEventListener(
+      'touchstart',
+      (event) => {
+        if (!onButton(event)) event.preventDefault();
+      },
+      { passive: false },
+    );
     layer.addEventListener('pointerdown', (event) => {
-      if (!(event.target as HTMLElement).closest('button')) event.preventDefault();
+      if (!onButton(event)) event.preventDefault();
     });
     document.body.append(layer);
 
@@ -83,12 +92,30 @@ export function runTutorial(steps: TutorialStep[]): Promise<void> {
       card.classList.add('enter');
     };
 
-    next.addEventListener('click', () => {
+    // pointerup rather than click: it fires on iOS even if a click is ever suppressed.
+    let done = false;
+    const advance = () => {
+      if (done) return;
       index++;
-      if (index >= steps.length) finish();
-      else show();
+      if (index >= steps.length) {
+        done = true;
+        finish();
+      } else show();
+    };
+    const skipAll = () => {
+      if (done) return;
+      done = true;
+      finish();
+    };
+    next.addEventListener('pointerup', advance);
+    skip.addEventListener('pointerup', skipAll);
+    // Keyboard and accessibility activation still come through click (detail 0).
+    next.addEventListener('click', (event) => {
+      if (event.detail === 0) advance();
     });
-    skip.addEventListener('click', finish);
+    skip.addEventListener('click', (event) => {
+      if (event.detail === 0) skipAll();
+    });
     show();
   });
 }
