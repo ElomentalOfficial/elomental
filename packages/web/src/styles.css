@@ -790,10 +790,17 @@ html[data-nav='back'] .screen.setup {
 }
 
 /* ---------- Modals & toasts ---------- */
+/*
+ * Overscans the bottom by 30vh: iOS home-screen mode can paint below the
+ * measured viewport (around the home indicator), which showed as an unblurred
+ * strip. The extra bottom padding keeps the panel centred in the visible area.
+ */
 .backdrop {
+  --overscan: 30vh;
   position: fixed;
   inset: 0;
-  bottom: calc(-1 * var(--standalone-gap, 0px));
+  bottom: calc(-1 * var(--standalone-gap, 0px) - var(--overscan));
+  padding-bottom: calc(var(--gutter) + var(--standalone-gap, 0px) + var(--overscan)) !important;
   z-index: 10;
   /* Heavy blur smears the page behind into a soft colour field; the gradient deepens it toward the bottom. */
   background: linear-gradient(180deg, rgba(20, 21, 17, 0.2), rgba(20, 21, 17, 0.55));
@@ -851,6 +858,12 @@ html[data-nav='back'] .screen.setup {
 }
 .sheet-icon.casual {
   background: var(--c-forest);
+}
+.sheet-icon.clash {
+  width: 64px;
+  height: 64px;
+  padding: 11px;
+  background: var(--accent);
 }
 .sheet-icon.ranked {
   width: 110px;
@@ -1039,6 +1052,29 @@ html[data-nav='back'] .screen.setup {
   border: 0;
   -webkit-user-select: text;
   user-select: text;
+  -webkit-touch-callout: default;
+  touch-action: auto;
+}
+.clash-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 4px;
+}
+.clash-label-row .clash-label {
+  margin-top: 0;
+}
+.paste-btn {
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  font-family: var(--serif);
+  font-size: 15px;
+}
+.paste-btn:active {
+  transform: scale(0.96);
 }
 .divider {
   display: flex;
@@ -1278,14 +1314,14 @@ html.standalone .toast {
   height: 100%;
   display: grid;
   grid-template: repeat(3, minmax(0, 1fr)) / repeat(3, minmax(0, 1fr));
-  /* Figma update: one tight grid with thin, even lines (the page colour shows through). */
-  gap: 0.3cqi;
+  /* Figma rule: 4px between 3×3 boxes, 2px between squares, so the boxes read at a glance. */
+  gap: 4px;
   touch-action: none;
 }
 .box {
   display: grid;
   grid-template: repeat(3, minmax(0, 1fr)) / repeat(3, minmax(0, 1fr));
-  gap: 0.3cqi;
+  gap: 2px;
 }
 .cell {
   position: relative;
@@ -1294,6 +1330,7 @@ html.standalone .toast {
   overflow: hidden;
   display: grid;
   place-items: center;
+  border-radius: 2px;
   background: var(--cell);
   color: var(--cell-text);
   font-weight: 800;

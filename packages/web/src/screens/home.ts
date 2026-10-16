@@ -127,7 +127,7 @@ function openCasual(leave: (go: () => void) => void) {
       h('button', { class: 'btn', text: 'Hard', onclick: () => choose('hard') }),
       h('button', {
         class: 'btn btn-clash',
-        html: `${ICONS.ranked}<span>Clash a friend</span>`,
+        html: `${ICONS.clash}<span>Clash a friend</span>`,
         onclick: () => {
           close();
           openClash(leave);
@@ -189,6 +189,7 @@ function openClash(leave: (go: () => void) => void, prefill = '') {
     'div',
     { class: 'sheet clash-sheet' },
     closeButton(() => close()),
+    h('span', { class: 'sheet-icon clash', html: ICONS.clash }),
     h('h2', { text: 'Clash' }),
     h('p', { text: 'Race a friend on the same square. Lowest time wins; hints and mistakes add seconds.' }),
     challenge,
@@ -202,7 +203,19 @@ function openClash(leave: (go: () => void) => void, prefill = '') {
           },
         })
       : null,
-    h('div', { class: 'clash-join' }, h('label', { class: 'clash-label', text: 'Enter a code' }), input.el, join),
+    h(
+      'div',
+      { class: 'clash-join' },
+      h(
+        'div',
+        { class: 'clash-label-row' },
+        h('label', { class: 'clash-label', text: 'Enter a code' }),
+        // iOS's own long-press Paste is unreliable on a hidden field; this reads the clipboard directly.
+        'readText' in (navigator.clipboard ?? {}) ? h('button', { class: 'paste-btn', text: 'Paste', onclick: () => void input.paste() }) : null,
+      ),
+      input.el,
+      join,
+    ),
     h('div', { class: 'divider', text: 'or create one' }),
     picker,
     created,
@@ -246,7 +259,34 @@ function codeInput(initial: string, onChange: (code: string) => void) {
   // Keep the caret at the end so backspace always removes the last character.
   field.addEventListener('click', () => field.setSelectionRange(field.value.length, field.value.length));
   paint();
-  return { el, value: () => normalizeCode(field.value), focus: () => field.focus() };
+  const fill = (text: string) => {
+    const code = extractCode(text);
+    if (!code) return toast('No code on the clipboard');
+    field.value = code;
+    paint();
+  };
+  // The system Paste (long-press) gets the same treatment as the button.
+  field.addEventListener('paste', (event) => {
+    const text = event.clipboardData?.getData('text');
+    if (text == null) return;
+    event.preventDefault();
+    fill(text);
+  });
+  const paste = async () => {
+    try {
+      fill(await navigator.clipboard.readText());
+    } catch {
+      toast('Paste blocked. Long-press the boxes instead.');
+    }
+  };
+  return { el, value: () => normalizeCode(field.value), focus: () => field.focus(), paste };
+}
+
+/** A bare code, or the code inside a whole shared message/link ("…#clash=K7P2QX.6z…"). */
+function extractCode(text: string): string {
+  const fromLink = text.match(/#clash=([A-Za-z0-9]{6})/)?.[1];
+  const upperWord = text.match(/\b[A-Z0-9]{6}\b/)?.[0];
+  return normalizeCode(fromLink ?? upperWord ?? text);
 }
 
 /** The comparison for a clash this device has already played. */
