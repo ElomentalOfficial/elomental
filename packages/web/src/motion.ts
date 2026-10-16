@@ -1,7 +1,7 @@
 /**
  * Windows Phone ("Metro") motion: tiles turnstile in and out, hinged on the
- * left edge of the screen and staggered top-to-bottom, left-to-right; a press
- * tilts the tile toward the finger; live tiles flip to show a second face.
+ * left edge of the screen and staggered top-to-bottom, left-to-right, and a
+ * press tilts the tile toward the finger.
  */
 
 const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -71,31 +71,4 @@ export function enableTilt(el: HTMLElement, strength = 11): void {
     el.style.transform = `${PERSPECTIVE} rotateX(${(-dy * strength).toFixed(2)}deg) rotateY(${(dx * strength).toFixed(2)}deg) scale(0.97)`;
   });
   for (const type of ['pointerup', 'pointerleave', 'pointercancel']) el.addEventListener(type, release);
-}
-
-/**
- * A live tile: every few seconds `face` flips over (top edge first, like
- * Windows Phone) and shows the next set of children. Returns a stop function.
- */
-export function liveTile(face: HTMLElement, faces: Node[][], everyMs: number, startDelayMs: number): () => void {
-  if (reducedMotion() || faces.length < 2) return () => {};
-  let index = 0;
-  let timer = 0;
-  const flip = async () => {
-    const out = face.animate(
-      [{ transform: `${PERSPECTIVE} rotateX(0deg)` }, { transform: `${PERSPECTIVE} rotateX(90deg)` }],
-      { duration: 220, easing: EASE_IN, fill: 'forwards' },
-    );
-    await out.finished;
-    index = (index + 1) % faces.length;
-    face.replaceChildren(...faces[index]);
-    out.cancel();
-    face.animate(
-      [{ transform: `${PERSPECTIVE} rotateX(-90deg)` }, { transform: `${PERSPECTIVE} rotateX(0deg)` }],
-      { duration: 360, easing: EASE_OUT },
-    );
-    timer = window.setTimeout(flip, everyMs);
-  };
-  timer = window.setTimeout(flip, startDelayMs);
-  return () => clearTimeout(timer);
 }

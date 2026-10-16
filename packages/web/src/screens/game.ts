@@ -4,6 +4,7 @@ import { PAR_MS, recordResult, type Mode, type Outcome } from '../profile.ts';
 import { requestPuzzle } from '../puzzles.ts';
 import { openNotesWheel, type NotesWheel } from '../radial.ts';
 import { readJson, removeKey, writeJson } from '../storage.ts';
+import { markTutorialDone, runTutorial, tutorialDone, type TutorialStep } from '../tutorial.ts';
 import { formatTime, h, mount, openModal, toast, type Screen } from '../ui.ts';
 import { dailyScreen } from './daily.ts';
 import { homeScreen } from './home.ts';
@@ -100,11 +101,14 @@ function gameScreen(game: SavedGame): Screen {
   const given = [...config.puzzle].map((ch) => ch !== '0');
   const solution = [...config.solution].map(Number);
 
-  let selected = given.indexOf(false);
+  /** Nothing is selected until the player taps a square. */
+  let selected = -1;
   /** Digit whose cells lose their background so they stand out. */
   let focusDigit = 0;
   let notesMode = false;
   let paused = false;
+  /** True while the first-game tutorial is on screen. */
+  let coaching = false;
   let finished = false;
 
   // --- Top bar -------------------------------------------------------------
@@ -336,7 +340,10 @@ function gameScreen(game: SavedGame): Screen {
   let last = performance.now();
   function tick() {
     const now = performance.now();
-    if (ranked) {
+    if (coaching) {
+      // The clock stands still during the first-game tutorial, ranked included.
+      game.startedAt = Date.now() - game.elapsedMs;
+    } else if (ranked) {
       game.elapsedMs = Date.now() - game.startedAt;
     } else if (!paused && !finished && !document.hidden) {
       // Cap the step so a sleeping phone doesn't add the whole nap to the clock.
@@ -512,8 +519,8 @@ function gameScreen(game: SavedGame): Screen {
     if (!press || event.pointerId !== press.id) return;
     clearTimeout(press.timer);
     press = null;
-    // The system took the touch away: leave the wheel open for tapping instead of losing it.
-    wheel?.hold();
+    // The system took the touch away: drop the wheel without adding anything.
+    wheel?.close();
   };
   window.addEventListener('pointermove', onPressMove, true);
   window.addEventListener('pointerup', onPressUp, true);
@@ -552,7 +559,8 @@ function gameScreen(game: SavedGame): Screen {
       toast(notesMode ? 'Notes mode on' : 'Notes mode off');
       render();
     } else if ((event.ctrlKey || event.metaKey) && event.key === 'z') undo();
-    else if (event.key.startsWith('Arrow') && selected >= 0) {
+    else if (event.key.startsWith('Arrow') && selected < 0) select(40); // first arrow press starts in the centre
+    else if (event.key.startsWith('Arrow')) {
       const r = ROW_OF[selected];
       const c = COL_OF[selected];
       const moves: Record<string, [number, number]> = {
@@ -575,6 +583,60 @@ function gameScreen(game: SavedGame): Screen {
   focusDigit = selected >= 0 ? game.values[selected] : 0;
   render();
   tick();
+
+  if (!tutorialDone()) {
+    coaching = true;
+    const steps: TutorialStep[] = [
+      {
+        target: board,
+        title: 'Pick a square',
+        text: 'Tap any empty square to select it. Its row and column light up. Tap a filled square to highlight every matching number.',
+        gesture: 'tap',
+      },
+      {
+        target: pad,
+        title: 'Fill it in',
+        text: 'Tap a number to place it in the selected square. A wrong number costs a skull — three skulls and the square is lost.',
+        gesture: 'tap',
+      },
+      {
+        target: board,
+        title: 'Take notes',
+        text: 'Long-press a square and a small ring of numbers appears. Slide toward one and lift to pencil it in. Lift without sliding to cancel.',
+        gesture: 'hold-slide',
+      },
+      {
+        target: pad.querySelector<HTMLElement>('.key-erase')!,
+        title: 'Erase',
+        text: 'Clears the selected square — its number or its notes.',
+        gesture: 'tap',
+      },
+      {
+        target: undoButton,
+        title: 'Undo',
+        text: 'Takes back your last move. Mistakes still count, though.',
+        gesture: 'tap',
+      },
+      ...(hintsAllowed
+        ? [
+            {
+              target: hintButton,
+              title: 'Hints',
+              text: `Casual · Easy only: fills in the next logical square. ${MAX_HINTS} per game, and each one trims your Stardust.`,
+              gesture: 'tap' as const,
+            },
+          ]
+        : []),
+    ];
+    // Wait for the page turnstile to settle so the spotlight lands on the final positions.
+    setTimeout(() => {
+      void runTutorial(steps).then(() => {
+        markTutorialDone();
+        coaching = false;
+        last = performance.now();
+      });
+    }, 480);
+  }
 
   return {
     el,

@@ -46,7 +46,7 @@
   --wheel-bg: var(--c-second-bright);
   --wheel-text: var(--c-bg);
   --wheel-on: var(--c-forest);
-  --wheel-ring: rgba(38, 39, 33, 0.9);
+  --wheel-halo: rgba(38, 39, 33, 0.82);
   --modal-bg: var(--c-highlight);
   --primary-bg: var(--c-lava);
   --primary-text: var(--c-bright);
@@ -84,7 +84,7 @@
   --wheel-bg: var(--c-crimson);
   --wheel-text: var(--c-bright);
   --wheel-on: var(--c-forest);
-  --wheel-ring: rgba(255, 255, 229, 0.92);
+  --wheel-halo: rgba(255, 255, 229, 0.88);
   --modal-bg: var(--c-bright);
   --primary-bg: var(--c-lava);
   --primary-text: var(--c-bright);
@@ -129,8 +129,17 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  /* Stretch past iOS's short standalone viewport (measured in viewport.ts). */
+  /* Stretch past iOS's short standalone viewport (see --standalone-gap below). */
   bottom: calc(-1 * var(--standalone-gap, 0px));
+}
+/*
+ * In an iOS home-screen app with a translucent status bar, fixed layers stop
+ * short of the bottom by exactly the status-bar height (your screenshots: a
+ * ~59pt strip). Measuring it from JS reported 0, so use the inset directly.
+ * It is 0 in the browser and in landscape, so this only acts where the bug is.
+ */
+html.standalone {
+  --standalone-gap: env(safe-area-inset-top);
 }
 /*
  * iOS 26 tints its status-bar fade from the page's literal colour, not from
@@ -149,7 +158,11 @@ html.welcome-active,
 html.welcome-active body {
   background: #262721;
 }
-/* A solid plate under the status bar so the iOS fade blends into the page colour. */
+/*
+ * A solid plate under the status bar so the iOS fade blends into the page
+ * colour. It sits below popups and the notes wheel (z-index 10+), so their
+ * dimming and blur cover the status-bar area too instead of leaving a band.
+ */
 body::before {
   content: '';
   position: fixed;
@@ -157,7 +170,7 @@ body::before {
   left: 0;
   right: 0;
   height: env(safe-area-inset-top);
-  z-index: 50;
+  z-index: 5;
   pointer-events: none;
   background: #262721;
 }
@@ -372,7 +385,6 @@ h2 {
 .tile:active {
   filter: brightness(1.08);
 }
-/* Everything that flips on a live tile lives in the face. */
 .tile-face {
   display: flex;
   flex-direction: inherit;
@@ -381,15 +393,6 @@ h2 {
   gap: inherit;
   width: 100%;
   height: 100%;
-  backface-visibility: hidden;
-}
-.live-big {
-  font-size: 34px;
-  font-weight: 800;
-  line-height: 1;
-}
-.area-ranked .live-big {
-  font-size: 44px;
 }
 .tile-icon {
   width: 36px;
@@ -1229,18 +1232,16 @@ html.standalone .toast {
 }
 
 /* ---------- Notes wheel ---------- */
-.wheel-backdrop {
+/* Compact and light: nine small tiles around the finger, no panel, no dimming. */
+.wheel-layer {
   position: fixed;
   inset: 0;
   bottom: calc(-1 * var(--standalone-gap, 0px));
   z-index: 30;
   touch-action: none;
-  transition: background 0.15s ease, opacity 0.12s ease;
+  transition: opacity 0.14s ease;
 }
-.wheel-backdrop.tap-mode {
-  background: rgba(20, 21, 17, 0.25);
-}
-.wheel-backdrop.closing {
+.wheel-layer.closing {
   opacity: 0;
 }
 .wheel {
@@ -1248,87 +1249,178 @@ html.standalone .toast {
   width: 0;
   height: 0;
 }
+/* A faint halo so the ring reads against any part of the board. */
 .wheel::before {
   content: '';
   position: absolute;
-  width: 216px;
-  height: 216px;
-  left: -108px;
-  top: -108px;
-  border-radius: 10px;
-  background: var(--wheel-ring);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
-  animation: ring 0.16s ease-out;
+  width: 148px;
+  height: 148px;
+  left: -74px;
+  top: -74px;
+  border-radius: 50%;
+  background: radial-gradient(circle, transparent 34%, var(--wheel-halo) 36%, var(--wheel-halo) 68%, transparent 71%);
+  animation: halo 0.18s ease-out;
 }
-@keyframes ring {
+@keyframes halo {
   from {
-    transform: scale(0.4);
+    transform: scale(0.5);
     opacity: 0;
   }
-}
-.wheel-hub {
-  position: absolute;
-  width: 46px;
-  height: 46px;
-  left: -23px;
-  top: -23px;
-  border-radius: 4px;
-  display: grid;
-  place-items: center;
-  border: 1.5px dashed var(--muted);
-  color: var(--muted);
-  font-family: var(--serif);
-  font-size: 13px;
 }
 .wheel-digit {
   position: absolute;
-  width: 46px;
-  height: 46px;
-  left: -23px;
-  top: -23px;
+  width: 30px;
+  height: 30px;
+  left: -15px;
+  top: -15px;
+  display: grid;
+  place-items: center;
   border-radius: 4px;
   background: var(--wheel-bg);
   color: var(--wheel-text);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
   font-weight: 800;
-  font-size: 19px;
+  font-size: 14px;
   transform: translate(var(--x), var(--y));
-  transition: transform 0.08s ease, background 0.08s ease;
-  animation: pop 0.18s ease-out backwards;
+  transition: transform 0.09s ease, background 0.09s ease;
+  animation: pop 0.16s ease-out backwards;
 }
 @keyframes pop {
   from {
-    transform: translate(0, 0) scale(0.3);
+    transform: translate(0, 0) scale(0.2);
     opacity: 0;
   }
-}
-.wheel-hint {
-  position: absolute;
-  top: 116px;
-  left: 0;
-  transform: translateX(-50%);
-  width: max-content;
-  padding: 5px 10px;
-  border-radius: 4px;
-  background: var(--wheel-ring);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
-  font-family: var(--serif);
-  font-size: 13px;
-  color: var(--text);
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  pointer-events: none;
-}
-.tap-mode .wheel-hint {
-  opacity: 0.85;
 }
 .wheel-digit.on {
   background: var(--wheel-on);
   color: var(--c-bright);
 }
 .wheel-digit.hover {
-  transform: translate(var(--x), var(--y)) scale(1.28);
+  transform: translate(var(--x), var(--y)) scale(1.35);
   background: var(--c-lava);
   color: var(--c-bright);
+  z-index: 1;
+}
+
+/* ---------- First-game tutorial ---------- */
+.coach-layer {
+  position: fixed;
+  inset: 0;
+  bottom: calc(-1 * var(--standalone-gap, 0px));
+  z-index: 40;
+  touch-action: none;
+  animation: fade 0.25s ease;
+  transition: opacity 0.2s ease;
+}
+.coach-layer.closing {
+  opacity: 0;
+}
+/* The spotlight is a hole: everything outside it is darkened by its huge shadow. */
+.coach-spot {
+  position: fixed;
+  border-radius: 8px;
+  box-shadow: 0 0 0 200vmax rgba(20, 21, 17, 0.68);
+  outline: 2px solid var(--c-lava);
+  outline-offset: 2px;
+  transition: left 0.35s cubic-bezier(0.2, 0.9, 0.2, 1), top 0.35s cubic-bezier(0.2, 0.9, 0.2, 1),
+    width 0.35s cubic-bezier(0.2, 0.9, 0.2, 1), height 0.35s cubic-bezier(0.2, 0.9, 0.2, 1);
+  pointer-events: none;
+}
+.coach-finger {
+  position: fixed;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  border-radius: 50%;
+  background: rgba(255, 255, 229, 0.85);
+  box-shadow: 0 0 0 6px rgba(231, 104, 49, 0.45);
+  pointer-events: none;
+}
+.coach-finger.tap {
+  animation: coach-tap 1.4s ease-in-out infinite;
+}
+.coach-finger.hold-slide {
+  animation: coach-hold 2.2s ease-in-out infinite;
+}
+@keyframes coach-tap {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(0.7);
+    box-shadow: 0 0 0 14px rgba(231, 104, 49, 0);
+  }
+}
+@keyframes coach-hold {
+  0% {
+    transform: none;
+    box-shadow: 0 0 0 0 rgba(231, 104, 49, 0.5);
+  }
+  40% {
+    transform: scale(0.85);
+    box-shadow: 0 0 0 16px rgba(231, 104, 49, 0.35);
+  }
+  75%,
+  90% {
+    transform: translate(46px, -8px) scale(0.85);
+    box-shadow: 0 0 0 4px rgba(231, 104, 49, 0.35);
+  }
+  100% {
+    transform: none;
+  }
+}
+.coach-card {
+  position: fixed;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: min(340px, calc(100vw - 48px));
+  padding: 18px 20px 16px;
+  border-radius: 10px;
+  background: var(--modal-bg);
+  color: var(--text);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.3);
+}
+.coach-card.enter {
+  animation: rise 0.25s ease;
+}
+.coach-count {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--c-lava);
+  letter-spacing: 0.08em;
+}
+.coach-card h3 {
+  margin: 4px 0 6px;
+  font-size: 17px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.coach-card p {
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.4;
+}
+.coach-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+.coach-next {
+  width: auto;
+  min-height: 44px;
+  padding: 0 22px;
+  font-size: 18px;
+}
+.coach-skip {
+  padding: 10px 4px;
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
 @media (prefers-reduced-motion: reduce) {

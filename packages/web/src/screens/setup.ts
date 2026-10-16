@@ -1,6 +1,7 @@
 import { ICONS } from '../icons.ts';
 import { getTheme, setTheme, type Theme } from '../theme.ts';
-import { h, mount, type Screen } from '../ui.ts';
+import { resetTutorial } from '../tutorial.ts';
+import { h, mount, toast, type Screen } from '../ui.ts';
 import { homeScreen } from './home.ts';
 
 export function setupScreen(): Screen {
@@ -49,6 +50,19 @@ export function setupScreen(): Screen {
       { class: 'setting' },
       h('div', {}, h('h2', { text: 'Theme' }), h('p', { text: 'Dark is the default.' })),
       h('div', { class: 'segmented', attrs: { role: 'radiogroup', 'aria-label': 'Theme' } }, ...buttons),
+    ),
+    h(
+      'section',
+      { class: 'setting' },
+      h('div', {}, h('h2', { text: 'Tutorial' }), h('p', { text: 'How to fill squares, take notes, erase and undo.' })),
+      h('button', {
+        class: 'btn',
+        text: 'Show again next game',
+        onclick: () => {
+          resetTutorial();
+          toast('The tutorial will play at the start of your next game');
+        },
+      }),
     ),
   );
   return { el };

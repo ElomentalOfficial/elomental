@@ -1,7 +1,7 @@
 import type { Difficulty } from '@elomental/engine';
 import { ICONS } from '../icons.ts';
-import { enableTilt, liveTile, turnstileIn, turnstileOut } from '../motion.ts';
-import { PROTECTED_BELOW, dailyKey, dateKey, loadProfile, rankTitle, rankedDifficulty } from '../profile.ts';
+import { enableTilt, turnstileIn, turnstileOut } from '../motion.ts';
+import { PROTECTED_BELOW, loadProfile, rankTitle, rankedDifficulty } from '../profile.ts';
 import { h, mount, openModal, toast, type Screen } from '../ui.ts';
 import { dailyScreen } from './daily.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
@@ -11,7 +11,6 @@ import { setupScreen } from './setup.ts';
 export function homeScreen(): Screen {
   const profile = loadProfile();
   let leaving = false;
-  const stops: (() => void)[] = [];
 
   /** Play the turnstile-out with `from` last, then run `then`. */
   const leave = async (from: HTMLElement, then: () => void) => {
@@ -67,42 +66,10 @@ export function homeScreen(): Screen {
   const grid = h('div', { class: 'home-grid' }, ...animated);
   const el = h('div', { class: 'screen home' }, grid);
 
-  // Live tiles: Daily flips to today's date and month progress, Ranked to the player's Elo.
-  const today = dailyKey();
-  const [year, month, day] = today.split('-').map(Number);
-  const daysInMonth = new Date(year, month, 0).getDate();
-  let doneThisMonth = 0;
-  for (let d = 1; d <= daysInMonth; d++) if (profile.daily[dateKey(year, month - 1, d)]) doneThisMonth++;
-  const dailyFace = daily.querySelector<HTMLElement>('.tile-face')!;
-  const rankedFace = ranked.querySelector<HTMLElement>('.tile-face')!;
-  stops.push(
-    liveTile(
-      dailyFace,
-      [
-        [...dailyFace.childNodes],
-        [
-          h('span', { class: 'live-big', text: String(day) }),
-          h('span', { class: 'tile-label', text: profile.daily[today] ? 'Done ✓' : `${doneThisMonth}/${daysInMonth}` }),
-        ],
-      ],
-      7000,
-      2600,
-    ),
-    liveTile(
-      rankedFace,
-      [
-        [...rankedFace.childNodes],
-        [h('span', { class: 'live-big', text: String(profile.elo) }), h('span', { class: 'tile-label', text: `Elo · ${rankTitle(profile.elo)}` })],
-      ],
-      8000,
-      4300,
-    ),
-  );
-
   // Runs before the first paint of the new screen, so tiles never flash in place.
   requestAnimationFrame(() => turnstileIn(grid, animated));
 
-  return { el, destroy: () => stops.forEach((stop) => stop()) };
+  return { el };
 }
 
 function stat(value: string, label: string, icon?: string): HTMLElement {

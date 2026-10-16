@@ -1,22 +1,20 @@
 import { h } from './ui.ts';
 
 /**
- * Notes wheel: long-press a cell and the digits 1-9 fan out around the finger.
- * Slide toward a digit and lift to toggle that note. Lifting without sliding
- * leaves the wheel open so digits can be tapped instead (easier for some
- * players, and how it works with a mouse).
+ * Notes wheel: long-press a cell and a small ring of digits appears around the
+ * finger. Slide toward a digit and lift to toggle that note. Lifting without
+ * reaching a digit just closes it. There is no "open" state to get stuck in:
+ * the wheel only exists while the finger is down.
  */
 
-const RADIUS = 78;
-const BUBBLE = 46;
-const DEAD_ZONE = 24;
+const RADIUS = 50;
+const DEAD_ZONE = 20;
 const STEP = 360 / 9;
 
 export interface NotesWheel {
   move(x: number, y: number): void;
+  /** Finger lifted: toggle the digit under it (if any) and close. */
   release(x: number, y: number): void;
-  /** Switch to tap mode (digits tappable, tap outside closes). */
-  hold(): void;
   close(): void;
 }
 
@@ -28,58 +26,38 @@ export function openNotesWheel(options: {
   onToggle(digit: number): void;
   onClose(): void;
 }): NotesWheel {
-  const margin = RADIUS + BUBBLE / 2 + 8;
+  const margin = RADIUS + 22;
   const cx = Math.min(Math.max(options.x, margin), innerWidth - margin);
   const cy = Math.min(Math.max(options.y, margin), innerHeight - margin);
   let hovered = 0;
-  let moved = false;
   let closed = false;
 
-  const bubbles: HTMLElement[] = [];
-  const wheel = h('div', { class: 'wheel', attrs: { role: 'dialog', 'aria-label': 'Add a note' } });
+  const tiles: HTMLElement[] = [];
+  const wheel = h('div', { class: 'wheel', attrs: { role: 'dialog', 'aria-label': 'Slide to a number to add a note' } });
   wheel.style.left = `${cx}px`;
   wheel.style.top = `${cy}px`;
-  wheel.append(h('div', { class: 'wheel-hub', text: 'note' }));
-  // A visible way out, in addition to tapping outside.
-  wheel.append(h('div', { class: 'wheel-hint', text: 'tap outside to close' }));
   for (let d = 1; d <= 9; d++) {
     const angle = ((-90 + (d - 1) * STEP) * Math.PI) / 180;
-    const bubble = h('button', {
-      class: `wheel-digit${options.notes & (1 << d) ? ' on' : ''}`,
-      text: String(d),
-      attrs: { 'aria-label': `Toggle note ${d}`, 'data-digit': String(d) },
-    });
-    bubble.style.setProperty('--x', `${Math.cos(angle) * RADIUS}px`);
-    bubble.style.setProperty('--y', `${Math.sin(angle) * RADIUS}px`);
-    bubble.style.animationDelay = `${(d - 1) * 12}ms`;
-    bubbles[d] = bubble;
-    wheel.append(bubble);
+    const tile = h('span', { class: `wheel-digit${options.notes & (1 << d) ? ' on' : ''}`, text: String(d) });
+    tile.style.setProperty('--x', `${Math.cos(angle) * RADIUS}px`);
+    tile.style.setProperty('--y', `${Math.sin(angle) * RADIUS}px`);
+    tile.style.animationDelay = `${(d - 1) * 10}ms`;
+    tiles[d] = tile;
+    wheel.append(tile);
   }
-  const backdrop = h('div', { class: 'wheel-backdrop' }, wheel);
-  document.body.append(backdrop);
-  navigator.vibrate?.(12);
-  // Same as the board: keep iOS's own long-press and selection out of the wheel.
-  backdrop.addEventListener('touchstart', (event) => event.preventDefault(), { passive: false });
-
-  // Any new touch on the overlay is a tap: the opening finger went down before the
-  // overlay existed, so it can never land here. Tapping a digit toggles it, tapping
-  // anywhere else closes, whatever state the wheel thinks it is in. That way a lost
-  // lift event can never leave the wheel stuck on screen.
-  backdrop.addEventListener('pointerdown', (event) => {
+  // Transparent layer that only exists while the finger is down; any other touch closes it.
+  const layer = h('div', { class: 'wheel-layer' }, wheel);
+  document.body.append(layer);
+  navigator.vibrate?.(10);
+  layer.addEventListener('touchstart', (event) => event.preventDefault(), { passive: false });
+  layer.addEventListener('pointerdown', (event) => {
     event.preventDefault();
-    hold();
-    const digit = (event.target as HTMLElement).closest<HTMLElement>('[data-digit]')?.dataset.digit;
-    if (digit) {
-      const d = Number(digit);
-      options.onToggle(d);
-      bubbles[d].classList.toggle('on');
-      navigator.vibrate?.(8);
-    } else close();
+    close();
   });
 
   function digitAt(x: number, y: number): number {
-    // Direction is measured from where the finger went down, so it still feels
-    // right when the wheel had to be nudged away from a screen edge.
+    // Measured from where the finger went down, so it still feels right when
+    // the wheel had to be nudged away from a screen edge.
     const dx = x - options.x;
     const dy = y - options.y;
     if (Math.hypot(dx, dy) < DEAD_ZONE) return 0;
@@ -90,12 +68,11 @@ export function openNotesWheel(options: {
   function move(x: number, y: number) {
     if (closed) return;
     const digit = digitAt(x, y);
-    if (digit) moved = true;
     if (digit === hovered) return;
-    if (hovered) bubbles[hovered].classList.remove('hover');
+    if (hovered) tiles[hovered].classList.remove('hover');
     hovered = digit;
     if (hovered) {
-      bubbles[hovered].classList.add('hover');
+      tiles[hovered].classList.add('hover');
       navigator.vibrate?.(5);
     }
   }
@@ -103,30 +80,17 @@ export function openNotesWheel(options: {
   function release(x: number, y: number) {
     if (closed) return;
     move(x, y);
-    if (hovered) {
-      options.onToggle(hovered);
-      close();
-    } else if (!moved) {
-      hold();
-    } else {
-      close();
-    }
-  }
-
-  function hold() {
-    if (closed) return;
-    if (hovered) bubbles[hovered].classList.remove('hover');
-    hovered = 0;
-    backdrop.classList.add('tap-mode');
+    if (hovered) options.onToggle(hovered);
+    close();
   }
 
   function close() {
     if (closed) return;
     closed = true;
-    backdrop.classList.add('closing');
-    setTimeout(() => backdrop.remove(), 120);
+    layer.classList.add('closing');
+    setTimeout(() => layer.remove(), 140);
     options.onClose();
   }
 
-  return { move, release, hold, close };
+  return { move, release, close };
 }
