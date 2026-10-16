@@ -1,6 +1,6 @@
 import { ICONS } from '../icons.ts';
 import { dailyKey, dateKey, loadProfile, nextResetIn } from '../profile.ts';
-import { h, mount, toast, type Screen } from '../ui.ts';
+import { goBack, h, mount, toast, type Screen } from '../ui.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
 import { homeScreen } from './home.ts';
 
@@ -65,7 +65,7 @@ export function dailyScreen(): Screen {
     h(
       'div',
       { class: 'subbar' },
-      h('button', { class: 'icon-btn', html: ICONS.back, attrs: { 'aria-label': 'Back' }, onclick: () => mount(homeScreen()) }),
+      h('button', { class: 'icon-btn', html: ICONS.back, attrs: { 'aria-label': 'Back' }, onclick: () => void goBack(homeScreen) }),
       h('h1', { text: 'Daily Square' }),
       h('span', { class: 'icon-btn-spacer' }),
     ),

@@ -21,17 +21,24 @@ function hingeOrigin(stage: HTMLElement, rect: DOMRect): string {
   return `${stage.getBoundingClientRect().left - rect.left}px 50%`;
 }
 
-/** Tiles swing in from behind the screen's left edge, one after another. */
-export function turnstileIn(stage: HTMLElement, items: HTMLElement[]): void {
+/**
+ * Tiles swing in on the left hinge, one after another. Forward (arriving
+ * fresh) they come from behind the screen, top-left first. Backward
+ * (returning from a mode) they come back from the viewer's side, bottom-right
+ * first: the exact reverse of how they left.
+ */
+export function turnstileIn(stage: HTMLElement, items: HTMLElement[], backward = false): void {
   if (reducedMotion()) return;
-  inReadingOrder(items).forEach(({ el, rect }, i) => {
+  const order = inReadingOrder(items);
+  if (backward) order.reverse();
+  order.forEach(({ el, rect }, i) => {
     el.style.transformOrigin = hingeOrigin(stage, rect);
     el.animate(
       [
-        { transform: `${PERSPECTIVE} rotateY(78deg)`, opacity: 0 },
+        { transform: `${PERSPECTIVE} rotateY(${backward ? -82 : 78}deg)`, opacity: 0 },
         { transform: `${PERSPECTIVE} rotateY(0deg)`, opacity: 1 },
       ],
-      { duration: 520, delay: 40 + i * 55, easing: EASE_OUT, fill: 'backwards' },
+      { duration: backward ? 440 : 520, delay: 30 + i * (backward ? 45 : 55), easing: EASE_OUT, fill: 'backwards' },
     );
   });
 }

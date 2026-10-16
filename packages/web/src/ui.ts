@@ -38,6 +38,33 @@ export function mount(screen: Screen): void {
   document.getElementById('app')!.replaceChildren(screen.el);
 }
 
+/** True while a backward navigation is landing; screens use it to play their entry in reverse. */
+export const navigatingBack = (): boolean => document.documentElement.dataset.nav === 'back';
+
+/**
+ * Go back toward Home: the current page swings back out on its left hinge
+ * (the reverse of how it came in), then the previous screen enters reversed.
+ */
+export async function goBack(next: () => Screen): Promise<void> {
+  const leaving = current?.el;
+  closeAllModals();
+  if (leaving && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    leaving.style.transformOrigin = '0 50%';
+    await leaving
+      .animate(
+        [
+          { transform: 'perspective(1200px) rotateY(0deg)', opacity: 1 },
+          { transform: 'perspective(1200px) rotateY(55deg)', opacity: 0 },
+        ],
+        { duration: 240, easing: 'cubic-bezier(0.7, 0, 1, 0.5)', fill: 'forwards' },
+      )
+      .finished.catch(() => undefined);
+  }
+  document.documentElement.dataset.nav = 'back';
+  mount(next());
+  setTimeout(() => delete document.documentElement.dataset.nav, 800);
+}
+
 const openModals = new Set<() => void>();
 
 export function openModal(content: HTMLElement, options: { dismissible?: boolean; class?: string } = {}): () => void {

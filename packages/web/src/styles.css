@@ -43,8 +43,8 @@
   --cell: var(--c-highlight);
   --cell-cross: var(--c-highlight-2);
   --cell-text: var(--c-bright);
-  /* The player's own digits are in the accent (large bold digits, ~3.9:1 on the cells). */
-  --cell-user: var(--accent);
+  /* Correct player digits look exactly like the givens; only mistakes stand out. */
+  --cell-user: var(--cell-text);
   --select: var(--accent);
   --key-bg: var(--c-second-bright);
   --key-text: var(--c-bg);
@@ -93,7 +93,7 @@
   --cell: var(--c-second-bright);
   --cell-cross: var(--c-mud);
   --cell-text: var(--c-crimson);
-  --cell-user: var(--accent);
+  --cell-user: var(--cell-text);
   --select: var(--accent);
   --key-bg: var(--c-crimson);
   --key-text: var(--c-bright);
@@ -152,12 +152,23 @@ body {
 }
 body {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* Extended by the measured shortfall of fixed layers in home-screen mode (viewport.ts). */
+  bottom: calc(-1 * var(--standalone-gap, 0px));
 }
 /*
- * Literal page colours (not variables): iOS samples the page colour for the
- * status-bar area, and the opaque status bar (index.html) uses theme-color.
+ * Home-screen mode draws under the status bar. Clear it with the reported
+ * inset, or 60px where iOS reports 0, plus room for iOS 26's fade below it.
  */
+html.standalone {
+  --status-clear: max(env(safe-area-inset-top), 60px);
+}
+html.standalone .screen:not(.welcome) {
+  padding-top: calc(var(--status-clear) + 16px);
+}
+/* Literal page colours (not variables), for iOS's status-area sampling. */
 html,
 html body {
   background: #262721;
@@ -167,16 +178,12 @@ html[data-theme='light'] body {
   background: #ffffe5;
 }
 /*
- * No dark override for the welcome screen here: iOS 26 colours the home-screen
- * status bar by sampling this background at launch (it ignores theme-color),
- * so it must be the theme's colour from the first frame. The welcome screen
- * paints its own dark backdrop instead.
- */
-/*
- * A strip for iOS to sample the status-bar colour from: fixed, full width,
- * deeper than 10px and opaque, in the literal theme colour. It sits under the
- * app (which stacks above it), so it is never visible, not even over the dark
- * welcome ribbon in light theme.
+ * The strip iOS 26 samples to tint its status-bar fade: a real element (iOS
+ * ignores pseudo-elements), fixed, full width, opaque, deeper than 10px, in
+ * the literal theme colour. In the browser it hides under the app. In
+ * home-screen mode it covers the status-bar zone above the content (which is
+ * padded clear of it), so the fade blends into the page; popups (z-index 10+)
+ * still cover it, and it steps aside for the dark welcome ribbon.
  */
 #status-tint {
   position: fixed;
@@ -190,6 +197,13 @@ html[data-theme='light'] body {
 }
 html[data-theme='light'] #status-tint {
   background: #ffffe5;
+}
+html.standalone #status-tint {
+  z-index: 5;
+  height: calc(var(--status-clear) + 12px);
+}
+html.standalone.welcome-active #status-tint {
+  display: none;
 }
 /* Fill the fixed body (more reliable on iOS than 100dvh). */
 #app {
@@ -243,6 +257,22 @@ h2 {
 .screen.loading {
   transform-origin: 0 50%;
   animation: page-in 0.42s cubic-bezier(0.1, 0.9, 0.2, 1) both;
+}
+/* Returning to a page (e.g. the calendar after a daily game) swings it in
+   from the other side: the reverse of leaving it. */
+html[data-nav='back'] .screen.daily,
+html[data-nav='back'] .screen.setup {
+  animation-name: page-back-in;
+}
+@keyframes page-back-in {
+  from {
+    transform: perspective(1200px) rotateY(-55deg);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
 }
 @keyframes page-in {
   from {
@@ -604,6 +634,12 @@ h2 {
   font-size: 15px;
   color: var(--muted);
 }
+.device-info {
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: var(--muted);
+}
 .segmented {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -753,6 +789,7 @@ h2 {
 .backdrop {
   position: fixed;
   inset: 0;
+  bottom: calc(-1 * var(--standalone-gap, 0px));
   z-index: 10;
   /* Heavy blur smears the page behind into a soft colour field; the gradient deepens it toward the bottom. */
   background: linear-gradient(180deg, rgba(20, 21, 17, 0.2), rgba(20, 21, 17, 0.55));
@@ -932,6 +969,9 @@ h2 {
     opacity: 0;
   }
 }
+html.standalone .toast {
+  top: calc(var(--status-clear) + 12px);
+}
 .toast.out {
   opacity: 0;
   transform: translateY(-60%);
@@ -1108,15 +1148,16 @@ h2 {
     transform: scale(0.72);
   }
 }
-/* Completing a row, column or box sends a faint ripple through it: a light
-   accent tint only, no colour flip or scaling, so it acknowledges without
-   pulling attention off the board. */
+/* Completing a row, column or box sends a ripple through it, outward from
+   the square just filled. */
 .cell.sweep {
-  animation: sweep 0.6s ease-out both;
+  animation: sweep 0.5s ease-out both;
 }
 @keyframes sweep {
-  35% {
-    background: color-mix(in srgb, var(--accent) 22%, var(--cell));
+  30% {
+    background: var(--accent);
+    color: var(--on-accent);
+    transform: scale(0.94);
   }
 }
 /* The skull row flinches on a mistake. */
@@ -1269,6 +1310,7 @@ h2 {
 .wheel-layer {
   position: fixed;
   inset: 0;
+  bottom: calc(-1 * var(--standalone-gap, 0px));
   z-index: 30;
   touch-action: none;
   transition: opacity 0.1s ease-out;
@@ -1382,6 +1424,7 @@ h2 {
 .coach-layer {
   position: fixed;
   inset: 0;
+  bottom: calc(-1 * var(--standalone-gap, 0px));
   z-index: 40;
   touch-action: none;
   animation: fade 0.25s ease;

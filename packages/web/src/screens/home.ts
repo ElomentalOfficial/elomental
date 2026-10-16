@@ -2,7 +2,7 @@ import type { Difficulty } from '@elomental/engine';
 import { ICONS } from '../icons.ts';
 import { enableTilt, turnstileIn, turnstileOut } from '../motion.ts';
 import { PROTECTED_BELOW, loadProfile, rankTitle, rankedDifficulty } from '../profile.ts';
-import { h, mount, openModal, toast, type Screen } from '../ui.ts';
+import { h, mount, navigatingBack, openModal, toast, type Screen } from '../ui.ts';
 import { dailyScreen } from './daily.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
 import { setupScreen } from './setup.ts';
@@ -67,7 +67,8 @@ export function homeScreen(): Screen {
   const el = h('div', { class: 'screen home' }, grid);
 
   // Runs before the first paint of the new screen, so tiles never flash in place.
-  requestAnimationFrame(() => turnstileIn(grid, animated));
+  const backward = navigatingBack();
+  requestAnimationFrame(() => turnstileIn(grid, animated, backward));
 
   return { el };
 }

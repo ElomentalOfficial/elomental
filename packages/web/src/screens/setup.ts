@@ -1,7 +1,8 @@
 import { ICONS } from '../icons.ts';
 import { getTheme, setTheme, type Theme } from '../theme.ts';
 import { resetTutorial } from '../tutorial.ts';
-import { h, mount, toast, type Screen } from '../ui.ts';
+import { deviceInfo } from '../viewport.ts';
+import { goBack, h, mount, toast, type Screen } from '../ui.ts';
 import { homeScreen } from './home.ts';
 
 export function setupScreen(): Screen {
@@ -35,14 +36,24 @@ export function setupScreen(): Screen {
   };
   sync();
 
+  // Hidden diagnostics: five taps on the title show what the phone reports about its screen.
+  const title = h('h1', { text: 'Setup' });
+  const info = h('pre', { class: 'device-info' });
+  let taps = 0;
+  title.addEventListener('click', () => {
+    if (++taps < 5) return;
+    taps = 0;
+    info.textContent = info.textContent ? '' : deviceInfo().join('\n');
+  });
+
   const el = h(
     'div',
     { class: 'screen setup' },
     h(
       'div',
       { class: 'subbar' },
-      h('button', { class: 'icon-btn', html: ICONS.back, attrs: { 'aria-label': 'Back' }, onclick: () => mount(homeScreen()) }),
-      h('h1', { text: 'Setup' }),
+      h('button', { class: 'icon-btn', html: ICONS.back, attrs: { 'aria-label': 'Back' }, onclick: () => void goBack(homeScreen) }),
+      title,
       h('span', { class: 'icon-btn-spacer' }),
     ),
     h(
@@ -64,6 +75,7 @@ export function setupScreen(): Screen {
         },
       }),
     ),
+    info,
   );
   return { el };
 }

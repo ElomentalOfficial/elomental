@@ -16,7 +16,7 @@ import { requestPuzzle } from '../puzzles.ts';
 import { openNotesWheel, type NotesWheel } from '../radial.ts';
 import { readJson, removeKey, writeJson } from '../storage.ts';
 import { markTutorialDone, runTutorial, tutorialDone, type TutorialStep } from '../tutorial.ts';
-import { formatTime, h, mount, openModal, toast, type Screen } from '../ui.ts';
+import { formatTime, goBack, h, mount, openModal, toast, type Screen } from '../ui.ts';
 import { dailyScreen } from './daily.ts';
 import { homeScreen } from './home.ts';
 
@@ -471,7 +471,7 @@ function gameScreen(game: SavedGame): Screen {
 
     const again =
       config.mode === 'daily'
-        ? h('button', { class: 'btn btn-primary', text: 'Calendar', onclick: () => mount(dailyScreen()) })
+        ? h('button', { class: 'btn btn-primary', text: 'Calendar', onclick: () => void goBack(dailyScreen) })
         : h('button', {
             class: 'btn btn-primary',
             text: ranked ? 'Next match' : 'New square',
@@ -485,7 +485,7 @@ function gameScreen(game: SavedGame): Screen {
         h('h2', { class: won ? 'good' : '', text: titles[reason] }),
         h('div', { class: 'stats' }, ...rows),
         rewards.childElementCount ? rewards : null,
-        h('div', { class: 'actions' }, again, h('button', { class: 'btn', text: 'Home', onclick: () => mount(homeScreen()) })),
+        h('div', { class: 'actions' }, again, h('button', { class: 'btn', text: 'Home', onclick: () => void goBack(homeScreen) })),
       ),
       { dismissible: false },
     );
@@ -617,10 +617,10 @@ function gameScreen(game: SavedGame): Screen {
   });
   pauseButton.addEventListener('click', () => setPaused(!paused));
   leftButton.addEventListener('click', () => {
-    if (finished) return mount(homeScreen());
+    if (finished) return void goBack(homeScreen);
     if (ranked) return concede();
     save();
-    mount(config.mode === 'daily' ? dailyScreen() : homeScreen());
+    void goBack(config.mode === 'daily' ? dailyScreen : homeScreen);
   });
 
   const onKey = (event: KeyboardEvent) => {

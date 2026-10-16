@@ -12,6 +12,10 @@
       // the opaque status bar from theme-color as the app launches, so it must be
       // the theme's colour from the very first moment (the welcome ribbon included).
       document.documentElement.classList.add('welcome-active');
+      // Home-screen app: the page draws under the status bar (see the meta tag below).
+      if (navigator.standalone || matchMedia('(display-mode: standalone)').matches) {
+        document.documentElement.classList.add('standalone');
+      }
       var theme = 'dark';
       try {
         if (JSON.parse(localStorage.getItem('elomental:theme')) === 'light') theme = 'light';
@@ -22,13 +26,13 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <!--
-      Opaque status bar on purpose. With black-translucent, iOS home-screen apps draw
-      under the status bar, add an unremovable fade over the top of the page (iOS 26)
-      and size the page short by the status-bar height, leaving a strip at the bottom.
-      With default, the page gets its own full-height area below the status bar.
+      Draw under the status bar so it shows the app's own colour in both themes.
+      With "default", iOS paints an opaque bar from the *system* appearance, so a
+      phone in dark mode got a black bar over the light theme. The translucent
+      mode's side effects are handled in styles.css and viewport.ts.
       iOS only reads this when the app is added to the home screen.
     -->
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Elomental" />
     <title>Elomental</title>
     <link rel="manifest" href="./manifest.webmanifest" />
