@@ -38,6 +38,8 @@ export interface SavedGame {
 
 const SAVE_KEY = 'elomental:game';
 const MAX_MISTAKES = 3;
+/** Hints per game (Casual · Easy only), so a puzzle can't be solved on hints alone. */
+const MAX_HINTS = 10;
 const LONG_PRESS_MS = 380;
 const MOVE_TOLERANCE = 10;
 
@@ -256,6 +258,7 @@ function gameScreen(game: SavedGame): Screen {
   function hint() {
     if (finished || paused) return;
     if (!hintsAllowed) return toast('Hints are only available in Casual · Easy');
+    if (game.hints >= MAX_HINTS) return toast(`No hints left — ${MAX_HINTS} per game`);
     // Only correct digits count as known; a wrong entry must not mislead the hint.
     const known = Uint8Array.from(game.values, (v, c) => (v === solution[c] ? v : 0));
     const next = nextPlacement(known);
@@ -265,7 +268,15 @@ function gameScreen(game: SavedGame): Screen {
     place(next.cell, next.digit);
     cells[next.cell].classList.add('hinted');
     setTimeout(() => cells[next.cell].classList.remove('hinted'), 900);
-    toast(`${TECHNIQUE_BY_ID[next.technique].name}: ${next.digit}`);
+    const left = MAX_HINTS - game.hints;
+    toast(`${TECHNIQUE_BY_ID[next.technique].name}: ${next.digit} · ${left} hint${left === 1 ? '' : 's'} left`);
+  }
+
+  function renderHintButton() {
+    if (!hintsAllowed) return;
+    const left = MAX_HINTS - game.hints;
+    hintButton.classList.toggle('locked', left <= 0);
+    hintButton.innerHTML = `${left > 0 ? ICONS.hint : ICONS.lock}<span>Hint</span><span class="hint-count">${left}</span>`;
   }
 
   function select(cell: number) {
@@ -318,6 +329,7 @@ function gameScreen(game: SavedGame): Screen {
       keys[d].classList.toggle('done', placed === 9);
     }
     el.classList.toggle('notes-mode', notesMode);
+    renderHintButton();
   }
 
   // --- Clock (always counts up) ---------------------------------------------
@@ -380,7 +392,7 @@ function gameScreen(game: SavedGame): Screen {
     }
 
     const rewards = h('div', { class: 'rewards' });
-    if (outcome.dust) rewards.append(h('div', { class: 'reward', html: `${ICONS.dust}<span>+${outcome.dust} Dust Stones</span>` }));
+    if (outcome.dust) rewards.append(h('div', { class: 'reward', html: `${ICONS.dust}<span>+${outcome.dust} Stardust</span>` }));
     if (outcome.crown) rewards.append(h('div', { class: 'reward rare', html: `${ICONS.crown}<span>Rare drop: Rusted Crown!</span>` }));
 
     const again =
@@ -478,27 +490,34 @@ function gameScreen(game: SavedGame): Screen {
       }, LONG_PRESS_MS),
     };
   });
-  board.addEventListener('pointermove', (event) => {
+  // Move/up/cancel are tracked on the window, not the board: once the wheel opens it
+  // covers the board, and iOS doesn't reliably honour pointer capture for touch, so
+  // the lift can land on the wheel's overlay instead. Missing it is what left the
+  // wheel stuck open with no way to close it.
+  const onPressMove = (event: PointerEvent) => {
     if (!press || event.pointerId !== press.id) return;
     if (wheel) wheel.move(event.clientX, event.clientY);
     else if (Math.hypot(event.clientX - press.x, event.clientY - press.y) > MOVE_TOLERANCE) {
       clearTimeout(press.timer);
       press = null;
     }
-  });
-  board.addEventListener('pointerup', (event) => {
+  };
+  const onPressUp = (event: PointerEvent) => {
     if (!press || event.pointerId !== press.id) return;
     clearTimeout(press.timer);
     press = null;
     wheel?.release(event.clientX, event.clientY);
-  });
-  board.addEventListener('pointercancel', (event) => {
+  };
+  const onPressCancel = (event: PointerEvent) => {
     if (!press || event.pointerId !== press.id) return;
     clearTimeout(press.timer);
     press = null;
     // The system took the touch away: leave the wheel open for tapping instead of losing it.
     wheel?.hold();
-  });
+  };
+  window.addEventListener('pointermove', onPressMove, true);
+  window.addEventListener('pointerup', onPressUp, true);
+  window.addEventListener('pointercancel', onPressCancel, true);
 
   pad.addEventListener('pointerdown', (event) => {
     const key = (event.target as HTMLElement).closest<HTMLElement>('[data-digit]');
@@ -565,6 +584,9 @@ function gameScreen(game: SavedGame): Screen {
       clearInterval(clock);
       clearInterval(autosave);
       window.removeEventListener('keydown', onKey);
+      window.removeEventListener('pointermove', onPressMove, true);
+      window.removeEventListener('pointerup', onPressUp, true);
+      window.removeEventListener('pointercancel', onPressCancel, true);
       document.removeEventListener('visibilitychange', onHide);
     },
   };

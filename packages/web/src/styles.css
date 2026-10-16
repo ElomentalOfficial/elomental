@@ -455,19 +455,6 @@ h2 {
   width: 32px;
   height: 43px;
 }
-.badge {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  padding: 2px 7px;
-  border-radius: 3px;
-  background: var(--c-bright);
-  color: var(--c-bg);
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
 .profile-card {
   grid-area: profile;
   position: relative;
@@ -760,9 +747,10 @@ h2 {
   inset: 0;
   bottom: calc(-1 * var(--standalone-gap, 0px));
   z-index: 10;
-  background: rgba(20, 21, 17, 0.45);
-  -webkit-backdrop-filter: blur(7px);
-  backdrop-filter: blur(7px);
+  /* Heavy blur smears the page behind into a soft colour field; the gradient deepens it toward the bottom. */
+  background: linear-gradient(180deg, rgba(20, 21, 17, 0.2), rgba(20, 21, 17, 0.55));
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  backdrop-filter: blur(24px) saturate(1.4);
   display: grid;
   place-items: center;
   padding: var(--gutter);
@@ -1229,6 +1217,16 @@ html.standalone .toast {
 .action.locked {
   opacity: 0.4;
 }
+.hint-count {
+  min-width: 22px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--c-lava);
+  color: var(--c-bright);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 800;
+}
 
 /* ---------- Notes wheel ---------- */
 .wheel-backdrop {
@@ -1253,11 +1251,11 @@ html.standalone .toast {
 .wheel::before {
   content: '';
   position: absolute;
-  width: 212px;
-  height: 212px;
-  left: -106px;
-  top: -106px;
-  border-radius: 50%;
+  width: 216px;
+  height: 216px;
+  left: -108px;
+  top: -108px;
+  border-radius: 10px;
   background: var(--wheel-ring);
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
   animation: ring 0.16s ease-out;
@@ -1274,7 +1272,7 @@ html.standalone .toast {
   height: 46px;
   left: -23px;
   top: -23px;
-  border-radius: 50%;
+  border-radius: 4px;
   display: grid;
   place-items: center;
   border: 1.5px dashed var(--muted);
@@ -1288,7 +1286,7 @@ html.standalone .toast {
   height: 46px;
   left: -23px;
   top: -23px;
-  border-radius: 50%;
+  border-radius: 4px;
   background: var(--wheel-bg);
   color: var(--wheel-text);
   font-weight: 800;
@@ -1302,6 +1300,26 @@ html.standalone .toast {
     transform: translate(0, 0) scale(0.3);
     opacity: 0;
   }
+}
+.wheel-hint {
+  position: absolute;
+  top: 116px;
+  left: 0;
+  transform: translateX(-50%);
+  width: max-content;
+  padding: 5px 10px;
+  border-radius: 4px;
+  background: var(--wheel-ring);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  font-family: var(--serif);
+  font-size: 13px;
+  color: var(--text);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+.tap-mode .wheel-hint {
+  opacity: 0.85;
 }
 .wheel-digit.on {
   background: var(--wheel-on);

@@ -10,9 +10,6 @@ import { setupScreen } from './setup.ts';
 /** Layout from the Figma home frame: profile card with the Setup notch, then the mode tiles. */
 export function homeScreen(): Screen {
   const profile = loadProfile();
-  const saved = loadSavedGame();
-  const inProgress = (mode: string) => (saved?.config.mode === mode ? h('span', { class: 'badge', text: 'In progress' }) : null);
-
   let leaving = false;
   const stops: (() => void)[] = [];
 
@@ -53,18 +50,18 @@ export function homeScreen(): Screen {
       'div',
       { class: 'profile-stats' },
       stat(String(profile.elo), 'Elo'),
-      stat(String(profile.dust), 'Dust', ICONS.dust),
+      stat(String(profile.dust), 'Stardust', ICONS.dust),
       stat(String(profile.crowns), 'Crowns', ICONS.crown),
     ),
     h('div', { class: 'setup-notch' }, setupTile),
   );
   setupTile.addEventListener('click', () => leave(profileCard, () => mount(setupScreen())));
 
-  const daily = tile('daily', ICONS.daily, 'Daily Square', (el) => leave(el, () => mount(dailyScreen())), inProgress('daily'));
+  const daily = tile('daily', ICONS.daily, 'Daily Square', (el) => leave(el, () => mount(dailyScreen())));
   const store = tile('store', ICONS.store, 'Store', () => toast('The store opens later'));
   const leader = tile('leader', ICONS.leaderboard, 'Leaderboard', () => toast('Leaderboards need accounts'));
-  const casual = tile('casual', ICONS.casual, 'Casual', (el) => openCasual((go) => leave(el, go)), inProgress('casual'));
-  const ranked = tile('ranked', ICONS.ranked, 'Play Ranked', (el) => openRanked((go) => leave(el, go)), inProgress('ranked'));
+  const casual = tile('casual', ICONS.casual, 'Casual', (el) => openCasual((go) => leave(el, go)));
+  const ranked = tile('ranked', ICONS.ranked, 'Play Ranked', (el) => openRanked((go) => leave(el, go)));
 
   const animated = [profileCard, daily, store, leader, casual, ranked];
   const grid = h('div', { class: 'home-grid' }, ...animated);

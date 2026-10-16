@@ -13,7 +13,7 @@ for the full-screen app feel.
 - [`packages/web`](packages/web): mobile-first prototype (Vite, vanilla TypeScript) with Casual,
   Daily Square and Ranked modes, styled after the Figma sketches.
 
-> **Prototype caveat:** puzzles, Elo, Dust Stones and drops are generated and stored in the
+> **Prototype caveat:** puzzles, Elo, Stardust and drops are generated and stored in the
 > browser (localStorage) so the full loop can be played. In the real app, Supabase is the
 > authority for all of these, and ranked solutions never reach the client.
 

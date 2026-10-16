@@ -40,6 +40,8 @@ export function openNotesWheel(options: {
   wheel.style.left = `${cx}px`;
   wheel.style.top = `${cy}px`;
   wheel.append(h('div', { class: 'wheel-hub', text: 'note' }));
+  // A visible way out, in addition to tapping outside.
+  wheel.append(h('div', { class: 'wheel-hint', text: 'tap outside to close' }));
   for (let d = 1; d <= 9; d++) {
     const angle = ((-90 + (d - 1) * STEP) * Math.PI) / 180;
     const bubble = h('button', {
@@ -59,10 +61,13 @@ export function openNotesWheel(options: {
   // Same as the board: keep iOS's own long-press and selection out of the wheel.
   backdrop.addEventListener('touchstart', (event) => event.preventDefault(), { passive: false });
 
-  // Tap mode: after a lift without a pick, digits are tappable and a tap outside closes.
+  // Any new touch on the overlay is a tap: the opening finger went down before the
+  // overlay existed, so it can never land here. Tapping a digit toggles it, tapping
+  // anywhere else closes, whatever state the wheel thinks it is in. That way a lost
+  // lift event can never leave the wheel stuck on screen.
   backdrop.addEventListener('pointerdown', (event) => {
-    if (!backdrop.classList.contains('tap-mode')) return;
     event.preventDefault();
+    hold();
     const digit = (event.target as HTMLElement).closest<HTMLElement>('[data-digit]')?.dataset.digit;
     if (digit) {
       const d = Number(digit);
