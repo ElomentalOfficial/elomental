@@ -3,6 +3,19 @@ import { ICONS } from '../icons.ts';
 import { enableTilt, turnstileIn, turnstileOut } from '../motion.ts';
 import { HINT_ELO_PENALTY, PROTECTED_BELOW, loadProfile, rankTitle, rankedDifficulty } from '../profile.ts';
 import { h, mount, navigatingBack, openModal, toast, type Screen } from '../ui.ts';
+import {
+  CODE_LENGTH,
+  difficultyOf,
+  formatSeconds,
+  getClash,
+  isValidCode,
+  newCode,
+  normalizeCode,
+  saveClash,
+  seedOf,
+  takeLinkFromUrl,
+} from '../clash.ts';
+import { clashTable, clashVerdict, shareButton } from '../clashView.ts';
 import { dailyScreen } from './daily.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
 import { setupScreen } from './setup.ts';
@@ -69,6 +82,7 @@ export function homeScreen(): Screen {
   // Runs before the first paint of the new screen, so tiles never flash in place.
   const backward = navigatingBack();
   requestAnimationFrame(() => turnstileIn(grid, animated, backward));
+  setTimeout(() => handleClashLink((go) => leave(casual, go)), 420);
 
   return { el };
 }
@@ -111,8 +125,154 @@ function openCasual(leave: (go: () => void) => void) {
       h('button', { class: 'btn', text: 'Easy', onclick: () => choose('easy') }),
       h('button', { class: 'btn', text: 'Medium', onclick: () => choose('medium') }),
       h('button', { class: 'btn', text: 'Hard', onclick: () => choose('hard') }),
+      h('button', {
+        class: 'btn btn-clash',
+        html: `${ICONS.ranked}<span>Clash a friend</span>`,
+        onclick: () => {
+          close();
+          openClash(leave);
+        },
+      }),
     ),
   );
+}
+
+/**
+ * Clash: join a friend's code, or make one. `prefill` comes from a shared
+ * link; their result (if any) is already stored by then.
+ */
+function openClash(leave: (go: () => void) => void, prefill = '') {
+  const saved = loadSavedGame();
+  const play = (code: string) => {
+    const record = getClash(code);
+    close();
+    // Each code is played once: a finished clash shows the comparison instead.
+    if (record.mine) return showClashRecord(code);
+    leave(() => void startGame({ mode: 'clash', difficulty: difficultyOf(code), seed: seedOf(code), clash: { code, theirs: record.theirs } }));
+  };
+
+  const join = h('button', { class: 'btn btn-primary', text: 'Join clash', onclick: () => play(input.value()) });
+  const input = codeInput(prefill, (code) => {
+    join.disabled = !isValidCode(code);
+  });
+
+  const created = h('div', { class: 'clash-created' });
+  const create = (difficulty: Difficulty) => {
+    const code = newCode(difficulty);
+    created.replaceChildren(
+      h('p', { class: 'note', text: `Your ${difficulty} code. Send it now or after you play: your time goes with the result.` }),
+      h('div', { class: 'clash-code', attrs: { 'aria-label': `Code ${code.split('').join(' ')}` } }, ...code.split('').map((ch) => h('span', { text: ch }))),
+      h('div', { class: 'clash-actions' }, shareButton(code, undefined, 'Share code', false), h('button', { class: 'btn btn-primary', text: 'Play', onclick: () => play(code) })),
+    );
+    // Once a code exists, the sheet is about that code only.
+    sheet.classList.add('has-code');
+  };
+  const picker = h(
+    'div',
+    { class: 'clash-picker' },
+    h('button', { class: 'btn', text: 'Easy', onclick: () => create('easy') }),
+    h('button', { class: 'btn', text: 'Medium', onclick: () => create('medium') }),
+    h('button', { class: 'btn', text: 'Hard', onclick: () => create('hard') }),
+  );
+
+  const resume = saved?.config.mode === 'clash' && saved.config.clash ? saved : null;
+  const theirs = prefill ? getClash(prefill).theirs : undefined;
+  const challenge = theirs
+    ? h('p', {
+        class: 'clash-challenge',
+        text: theirs.solved
+          ? `Your friend set ${formatSeconds(theirs.seconds)} with ${theirs.mistakes} mistake${theirs.mistakes === 1 ? '' : 's'} and ${theirs.hints} hint${theirs.hints === 1 ? '' : 's'}. Beat it.`
+          : "Your friend couldn't crack this one. Can you?",
+      })
+    : null;
+  const sheet = h(
+    'div',
+    { class: 'sheet clash-sheet' },
+    closeButton(() => close()),
+    h('h2', { text: 'Clash' }),
+    h('p', { text: 'Race a friend on the same square. Lowest time wins; hints and mistakes add seconds.' }),
+    challenge,
+    resume
+      ? h('button', {
+          class: 'btn btn-primary clash-join',
+          text: `Resume ${resume.config.clash!.code}`,
+          onclick: () => {
+            close();
+            leave(() => resumeGame(resume));
+          },
+        })
+      : null,
+    h('div', { class: 'clash-join' }, h('label', { class: 'clash-label', text: 'Enter a code' }), input.el, join),
+    h('div', { class: 'divider', text: 'or create one' }),
+    picker,
+    created,
+  );
+  const close = openModal(sheet);
+  if (!prefill) setTimeout(() => input.focus(), 260);
+}
+
+/** Six boxes over one real text field: typing, backspace and paste all just work. */
+function codeInput(initial: string, onChange: (code: string) => void) {
+  const field = h('input', {
+    class: 'code-field',
+    attrs: {
+      type: 'text',
+      inputmode: 'text',
+      autocomplete: 'one-time-code',
+      autocapitalize: 'characters',
+      autocorrect: 'off',
+      spellcheck: 'false',
+      maxlength: '12',
+      'aria-label': 'Clash code, 6 characters',
+    },
+  });
+  const boxes = Array.from({ length: CODE_LENGTH }, () => h('span', { class: 'code-box' }));
+  const el = h('div', { class: 'code-input' }, ...boxes, field);
+  const paint = () => {
+    const code = normalizeCode(field.value);
+    if (field.value !== code) field.value = code;
+    const focused = document.activeElement === field;
+    boxes.forEach((box, i) => {
+      box.textContent = code[i] ?? '';
+      box.classList.toggle('active', focused && i === Math.min(code.length, CODE_LENGTH - 1));
+      box.classList.toggle('filled', i < code.length);
+    });
+    onChange(code);
+  };
+  field.value = normalizeCode(initial);
+  field.addEventListener('input', paint);
+  field.addEventListener('focus', paint);
+  field.addEventListener('blur', paint);
+  // Keep the caret at the end so backspace always removes the last character.
+  field.addEventListener('click', () => field.setSelectionRange(field.value.length, field.value.length));
+  paint();
+  return { el, value: () => normalizeCode(field.value), focus: () => field.focus() };
+}
+
+/** The comparison for a clash this device has already played. */
+function showClashRecord(code: string) {
+  const record = getClash(code);
+  if (!record.mine) return;
+  const verdict = clashVerdict(record.mine, record.theirs);
+  const close = openModal(
+    h(
+      'div',
+      { class: 'result clash-result' },
+      h('h2', { class: verdict.tone, text: verdict.title }),
+      record.theirs ? null : h('p', { class: 'note', text: 'Still waiting on your friend. Send them the link again?' }),
+      clashTable(code, record.mine, record.theirs),
+      h('div', { class: 'actions' }, shareButton(code, record.mine, record.theirs ? 'Send result' : 'Challenge a friend'), h('button', { class: 'btn', text: 'Close', onclick: () => close() })),
+    ),
+  );
+}
+
+/** A `#clash=` link: store the friend's result, then show the duel or the join sheet. */
+function handleClashLink(leave: (go: () => void) => void) {
+  const link = takeLinkFromUrl();
+  if (!link) return;
+  if (link.theirs) saveClash(link.code, { theirs: link.theirs });
+  if (getClash(link.code).mine) showClashRecord(link.code);
+  else openClash(leave, link.code);
 }
 
 function openRanked(leave: (go: () => void) => void) {

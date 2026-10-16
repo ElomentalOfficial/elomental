@@ -15,6 +15,8 @@ import { requestPuzzle } from '../puzzles.ts';
 import { openNotesWheel, type NotesWheel } from '../radial.ts';
 import { readJson, removeKey, writeJson } from '../storage.ts';
 import { explainHint, type Marks } from '../explain.ts';
+import { formatSeconds, getClash, saveClash, type ClashResult } from '../clash.ts';
+import { clashTable, clashVerdict, shareButton } from '../clashView.ts';
 import { runHintCoach } from '../hintCoach.ts';
 import { markTutorialDone, runTutorial, tutorialDone, type TutorialStep } from '../tutorial.ts';
 import { formatTime, goBack, h, mount, openModal, toast, type Screen } from '../ui.ts';
@@ -29,6 +31,8 @@ export interface GameConfig {
   rating: number;
   seed: string;
   dateKey?: string;
+  /** Clash: the shared code, and the friend's result when it came in a link. */
+  clash?: { code: string; theirs?: ClashResult | null };
 }
 
 interface Change {
@@ -64,7 +68,13 @@ export function loadSavedGame(): SavedGame | null {
   return saved;
 }
 
-export async function startGame(options: { mode: Mode; difficulty: Difficulty; seed?: string; dateKey?: string }) {
+export async function startGame(options: {
+  mode: Mode;
+  difficulty: Difficulty;
+  seed?: string;
+  dateKey?: string;
+  clash?: GameConfig['clash'];
+}) {
   mount(loadingScreen());
   try {
     const p = await requestPuzzle({ difficulty: options.difficulty, seed: options.seed });
@@ -77,6 +87,7 @@ export async function startGame(options: { mode: Mode; difficulty: Difficulty; s
         rating: p.rating,
         seed: p.seed,
         dateKey: options.dateKey,
+        clash: options.clash,
       },
       values: [...p.puzzle].map(Number),
       notes: new Array(81).fill(0),
@@ -105,12 +116,15 @@ function loadingScreen(): Screen {
   };
 }
 
-const MODE_LABEL: Record<Mode, string> = { casual: 'Casual', daily: 'Daily Square', ranked: 'Ranked' };
+const MODE_LABEL: Record<Mode, string> = { casual: 'Casual', daily: 'Daily Square', ranked: 'Ranked', clash: 'Clash' };
 const capitalize = (s: string) => s[0].toUpperCase() + s.slice(1);
 
 function gameScreen(game: SavedGame): Screen {
   const { config } = game;
   const ranked = config.mode === 'ranked';
+  const clash = config.mode === 'clash' ? config.clash : undefined;
+  /** Ranked and Clash are races: wall-clock timing, no pause. */
+  const competitive = ranked || !!clash;
   const given = [...config.puzzle].map((ch) => ch !== '0');
   const solution = [...config.solution].map(Number);
 
@@ -128,7 +142,7 @@ function gameScreen(game: SavedGame): Screen {
   const leftButton = h('button', { class: 'bar-btn', text: ranked ? 'Concede' : 'Home' });
   const timer = h('div', { class: 'timer' });
   const pauseButton = h('button', { class: 'bar-btn bar-icon', html: ICONS.pause, attrs: { 'aria-label': 'Pause' } });
-  if (ranked) pauseButton.style.visibility = 'hidden';
+  if (competitive) pauseButton.style.visibility = 'hidden';
 
   const skulls = Array.from({ length: MAX_MISTAKES }, () => h('span', { class: 'skull', html: ICONS.mistake }));
   const status = h(
@@ -137,8 +151,13 @@ function gameScreen(game: SavedGame): Screen {
     h('div', { class: 'mistakes', attrs: { 'aria-label': 'Mistakes' } }, ...skulls),
     h('div', {
       class: 'puzzle-info',
-      // Only Casual shows its difficulty; Daily and Ranked keep it hidden.
-      text: config.mode === 'casual' ? `Casual · ${capitalize(config.difficulty)}` : MODE_LABEL[config.mode],
+      // Only Casual shows its difficulty; Daily and Ranked keep it hidden. Clash shows
+      // its code and, when the friend's result came in a link, the time to beat.
+      text: clash
+        ? `Clash · ${clash.code}${clash.theirs?.solved ? ` · beat ${formatSeconds(clash.theirs.seconds)}` : ''}`
+        : config.mode === 'casual'
+          ? `Casual · ${capitalize(config.difficulty)}`
+          : MODE_LABEL[config.mode],
     }),
   );
 
@@ -369,7 +388,7 @@ function gameScreen(game: SavedGame): Screen {
   }
 
   function setPaused(value: boolean) {
-    if (ranked || finished) return;
+    if (competitive || finished) return;
     paused = value;
     el.classList.toggle('paused', paused);
     pauseButton.innerHTML = paused ? ICONS.play : ICONS.pause;
@@ -434,7 +453,7 @@ function gameScreen(game: SavedGame): Screen {
     if (coaching) {
       // The clock stands still during the first-game tutorial, ranked included.
       game.startedAt = Date.now() - game.elapsedMs;
-    } else if (ranked) {
+    } else if (competitive) {
       game.elapsedMs = Date.now() - game.startedAt;
     } else if (!paused && !finished && !document.hidden) {
       // Cap the step so a sleeping phone doesn't add the whole nap to the clock.
@@ -467,7 +486,44 @@ function gameScreen(game: SavedGame): Screen {
       hints: game.hints,
       elapsedMs: game.elapsedMs,
     });
+    if (clash) {
+      const mine: ClashResult = {
+        solved: won,
+        seconds: Math.floor(game.elapsedMs / 1000),
+        mistakes: game.mistakes,
+        hints: game.hints,
+      };
+      // A result that arrived in a link wins over an older one stored here.
+      const theirs = clash.theirs ?? getClash(clash.code).theirs ?? null;
+      saveClash(clash.code, { mine, theirs: theirs ?? undefined });
+      setTimeout(() => showClashResult(clash.code, mine, theirs, outcome), won ? 650 : 350);
+      return;
+    }
     setTimeout(() => showResult(won, reason, outcome), won ? 650 : 350);
+  }
+
+  function showClashResult(code: string, mine: ClashResult, theirs: ClashResult | null, outcome: Outcome) {
+    const verdict = clashVerdict(mine, theirs);
+    const rewards = h('div', { class: 'rewards' });
+    if (outcome.dust) rewards.append(h('div', { class: 'reward' }, h('span', { html: ICONS.dust }), h('span', { text: `+${outcome.dust} Stardust` })));
+    if (outcome.crown) rewards.append(h('div', { class: 'reward rare', html: `${ICONS.crown}<span>Rare drop: Rusted Crown!</span>` }));
+    openModal(
+      h(
+        'div',
+        { class: 'result clash-result' },
+        h('h2', { class: verdict.tone, text: verdict.title }),
+        theirs ? null : h('p', { class: 'note', text: 'Send your result to your friend. Whoever plays second sees who won.' }),
+        clashTable(code, mine, theirs),
+        rewards.childElementCount ? rewards : null,
+        h(
+          'div',
+          { class: 'actions' },
+          shareButton(code, mine, theirs ? 'Send result' : 'Challenge a friend'),
+          h('button', { class: 'btn', text: 'Home', onclick: () => void goBack(homeScreen) }),
+        ),
+      ),
+      { dismissible: false },
+    );
   }
 
   function showResult(won: boolean, reason: string, outcome: Outcome) {

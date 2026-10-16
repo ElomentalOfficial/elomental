@@ -39,8 +39,14 @@ export function installZoomGuards(): void {
   window.visualViewport?.addEventListener('scroll', pin);
 
   // Text selection and the long-press menu (the notes wheel owns long-press).
-  document.addEventListener('selectstart', (event) => event.preventDefault());
-  document.addEventListener('contextmenu', (event) => event.preventDefault());
+  // Text fields keep both, so a Clash code can be pasted.
+  const inField = (event: Event) => (event.target as Element | null)?.closest?.('input, textarea');
+  document.addEventListener('selectstart', (event) => {
+    if (!inField(event)) event.preventDefault();
+  });
+  document.addEventListener('contextmenu', (event) => {
+    if (!inField(event)) event.preventDefault();
+  });
 
   // Safety net: if the page is ever zoomed anyway, snap it back. Rewriting the
   // viewport meta makes iOS re-apply maximum-scale=1.

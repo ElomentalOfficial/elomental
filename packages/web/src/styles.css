@@ -45,11 +45,11 @@
   --cell-text: var(--c-bright);
   /* Correct player digits look exactly like the givens; only mistakes stand out. */
   --cell-user: var(--cell-text);
-  --select: var(--accent);
+  --select: var(--c-second-bright);
   --key-bg: var(--c-second-bright);
   --key-text: var(--c-bg);
-  --erase-bg: var(--accent);
-  --erase-text: var(--c-bright);
+  --erase-bg: var(--key-bg);
+  --erase-text: var(--key-text);
   --action-bg: var(--c-highlight-2);
   --action-text: var(--c-bright);
   --wheel-bg: var(--c-second-bright);
@@ -68,7 +68,7 @@
   --separator: #40413c;
   --mistake-on: var(--c-bright);
   --mistake-off: #40413c;
-  --eraser-shade: #ffa981;
+  --eraser-shade: rgba(38, 39, 33, 0.45);
 }
 
 :root[data-theme='light'] {
@@ -94,11 +94,11 @@
   --cell-cross: var(--c-mud);
   --cell-text: var(--c-crimson);
   --cell-user: var(--cell-text);
-  --select: var(--accent);
+  --select: var(--c-crimson);
   --key-bg: var(--c-crimson);
   --key-text: var(--c-bright);
-  --erase-bg: var(--accent);
-  --erase-text: var(--c-bright);
+  --erase-bg: var(--key-bg);
+  --erase-text: var(--key-text);
   --action-bg: var(--c-second-bright);
   --action-text: var(--c-crimson);
   --wheel-bg: var(--c-crimson);
@@ -116,7 +116,7 @@
   --separator: #e8e8cc;
   --mistake-on: var(--c-crimson);
   --mistake-off: var(--c-mud);
-  --eraser-shade: #abb480;
+  --eraser-shade: rgba(255, 255, 229, 0.55);
 }
 
 * {
@@ -934,6 +934,200 @@ html[data-nav='back'] .screen.setup {
   flex-direction: column;
   gap: 10px;
 }
+.btn:disabled {
+  opacity: 0.45;
+  transform: none;
+}
+
+/* ---------- Clash ---------- */
+.btn-clash {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 6px;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.btn-clash svg {
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+.clash-sheet {
+  gap: 10px;
+}
+.sheet .clash-challenge {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: var(--accent);
+  font-size: 16px;
+}
+.clash-join {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+.clash-sheet.has-code .clash-join,
+.clash-sheet.has-code .divider,
+.clash-sheet.has-code .clash-picker,
+.clash-sheet.has-code .clash-challenge {
+  display: none;
+}
+.clash-label {
+  align-self: flex-start;
+  margin-top: 4px;
+  font-family: var(--serif);
+  font-size: 14px;
+  color: var(--muted);
+}
+/* Six painted boxes; the real text field sits invisibly on top of them. */
+.code-input {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  width: 100%;
+}
+.code-box,
+.clash-code span {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  font-family: var(--serif);
+  font-size: 24px;
+  color: var(--text);
+}
+.code-box {
+  box-shadow: inset 0 0 0 1.5px var(--line);
+  transition: box-shadow 0.15s ease;
+}
+.code-box.active {
+  box-shadow: inset 0 0 0 2px var(--select);
+}
+.code-box.active:empty::after {
+  content: '';
+  width: 2px;
+  height: 45%;
+  background: var(--select);
+  animation: caret 1s steps(1) infinite;
+}
+@keyframes caret {
+  50% {
+    opacity: 0;
+  }
+}
+.code-field {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  /* ≥16px stops iOS zooming into the field. */
+  font-size: 16px;
+  color: transparent;
+  caret-color: transparent;
+  background: transparent;
+  border: 0;
+  -webkit-user-select: text;
+  user-select: text;
+}
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  margin: 6px 0 2px;
+  font-family: var(--serif);
+  font-size: 14px;
+  color: var(--muted);
+}
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+.clash-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  width: 100%;
+}
+.clash-picker .btn {
+  padding: 0;
+  font-size: 17px;
+}
+.clash-created {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+.clash-created:empty {
+  display: none;
+}
+.clash-code {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+.clash-code span {
+  color: var(--accent);
+  animation: pop-in 0.3s ease backwards;
+}
+.clash-code span:nth-child(2) { animation-delay: 0.04s; }
+.clash-code span:nth-child(3) { animation-delay: 0.08s; }
+.clash-code span:nth-child(4) { animation-delay: 0.12s; }
+.clash-code span:nth-child(5) { animation-delay: 0.16s; }
+.clash-code span:nth-child(6) { animation-delay: 0.2s; }
+.clash-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.clash-actions .btn {
+  padding: 0 8px;
+  font-size: 18px;
+}
+.clash-table {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--serif);
+}
+.clash-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  align-items: baseline;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+  font-size: 18px;
+}
+.clash-row > :not(:first-child) {
+  text-align: right;
+}
+.clash-row span:first-child {
+  color: var(--muted);
+}
+.clash-row strong {
+  font-weight: normal;
+}
+.clash-head {
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.clash-table .note {
+  margin-top: 4px;
+}
+
 .confirm {
   display: flex;
   flex-direction: column;
@@ -1080,13 +1274,14 @@ html.standalone .toast {
   height: 100%;
   display: grid;
   grid-template: repeat(3, minmax(0, 1fr)) / repeat(3, minmax(0, 1fr));
-  gap: 1.1cqi;
+  /* Figma update: one tight grid with thin, even lines (the page colour shows through). */
+  gap: 0.3cqi;
   touch-action: none;
 }
 .box {
   display: grid;
   grid-template: repeat(3, minmax(0, 1fr)) / repeat(3, minmax(0, 1fr));
-  gap: 0.55cqi;
+  gap: 0.3cqi;
 }
 .cell {
   position: relative;
@@ -1095,7 +1290,6 @@ html.standalone .toast {
   overflow: hidden;
   display: grid;
   place-items: center;
-  border-radius: 2px;
   background: var(--cell);
   color: var(--cell-text);
   font-weight: 800;
@@ -1108,11 +1302,11 @@ html.standalone .toast {
   background: var(--cell-cross);
 }
 /* Every cell holding the focused digit loses its background. */
+/* Figma update: every square holding the focused digit shows it in the accent. */
 .cell.same {
-  background: transparent;
+  color: var(--accent);
 }
 .cell.selected {
-  background: var(--bg);
   box-shadow: inset 0 0 0 2px var(--select);
 }
 .cell.filled {

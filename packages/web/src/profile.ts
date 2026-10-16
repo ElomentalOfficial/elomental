@@ -7,7 +7,8 @@ import { readJson, writeJson } from './storage.ts';
  * and stored by Supabase, never trusted from the browser.
  */
 
-export type Mode = 'casual' | 'daily' | 'ranked';
+/** `clash` plays like Casual (no Elo) on a puzzle shared by code with a friend. */
+export type Mode = 'casual' | 'daily' | 'ranked' | 'clash';
 
 export interface Profile {
   guest: boolean;
@@ -135,7 +136,7 @@ export function recordResult(input: ResultInput): Outcome {
   const outcome: Outcome = { dust: 0, crown: false };
 
   if (input.won) {
-    const base = input.mode === 'casual' ? DUST[input.difficulty] : DUST[input.mode];
+    const base = input.mode === 'casual' || input.mode === 'clash' ? DUST[input.difficulty] : DUST[input.mode];
     outcome.dust = Math.max(1, base - input.mistakes * 2 - input.hints);
     profile.dust += outcome.dust;
     profile.pity++;
