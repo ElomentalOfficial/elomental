@@ -4,9 +4,9 @@ import { h } from './ui.ts';
 /**
  * Notes wheel: a frosted-glass ring of nine segments (1 at the top, clockwise)
  * around a hub, opened by a long-press or by swiping off a square. Pointing
- * at a segment lights it and springs a small accent blob under its digit;
- * lifting toggles that note, lifting anywhere else cancels. It only exists
- * while the finger is down, so it can't get stuck on screen.
+ * at a segment fills it with the accent colour; lifting toggles that note,
+ * lifting anywhere else cancels. It only exists while the finger is down, so
+ * it can't get stuck on screen.
  */
 
 const R_IN = 40; // hub radius
@@ -63,12 +63,10 @@ export function openNotesWheel(options: {
   let hovered = 0;
   let closed = false;
 
-  const blob = h('div', { class: 'wheel-blob' });
   const wheel = h(
     'div',
     { class: 'wheel', attrs: { role: 'dialog', 'aria-label': 'Slide toward a number to add or remove a note' } },
     h('div', { class: 'wheel-glass', html: RING_SVG }),
-    blob,
     h('div', { class: 'wheel-hub', html: ICONS.pencil }),
   );
   wheel.style.left = `${cx}px`;
@@ -117,19 +115,8 @@ export function openNotesWheel(options: {
       digits[hovered].classList.remove('hover');
       segs[hovered - 1].classList.remove('hover');
     }
-    const from = hovered;
     hovered = digit;
-    if (!hovered) {
-      wheel.classList.remove('picking');
-      return;
-    }
-    const deg = -90 + (hovered - 1) * STEP;
-    // First pick: the blob rises out of the hub. After that it slides between segments.
-    if (!from) blob.classList.add('from-hub');
-    else blob.classList.remove('from-hub');
-    wheel.style.setProperty('--bx', `${Math.cos(rad(deg)) * R_DIGIT}px`);
-    wheel.style.setProperty('--by', `${Math.sin(rad(deg)) * R_DIGIT}px`);
-    wheel.classList.add('picking');
+    if (!hovered) return;
     digits[hovered].classList.add('hover');
     segs[hovered - 1].classList.add('hover');
     navigator.vibrate?.(5);

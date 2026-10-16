@@ -1,4 +1,15 @@
-import { BOXES, COL_OF, PEERS, ROW_OF, TECHNIQUE_BY_ID, nextPlacement, type Difficulty } from '@elomental/engine';
+import {
+  BOXES,
+  BOX_OF,
+  COLS,
+  COL_OF,
+  PEERS,
+  ROWS,
+  ROW_OF,
+  TECHNIQUE_BY_ID,
+  nextPlacement,
+  type Difficulty,
+} from '@elomental/engine';
 import { ICONS } from '../icons.ts';
 import { PAR_MS, recordResult, type Mode, type Outcome } from '../profile.ts';
 import { requestPuzzle } from '../puzzles.ts';
@@ -220,14 +231,42 @@ function gameScreen(game: SavedGame): Screen {
     if (!correct) {
       game.mistakes++;
       navigator.vibrate?.(40);
-      cells[cell].classList.remove('shake');
-      void cells[cell].offsetWidth;
-      cells[cell].classList.add('shake');
+      replay(cells[cell], 'shake');
+      replay(status, 'strike');
     }
     render();
+    if (correct) celebrateUnits(cell);
     save();
     if (game.values.every((v, c) => v === solution[c])) finish(true, 'solved');
     else if (game.mistakes >= MAX_MISTAKES) finish(false, 'mistakes');
+  }
+
+  /** Restart a one-shot CSS animation class on an element. */
+  function replay(target: HTMLElement, cls: string) {
+    target.classList.remove(cls);
+    void target.offsetWidth;
+    target.classList.add(cls);
+  }
+
+  /**
+   * When a placement completes its row, column or box, a ripple runs through
+   * those nine squares outward from the one just filled.
+   */
+  function celebrateUnits(cell: number) {
+    const units = [ROWS[ROW_OF[cell]], COLS[COL_OF[cell]], BOXES[BOX_OF[cell]]];
+    const swept = new Map<number, number>();
+    for (const unit of units) {
+      if (!unit.every((c) => game.values[c] === solution[c])) continue;
+      for (const c of unit) {
+        const distance = Math.abs(ROW_OF[c] - ROW_OF[cell]) + Math.abs(COL_OF[c] - COL_OF[cell]);
+        swept.set(c, Math.min(swept.get(c) ?? Infinity, distance));
+      }
+    }
+    for (const [c, distance] of swept) {
+      cells[c].style.animationDelay = `${distance * 35}ms`;
+      replay(cells[c], 'sweep');
+    }
+    if (swept.size) navigator.vibrate?.(12);
   }
 
   function input(digit: number) {
@@ -279,10 +318,16 @@ function gameScreen(game: SavedGame): Screen {
   }
 
   function renderHintButton() {
-    if (!hintsAllowed) return;
+    if (!hintsAllowed) {
+      hintButton.setAttribute('aria-disabled', 'true');
+      hintButton.setAttribute('aria-label', 'Hint, only in Casual Easy');
+      return;
+    }
     const left = MAX_HINTS - game.hints;
     hintButton.classList.toggle('locked', left <= 0);
-    hintButton.innerHTML = `${left > 0 ? ICONS.hint : ICONS.lock}<span>Hint</span><span class="hint-count">${left}</span>`;
+    hintButton.setAttribute('aria-disabled', String(left <= 0));
+    hintButton.setAttribute('aria-label', `Hint, ${left} left`);
+    hintButton.innerHTML = `${left > 0 ? ICONS.hint : ICONS.lock}<span>Hint</span><span class="hint-count" aria-hidden="true">${left}</span>`;
   }
 
   function select(cell: number) {
@@ -297,6 +342,7 @@ function gameScreen(game: SavedGame): Screen {
     paused = value;
     el.classList.toggle('paused', paused);
     pauseButton.innerHTML = paused ? ICONS.play : ICONS.pause;
+    pauseButton.setAttribute('aria-label', paused ? 'Resume' : 'Pause');
     tick();
   }
 
@@ -315,9 +361,18 @@ function gameScreen(game: SavedGame): Screen {
 
       const key = value ? `v${value}` : game.notes[c] ? `n${game.notes[c]}` : '';
       if (cell.dataset.k === key) continue;
+      const wasEmpty = !cell.dataset.k?.startsWith('v');
       cell.dataset.k = key;
-      if (value) cell.textContent = String(value);
-      else if (game.notes[c]) {
+      cell.setAttribute(
+        'aria-label',
+        `Row ${ROW_OF[c] + 1}, column ${COL_OF[c] + 1}: ` +
+          (value ? String(value) : game.notes[c] ? `notes ${digitsIn(game.notes[c]).join(' ')}` : 'empty'),
+      );
+      if (value) {
+        cell.textContent = String(value);
+        // A freshly placed digit pops in (not on first paint or a resumed game).
+        if (rendered && wasEmpty && !given[c]) replay(cell, 'pop');
+      } else if (game.notes[c]) {
         cell.replaceChildren(
           h(
             'div',
@@ -336,7 +391,10 @@ function gameScreen(game: SavedGame): Screen {
     }
     el.classList.toggle('notes-mode', notesMode);
     renderHintButton();
+    rendered = true;
   }
+  let rendered = false;
+  const digitsIn = (mask: number) => Array.from({ length: 9 }, (_, i) => i + 1).filter((d) => mask & (1 << d));
 
   // --- Clock (always counts up) ---------------------------------------------
   let last = performance.now();
@@ -390,7 +448,10 @@ function gameScreen(game: SavedGame): Screen {
     if (game.hints) rows.push(statRow('Hints', String(game.hints)));
     if (outcome.elo) {
       const delta = outcome.elo.after - outcome.elo.before;
-      rows.push(statRow('Elo', `${outcome.elo.before} → ${outcome.elo.after} (${delta >= 0 ? '+' : ''}${delta})`, delta > 0 ? 'good' : ''));
+      const eloRow = statRow('Elo', `${outcome.elo.before} → ${outcome.elo.after} (${delta >= 0 ? '+' : ''}${delta})`, delta > 0 ? 'good' : '');
+      // The new rating counts up from the old one.
+      countUp(eloRow.querySelector('strong')!, outcome.elo.before, outcome.elo.after, (n) => `${outcome.elo!.before} → ${n} (${delta >= 0 ? '+' : ''}${delta})`);
+      rows.push(eloRow);
       if (outcome.elo.bonus > 0) rows.push(h('p', { class: 'note good', text: `Speed bonus +${Math.round(outcome.elo.bonus * 100)}% — under par time` }));
       if (outcome.elo.bonus < 0) rows.push(h('p', { class: 'note', text: `Slow finish ${Math.round(outcome.elo.bonus * 100)}% — over twice par time` }));
       if (outcome.elo.protectedLoss) rows.push(h('p', { class: 'note', text: 'Below 500 Elo your rating is protected — no points lost.' }));
@@ -401,7 +462,11 @@ function gameScreen(game: SavedGame): Screen {
     }
 
     const rewards = h('div', { class: 'rewards' });
-    if (outcome.dust) rewards.append(h('div', { class: 'reward', html: `${ICONS.dust}<span>+${outcome.dust} Stardust</span>` }));
+    if (outcome.dust) {
+      const amount = h('span', { text: `+${outcome.dust} Stardust` });
+      countUp(amount, 0, outcome.dust, (n) => `+${n} Stardust`);
+      rewards.append(h('div', { class: 'reward' }, h('span', { html: ICONS.dust }), amount));
+    }
     if (outcome.crown) rewards.append(h('div', { class: 'reward rare', html: `${ICONS.crown}<span>Rare drop: Rusted Crown!</span>` }));
 
     const again =
@@ -669,4 +734,23 @@ function gameScreen(game: SavedGame): Screen {
 
 function statRow(label: string, value: string, valueClass = ''): HTMLElement {
   return h('div', { class: 'stat' }, h('span', { text: label }), h('strong', { class: valueClass, text: value }));
+}
+
+/**
+ * Count a number up in `target` (ease-out, ~0.7s, after the modal settles).
+ * The final text is set immediately for screen readers and reduced motion.
+ */
+function countUp(target: HTMLElement, from: number, to: number, format: (n: number) => string): void {
+  target.textContent = format(to);
+  if (from === to || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  target.textContent = format(from);
+  const duration = 700;
+  let start = 0;
+  const step = (now: number) => {
+    start ||= now;
+    const t = Math.min(1, (now - start) / duration);
+    target.textContent = format(Math.round(from + (to - from) * (1 - (1 - t) ** 3)));
+    if (t < 1) requestAnimationFrame(step);
+  };
+  setTimeout(() => requestAnimationFrame(step), 250);
 }
