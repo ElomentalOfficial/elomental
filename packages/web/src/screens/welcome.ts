@@ -1,4 +1,4 @@
-import { WELCOME_COLOR, applyTheme, setBarColor } from '../theme.ts';
+import { applyTheme } from '../theme.ts';
 import { h, mount, type Screen } from '../ui.ts';
 import { homeScreen } from './home.ts';
 
@@ -48,9 +48,9 @@ export function welcomeScreen(): Screen {
       `</svg>`,
   });
 
-  // Keep the page and the iOS status bar dark behind the ribbon, whatever the theme.
+  // The page stays dark behind the ribbon whatever the theme. The status bar keeps
+  // the theme's colour: iOS sets it at launch and may not follow a later switch.
   document.documentElement.classList.add('welcome-active');
-  setBarColor(WELCOME_COLOR);
 
   let done = false;
   const next = () => {

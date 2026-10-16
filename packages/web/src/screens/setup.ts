@@ -1,4 +1,3 @@
-import { deviceInfo } from '../gestures.ts';
 import { ICONS } from '../icons.ts';
 import { getTheme, setTheme, type Theme } from '../theme.ts';
 import { resetTutorial } from '../tutorial.ts';
@@ -36,13 +35,6 @@ export function setupScreen(): Screen {
   };
   sync();
 
-  // Measured when opened, so it reflects this screen as it is actually laid out.
-  const infoText = h('pre');
-  const info = h('details', { class: 'setting device-info' }, h('summary', { text: 'Device info' }), infoText);
-  info.addEventListener('toggle', () => {
-    if (info.open) infoText.textContent = deviceInfo().join('\n');
-  });
-
   const el = h(
     'div',
     { class: 'screen setup' },
@@ -72,7 +64,6 @@ export function setupScreen(): Screen {
         },
       }),
     ),
-    info,
   );
   return { el };
 }

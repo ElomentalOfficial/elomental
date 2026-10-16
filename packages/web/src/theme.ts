@@ -3,7 +3,7 @@ import { readJson, writeJson } from './storage.ts';
 export type Theme = 'dark' | 'light';
 
 const KEY = 'elomental:theme';
-const META_COLOR: Record<Theme, string> = { dark: '#262721', light: '#FFFFE5' };
+const BAR_COLOR: Record<Theme, string> = { dark: '#262721', light: '#FFFFE5' };
 
 /** Dark is the default; light is opt-in from Setup. */
 export function getTheme(): Theme {
@@ -12,15 +12,22 @@ export function getTheme(): Theme {
 
 export function applyTheme(theme: Theme = getTheme()): void {
   document.documentElement.dataset.theme = theme;
-  setBarColor(META_COLOR[theme]);
+  setBarColor(BAR_COLOR[theme]);
 }
 
-/** iOS tints the status bar (and the area behind it) from theme-color. */
-export function setBarColor(color: string): void {
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', color);
+/**
+ * iOS colours the status bar from theme-color but can ignore later edits to the
+ * same tag, so replace the tag instead; a new element is picked up reliably.
+ */
+function setBarColor(color: string): void {
+  const old = document.querySelector('meta[name="theme-color"]');
+  if (old?.getAttribute('content') === color) return;
+  const meta = document.createElement('meta');
+  meta.name = 'theme-color';
+  meta.content = color;
+  if (old) old.replaceWith(meta);
+  else document.head.append(meta);
 }
-
-export const WELCOME_COLOR = META_COLOR.dark;
 
 export function setTheme(theme: Theme): void {
   writeJson(KEY, theme);

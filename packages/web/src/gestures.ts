@@ -53,25 +53,3 @@ export function installZoomGuards(): void {
   };
   window.visualViewport?.addEventListener('resize', reset);
 }
-
-/** What the device reports about the screen, for Setup's device info. */
-export function deviceInfo(): string[] {
-  const probe = document.createElement('div');
-  probe.style.cssText =
-    'position:fixed;top:0;left:0;visibility:hidden;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)';
-  document.body.append(probe);
-  const cs = getComputedStyle(probe);
-  const insets = [cs.paddingTop, cs.paddingRight, cs.paddingBottom, cs.paddingLeft].map((v) => parseFloat(v)).join(' / ');
-  probe.remove();
-  const app = document.getElementById('app')!.getBoundingClientRect();
-  const nav = navigator as Navigator & { standalone?: boolean };
-  return [
-    `home-screen app: ${nav.standalone === true || matchMedia('(display-mode: standalone)').matches ? 'yes' : 'no'}`,
-    `screen: ${screen.width}×${screen.height} @${devicePixelRatio}x`,
-    `window: ${innerWidth}×${innerHeight}`,
-    `visual viewport: ${Math.round(visualViewport?.width ?? 0)}×${Math.round(visualViewport?.height ?? 0)} (top ${Math.round(visualViewport?.offsetTop ?? 0)})`,
-    `app area: ${Math.round(app.width)}×${Math.round(app.height)} (top ${Math.round(app.top)})`,
-    `safe areas (t/r/b/l): ${insets}`,
-    `status bar style: ${document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]')?.getAttribute('content')}`,
-  ];
-}

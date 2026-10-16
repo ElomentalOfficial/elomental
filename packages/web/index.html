@@ -8,15 +8,16 @@
     />
     <meta name="theme-color" content="#262721" />
     <script>
-      // Apply the saved theme before first paint so there is no flash. The welcome
-      // ribbon is always dark, so the page (and iOS status bar) start dark too.
+      // Apply the saved theme before first paint so there is no flash. iOS colours
+      // the opaque status bar from theme-color as the app launches, so it must be
+      // the theme's colour from the very first moment (the welcome ribbon included).
       document.documentElement.classList.add('welcome-active');
+      var theme = 'dark';
       try {
-        document.documentElement.dataset.theme =
-          JSON.parse(localStorage.getItem('elomental:theme')) === 'light' ? 'light' : 'dark';
-      } catch {
-        document.documentElement.dataset.theme = 'dark';
-      }
+        if (JSON.parse(localStorage.getItem('elomental:theme')) === 'light') theme = 'light';
+      } catch {}
+      document.documentElement.dataset.theme = theme;
+      document.querySelector('meta[name="theme-color"]').content = theme === 'light' ? '#FFFFE5' : '#262721';
     </script>
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />

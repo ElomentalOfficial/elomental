@@ -558,19 +558,6 @@ h2 {
   font-size: 15px;
   color: var(--muted);
 }
-.device-info summary {
-  font-size: 14px;
-  font-weight: 800;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-.device-info pre {
-  margin-top: 10px;
-  font-size: 12px;
-  line-height: 1.6;
-  white-space: pre-wrap;
-  color: var(--muted);
-}
 .segmented {
   display: grid;
   grid-template-columns: 1fr 1fr;
