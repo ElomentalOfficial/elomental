@@ -391,13 +391,15 @@ html[data-nav='back'] .screen.setup {
  * 1. The copper ribbon fades in (0–0.7s) with its letters settling in one
  *    by one, then "Competitive sudoku" beneath it.
  * 2. It holds, then (welcome.ts) Home mounts underneath and the ribbon flips
- *    up and away over it while the dark page fades out.
+ *    up and away, then the empty page fades out over Home.
  */
 .welcome {
   max-width: none;
   padding: 0;
   align-items: center;
-  background: var(--c-bg);
+  /* The theme's own page colour, so the splash flows into Home (and the
+     edges iOS paints) in light mode as well as dark. */
+  background: var(--bg);
   perspective: 1400px;
 }
 .welcome-art {
@@ -445,16 +447,16 @@ html[data-nav='back'] .screen.setup {
   font-family: var(--serif);
   font-size: 22px;
   text-anchor: middle;
-  fill: var(--c-bright);
+  fill: var(--text);
   opacity: 0;
   animation: letter 0.6s ease 0.95s forwards;
 }
-/* The peel: the ribbon peels away like cloth over the plain dark page, drawn
+/* The peel: the ribbon peels away like cloth over the plain page, drawn
    frame by frame on a canvas (fabric.ts); Home enters only after it's gone. */
 .welcome.flipping {
   pointer-events: none;
 }
-/* After the peel: lifted over Home, the empty dark page fades away. */
+/* After the peel: lifted over Home, the empty page fades away. */
 .welcome.fading-out {
   position: fixed;
   inset: 0;

@@ -25,9 +25,9 @@ const LETTERS: { ch: string; x: number; y: number }[] = [
   { ch: 'L', x: 256, y: 428 },
 ];
 
-/** When the ribbon starts to peel away (after fading in and holding). */
-const HOLD_MS = 2100;
-/** The dark page fading out over Home (matches .welcome.fading-out). */
+/** When the ribbon starts to peel away: everything has faded in (~1.6s) and had time to be read. */
+const HOLD_MS = 2800;
+/** The splash page fading out over Home (matches .welcome.fading-out). */
 const FADE_MS = 550;
 
 export function welcomeScreen(): Screen {
@@ -45,8 +45,9 @@ export function welcomeScreen(): Screen {
       `</svg>`,
   });
 
-  // The page stays dark behind the ribbon whatever the theme. The status bar keeps
-  // the theme's colour: iOS sets it at launch and may not follow a later switch.
+  // The page behind the ribbon is the theme's own colour, so the splash flows
+  // into Home in light and dark alike (welcome-active hides the status strip
+  // while the ribbon runs up under the status bar).
   document.documentElement.classList.add('welcome-active');
 
   let done = false;
@@ -54,7 +55,7 @@ export function welcomeScreen(): Screen {
     if (done) return;
     done = true;
     // The ribbon peels away like a piece of cloth (fabric.ts) over the plain
-    // dark page. Once it has gone, Home mounts underneath and the dark page
+    // page. Once it has gone, Home mounts underneath and the page
     // fades out over it, so the reveal is soft rather than a cut.
     const art = el.querySelector<SVGSVGElement>('.welcome-art')!;
     const peel = peelRibbon(art);

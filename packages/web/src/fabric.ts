@@ -23,7 +23,9 @@ const LETTERS = [
   ['T', 134, 428], ['A', 195, 428], ['L', 256, 428],
 ] as const;
 
-const DURATION_MS = 1150;
+const DURATION_MS = 1100;
+/** Time curve exponent: >1 starts slow and finishes fast (2.6 = strongly). */
+const ACCELERATION = 2.6;
 /** How much larger the cloth grows by the end of the peel (0.55 = 55%). */
 const EXPAND = 0.55;
 /** Source rows per slice (device pixels); small enough to look continuous. */
@@ -31,8 +33,6 @@ const SLICE = 2;
 /** Distance from the eye to the screen, in CSS pixels. */
 const PERSPECTIVE = 1100;
 
-const easeInOutSine = (t: number) => -(Math.cos(Math.PI * t) - 1) / 2;
-const easeIn = (t: number) => t * t * t;
 const smoothstep = (a: number, b: number, x: number) => {
   const t = Math.min(1, Math.max(0, (x - a) / (b - a)));
   return t * t * (3 - 2 * t);
@@ -96,17 +96,20 @@ export function createPeel(art: SVGSVGElement): { canvas: HTMLCanvasElement; dra
 
   /** Draws the cloth at progress t (0..1); `now` (ms) drives the ripple. */
   const draw = (t: number, now: number) => {
-      // The fold travels steadily from the bottom edge to just past the top,
-      // the roll widening as it goes (cloth billows rather than creasing)...
-      const e = easeInOutSine(Math.min(1, t / 0.8));
+      // Time runs slow at first and races at the end: the cloth eases off the
+      // page, then whips away.
+      const p = t ** ACCELERATION;
+      // The fold travels from the bottom edge to just past the top, the roll
+      // widening as it goes (cloth billows rather than creasing)...
+      const e = Math.min(1, p / 0.75);
       const fold = length * (1 - 1.08 * e);
       const radius = (36 + 110 * e) * dpr;
-      // ...and only at the end is the whole sheet lifted up and away.
-      const away = easeIn(Math.max(0, (t - 0.7) / 0.3));
-      const liftY = -away * canvas.height * 1.1;
+      // ...then the whole sheet is thrown up and away.
+      const away = Math.max(0, (p - 0.5) / 0.5) ** 1.4;
+      const liftY = -away * canvas.height * 1.2;
       const liftZ = away * 160 * dpr;
       // Starting at its own size, the cloth expands as it flips up and away.
-      const grow = 1 + EXPAND * easeInOutSine(t);
+      const grow = 1 + EXPAND * p;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (let s = 0; s < length; s += SLICE) {
