@@ -537,6 +537,8 @@ export interface ReviewPlayer {
   lastDecision: { action: ModerationAction; days: number | null; note: string | null; at: string } | null;
   /** In the queue just the flags to review; otherwise the latest ones. Newest first. */
   games: ReviewGame[];
+  /** Search results only: every decision about the player, newest first. */
+  log?: ReviewDecision[];
 }
 
 export interface ReviewDecision {
@@ -565,6 +567,13 @@ export async function fetchReviewPage(view: ReviewView, offset = 0, limit = REVI
   const { data, error } = await supabase.rpc('admin_review_page', { p_view: view, p_limit: limit, p_offset: offset });
   if (error) throw new Error(error.message.includes('not_admin') ? 'Only founders can open the review.' : 'Couldn’t load the review. Try again.');
   return data as ReviewPage<ReviewPlayer | ReviewDecision>;
+}
+
+/** Players with a case whose name or email contains `query`, or whose account id it is; best matches first. */
+export async function searchReview(query: string): Promise<ReviewPlayer[]> {
+  const { data, error } = await supabase.rpc('admin_search', { p_query: query });
+  if (error) throw new Error(error.message.includes('not_admin') ? 'Only founders can open the review.' : 'Couldn’t search. Try again.');
+  return (data ?? []) as ReviewPlayer[];
 }
 
 /** Clear a player's flags (a mistake), ban them from Ranked (for `days`, or until lifted), or lift the ban. */

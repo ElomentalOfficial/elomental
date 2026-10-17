@@ -2,6 +2,7 @@ import {
   REVIEW_PAGE,
   fetchReviewPage,
   moderate,
+  searchReview,
   type ModerationAction,
   type ReviewDecision,
   type ReviewGame,
@@ -14,7 +15,10 @@ import { goBack, h, openModal, toast, type Screen } from '../ui.ts';
 import { setupScreen } from './setup.ts';
 
 type Item = ReviewPlayer | ReviewDecision;
-type Source = (view: ReviewView, offset: number, limit: number) => Promise<ReviewPage<Item>>;
+interface Sources {
+  page: (view: ReviewView, offset: number, limit: number) => Promise<ReviewPage<Item>>;
+  search: (query: string) => Promise<ReviewPlayer[]>;
+}
 
 const VIEWS: { view: ReviewView; label: string }[] = [
   { view: 'open', label: 'To review' },
@@ -22,21 +26,59 @@ const VIEWS: { view: ReviewView; label: string }[] = [
   { view: 'history', label: 'History' },
 ];
 
+/** Typing pauses this long before a search goes out. */
+const SEARCH_DELAY = 250;
+/** The most results a search returns (admin_search's default limit). */
+const SEARCH_LIMIT = 20;
+
 /**
  * Review dashboard (founders only; the server enforces it), made for a long
  * queue: one compact row per player, worst first, 25 at a time. Opening a row
  * shows why and the buttons; once decided, the player leaves the queue (into
  * History, and Banned if banned) and the next row opens by itself.
+ *
+ * Search (name, email or account id) finds one player's whole case, wherever
+ * it sits: open flags, ban, and every decision so far.
  * Nothing here ever deletes an account or its progress.
  */
-export function reviewScreen(source: Source = fetchReviewPage): Screen {
+export function reviewScreen(sources: Sources = { page: fetchReviewPage, search: searchReview }): Screen {
   let view: ReviewView = 'open';
   let items: Item[] = [];
   let counts: Record<ReviewView, number> = { open: 0, banned: 0, history: 0 };
   let expanded = -1;
+  /** The search in effect (2+ characters); '' shows the tabs. */
+  let query = '';
+  let searchTimer = 0;
+  let searchRun = 0;
 
   const list = h('div', { class: 'review-list' });
   const more = h('button', { class: 'btn review-more' });
+  const resultsNote = h('p', { class: 'review-results', attrs: { role: 'status' } });
+
+  const input = h('input', {
+    class: 'review-search-input',
+    attrs: {
+      type: 'search',
+      placeholder: 'Search name, email or ID',
+      'aria-label': 'Search players',
+      autocapitalize: 'off',
+      autocorrect: 'off',
+      spellcheck: 'false',
+      enterkeyhint: 'search',
+    },
+  });
+  const clear = h('button', {
+    class: 'review-search-clear',
+    html: ICONS.close,
+    attrs: { 'aria-label': 'Clear search' },
+    onclick: () => {
+      input.value = '';
+      onQuery(true);
+      input.focus();
+    },
+  });
+  const searchBox = h('label', { class: 'review-search' }, h('span', { class: 'review-search-icon', html: ICONS.search }), input, clear);
+
   const tabs = VIEWS.map(({ view: value, label }) => {
     const count = h('span', { class: 'review-count' });
     const tab = h(
@@ -56,6 +98,9 @@ export function reviewScreen(source: Source = fetchReviewPage): Screen {
     );
     return { value, tab, count };
   });
+  const tabBar = h('div', { class: 'segmented review-tabs', attrs: { role: 'radiogroup', 'aria-label': 'Show' } }, ...tabs.map((t) => t.tab));
+
+  const searching = () => query !== '';
 
   function paintTabs() {
     for (const { value, tab, count } of tabs) {
@@ -67,10 +112,29 @@ export function reviewScreen(source: Source = fetchReviewPage): Screen {
   }
 
   function paint() {
+    tabBar.hidden = searching();
+    clear.hidden = !input.value;
     paintTabs();
+    if (searching()) {
+      resultsNote.textContent = items.length
+        ? items.length === 1
+          ? `1 player matches “${query}”`
+          : items.length >= SEARCH_LIMIT
+            ? `${SEARCH_LIMIT}+ players match “${query}”. Type more to narrow it down.`
+            : `${items.length} players match “${query}”`
+        : '';
+      list.replaceChildren(
+        ...(items.length
+          ? items.map((item, i) => playerRow(item as ReviewPlayer, i))
+          : [h('p', { class: 'review-empty', text: `No case found for “${query}”. Check the spelling, or try their email or account ID.` })]),
+      );
+      more.hidden = true;
+      return;
+    }
+    resultsNote.textContent = '';
     list.replaceChildren(
       ...(items.length
-        ? items.map((item, i) => (view === 'history' ? logRow(item as ReviewDecision) : playerRow(item as ReviewPlayer, i)))
+        ? items.map((item, i) => (view === 'history' ? logRow(item as ReviewDecision, true) : playerRow(item as ReviewPlayer, i)))
         : [h('p', { class: 'review-empty', text: EMPTY[view] })]),
     );
     const total = counts[view];
@@ -78,15 +142,16 @@ export function reviewScreen(source: Source = fetchReviewPage): Screen {
     more.textContent = `Show more (${items.length} of ${total})`;
   }
 
-  /** Reloads the view, keeping as many rows as were showing; `open` is the row to open afterwards. */
+  /** Reloads the view or the search, keeping as many rows as were showing; `open` is the row to open afterwards. */
   async function load(open = -1) {
+    if (searching()) return runSearch(open);
     const keep = Math.min(Math.max(items.length, REVIEW_PAGE), 100);
     const viewNow = view;
     paintTabs();
     if (!items.length || open < 0) list.replaceChildren(h('p', { class: 'review-empty', text: 'Loading…' }));
     try {
-      const page = await source(viewNow, 0, open >= 0 ? keep : REVIEW_PAGE);
-      if (viewNow !== view) return; // switched tab meanwhile
+      const page = await sources.page(viewNow, 0, open >= 0 ? keep : REVIEW_PAGE);
+      if (viewNow !== view || searching()) return; // moved on meanwhile
       counts = page.counts;
       items = page.items;
       expanded = open >= 0 && view !== 'history' ? Math.min(open, items.length - 1) : -1;
@@ -99,10 +164,67 @@ export function reviewScreen(source: Source = fetchReviewPage): Screen {
     }
   }
 
+  async function runSearch(open = -1) {
+    const run = ++searchRun;
+    const term = query;
+    try {
+      const found = await sources.search(term);
+      if (run !== searchRun) return; // a newer search went out
+      items = found;
+      // One match: open it straight away.
+      expanded = open >= 0 ? Math.min(open, found.length - 1) : found.length === 1 ? 0 : -1;
+      paint();
+    } catch (error) {
+      if (run !== searchRun) return;
+      items = [];
+      list.replaceChildren(h('p', { class: 'review-empty', text: (error as Error).message }));
+    }
+  }
+
+  /** The field changed: search once typing pauses (or now), or go back to the tabs when it's cleared. */
+  function onQuery(now = false) {
+    clearTimeout(searchTimer);
+    const term = input.value.trim();
+    clear.hidden = !input.value;
+    if (term.length < 2) {
+      if (!searching()) return;
+      query = '';
+      searchRun++;
+      items = [];
+      expanded = -1;
+      void load();
+      return;
+    }
+    const go = () => {
+      if (term === query) return;
+      const wasSearching = searching();
+      query = term;
+      if (!wasSearching) {
+        items = [];
+        tabBar.hidden = true;
+        more.hidden = true;
+        list.replaceChildren(h('p', { class: 'review-empty', text: 'Searching…' }));
+      }
+      void runSearch();
+    };
+    if (now) go();
+    else searchTimer = window.setTimeout(go, SEARCH_DELAY);
+  }
+  input.addEventListener('input', () => onQuery());
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      onQuery(true);
+      input.blur(); // hides the phone keyboard so the results show
+    } else if (event.key === 'Escape') {
+      input.value = '';
+      onQuery(true);
+    }
+  });
+
   more.addEventListener('click', async () => {
     more.disabled = true;
     try {
-      const page = await source(view, items.length, REVIEW_PAGE);
+      const page = await sources.page(view, items.length, REVIEW_PAGE);
       counts = page.counts;
       items = items.concat(page.items);
       paint();
@@ -116,10 +238,11 @@ export function reviewScreen(source: Source = fetchReviewPage): Screen {
   function playerRow(player: ReviewPlayer, index: number): HTMLElement {
     const open = index === expanded;
     const latest = player.games[0];
-    const summary =
-      view === 'banned'
-        ? `Banned ${banLength(player)}${player.restrictionReason ? ` · ${player.restrictionReason}` : ''}`
-        : `${latest ? verdict(latest) : 'Flagged'}${player.games.length > 1 ? ` · ${player.games.length} games` : ''}`;
+    let summary: string;
+    if (searching()) summary = `${status(player)} · ${player.email ?? 'Guest'}`;
+    else if (view === 'banned') summary = `Banned ${banLength(player)}${player.restrictionReason ? ` · ${player.restrictionReason}` : ''}`;
+    else summary = `${latest ? verdict(latest) : 'Flagged'}${player.games.length > 1 ? ` · ${player.games.length} games` : ''}`;
+    const inQueue = !searching() && view === 'open';
     const head = h(
       'button',
       {
@@ -131,8 +254,9 @@ export function reviewScreen(source: Source = fetchReviewPage): Screen {
         },
       },
       h('span', { class: 'review-row-text' }, h('strong', { text: player.name }), h('span', { text: summary })),
-      view === 'open' && player.decisions ? h('span', { class: 'review-pill', text: 'Again' }) : null,
-      view === 'open' && player.restricted ? h('span', { class: 'review-pill banned', text: 'Banned' }) : null,
+      inQueue && player.decisions ? h('span', { class: 'review-pill', text: 'Again' }) : null,
+      (inQueue || searching()) && player.restricted ? h('span', { class: 'review-pill banned', text: 'Banned' }) : null,
+      searching() && player.toReview ? h('span', { class: 'review-pill', text: 'Open' }) : null,
       h('span', { class: 'review-chevron', html: ICONS.back }),
     );
     return h('section', { class: `review-row${open ? ' open' : ''}` }, head, open ? detail(player, index) : null);
@@ -156,36 +280,40 @@ export function reviewScreen(source: Source = fetchReviewPage): Screen {
       player.restricted ? act('Lift ban', 'lift', null, true) : act('Ban from Ranked 30 days', 'restrict', 30, true),
     );
     const last = player.lastDecision;
+    const openGames = player.games.filter((g) => !g.reviewed).length;
     return h(
       'div',
       { class: 'review-detail' },
       h('p', { class: 'note', text: `${player.email ?? 'Guest account'} · Elo ${player.elo}` }),
+      searching() ? h('p', { class: 'note review-id', text: `ID ${player.userId}` }) : null,
       latest ? h('p', { class: 'review-verdict', text: `${verdict(latest)}: ${why(latest)}` }) : null,
       player.restricted
         ? h('p', { class: 'note', text: `Banned from Ranked ${banLength(player)}${player.restrictionReason ? `: ${player.restrictionReason}` : ''}.` })
         : null,
-      last ? h('p', { class: 'note', text: `Earlier: ${decisionText(last.action, last.days)} on ${when(last.at)}${last.note ? ` (${last.note})` : ''}` }) : null,
+      // A search shows the full decision list instead.
+      last && !player.log ? h('p', { class: 'note', text: `Earlier: ${decisionText(last.action, last.days)} on ${when(last.at)}${last.note ? ` (${last.note})` : ''}` }) : null,
       player.games.length
         ? h(
             'details',
             { class: 'review-games' },
-            h('summary', { text: view === 'open' ? `Flagged games (${player.games.length})` : `Latest flagged games (${player.games.length})` }),
-            ...player.games.map(gameRow),
+            h('summary', {
+              text:
+                !searching() && view === 'open'
+                  ? `Flagged games (${player.games.length})`
+                  : `Flagged games (${player.flagged}${openGames ? `, ${openGames} open` : ''})`,
+            }),
+            ...player.games.map((game) => gameRow(game, searching())),
+          )
+        : null,
+      player.log?.length
+        ? h(
+            'details',
+            { class: 'review-games', attrs: { open: '' } },
+            h('summary', { text: `Decisions (${player.log.length})` }),
+            ...player.log.map((entry) => logRow(entry, false)),
           )
         : null,
       actions,
-    );
-  }
-
-  function logRow(entry: ReviewDecision): HTMLElement {
-    const facts = [when(entry.at), entry.by ? `by ${entry.by}` : 'from the SQL Editor'];
-    if (entry.flags) facts.push(`${entry.flags} flag${entry.flags === 1 ? '' : 's'}`);
-    return h(
-      'div',
-      { class: `review-log ${entry.action}` },
-      h('strong', { text: entry.name }),
-      h('span', { text: decisionText(entry.action, entry.days) + (entry.note ? `: ${entry.note}` : '') }),
-      h('span', { class: 'note', text: facts.join(' · ') }),
     );
   }
 
@@ -223,7 +351,8 @@ export function reviewScreen(source: Source = fetchReviewPage): Screen {
       }
       close();
       toast(action === 'clear' ? `${player.name}: cleared` : action === 'lift' ? `${player.name} can play Ranked again` : `${player.name} is banned from Ranked`);
-      // The player leaves this list (or changes in place); open whichever row is now in their spot.
+      // In a list the player leaves (or changes in place): open whichever row is now in their spot.
+      // In a search they stay, updated, with the new decision on top.
       void load(index);
     });
   }
@@ -238,13 +367,16 @@ export function reviewScreen(source: Source = fetchReviewPage): Screen {
       h('h1', { text: 'Review' }),
       h('span', { class: 'icon-btn-spacer' }),
     ),
-    h('div', { class: 'segmented review-tabs', attrs: { role: 'radiogroup', 'aria-label': 'Show' } }, ...tabs.map((t) => t.tab)),
+    searchBox,
+    tabBar,
+    resultsNote,
     list,
     more,
   );
+  clear.hidden = true;
   more.hidden = true;
   void load();
-  return { el };
+  return { el, destroy: () => clearTimeout(searchTimer) };
 }
 
 const EMPTY: Record<ReviewView, string> = {
@@ -253,14 +385,36 @@ const EMPTY: Record<ReviewView, string> = {
   history: 'No decisions yet.',
 };
 
-function gameRow(game: ReviewGame): HTMLElement {
+/** Where a player's case stands, in a few words. */
+function status(player: ReviewPlayer): string {
+  if (player.restricted) return `Banned ${banLength(player)}`;
+  if (player.toReview) return `${player.toReview} flag${player.toReview === 1 ? '' : 's'} to review`;
+  if (player.lastDecision) return decisionText(player.lastDecision.action, player.lastDecision.days);
+  return 'No open flags';
+}
+
+/** One decision; `named` adds the player's name (History lists everyone, a case only one player). */
+function logRow(entry: ReviewDecision, named: boolean): HTMLElement {
+  const facts = [when(entry.at), entry.by ? `by ${entry.by}` : 'from the SQL Editor'];
+  if (entry.flags) facts.push(`${entry.flags} flag${entry.flags === 1 ? '' : 's'}`);
+  return h(
+    'div',
+    { class: `review-log ${entry.action}${named ? '' : ' inline'}` },
+    named ? h('strong', { text: entry.name }) : null,
+    h('span', { text: decisionText(entry.action, entry.days) + (entry.note ? `: ${entry.note}` : '') }),
+    h('span', { class: 'note', text: facts.join(' · ') }),
+  );
+}
+
+/** One flagged game; `markOpen` tags the ones still to review (where settled ones show too). */
+function gameRow(game: ReviewGame, markOpen: boolean): HTMLElement {
   const facts = [when(game.at)];
   if (game.rating) facts.push(`puzzle rated ${game.rating}`);
   if (game.seconds) facts.push(`solved in ${minutes(game.seconds)}`);
   return h(
     'div',
     { class: 'review-game' },
-    h('strong', { text: verdict(game) }),
+    h('strong', { text: verdict(game) + (markOpen && !game.reviewed ? ' · to review' : '') }),
     h('span', { text: why(game) }),
     h('span', { class: 'note', text: facts.join(' · ') }),
     game.reviewed && game.note ? h('span', { class: 'note', text: `Note: ${game.note}` }) : null,

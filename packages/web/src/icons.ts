@@ -79,6 +79,7 @@ export const ICONS = {
   play: fill('M8 5.2v13.6a.6.6 0 0 0 .9.5l10.6-6.8a.6.6 0 0 0 0-1L8.9 4.7a.6.6 0 0 0-.9.5Z'),
   close: stroke('<path d="M6 6l12 12M18 6 6 18"/>', 2.4),
   back: stroke('<path d="M15 5l-7 7 7 7"/>', 2.4),
+  search: stroke('<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/>', 2.2),
   check: stroke('<path d="M5 12.5l4.5 4.5L19 7"/>', 2.6),
   lock: stroke('<rect x="5" y="10.5" width="14" height="10" rx="1.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>'),
   crown: fill('M3 8l4.5 4L12 5l4.5 7L21 8l-2 10H5Z M5 19h14v2H5Z'),

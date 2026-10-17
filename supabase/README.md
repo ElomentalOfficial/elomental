@@ -93,6 +93,11 @@ tabs:
 - **Banned**: everyone banned from Ranked right now.
 - **History**: every decision, newest first, with who made it.
 
+The search field above the tabs finds one player's whole case (open flags,
+ban, every decision) by name, email or account ID, part of either is
+enough (`admin_search`, migration `review_search`). Use it when a player
+writes in about a ban.
+
 Only founders see the entry, and the server checks again
 (`admin_review_page` and `admin_moderate`, migrations `admin_review` and
 `review_log`). Every decision, from the app or the SQL helpers below, goes
