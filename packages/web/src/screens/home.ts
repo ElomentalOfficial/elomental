@@ -431,11 +431,9 @@ function openRanked(leave: (go: () => void) => void) {
       h('span', { class: 'sheet-icon ranked', html: ICONS.ranked }),
       h('h2', { text: 'Ranked' }),
       h('p', { class: 'ranked-copy', text: 'A square matched to your level. Solve it to climb.' }),
-      h('p', { class: 'note', text: `${profile.elo} Elo` }),
       h('button', {
-        class: 'play-btn',
-        html: ICONS.play,
-        attrs: { 'aria-label': 'Start ranked match' },
+        class: 'btn btn-primary btn-start',
+        text: 'Start',
         onclick: () => {
           close();
           leave(() => void startGame({ mode: 'ranked', difficulty }));
