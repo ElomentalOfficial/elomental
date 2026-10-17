@@ -130,7 +130,7 @@ function openCasual(leave: (go: () => void) => void) {
       closeButton(() => close()),
       h('span', { class: 'sheet-icon casual', html: ICONS.casual }),
       h('h2', { text: 'Casual' }),
-      h('p', { text: 'No pressure, no Elo. 3 hints per game.' }),
+      h('p', { text: 'No pressure, no elo.' }),
       saved?.config.mode === 'casual'
         ? h('button', {
             class: 'btn btn-primary',

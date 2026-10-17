@@ -146,8 +146,8 @@ function accountSection(): HTMLElement {
       signUpForm({
         title: 'Account',
         text: account?.anonymous
-          ? 'Playing as a guest. Sign up with just your email (no password) to keep your Elo, Stardust and Daily streak on any device.'
-          : 'Sign in with just your email, no password. Your Elo, Stardust and Clash results are saved and checked on the server.',
+          ? 'Playing as a guest. Sign up with your email to keep your Elo, Stardust and Daily streak on any device.'
+          : 'Sign in with your email. Your Elo, Stardust and Clash results are saved on any device.',
       }),
     );
   }

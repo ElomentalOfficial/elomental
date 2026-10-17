@@ -989,8 +989,8 @@ function signupPrompt(): HTMLElement | null {
     collapsed: true,
     title: keeps ? 'Keep your rewards' : 'Save your progress',
     text: keeps
-      ? 'Sign up with just your email, no password. Your Stardust, Elo and monthly Daily streak stay yours, on any device.'
-      : 'Sign up with just your email, no password, so your Stardust, Elo and monthly Daily streak are saved from now on.',
+      ? 'Sign up with your email. Your Stardust, Elo and monthly Daily streak stay yours, on any device.'
+      : 'Sign up with your email so your Stardust, Elo and monthly Daily streak are saved from now on.',
     onDone: () => box.replaceChildren(h('p', { class: 'signup-done', text: 'Signed up. Your progress is saved.' })),
   });
   return box;

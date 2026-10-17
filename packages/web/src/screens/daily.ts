@@ -35,8 +35,8 @@ export function dailyScreen(): Screen {
             if (state === 'missed') toast('Missed squares can be restored with tokens — coming later');
           },
         },
-        h('span', { class: 'day-num', text: String(d) }),
-        icon ? h('span', { class: 'day-icon', html: icon }) : null,
+        // Done days show a check instead of the number; every other day shows its number.
+        state === 'done' ? h('span', { class: 'day-icon', html: icon }) : h('span', { class: 'day-num', text: String(d) }),
       ),
     );
   }
@@ -59,9 +59,14 @@ export function dailyScreen(): Screen {
             : void startGame({ mode: 'daily', difficulty: 'medium', seed: `daily:${today}`, dateKey: today }),
       });
 
+  const progress = h('div', { class: 'month-progress', attrs: { 'aria-hidden': 'true' } }, h('span'));
+  progress.firstElementChild!.setAttribute('style', `width:${(done / days) * 100}%`);
+
+  // Header, then one block centred in the space below it: the month card
+  // (title, progress, calendar), the avatar reward and the play button.
   const el = h(
     'div',
-    { class: 'screen daily' },
+    { class: 'screen daily scrollable' },
     h(
       'div',
       { class: 'subbar' },
@@ -69,21 +74,34 @@ export function dailyScreen(): Screen {
       h('h1', { text: 'Daily Square' }),
       h('span', { class: 'icon-btn-spacer' }),
     ),
-    h('div', { class: 'month-head' }, h('h2', { text: `${monthName} ${year}` }), h('span', { text: `${done} / ${days}` })),
-    calendar,
     h(
       'div',
-      { class: 'reward-card' },
-      h('span', { class: `avatar-reward ${done === days ? 'unlocked' : ''}`, html: done === days ? ICONS.crown : ICONS.lock }),
+      { class: 'daily-body' },
+      h(
+        'section',
+        { class: 'month-card' },
+        h(
+          'div',
+          { class: 'month-head' },
+          h('h2', { text: `${monthName} ${year}` }),
+          h('span', { class: 'month-count', text: `${done} of ${days}` }),
+        ),
+        progress,
+        calendar,
+      ),
       h(
         'div',
-        {},
-        h('strong', { text: `${monthName} avatar` }),
-        h('p', { text: done === days ? 'Unlocked — well played.' : 'Complete every square this month to unlock it.' }),
+        { class: 'reward-card' },
+        h('span', { class: `avatar-reward ${done === days ? 'unlocked' : ''}`, html: done === days ? ICONS.crown : ICONS.lock }),
+        h(
+          'div',
+          {},
+          h('strong', { text: `${monthName} avatar` }),
+          h('p', { text: done === days ? 'Unlocked — well played.' : 'Complete every square this month to unlock it.' }),
+        ),
       ),
+      h('div', { class: 'daily-actions' }, action, h('p', { class: 'reset-note', text: `New square in ${hours}h ${minutes}m` })),
     ),
-    action,
-    h('p', { class: 'reset-note', text: `New square in ${hours}h ${minutes}m` }),
   );
   return { el };
 }
