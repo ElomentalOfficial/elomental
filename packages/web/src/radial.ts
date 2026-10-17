@@ -141,8 +141,8 @@ export function openNotesWheel(options: {
   function close() {
     if (closed) return;
     closed = true;
-    layer.classList.add('closing');
-    setTimeout(() => layer.remove(), 110);
+    // Gone at once: fading it out would flash the glass un-blurred on iOS (see styles.css).
+    layer.remove();
     options.onClose();
   }
 

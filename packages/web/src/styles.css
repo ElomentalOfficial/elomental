@@ -1851,26 +1851,38 @@ html.standalone .toast {
 /* Segmented frosted-glass ring: blur 18px over a translucent tint, a 1px light
    edge and a top reflection; the picked segment brightens and an accent blob
    springs under its digit. Opens in ~0.1s so rapid note-taking stays fast. */
+/*
+ * Never fade the glass or anything around it: iOS Safari can't draw a
+ * backdrop blur while an ancestor is partly transparent, so a fading wheel
+ * showed un-blurred glass for a frame and then snapped to frosted (the
+ * flicker on open and close). The glass only scales in; just the digits,
+ * hub and dividers fade. It closes instantly.
+ */
 .wheel-layer {
   position: fixed;
   inset: 0;
   bottom: calc(-1 * var(--standalone-gap, 0px));
   z-index: 30;
   touch-action: none;
-  transition: opacity 0.1s ease-out;
-}
-.wheel-layer.closing {
-  opacity: 0;
 }
 .wheel {
   position: absolute;
   width: 0;
   height: 0;
-  animation: wheel-open 0.1s ease-out;
+  animation: wheel-open 0.12s cubic-bezier(0.2, 0.9, 0.3, 1);
 }
 @keyframes wheel-open {
   from {
-    transform: scale(0.9);
+    transform: scale(0.88);
+  }
+}
+.wheel-digit,
+.wheel-hub,
+.wheel-ring {
+  animation: wheel-fade 0.12s ease-out backwards;
+}
+@keyframes wheel-fade {
+  from {
     opacity: 0;
   }
 }
