@@ -17,7 +17,7 @@ Clients never write to tables. Everything goes through these functions
 - `start_game(mode, difficulty?, date_key?, clash_code?)` picks the seed
   (Ranked and Casual are random; Daily uses the date; Clash uses the code),
   picks the Ranked target rating from Elo (the player's Elo, kept within
-  150-3200; the client generates a puzzle rated close to it), and starts the
+  150-4800; the client generates a puzzle rated close to it), and starts the
   server clock. Each
   player gets one Daily per day and one attempt per Clash code. Leaving a
   Ranked game open and starting another counts the first one as a loss.

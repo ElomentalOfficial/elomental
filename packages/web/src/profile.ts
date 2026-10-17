@@ -118,7 +118,7 @@ export function puzzleProfile(mode: Mode, difficulty: Difficulty, dateKey?: stri
 
 /** Lowest and highest rating a ranked puzzle aims for. */
 const MIN_TARGET = 150;
-const MAX_TARGET = 3200;
+const MAX_TARGET = 4800;
 
 /**
  * The rating a ranked puzzle aims for: the player's own Elo, so every match is

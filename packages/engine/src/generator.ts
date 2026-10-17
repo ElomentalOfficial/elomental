@@ -174,7 +174,8 @@ function generateRated(options: GenerateOptions, target: number): GeneratedPuzzl
   const seed = options.seed ?? randomSeed();
   const maxAttempts = options.maxAttempts ?? RATED_ATTEMPTS;
   const rng = createRng(seed);
-  if (profile.maxLevel === 5 && rng.next() < MASTER_SHARE) {
+  // Above CARVE_REACH carving rarely gets near the target, so the bank goes first.
+  if (profile.maxLevel === 5 && (target >= CARVE_REACH || rng.next() < MASTER_SHARE)) {
     const master = fromMasterBank(options, target, seed, rng);
     if (master) return master;
   }
@@ -209,28 +210,47 @@ function generateRated(options: GenerateOptions, target: number): GeneratedPuzzl
     if (miss <= window) break;
   }
   if (!best) throw new Error(`No puzzle near rating ${target} in ${maxAttempts} attempts (seed ${seed})`);
+  // Carving fell well short of a very high target: one more go at the bank.
+  if (profile.maxLevel === 5 && Math.abs(best.rating - target) > MASTER_REACH) {
+    const master = fromMasterBank(options, target, seed, rng);
+    if (master) return master;
+  }
   return { ...best, attempts };
 }
 
-/** At level-5 targets, the share of Ranked puzzles that come from MASTER_BANK. */
+/** At level-5 targets, the share of Ranked puzzles that come from MASTER_BANK... */
 const MASTER_SHARE = 0.5;
-/** A bank puzzle is used only if its rating is within this of the target. */
+/** ...and from this target up, every one that the bank can match. */
+const CARVE_REACH = 3500;
+/** A bank puzzle is used only if its rating (after the transform) is within this of the target. */
 const MASTER_REACH = 250;
+/** Bank entries considered: the transform can move a rating by several hundred either way. */
+const MASTER_POOL = 900;
+/** Transforms tried before giving up on the bank for this puzzle. */
+const MASTER_TRIES = 12;
 
 /**
  * Level 5 from the bank: carving almost never needs a big finned fish, so
- * those puzzles are found offline (scripts/build-master-bank.ts). One near the
- * target is picked and shown through a random transform, so no two players
- * see the same grid. Null when nothing in the bank is near enough.
+ * those puzzles are found offline (scripts/build-master-bank.ts). Each is
+ * shown through a random transform, so no two players see the same grid.
+ * The grader can take a different path through a transformed grid and rate
+ * it quite differently, so each try is graded again and kept only if it lands
+ * near the target. Null when no try does.
  */
 function fromMasterBank(options: GenerateOptions, target: number, seed: string, rng: Rng): GeneratedPuzzle | null {
-  const near = MASTER_BANK.filter((p) => Math.abs(p.rating - target) <= MASTER_REACH);
-  if (!near.length) return null;
-  const pick = near[Math.floor(rng.next() * near.length)];
-  const transform = randomTransform(rng);
-  const puzzle = applyTransform(parseGrid(pick.puzzle), transform);
+  const pool = MASTER_BANK.filter((p) => Math.abs(p.rating - target) <= MASTER_POOL);
+  if (!pool.length) return null;
+  for (let i = 0; i < MASTER_TRIES; i++) {
+    const pick = pool[Math.floor(rng.next() * pool.length)];
+    const puzzle = applyTransform(parseGrid(pick.puzzle), randomTransform(rng));
+    const result = grade(puzzle);
+    if (Math.abs(result.rating - target) <= MASTER_REACH) return masterPuzzle(options, puzzle, result, seed);
+  }
+  return null;
+}
+
+function masterPuzzle(options: GenerateOptions, puzzle: Grid, result: ReturnType<typeof grade>, seed: string): GeneratedPuzzle {
   const solution = solve(puzzle)!;
-  const result = grade(puzzle);
   return {
     puzzle: gridToString(puzzle),
     solution: gridToString(solution),
