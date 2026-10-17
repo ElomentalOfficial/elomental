@@ -1,6 +1,7 @@
 import { signUpForm } from '../accountForm.ts';
 import { NAME_COOLDOWN_DAYS, cachedAccount, formatDay, onAccountChange, registered, setDisplayName, signOut } from '../backend.ts';
 import { ICONS } from '../icons.ts';
+import { notesWheelOn, setNotesWheel } from '../prefs.ts';
 import { getTheme, setTheme, type Theme } from '../theme.ts';
 import { resetTutorial } from '../tutorial.ts';
 import { deviceInfo } from '../viewport.ts';
@@ -38,6 +39,30 @@ export function setupScreen(): Screen {
   };
   sync();
 
+  const wheelButtons = [true, false].map((on) =>
+    h(
+      'button',
+      {
+        class: 'segment',
+        attrs: { role: 'radio' },
+        onclick: () => {
+          setNotesWheel(on);
+          syncWheel();
+        },
+      },
+      h('span', { text: on ? 'On' : 'Off' }),
+    ),
+  );
+  const syncWheel = () => {
+    const current = notesWheelOn();
+    wheelButtons.forEach((b, i) => {
+      const on = (i === 0) === current;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-checked', String(on));
+    });
+  };
+  syncWheel();
+
   // Hidden diagnostics: five taps on the title show what the phone reports about its screen.
   const title = h('h1', { text: 'Setup' });
   const info = h('pre', { class: 'device-info' });
@@ -64,6 +89,12 @@ export function setupScreen(): Screen {
       { class: 'setting' },
       h('div', {}, h('h2', { text: 'Theme' }), h('p', { text: 'Dark is the default.' })),
       h('div', { class: 'segmented', attrs: { role: 'radiogroup', 'aria-label': 'Theme' } }, ...buttons),
+    ),
+    h(
+      'section',
+      { class: 'setting' },
+      h('div', {}, h('h2', { text: 'Notes wheel' }), h('p', { text: 'Long-press a square to take notes. Off adds a Notes button instead.' })),
+      h('div', { class: 'segmented', attrs: { role: 'radiogroup', 'aria-label': 'Notes wheel' } }, ...wheelButtons),
     ),
     h(
       'section',

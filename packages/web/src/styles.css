@@ -58,6 +58,8 @@
   --erase-text: var(--key-text);
   --action-bg: var(--c-highlight-2);
   --action-text: var(--c-bright);
+  --notes-on-bg: var(--c-lava);
+  --notes-on-text: var(--c-bright);
   --wheel-bg: var(--c-second-bright);
   --wheel-text: var(--c-bg);
   --wheel-on: var(--accent);
@@ -114,6 +116,8 @@
   --erase-text: var(--key-text);
   --action-bg: var(--c-second-bright);
   --action-text: var(--c-crimson);
+  --notes-on-bg: var(--c-forest);
+  --notes-on-text: var(--c-bright);
   --wheel-bg: var(--c-crimson);
   --wheel-text: var(--c-bright);
   --wheel-on: var(--accent);
@@ -1920,7 +1924,8 @@ html.standalone .toast {
 }
 .actions-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
   gap: 4px;
 }
 .action {
@@ -1944,6 +1949,45 @@ html.standalone .toast {
 }
 .action.locked {
   opacity: 0.4;
+}
+/* Three buttons share the row when the Notes button is there. */
+.actions-row:has(> :nth-child(3)) .action {
+  gap: 7px;
+  font-size: 19px;
+}
+.action.notes-toggle {
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+.action.notes-toggle.on {
+  background: var(--notes-on-bg);
+  color: var(--notes-on-text);
+}
+/*
+ * Notes mode, at a glance: every key's digit shrinks and slides to the spot it
+ * takes as a pencil mark (1 top-left … 9 bottom-right), so the keypad itself
+ * shows that a tap writes a note, not a number.
+ */
+.key[data-digit] {
+  container-type: size;
+  display: grid;
+  place-items: center;
+}
+.key[data-digit] span {
+  transition: transform 0.2s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+.notes-mode .key[data-digit] span {
+  transform: translate(calc(var(--nx) * 31cqw), calc(var(--ny) * 27cqh)) scale(0.56);
+}
+.key[data-digit='1'], .key[data-digit='4'], .key[data-digit='7'] { --nx: -1; }
+.key[data-digit='2'], .key[data-digit='5'], .key[data-digit='8'] { --nx: 0; }
+.key[data-digit='3'], .key[data-digit='6'], .key[data-digit='9'] { --nx: 1; }
+.key[data-digit='1'], .key[data-digit='2'], .key[data-digit='3'] { --ny: -1; }
+.key[data-digit='4'], .key[data-digit='5'], .key[data-digit='6'] { --ny: 0; }
+.key[data-digit='7'], .key[data-digit='8'], .key[data-digit='9'] { --ny: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .key[data-digit] span {
+    transition: none;
+  }
 }
 .hint-count {
   min-width: 22px;

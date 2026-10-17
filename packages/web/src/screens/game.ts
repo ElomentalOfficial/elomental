@@ -23,6 +23,7 @@ import {
 } from '../profile.ts';
 import { requestPuzzle } from '../puzzles.ts';
 import { openNotesWheel, type NotesWheel } from '../radial.ts';
+import { notesWheelOn } from '../prefs.ts';
 import { readJson, removeKey, writeJson } from '../storage.ts';
 import { explainHint, type Marks } from '../explain.ts';
 import { formatSeconds, getClash, saveClash, type ClashResult } from '../clash.ts';
@@ -244,7 +245,8 @@ function gameScreen(game: SavedGame): Screen {
   const keys: HTMLElement[] = [];
   const pad = h('div', { class: 'pad' });
   for (let d = 1; d <= 9; d++) {
-    const key = h('button', { class: 'key', text: String(d), attrs: { 'data-digit': String(d) } });
+    // The digit sits in a span so notes mode can slide it to its pencil-mark spot.
+    const key = h('button', { class: 'key', attrs: { 'data-digit': String(d) } }, h('span', { text: String(d) }));
     keys[d] = key;
     pad.append(key);
   }
@@ -255,6 +257,11 @@ function gameScreen(game: SavedGame): Screen {
     html: `${ICONS.hint}<span>Hint</span>`,
   });
   const undoButton = h('button', { class: 'action', html: `${ICONS.undo}<span>Undo</span>` });
+  // With the notes wheel turned off in Setup, notes come from a Notes mode toggle instead.
+  const useWheel = notesWheelOn();
+  const notesButton = useWheel
+    ? null
+    : h('button', { class: 'action notes-toggle', html: `${ICONS.pencil}<span>Notes</span>`, attrs: { 'aria-pressed': 'false' } });
 
   const el = h(
     'div',
@@ -267,7 +274,7 @@ function gameScreen(game: SavedGame): Screen {
       'div',
       { class: 'controls' },
       pad,
-      h('div', { class: 'actions-row' }, hintButton, undoButton),
+      h('div', { class: 'actions-row' }, hintButton, undoButton, notesButton),
     ),
   );
 
@@ -545,6 +552,8 @@ function gameScreen(game: SavedGame): Screen {
       keys[d].classList.toggle('done', placed === 9);
     }
     el.classList.toggle('notes-mode', notesMode);
+    notesButton?.classList.toggle('on', notesMode);
+    notesButton?.setAttribute('aria-pressed', String(notesMode));
     renderHintButton();
     rendered = true;
   }
@@ -787,7 +796,7 @@ function gameScreen(game: SavedGame): Screen {
     event.preventDefault();
     const cell = Number(target.dataset.cell);
     select(cell);
-    if (!editable(cell) || game.values[cell]) return;
+    if (!useWheel || !editable(cell) || game.values[cell]) return;
     if (event.button === 2) return openWheel(cell, event.clientX, event.clientY); // right-click on desktop
     try {
       // Keep receiving moves while the finger slides off the board toward a wheel digit.
@@ -851,6 +860,12 @@ function gameScreen(game: SavedGame): Screen {
     input(Number(key.dataset.digit));
   });
   hintButton.addEventListener('click', () => void hint());
+  notesButton?.addEventListener('pointerdown', (event) => {
+    event.preventDefault();
+    if (finished || paused) return;
+    notesMode = !notesMode;
+    render();
+  });
   undoButton.addEventListener('pointerdown', (event) => {
     event.preventDefault();
     undo();
@@ -875,7 +890,7 @@ function gameScreen(game: SavedGame): Screen {
     else if (event.key === 'Backspace' || event.key === 'Delete' || event.key === '0') input(0);
     else if (event.key === 'n' || event.key === 'N') {
       notesMode = !notesMode;
-      toast(notesMode ? 'Notes mode on' : 'Notes mode off');
+      if (!notesButton) toast(notesMode ? 'Notes mode on' : 'Notes mode off');
       render();
     } else if ((event.ctrlKey || event.metaKey) && event.key === 'z') undo();
     else if (event.key.startsWith('Arrow') && selected < 0) select(40); // first arrow press starts in the centre
@@ -923,12 +938,19 @@ function gameScreen(game: SavedGame): Screen {
         text: 'Tap a number to place it in the selected square. A wrong number flashes, fades away by itself and costs a skull. Three skulls and the square is lost.',
         gesture: 'tap',
       },
-      {
-        target: board,
-        title: 'Take notes',
-        text: 'Long-press a square for the notes wheel, slide toward a number and lift to pencil it in (or out). Faster: just swipe from the square toward the number. Lift without choosing to cancel.',
-        gesture: 'hold-slide',
-      },
+      notesButton
+        ? {
+            target: notesButton,
+            title: 'Take notes',
+            text: 'Tap Notes and the numbers pencil small notes into the square instead of filling it. The keys shrink to show it. Tap Notes again to go back.',
+            gesture: 'tap',
+          }
+        : {
+            target: board,
+            title: 'Take notes',
+            text: 'Long-press a square for the notes wheel, slide toward a number and lift to pencil it in (or out). Faster: just swipe from the square toward the number. Lift without choosing to cancel.',
+            gesture: 'hold-slide',
+          },
       {
         target: pad.querySelector<HTMLElement>('.key-erase')!,
         title: 'Erase',
