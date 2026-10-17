@@ -138,28 +138,37 @@ const K_CURVE: [number, number][] = [
   [4800, 8],
 ];
 
-function eloK(elo: number): number {
-  if (elo <= K_CURVE[0][0]) return K_CURVE[0][1];
-  for (let i = 1; i < K_CURVE.length; i++) {
-    const [e1, k1] = K_CURVE[i];
-    const [e0, k0] = K_CURVE[i - 1];
-    if (elo <= e1) return k0 + ((k1 - k0) * (elo - e0)) / (e1 - e0);
+/** What a loss costs relative to the stake: gentle right after the protection, double at the top. */
+const LOSS_CURVE: [number, number][] = [
+  [500, 0.5],
+  [1200, 1],
+  [1600, 1.25],
+  [2400, 1.5],
+  [3200, 2],
+];
+
+/** Straight lines between the points; flat before the first and after the last. */
+function along(points: [number, number][], x: number): number {
+  if (x <= points[0][0]) return points[0][1];
+  for (let i = 1; i < points.length; i++) {
+    const [x1, y1] = points[i];
+    const [x0, y0] = points[i - 1];
+    if (x <= x1) return y0 + ((y1 - y0) * (x - x0)) / (x1 - x0);
   }
-  return K_CURVE[K_CURVE.length - 1][1];
+  return points[points.length - 1][1];
 }
 
 /**
  * Puzzle-as-opponent Elo, mirroring elo_delta on the server (signed-in players
- * get theirs from there). Losses cost more the higher the player (×1.5, ×1.75
- * from 1600, ×2 from 2400) and are free while protected.
+ * get theirs from there). Losses are free while protected, then cost more the
+ * higher the player (LOSS_CURVE).
  */
 export function eloDelta(player: number, puzzle: number, won: boolean): number {
   const expected = 1 / (1 + 10 ** ((puzzle - player) / 400));
-  const k = eloK(player);
+  const k = along(K_CURVE, player);
   if (won) return Math.round(k * (1 - expected));
   if (player < PROTECTED_BELOW) return 0;
-  const lossMultiplier = player < 1600 ? 1.5 : player < 2400 ? 1.75 : 2;
-  return -Math.round(k * expected * lossMultiplier);
+  return -Math.round(k * expected * along(LOSS_CURVE, player));
 }
 
 export function rankTitle(elo: number): string {
