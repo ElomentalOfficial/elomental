@@ -23,7 +23,7 @@ import {
 } from '../profile.ts';
 import { requestPuzzle } from '../puzzles.ts';
 import { openNotesWheel, type NotesWheel } from '../radial.ts';
-import { notesWheelOn } from '../prefs.ts';
+import { notesWheelOn } from '../settings.ts';
 import { readJson, removeKey, writeJson } from '../storage.ts';
 import { explainHint, type Marks } from '../explain.ts';
 import { formatSeconds, getClash, saveClash, type ClashResult } from '../clash.ts';
@@ -35,13 +35,14 @@ import {
   pauseServerGame,
   registered,
   resumeServerGame,
+  saveSettings,
   signedIn,
   startServerGame,
   type ServerStart,
 } from '../backend.ts';
 import { signUpForm } from '../accountForm.ts';
 import { runHintCoach } from '../hintCoach.ts';
-import { markTutorialDone, runTutorial, tutorialDone, type TutorialStep } from '../tutorial.ts';
+import { runTutorial, tutorialDone, type TutorialStep } from '../tutorial.ts';
 import { formatTime, goBack, h, mount, openModal, toast, type Screen } from '../ui.ts';
 import { dailyScreen } from './daily.ts';
 import { homeScreen } from './home.ts';
@@ -975,7 +976,7 @@ function gameScreen(game: SavedGame): Screen {
     // Wait for the page turnstile to settle so the spotlight lands on the final positions.
     setTimeout(() => {
       void runTutorial(steps).then(() => {
-        markTutorialDone();
+        saveSettings({ tutorialDone: true });
         coaching = false;
         last = performance.now();
       });

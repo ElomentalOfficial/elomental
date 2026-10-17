@@ -1,9 +1,17 @@
 import { signUpForm } from '../accountForm.ts';
-import { NAME_COOLDOWN_DAYS, cachedAccount, formatDay, onAccountChange, registered, setDisplayName, signOut } from '../backend.ts';
+import {
+  NAME_COOLDOWN_DAYS,
+  cachedAccount,
+  formatDay,
+  onAccountChange,
+  registered,
+  saveSettings,
+  setDisplayName,
+  signOut,
+} from '../backend.ts';
 import { ICONS } from '../icons.ts';
-import { notesWheelOn, setNotesWheel } from '../prefs.ts';
-import { getTheme, setTheme, type Theme } from '../theme.ts';
-import { resetTutorial } from '../tutorial.ts';
+import { notesWheelOn } from '../settings.ts';
+import { getTheme, type Theme } from '../theme.ts';
 import { deviceInfo } from '../viewport.ts';
 import { goBack, h, mount, toast, type Screen } from '../ui.ts';
 import { homeScreen } from './home.ts';
@@ -21,7 +29,7 @@ export function setupScreen(): Screen {
         class: 'segment',
         attrs: { role: 'radio', 'data-theme-option': o.theme },
         onclick: () => {
-          setTheme(o.theme);
+          saveSettings({ theme: o.theme });
           sync();
         },
       },
@@ -46,7 +54,7 @@ export function setupScreen(): Screen {
         class: 'segment',
         attrs: { role: 'radio' },
         onclick: () => {
-          setNotesWheel(on);
+          saveSettings({ notesWheel: on });
           syncWheel();
         },
       },
@@ -62,6 +70,12 @@ export function setupScreen(): Screen {
     });
   };
   syncWheel();
+  // Settings saved on another device arrive with the account refresh.
+  const stopSync = onAccountChange(() => {
+    if (!wheelButtons[0].isConnected) return stopSync();
+    sync();
+    syncWheel();
+  });
 
   // Hidden diagnostics: five taps on the title show what the phone reports about its screen.
   const title = h('h1', { text: 'Setup' });
@@ -104,7 +118,7 @@ export function setupScreen(): Screen {
         class: 'btn',
         text: 'Show again next game',
         onclick: () => {
-          resetTutorial();
+          saveSettings({ tutorialDone: false });
           toast('The tutorial will play at the start of your next game');
         },
       }),

@@ -2,6 +2,7 @@ import { createClient, type Session } from '@supabase/supabase-js';
 import type { Difficulty } from '@elomental/engine';
 import type { ClashResult } from './clash.ts';
 import type { Mode, Outcome } from './profile.ts';
+import { applySettings, cleanSettings, localSettings, type Settings } from './settings.ts';
 import { readJson, removeKey, writeJson } from './storage.ts';
 
 /**
@@ -79,10 +80,15 @@ export async function refreshAccount(session?: Session | null): Promise<Account 
     return null;
   }
   const [{ data: profile, error }, { data: dailies }] = await Promise.all([
-    supabase.from('profiles').select('display_name, name_changed_at, elo, ranked_games, stardust, crowns').eq('id', s.user.id).single(),
+    supabase
+      .from('profiles')
+      .select('display_name, name_changed_at, elo, ranked_games, stardust, crowns, settings')
+      .eq('id', s.user.id)
+      .single(),
     supabase.from('games').select('date_key').eq('mode', 'daily').eq('won', true),
   ]);
   if (error || !profile) return cachedAccount();
+  syncSettings(profile.settings);
   const account: Account = {
     anonymous: !!s.user.is_anonymous,
     email: s.user.email ?? '',
@@ -304,6 +310,33 @@ export async function signOut(): Promise<void> {
   notify();
   // Back to a fresh guest account, so play keeps going through the server.
   void startGuestAccount();
+}
+
+// --- Settings ------------------------------------------------------------------------
+
+/**
+ * Changes settings on this device and saves them to the account, so every
+ * other device picks them up on its next refresh. Offline, the change stays
+ * on this device.
+ */
+export function saveSettings(settings: Partial<Settings>): void {
+  applySettings(settings);
+  if (signedIn()) void supabase.rpc('save_settings', { p_settings: settings }).then(() => undefined);
+}
+
+/**
+ * The account's saved settings win over this device's. Settings the account
+ * hasn't saved yet (a new account, or one from before settings synced) are
+ * filled in from this device.
+ */
+function syncSettings(raw: unknown): void {
+  const saved = cleanSettings(raw);
+  applySettings(saved);
+  const local = localSettings();
+  const missing = (Object.keys(local) as (keyof Settings)[]).filter((k) => !(k in saved));
+  if (missing.length) {
+    void supabase.rpc('save_settings', { p_settings: Object.fromEntries(missing.map((k) => [k, local[k]])) }).then(() => undefined);
+  }
 }
 
 /** Names can change once every 15 days (the server enforces it). */
