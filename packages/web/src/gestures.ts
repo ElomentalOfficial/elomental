@@ -31,7 +31,16 @@ export function installZoomGuards(): void {
   // Nothing in the app scrolls, so no drag may move the page (iOS sometimes
   // scrolls a fixed, overflow-hidden page anyway). Pointer events — board, notes
   // wheel — still arrive; this only stops the browser's own panning and pinching.
-  document.addEventListener('touchmove', (event) => event.preventDefault(), { passive: false });
+  // The exception: inside a `.scrollable` area that actually overflows (Setup, tall pop-ups).
+  document.addEventListener(
+    'touchmove',
+    (event) => {
+      const area = (event.target as Element | null)?.closest?.<HTMLElement>('.scrollable');
+      if (area && area.scrollHeight > area.clientHeight + 1) return;
+      event.preventDefault();
+    },
+    { passive: false },
+  );
   const pin = () => {
     if (window.scrollX || window.scrollY) window.scrollTo(0, 0);
   };

@@ -1,5 +1,5 @@
 import { signUpForm } from '../accountForm.ts';
-import { cachedAccount, onAccountChange, registered, setDisplayName, signOut } from '../backend.ts';
+import { NAME_COOLDOWN_DAYS, cachedAccount, formatDay, onAccountChange, registered, setDisplayName, signOut } from '../backend.ts';
 import { ICONS } from '../icons.ts';
 import { getTheme, setTheme, type Theme } from '../theme.ts';
 import { resetTutorial } from '../tutorial.ts';
@@ -50,7 +50,7 @@ export function setupScreen(): Screen {
 
   const el = h(
     'div',
-    { class: 'screen setup' },
+    { class: 'screen setup scrollable' },
     h(
       'div',
       { class: 'subbar' },
@@ -110,12 +110,17 @@ function accountSection(): HTMLElement {
     const account = cachedAccount();
     error.textContent = '';
     if (account && !account.anonymous) {
+      // A name can change once every 15 days; while locked, the field just shows it.
+      const locked = account.nextNameChange;
       const name = field({ type: 'text', maxlength: '20', 'aria-label': 'Player name', value: account.name });
+      name.disabled = !!locked;
       const save = h('button', { class: 'btn', text: 'Save name' });
       save.addEventListener('click', () =>
         run(save, async () => {
           if (name.value.trim() === account.name) return;
-          if (fail(await setDisplayName(name.value))) toast('Name saved');
+          if (!fail(await setDisplayName(name.value))) return;
+          toast('Name saved');
+          paint();
         }),
       );
       const out = h('button', { class: 'btn', text: 'Sign out' });
@@ -124,7 +129,13 @@ function accountSection(): HTMLElement {
         h('div', {}, h('h2', { text: 'Account' }), h('p', { text: `Signed in as ${account.email}` })),
         h('label', { class: 'field-label', text: 'Player name' }),
         name,
-        save,
+        h('p', {
+          class: 'field-hint',
+          text: locked
+            ? `You can change your name again on ${formatDay(locked)}.`
+            : `Names are unique. After a change, the next one is possible in ${NAME_COOLDOWN_DAYS} days.`,
+        }),
+        ...(locked ? [] : [save]),
         error,
         out,
       );

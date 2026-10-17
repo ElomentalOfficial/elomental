@@ -69,7 +69,7 @@ const openModals = new Set<() => void>();
 
 export function openModal(content: HTMLElement, options: { dismissible?: boolean; class?: string } = {}): () => void {
   const panel = h('div', { class: `modal ${options.class ?? ''}` }, content);
-  const backdrop = h('div', { class: 'backdrop' }, panel);
+  const backdrop = h('div', { class: 'backdrop scrollable' }, panel);
   const close = () => {
     openModals.delete(close);
     backdrop.remove();

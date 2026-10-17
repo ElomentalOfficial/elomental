@@ -39,6 +39,8 @@ export interface Account {
   anonymous: boolean;
   email: string;
   name: string;
+  /** When the name may next be changed (ISO), or null if it can change now. */
+  nextNameChange: string | null;
   elo: number;
   rankedGames: number;
   stardust: number;
@@ -77,7 +79,7 @@ export async function refreshAccount(session?: Session | null): Promise<Account 
     return null;
   }
   const [{ data: profile, error }, { data: dailies }] = await Promise.all([
-    supabase.from('profiles').select('display_name, elo, ranked_games, stardust, crowns').eq('id', s.user.id).single(),
+    supabase.from('profiles').select('display_name, name_changed_at, elo, ranked_games, stardust, crowns').eq('id', s.user.id).single(),
     supabase.from('games').select('date_key').eq('mode', 'daily').eq('won', true),
   ]);
   if (error || !profile) return cachedAccount();
@@ -85,6 +87,7 @@ export async function refreshAccount(session?: Session | null): Promise<Account 
     anonymous: !!s.user.is_anonymous,
     email: s.user.email ?? '',
     name: profile.display_name,
+    nextNameChange: nextChange(profile.name_changed_at),
     elo: profile.elo,
     rankedGames: profile.ranked_games,
     stardust: profile.stardust,
@@ -187,9 +190,26 @@ export async function signOut(): Promise<void> {
   void startGuestAccount();
 }
 
+/** Names can change once every 15 days (the server enforces it). */
+export const NAME_COOLDOWN_DAYS = 15;
+
+function nextChange(changedAt: string | null): string | null {
+  if (!changedAt) return null;
+  const next = Date.parse(changedAt) + NAME_COOLDOWN_DAYS * 86_400_000;
+  return next > Date.now() ? new Date(next).toISOString() : null;
+}
+
+export const formatDay = (iso: string): string =>
+  new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'long' });
+
 export async function setDisplayName(name: string): Promise<string | null> {
   const { error } = await supabase.rpc('set_display_name', { p_name: name });
-  if (error) return error.message.includes('name_taken') ? 'That name is taken' : 'Names are 3–20 letters, digits, spaces, . _ -';
+  if (error) {
+    const cooldown = error.message.match(/name_cooldown:(\S+)/);
+    if (cooldown) return `You can change your name again on ${formatDay(cooldown[1])}`;
+    if (error.message.includes('name_taken')) return 'That name is taken';
+    return 'Names are 3–20 letters, digits, spaces, . _ -';
+  }
   await refreshAccount();
   return null;
 }
