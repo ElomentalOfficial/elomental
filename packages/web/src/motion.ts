@@ -9,10 +9,21 @@ const PERSPECTIVE = 'perspective(900px)';
 const EASE_OUT = 'cubic-bezier(0.1, 0.9, 0.2, 1)';
 const EASE_IN = 'cubic-bezier(0.7, 0, 1, 0.5)';
 
-/** Reading order: rows top to bottom, then left to right within a row. */
+/**
+ * The turnstile's depth, in proportion to the stage: 900px suits a ~350px
+ * phone grid. Every tile pivots on the stage's left edge, so on a wide
+ * desktop grid a fixed 900px would swing the far tiles through huge arcs;
+ * scaling it keeps the swing looking exactly as it does on a phone.
+ */
+function perspectiveFor(stage: HTMLElement): string {
+  return `perspective(${Math.max(900, Math.round(stage.getBoundingClientRect().width * 2.56))}px)`;
+}
+
+/** Reading order: rows top to bottom, then left to right within a row. Hidden tiles are left out. */
 function inReadingOrder(items: HTMLElement[]): { el: HTMLElement; rect: DOMRect }[] {
   return items
     .map((el) => ({ el, rect: el.getBoundingClientRect() }))
+    .filter(({ rect }) => rect.width > 0)
     .sort((a, b) => Math.round(a.rect.top - b.rect.top) || a.rect.left - b.rect.left);
 }
 
@@ -31,12 +42,13 @@ export function turnstileIn(stage: HTMLElement, items: HTMLElement[], backward =
   if (reducedMotion()) return;
   const order = inReadingOrder(items);
   if (backward) order.reverse();
+  const perspective = perspectiveFor(stage);
   order.forEach(({ el, rect }, i) => {
     el.style.transformOrigin = hingeOrigin(stage, rect);
     el.animate(
       [
-        { transform: `${PERSPECTIVE} rotateY(${backward ? -82 : 78}deg)`, opacity: 0 },
-        { transform: `${PERSPECTIVE} rotateY(0deg)`, opacity: 1 },
+        { transform: `${perspective} rotateY(${backward ? -82 : 78}deg)`, opacity: 0 },
+        { transform: `${perspective} rotateY(0deg)`, opacity: 1 },
       ],
       { duration: backward ? 440 : 520, delay: 30 + i * (backward ? 45 : 55), easing: EASE_OUT, fill: 'backwards' },
     );
@@ -48,13 +60,14 @@ export function turnstileOut(stage: HTMLElement, items: HTMLElement[], last?: HT
   if (reducedMotion()) return Promise.resolve();
   const order = inReadingOrder(items.filter((el) => el !== last));
   if (last) order.push({ el: last, rect: last.getBoundingClientRect() });
+  const perspective = perspectiveFor(stage);
   const animations = order.map(({ el, rect }, i) => {
     el.style.transformOrigin = hingeOrigin(stage, rect);
     const isLast = el === last;
     return el.animate(
       [
-        { transform: `${PERSPECTIVE} rotateY(0deg)`, opacity: 1 },
-        { transform: `${PERSPECTIVE} rotateY(-82deg)`, opacity: 0 },
+        { transform: `${perspective} rotateY(0deg)`, opacity: 1 },
+        { transform: `${perspective} rotateY(-82deg)`, opacity: 0 },
       ],
       { duration: isLast ? 300 : 230, delay: i * 35 + (isLast ? 70 : 0), easing: EASE_IN, fill: 'forwards' },
     );

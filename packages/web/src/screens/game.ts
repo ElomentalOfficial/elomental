@@ -274,15 +274,15 @@ function gameScreen(game: SavedGame): Screen {
     : h('button', { class: 'action notes-toggle', html: `${ICONS.pencil}<span>Notes</span>`, attrs: { 'aria-pressed': 'false' } });
 
   // The splash ribbon hanging over the controls; only the wide layouts show it (styles.css).
-  // Its outline is anchored at the bottom, so the torn tail always shows and
-  // the top runs off the edge of the screen.
+  // The whole outline is stretched to the hanging length, so its tears and torn
+  // tail keep their places, as in the Figma desktop frame.
   const brand = h(
     'div',
     { class: 'brand-banner', attrs: { 'aria-hidden': 'true' } },
     h('span', {
       class: 'brand-ribbon',
       html:
-        `<svg viewBox="${RIBBON_BOX.x} 0 ${RIBBON_BOX.width} ${RIBBON_BOX.height}" preserveAspectRatio="xMidYMax slice">` +
+        `<svg viewBox="${RIBBON_BOX.x} 0 ${RIBBON_BOX.width} ${RIBBON_BOX.height}" preserveAspectRatio="none">` +
         `<path d="${RIBBON_PATH}"/></svg>`,
     }),
     h('span', { text: 'ELO' }),

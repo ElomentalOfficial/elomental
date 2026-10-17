@@ -92,8 +92,10 @@ export function homeScreen(): Screen {
   const leader = tile('leader', ICONS.leaderboard, 'Leaderboard', () => toast('Leaderboards need accounts'));
   const casual = tile('casual', ICONS.casual, 'Casual', (el) => openCasual((go) => leave(el, go)));
   const ranked = tile('ranked', ICONS.ranked, 'Play Ranked', (el) => openRanked((go) => leave(el, go)));
+  // Wide screens give Setup a tile of its own (Figma desktop home); phones keep it in the notch.
+  const setupWide = tile('setup', ICONS.setup, 'Setup', (el) => leave(el, () => mount(setupScreen())));
 
-  const animated = [profileCard, daily, store, leader, casual, ranked];
+  const animated = [profileCard, daily, store, leader, casual, ranked, setupWide];
   const grid = h('div', { class: 'home-grid' }, ...animated);
   const el = h('div', { class: 'screen home' }, grid);
 

@@ -9,5 +9,3 @@ export const RIBBON_PATH =
 
 /** The ribbon's box within that frame. */
 export const RIBBON_BOX = { x: 42, width: 305, height: 740 } as const;
-/** Where the torn tail starts (its highest point), in the same units. */
-export const RIBBON_TAIL_TOP = 630;

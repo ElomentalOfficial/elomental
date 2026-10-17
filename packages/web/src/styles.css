@@ -637,6 +637,14 @@ html[data-nav='back'] .screen.setup {
   width: 38px;
   height: 40px;
 }
+/* Setup's own tile: wide screens only (phones keep it in the profile card's notch). */
+.area-setup {
+  display: none;
+}
+.area-setup .tile-icon {
+  width: 34px;
+  height: 34px;
+}
 .area-ranked .tile-icon {
   width: 36px;
   height: 44px;
@@ -2412,10 +2420,10 @@ html.standalone .toast {
 }
 @media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
   /*
-   * Home, wide: the phone's pieces side by side. The profile card runs the
-   * full height on the left (Setup still in its notch); the tall Daily tile
-   * with Casual under it in the middle; Store and Leaderboard over a large
-   * Play Ranked on the right.
+   * Home, wide (Figma desktop home): the profile card runs the full height on
+   * the left; beside it three rows of a wide and a narrow tile: Store and
+   * Setup, Leaderboard and Daily Square, Casual and Play Ranked. Setup gets a
+   * tile of its own here instead of the profile card's notch.
    */
   .screen.home {
     --pad-y: clamp(24px, 5dvh, 64px);
@@ -2426,16 +2434,25 @@ html.standalone .toast {
   }
   .home-grid {
     flex: none;
-    width: min(100%, 1240px, calc((100dvh - 2 * var(--pad-y)) * 1.72));
-    aspect-ratio: 1.72;
+    width: min(100%, 1240px, calc((100dvh - 2 * var(--pad-y)) * 1.83));
+    aspect-ratio: 1.83;
     padding-top: 0;
-    gap: clamp(12px, 1.3vw, 20px);
-    grid-template-columns: 1.2fr 0.62fr 1fr;
-    grid-template-rows: 1fr 1fr 1.45fr;
+    row-gap: clamp(8px, 0.9vw, 14px);
+    column-gap: clamp(12px, 1.5vw, 22px);
+    /* Figma: 262 / 209 / 134 wide, rows 93 / 99 / 137 tall. */
+    grid-template-columns: 1.95fr 1.56fr 1fr;
+    grid-template-rows: 0.93fr 1fr 1.38fr;
     grid-template-areas:
-      'profile daily store'
-      'profile daily leader'
+      'profile store setup'
+      'profile leader daily'
       'profile casual ranked';
+  }
+  .area-setup {
+    display: flex;
+    grid-area: setup;
+  }
+  .setup-notch {
+    display: none;
   }
   .home-grid .tile-face,
   .profile-main,
@@ -2446,8 +2463,10 @@ html.standalone .toast {
   .profile-card {
     padding: 28px 24px 24px;
   }
+  /* Daily is a near-square tile here: icon and label together, centred. */
   .area-daily {
-    padding: 40px 12px 32px;
+    justify-content: center;
+    padding: 12px 8px;
   }
   /* Corners grow with the tiles, by the same factor as their contents (the
      Setup tile is zoomed, so its own corners already follow). */
@@ -2480,24 +2499,32 @@ html.standalone .toast {
   }
 
   /* On the root so overlays outside the game (the hint card) can line up with it. */
+  /*
+   * Proportions from the Figma "Desktop" frame, as fractions of the board
+   * (576px there): controls 40% of it, set 15% apart; keys ~67px with ~13px
+   * between; Concede, Erase+Notes and Hint+Undo as tall as a key; a little
+   * extra air above and below the keypad; ~30px type over the board.
+   */
   :root {
-    --status-h: 44px;
-    --g: 6px;
-    --board: min(calc(100dvh - 240px), 50vw, 780px);
-    --split: clamp(28px, 3.5vw, 64px);
-    --side: clamp(220px, calc(var(--board) * 0.42), 340px);
+    --board: min(calc(100dvh - 300px), 48vw, 760px);
+    --g: calc(var(--board) * 0.022);
+    --split: calc(var(--board) * 0.15);
+    --side: clamp(170px, calc(var(--board) * 0.4), 320px);
     --col: calc((var(--side) - 5 * var(--g)) / 6);
     /* A digit key: two of the six columns, square. */
     --key: calc(2 * var(--col) + var(--g));
-    --bar: calc(var(--key) * 0.6);
+    --bar: var(--key);
+    /* Extra air above and below the keypad: with the gaps either side, half a key in all. */
+    --air: max(0px, calc(var(--key) * 0.5 - 2 * var(--g)));
+    --status-h: calc(var(--key) * 0.75);
     --total: calc(var(--board) + var(--split) + var(--side));
     /* Left edge of the controls column, and the space above/below the centred game. */
     --side-left: calc(50% - var(--total) / 2 + var(--board) + var(--split));
     --game-margin: calc((100dvh - var(--status-h) - var(--g) - var(--board)) / 2);
-    /* From the top edge down to just above Concede. */
-    --banner-h: calc(var(--game-margin) + var(--status-h) + var(--g) + var(--side-room) + var(--g) - 14px);
     /* The board's height left over above the controls, which sit level with its bottom edge. */
-    --side-room: calc(var(--board) - 2 * var(--bar) - 4.25 * var(--key) - 7 * var(--g));
+    --side-room: calc(var(--board) - 6 * var(--key) - 2 * var(--air) - 8 * var(--g));
+    /* From the top edge down to a little above Concede. */
+    --banner-h: calc(var(--game-margin) + var(--status-h) + 2 * var(--g) + var(--side-room) - var(--key) * 0.6);
   }
   /* The hint card sits over the lower controls, level with the board's bottom edge. */
   .hint-card {
@@ -2515,10 +2542,10 @@ html.standalone .toast {
     justify-content: center;
     gap: var(--g);
     grid-template-columns: var(--board) calc(var(--split) - 2 * var(--g)) repeat(6, var(--col));
-    /* status | room for the banner | Concede | breathing room | 3 key rows | Erase+Notes | Hint+Undo,
+    /* status | room for the banner | Concede | air | 3 key rows | air | Erase+Notes | Hint+Undo,
        so the controls end level with the board's bottom edge. */
     grid-template-rows:
-      var(--status-h) var(--side-room) var(--bar) calc(var(--key) * 0.25) var(--key) var(--key) var(--key) var(--key)
+      var(--status-h) var(--side-room) var(--bar) var(--air) var(--key) var(--key) var(--key) var(--air) var(--key)
       var(--bar);
   }
   .game .topbar,
@@ -2531,30 +2558,31 @@ html.standalone .toast {
   .game .separator {
     display: none;
   }
-  /* Over the board: mistakes left, clock centred, puzzle type right. */
+  /* Over the board: mistakes left, clock centred, puzzle type right, all at
+     the size of the keypad digits (there's room on a wide screen). */
   .game .mistakes,
   .game .timer,
   .game .puzzle-info {
     grid-area: 1 / 1;
-    align-self: end;
+    align-self: center;
+    line-height: 1;
   }
   .game .mistakes {
     justify-self: start;
-    margin-bottom: 4px;
+    gap: calc(var(--key) * 0.06);
   }
   .game .timer {
     justify-self: center;
-    font-size: 30px;
-    line-height: 1;
+    font-size: calc(var(--key) * 0.44);
   }
   .game .puzzle-info {
     justify-self: end;
-    font-size: 16px;
-    margin-bottom: 2px;
+    /* As large as the clock, a touch smaller on short screens so it keeps clear of it. */
+    font-size: min(calc(var(--key) * 0.44), calc(var(--board) * 0.052));
   }
   .game .skull {
-    width: 21px;
-    height: 20px;
+    width: calc(var(--key) * 0.3);
+    height: calc(var(--key) * 0.29);
   }
   .game .board-wrap {
     grid-area: 2 / 1 / -1 / 2;
@@ -2591,11 +2619,11 @@ html.standalone .toast {
   .game .topbar > .bar-icon {
     grid-area: 3 / 7 / 4 / 9;
     width: auto;
-    padding: calc(var(--bar) * 0.26);
+    padding: calc(var(--bar) * 0.3);
   }
   .game .bar-btn {
     height: auto;
-    font-size: calc(var(--bar) * 0.5);
+    font-size: calc(var(--bar) * 0.44);
   }
   .game .pad > :nth-child(1) { grid-area: 5 / 3 / 6 / 5; }
   .game .pad > :nth-child(2) { grid-area: 5 / 5 / 6 / 7; }
@@ -2606,37 +2634,39 @@ html.standalone .toast {
   .game .pad > :nth-child(7) { grid-area: 7 / 3 / 8 / 5; }
   .game .pad > :nth-child(8) { grid-area: 7 / 5 / 8 / 7; }
   .game .pad > :nth-child(9) { grid-area: 7 / 7 / 8 / 9; }
-  .game .key-erase { grid-area: 8 / 3 / 9 / 5; }
-  .game .notes-toggle { grid-area: 8 / 5 / 9 / 9; }
-  .game .actions-row > :nth-child(1) { grid-area: 9 / 3 / 10 / 6; }
-  .game .actions-row > :nth-child(2) { grid-area: 9 / 6 / 10 / 9; }
+  .game .key-erase { grid-area: 9 / 3 / 10 / 5; }
+  .game .notes-toggle { grid-area: 9 / 5 / 10 / 9; }
+  .game .actions-row > :nth-child(1) { grid-area: 10 / 3 / 11 / 6; }
+  .game .actions-row > :nth-child(2) { grid-area: 10 / 6 / 11 / 9; }
   /* Without the Notes button, Erase takes the whole row. */
-  .game:not(:has(.notes-toggle)) .key-erase { grid-area: 8 / 3 / 9 / 9; }
+  .game:not(:has(.notes-toggle)) .key-erase { grid-area: 9 / 3 / 10 / 9; }
+  /* Keypad digits in Federo, as in the Figma desktop frame. */
   .game .key {
     height: auto;
-    font-size: calc(var(--key) * 0.42);
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: calc(var(--key) * 0.44);
   }
   .game .key-erase svg {
-    width: calc(var(--key) * 0.42);
-    height: calc(var(--key) * 0.43);
+    width: calc(var(--key) * 0.4);
+    height: calc(var(--key) * 0.41);
   }
   .game .action {
     height: auto;
-    gap: calc(var(--bar) * 0.16);
-    font-size: calc(var(--bar) * 0.4);
+    gap: calc(var(--bar) * 0.12);
+    font-size: calc(var(--bar) * 0.3);
   }
   .game .action svg {
-    width: calc(var(--bar) * 0.34);
-    height: calc(var(--bar) * 0.34);
+    width: calc(var(--bar) * 0.24);
+    height: calc(var(--bar) * 0.24);
   }
   /*
-   * The splash ribbon, hanging from the top edge down to just above Concede.
-   * Its outline (game.ts) is pinned at the bottom, so the torn tail shows and
-   * the top runs off the screen; the wordmark sits just above the tail
-   * (the tail is (740 - 630) / 305 ≈ 0.36 of the ribbon's width).
+   * The splash ribbon, hanging from the top edge down to a little above
+   * Concede: its whole outline stretched to that length (game.ts), so the side
+   * tears and the torn tail sit where they do on the splash, as in the Figma
+   * desktop frame. The wordmark is centred above the tail (the last 15%).
    */
   .game .brand-banner {
-    --tail: calc(var(--side) * 0.36);
     isolation: isolate;
     position: absolute;
     top: 0;
@@ -2645,14 +2675,14 @@ html.standalone .toast {
     height: var(--banner-h);
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+    justify-content: center;
     align-items: center;
-    gap: calc(var(--side) * 0.025);
-    padding-bottom: calc(var(--tail) + var(--side) * 0.05);
+    gap: calc(var(--side) * 0.03);
+    padding-bottom: calc(var(--banner-h) * 0.15);
     color: var(--c-bright);
     font-family: var(--serif);
-    /* Three lines above the tail must fit the hanging length. */
-    font-size: min(calc(var(--side) * 0.12), calc((var(--banner-h) - var(--tail)) / 3.8));
+    /* Three lines must fit above the tail. */
+    font-size: min(calc(var(--side) * 0.17), calc(var(--banner-h) * 0.17));
     line-height: 1;
     letter-spacing: 0.45em;
     /* letter-spacing trails each line; this re-centres it. */
