@@ -3,6 +3,7 @@ import {
   NAME_COOLDOWN_DAYS,
   cachedAccount,
   formatDay,
+  isFounder,
   onAccountChange,
   registered,
   saveSettings,
@@ -15,6 +16,7 @@ import { getTheme, type Theme } from '../theme.ts';
 import { deviceInfo } from '../viewport.ts';
 import { goBack, h, mount, toast, type Screen } from '../ui.ts';
 import { homeScreen } from './home.ts';
+import { reviewScreen } from './review.ts';
 
 export function setupScreen(): Screen {
   const options: { theme: Theme; label: string; icon: string }[] = [
@@ -98,6 +100,7 @@ export function setupScreen(): Screen {
       h('span', { class: 'icon-btn-spacer' }),
     ),
     accountSection(),
+    reviewSection(),
     h(
       'section',
       { class: 'setting' },
@@ -126,6 +129,23 @@ export function setupScreen(): Screen {
     info,
   );
   return { el };
+}
+
+/** Founders only: the way into the Review dashboard (the server checks again). */
+function reviewSection(): HTMLElement {
+  const section = h(
+    'section',
+    { class: 'setting' },
+    h('div', {}, h('h2', { text: 'Review' }), h('p', { text: 'Players flagged for copying answers in Ranked.' })),
+    h('button', { class: 'btn', text: 'Open review', onclick: () => mount(reviewScreen()) }),
+  );
+  const paint = () => (section.hidden = !isFounder() || !!cachedAccount()?.anonymous);
+  paint();
+  const stop = onAccountChange(() => {
+    if (!section.isConnected) return stop();
+    paint();
+  });
+  return section;
 }
 
 /** Registered: name and sign-out. Guest: the passwordless sign-up form. */

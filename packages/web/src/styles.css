@@ -841,6 +841,9 @@ html.standalone .screen.scrollable {
   border-radius: var(--radius);
   background: var(--surface);
 }
+.setting[hidden] {
+  display: none;
+}
 .setting h2 {
   font-size: 16px;
   text-transform: uppercase;
@@ -850,6 +853,130 @@ html.standalone .screen.scrollable {
   font-size: 15px;
   color: var(--muted);
 }
+/* Review dashboard (founders only, screens/review.ts). */
+.review-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.review-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 6px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: center;
+}
+.review-stat strong {
+  font-size: 28px;
+  color: var(--accent);
+}
+.review-stat span {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.review-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.review-empty {
+  padding: 24px 0;
+  font-family: var(--serif);
+  font-size: 17px;
+  text-align: center;
+  color: var(--muted);
+}
+.review-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+/* Still to review: a line down the side. */
+.review-card.open {
+  box-shadow: inset 4px 0 0 var(--accent);
+}
+.review-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.review-head > div {
+  flex: 1;
+  min-width: 0;
+}
+.review-head h2 {
+  font-size: 18px;
+  text-transform: uppercase;
+}
+.review-card .note {
+  overflow-wrap: anywhere;
+}
+.review-pill {
+  flex: none;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: var(--surface-2);
+  color: var(--muted);
+}
+.review-pill.banned {
+  background: var(--accent);
+  color: var(--primary-text);
+}
+.review-verdict {
+  font-family: var(--serif);
+  font-size: 17px;
+}
+.review-games summary {
+  cursor: pointer;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.review-game {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: calc(var(--radius) * 0.6);
+  background: var(--surface-2);
+  font-family: var(--serif);
+  font-size: 15px;
+}
+.review-game strong {
+  font-size: 13px;
+  text-transform: uppercase;
+}
+.review-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.review-actions .btn {
+  min-height: 48px;
+  font-size: 17px;
+}
+.review-actions .btn-primary {
+  grid-column: 1 / -1;
+}
+.review-confirm .text-field {
+  width: 100%;
+}
+.review-confirm p:empty {
+  display: none;
+}
+
 /* Sign-up box: Setup, and the end of every result pop-up for guests. */
 .signup {
   display: flex;

@@ -82,8 +82,15 @@ to the hand-off.
 ## Reviewing flagged players
 
 Ranked wins typed in from a solver are left unrated and flagged (Edge
-Function `audit-solve`, migrations `solve_audit*`). To review them, open the
-Table Editor and switch the schema to **private**:
+Function `audit-solve`, migrations `solve_audit*`).
+
+**In the app:** sign in with a founder account, then Setup → Review. Each
+flagged player shows why they were flagged, with buttons for "It was a
+mistake", a Ranked ban (30 days or until lifted) and "Lift ban". Only
+founders see the entry, and the server checks again (`admin_review` and
+`admin_moderate`, migration `admin_review`).
+
+**In Supabase:** open the Table Editor and switch the schema to **private**:
 
 - `review_by_player`: one row per flagged player, the ones to review first,
   with a plain summary and whether they may play Ranked.

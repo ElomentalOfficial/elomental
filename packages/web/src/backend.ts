@@ -497,6 +497,60 @@ export async function finishServerGame(input: {
   };
 }
 
+// --- Review (founders only) -------------------------------------------------------
+// The server checks the caller is a founder (migration admin_review); for
+// anyone else both calls fail with not_admin.
+
+export interface ReviewGame {
+  flagId: number;
+  at: string;
+  /** 'copied': typed in before it could be worked out; 'unchecked': no moves reached the server. */
+  reason: 'copied' | 'unchecked';
+  leaps: number | null;
+  placements: number | null;
+  evidence: number | null;
+  potential: number | null;
+  validPuzzle: boolean;
+  rating: number | null;
+  seconds: number | null;
+  reviewed: boolean;
+  note: string | null;
+}
+
+export interface ReviewPlayer {
+  userId: string;
+  name: string;
+  /** Null for guests. */
+  email: string | null;
+  elo: number;
+  restricted: boolean;
+  /** Null while restricted means until lifted. */
+  restrictedUntil: string | null;
+  restrictionReason: string | null;
+  toReview: number;
+  copied: number;
+  unchecked: number;
+  lastFlag: string;
+  games: ReviewGame[];
+}
+
+export async function fetchReview(): Promise<ReviewPlayer[]> {
+  const { data, error } = await supabase.rpc('admin_review');
+  if (error) throw new Error(error.message.includes('not_admin') ? 'Only founders can open the review.' : error.message);
+  return (data ?? []) as ReviewPlayer[];
+}
+
+export type ModerationAction = 'clear' | 'restrict' | 'lift';
+
+/** Clear a player's flags (a mistake), ban them from Ranked (for `days`, or until lifted), or lift the ban. */
+export async function moderate(userId: string, action: ModerationAction, days: number | null, note: string): Promise<string | null> {
+  const { error } = await supabase.rpc('admin_moderate', { p_user: userId, p_action: action, p_days: days, p_note: note });
+  return error ? (error.message.includes('not_admin') ? 'Only founders can do this.' : 'That didn’t work. Try again.') : null;
+}
+
+/** A founder (the server decides; this only picks whether to show the way in). */
+export const isFounder = (): boolean => cachedAccount()?.title === 'Founder';
+
 // --- Clash -----------------------------------------------------------------------
 
 export interface ServerClashEntry {
