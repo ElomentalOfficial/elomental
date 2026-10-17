@@ -13,7 +13,7 @@ const { values } = parseArgs({
     difficulty: { type: 'string', short: 'd', default: 'medium' },
     count: { type: 'string', short: 'n', default: '10' },
     seed: { type: 'string', short: 's' },
-    symmetry: { type: 'string', default: 'rotational' },
+    symmetry: { type: 'string', default: 'varied' },
     out: { type: 'string', short: 'o' },
   },
 });
@@ -21,7 +21,8 @@ const { values } = parseArgs({
 const difficulty = values.difficulty as Difficulty;
 if (!(difficulty in DIFFICULTIES)) throw new Error(`--difficulty must be one of: ${Object.keys(DIFFICULTIES).join(', ')}`);
 const symmetry = values.symmetry as Symmetry;
-if (symmetry !== 'none' && symmetry !== 'rotational') throw new Error('--symmetry must be none or rotational');
+const LAYOUTS: Symmetry[] = ['varied', 'none', 'rotational', 'mirror', 'diagonal'];
+if (!LAYOUTS.includes(symmetry)) throw new Error(`--symmetry must be one of: ${LAYOUTS.join(', ')}`);
 const count = Number(values.count);
 if (!Number.isInteger(count) || count < 1) throw new Error('--count must be a positive integer');
 

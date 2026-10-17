@@ -20,7 +20,7 @@ for (const difficulty of Object.keys(SAMPLES) as Difficulty[]) {
   test(`${difficulty} puzzles are unique and match their profile`, () => {
     const profile = DIFFICULTIES[difficulty];
     for (let i = 0; i < SAMPLES[difficulty]; i++) {
-      const generated = generatePuzzle({ difficulty, seed: `gen-${difficulty}-${i}` });
+      const generated = generatePuzzle({ difficulty, seed: `gen-${difficulty}-${i}`, symmetry: 'rotational' });
       const puzzle = parseGrid(generated.puzzle);
       const solution = parseGrid(generated.solution);
 
@@ -94,6 +94,20 @@ test('the same seed always produces the same puzzle', () => {
   const a = generatePuzzle({ difficulty: 'medium', seed: 'repeat' });
   const b = generatePuzzle({ difficulty: 'medium', seed: 'repeat' });
   assert.deepEqual(a, b);
+});
+
+test('varied layouts: not all symmetric, and every digit is among the givens', () => {
+  const symmetric = (p: string) => [...p].every((ch, c) => (ch === '0') === (p[80 - c] === '0'));
+  let rotational = 0;
+  for (let i = 0; i < 12; i++) {
+    const generated = generatePuzzle({ difficulty: 'easy', profile: 'casualMedium', seed: `layout-${i}` });
+    if (symmetric(generated.puzzle)) rotational++;
+    const counts = new Array(10).fill(0);
+    for (const ch of generated.puzzle) counts[Number(ch)]++;
+    for (let d = 1; d <= 9; d++) assert.ok(counts[d] >= 2, `digit ${d} has ${counts[d]} givens`);
+    assert.equal(countSolutions(parseGrid(generated.puzzle)), 1);
+  }
+  assert.ok(rotational < 12, 'some puzzles break the rotational pattern');
 });
 
 test('symmetry none still produces valid puzzles', () => {

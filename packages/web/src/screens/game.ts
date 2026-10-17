@@ -275,29 +275,50 @@ function gameScreen(game: SavedGame): Screen {
     save();
   }
 
+  /**
+   * A wrong digit is never kept: it shows in the mistake colour, then fades
+   * out by itself (the square's notes come back), so there's nothing to undo
+   * or erase. Shown digits live here while they fade.
+   */
+  const fading = new Map<number, { digit: number; timer: number }>();
+  const WRONG_FADE_MS = 1400;
+
   function place(cell: number, digit: number) {
     if (game.values[cell] === digit) return;
-    const changes: Change[] = [{ cell, value: digit, notes: 0 }];
     const correct = digit === solution[cell];
-    if (correct) {
-      // Clear this digit from the notes of every peer, like pencil marks on paper.
-      for (const p of PEERS[cell]) {
-        if (game.notes[p] & (1 << digit)) changes.push({ cell: p, value: game.values[p], notes: game.notes[p] & ~(1 << digit) });
-      }
-    }
-    commit(changes);
     focusDigit = digit;
     if (!correct) {
+      clearTimeout(fading.get(cell)?.timer);
+      fading.set(cell, {
+        digit,
+        timer: window.setTimeout(() => {
+          fading.delete(cell);
+          cells[cell].classList.remove('fading');
+          render();
+        }, WRONG_FADE_MS),
+      });
       game.mistakes++;
       navigator.vibrate?.(40);
-      replay(cells[cell], 'shake');
+      render();
+      replay(cells[cell], 'fading');
       replay(status, 'strike');
+      save();
+      if (game.mistakes >= MAX_MISTAKES) finish(false, 'mistakes');
+      return;
     }
+    const changes: Change[] = [{ cell, value: digit, notes: 0 }];
+    // Clear this digit from the notes of every peer, like pencil marks on paper.
+    for (const p of PEERS[cell]) {
+      if (game.notes[p] & (1 << digit)) changes.push({ cell: p, value: game.values[p], notes: game.notes[p] & ~(1 << digit) });
+    }
+    clearTimeout(fading.get(cell)?.timer);
+    fading.delete(cell);
+    cells[cell].classList.remove('fading');
+    commit(changes);
     render();
-    if (correct) celebrateUnits(cell);
+    celebrateUnits(cell);
     save();
     if (game.values.every((v, c) => v === solution[c])) finish(true, 'solved');
-    else if (game.mistakes >= MAX_MISTAKES) finish(false, 'mistakes');
   }
 
   /** Restart a one-shot CSS animation class on an element. */
@@ -439,7 +460,9 @@ function gameScreen(game: SavedGame): Screen {
   // --- Rendering -----------------------------------------------------------
   function render() {
     for (let c = 0; c < 81; c++) {
-      const value = game.values[c];
+      const flash = fading.get(c)?.digit ?? 0;
+      // A fading wrong digit is shown but not part of the game state.
+      const value = game.values[c] || flash;
       const cell = cells[c];
       const cross = selected >= 0 && c !== selected && (ROW_OF[c] === ROW_OF[selected] || COL_OF[c] === COL_OF[selected]);
       cell.classList.toggle('given', given[c]);
@@ -447,11 +470,11 @@ function gameScreen(game: SavedGame): Screen {
       cell.classList.toggle('wrong', !given[c] && value > 0 && value !== solution[c]);
       cell.classList.toggle('selected', c === selected);
       cell.classList.toggle('cross', cross);
-      cell.classList.toggle('same', focusDigit > 0 && value === focusDigit);
+      cell.classList.toggle('same', focusDigit > 0 && value === focusDigit && !flash);
 
       const key = value ? `v${value}` : game.notes[c] ? `n${game.notes[c]}` : '';
       if (cell.dataset.k === key) continue;
-      const wasEmpty = !cell.dataset.k?.startsWith('v');
+      const wasEmpty = !cell.dataset.k?.startsWith('v') && !flash;
       cell.dataset.k = key;
       cell.setAttribute(
         'aria-label',
@@ -843,7 +866,7 @@ function gameScreen(game: SavedGame): Screen {
       {
         target: pad,
         title: 'Fill it in',
-        text: 'Tap a number to place it in the selected square. A wrong number costs a skull — three skulls and the square is lost.',
+        text: 'Tap a number to place it in the selected square. A wrong number flashes, fades away by itself and costs a skull. Three skulls and the square is lost.',
         gesture: 'tap',
       },
       {
@@ -888,6 +911,7 @@ function gameScreen(game: SavedGame): Screen {
     destroy() {
       save();
       wheel?.close();
+      for (const { timer } of fading.values()) clearTimeout(timer);
       clearInterval(clock);
       clearInterval(autosave);
       window.removeEventListener('keydown', onKey);

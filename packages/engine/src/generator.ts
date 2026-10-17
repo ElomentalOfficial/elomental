@@ -5,7 +5,13 @@ import { countSolutions, randomSolvedGrid } from './solver.ts';
 import type { TechniqueId, TechniqueLevel } from './techniques.ts';
 
 export type Difficulty = 'easy' | 'medium' | 'hard';
-export type Symmetry = 'none' | 'rotational';
+/**
+ * Layout of the givens. 'varied' (the default) picks one per puzzle, mostly
+ * free-form with some of the classic symmetric shapes, so puzzles don't all
+ * share the same mirrored look.
+ */
+export type Symmetry = 'none' | 'rotational' | 'mirror' | 'diagonal' | 'varied';
+type Layout = Exclude<Symmetry, 'varied'>;
 
 export interface DifficultyProfile {
   /** The puzzle must need at least one technique of this level. */
@@ -94,9 +100,9 @@ export function generatePuzzle(options: GenerateOptions): GeneratedPuzzle {
   if (options.targetRating !== undefined) return generateRated(options, options.targetRating);
   const profile: DifficultyProfile = options.profile ? PROFILES[options.profile] : DIFFICULTIES[options.difficulty];
   const seed = options.seed ?? randomSeed();
-  const symmetry = options.symmetry ?? 'rotational';
   const maxAttempts = options.maxAttempts ?? 1000;
   const rng = createRng(seed);
+  const symmetry = pickLayout(options.symmetry, rng);
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const solution = randomSolvedGrid(rng);
@@ -160,9 +166,9 @@ export function difficultyForRating(rating: number): Difficulty {
 function generateRated(options: GenerateOptions, target: number): GeneratedPuzzle {
   const profile = ratedProfile(target);
   const seed = options.seed ?? randomSeed();
-  const symmetry = options.symmetry ?? 'rotational';
   const maxAttempts = options.maxAttempts ?? RATED_ATTEMPTS;
   const rng = createRng(seed);
+  const symmetry = pickLayout(options.symmetry, rng);
   let best: GeneratedPuzzle | null = null;
   let attempts = 0;
 
@@ -209,7 +215,7 @@ function giveBack(
   graded: ReturnType<typeof grade>,
   ceiling: number,
   profile: DifficultyProfile,
-  symmetry: Symmetry,
+  symmetry: Layout,
   rng: Rng,
 ): { puzzle: Grid; result: ReturnType<typeof grade> } {
   let puzzle = carved;
@@ -220,8 +226,7 @@ function giveBack(
     let next: { puzzle: Grid; result: ReturnType<typeof grade> } | null = null;
     for (const cell of cells.slice(0, GIVE_BACK_TRIES)) {
       const candidate = Uint8Array.from(puzzle);
-      candidate[cell] = solution[cell];
-      if (symmetry === 'rotational') candidate[80 - cell] = solution[80 - cell];
+      for (const c of orbit(cell, symmetry)) candidate[c] = solution[c];
       const r = grade(candidate, { maxLevel: profile.maxLevel, recordSteps: true });
       // Prefer the smallest drop that still gets under the ceiling, else the biggest drop.
       const better =
@@ -241,23 +246,56 @@ const advancedSteps = (counts: Partial<Record<TechniqueId, number>>): number =>
   Object.entries(counts).reduce((sum, [id, n]) => sum + ((SINGLES as readonly string[]).includes(id) ? 0 : (n ?? 0)), 0);
 
 /**
+ * 'varied': about half free-form, the rest split between the classic shapes
+ * (rotational, mirrored left-right, mirrored on the diagonal).
+ */
+function pickLayout(requested: Symmetry | undefined, rng: Rng): Layout {
+  if (requested && requested !== 'varied') return requested;
+  const roll = rng.next();
+  if (roll < 0.5) return 'none';
+  if (roll < 0.7) return 'rotational';
+  if (roll < 0.85) return 'mirror';
+  return 'diagonal';
+}
+
+/** The cells removed together with `cell` under a layout (itself included). */
+function orbit(cell: number, layout: Layout): number[] {
+  const r = Math.floor(cell / 9);
+  const c = cell % 9;
+  const partner =
+    layout === 'rotational' ? 80 - cell : layout === 'mirror' ? r * 9 + (8 - c) : layout === 'diagonal' ? c * 9 + r : cell;
+  return partner === cell ? [cell] : [cell, partner];
+}
+
+/**
  * Removes givens in random order, keeping a removal only while the puzzle
  * stays solvable with the profile's techniques. Since those techniques never
  * guess, staying solvable also proves the solution is unique.
+ *
+ * Like a human setter, it keeps every digit among the givens (at least two
+ * of each when the profile has room), so no number is missing from the start.
  */
-function carve(solution: Grid, profile: DifficultyProfile, symmetry: Symmetry, rng: Rng): Grid {
+function carve(solution: Grid, profile: DifficultyProfile, symmetry: Layout, rng: Rng): Grid {
   const puzzle = Uint8Array.from(solution);
-  // With rotational symmetry, cell c is always removed together with 80 - c.
-  const cells = Array.from({ length: symmetry === 'rotational' ? 41 : 81 }, (_, i) => i);
+  const minPerDigit = profile.minClues >= 24 ? 2 : 1;
+  const perDigit = new Array(10).fill(9);
+  const done = new Uint8Array(81);
   let clues = 81;
-  for (const cell of rng.shuffle(cells)) {
-    const group = symmetry === 'rotational' && cell !== 40 ? [cell, 80 - cell] : [cell];
+  for (const cell of rng.shuffle(Array.from({ length: 81 }, (_, i) => i))) {
+    if (done[cell]) continue;
+    const group = orbit(cell, symmetry);
+    for (const c of group) done[c] = 1;
     if (clues - group.length < profile.minClues) continue;
+    const take = new Array(10).fill(0);
+    for (const c of group) take[solution[c]]++;
+    if (take.some((n, d) => n && perDigit[d] - n < minPerDigit)) continue;
     for (const c of group) puzzle[c] = 0;
     // Expert grading is slow when it gets stuck; a second solution rules the removal out faster.
     const unique = profile.maxLevel < 3 || countSolutions(puzzle) === 1;
-    if (unique && grade(puzzle, { maxLevel: profile.maxLevel, techniques: profile.techniques }).solved) clues -= group.length;
-    else for (const c of group) puzzle[c] = solution[c];
+    if (unique && grade(puzzle, { maxLevel: profile.maxLevel, techniques: profile.techniques }).solved) {
+      clues -= group.length;
+      for (const c of group) perDigit[solution[c]]--;
+    } else for (const c of group) puzzle[c] = solution[c];
   }
   return puzzle;
 }

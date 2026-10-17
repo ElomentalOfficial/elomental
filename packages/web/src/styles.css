@@ -1589,6 +1589,29 @@ html.standalone .toast {
 .cell.shake {
   animation: shake 0.3s ease;
 }
+/* A wrong digit shakes, holds in the mistake colour, then fades back to the
+   empty square (the game removes it when this ends; game.ts WRONG_FADE_MS). */
+.cell.wrong.fading {
+  animation:
+    shake 0.3s ease,
+    wrong-fade 1.4s ease-in forwards;
+}
+@keyframes wrong-fade {
+  0%,
+  45% {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+  100% {
+    background: var(--cell);
+    color: transparent;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cell.wrong.fading {
+    animation: wrong-fade 1.4s steps(1, end) forwards;
+  }
+}
 /* A digit placed by the player pops in. */
 .cell.pop {
   animation: pop-in 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
