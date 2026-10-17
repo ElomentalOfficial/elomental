@@ -53,10 +53,17 @@ email, and Supabase sends a confirmation link. Tapping it confirms the email on
 the server, wherever it opens (Safari included). The app waits on screen and
 continues by itself once the account has the email.
 
-Still to do, before launch: **custom SMTP** (Authentication → Emails → SMTP
-Settings), for example Resend or Brevo.
-- Supabase's built-in mailer only sends a few emails per hour.
-- Email templates can't be edited without it.
+**Emails go through Brevo** (custom SMTP, Authentication → Emails → SMTP
+Settings): host `smtp-relay.brevo.com`, port 587, sender name "Elomental"
+from the founder's Gmail address (verified as a Brevo sender). The SMTP
+login and key live only in Supabase and Brevo.
+- Without it, Supabase's built-in mailer only delivers to members of the
+  Supabase team, so players couldn't sign up.
+- Auth email rate limit: 30/hour (Authentication → Rate Limits); Brevo's free
+  plan sends up to 300/day.
+- Before launch, consider a domain of our own (e.g. login@elomental.app,
+  verified in Brevo or Resend): mail "from" a Gmail address sent by a third
+  party is more likely to land in spam.
 
 Signing in to an *existing* account from the installed iPhone app uses the
 `handoff` Edge Function (functions/handoff, migration signin_handoffs):
@@ -68,7 +75,7 @@ Signing in to an *existing* account from the installed iPhone app uses the
 
 Requests last 10 minutes and work once.
 
-With custom SMTP, you could also add a typed code (`{{ .Token }}`) to the
+Now that custom SMTP is on, you could also add a typed code (`{{ .Token }}`) to the
 **Magic link or OTP** and **Change email address** templates, as a fallback
 to the hand-off.
 
