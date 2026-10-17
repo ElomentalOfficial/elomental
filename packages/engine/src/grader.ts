@@ -8,7 +8,7 @@ import { TECHNIQUES, type SolverState, type Step, type TechniqueId, type Techniq
  */
 
 export interface GradeOptions {
-  /** Only use techniques up to this level. Defaults to 4 (all). */
+  /** Only use techniques up to this level. Defaults to 5 (all). */
   maxLevel?: TechniqueLevel;
   /** Only use these techniques (on top of maxLevel). Defaults to all. */
   techniques?: readonly TechniqueId[];
@@ -67,7 +67,7 @@ export interface Hint {
  * ...) are applied until one of them unlocks a placement, and returned in
  * `prior` so the hint can be explained step by step.
  */
-export function nextPlacement(puzzle: Grid, maxLevel: TechniqueLevel = 4): Hint | null {
+export function nextPlacement(puzzle: Grid, maxLevel: TechniqueLevel = 5): Hint | null {
   const state = createSolverState(puzzle);
   const techniques = TECHNIQUES.filter((t) => t.level <= maxLevel);
   const prior: Step[] = [];
@@ -92,14 +92,15 @@ export function nextPlacement(puzzle: Grid, maxLevel: TechniqueLevel = 4): Hint 
  * singles adds its weight again, so a puzzle that needs many hard steps rates
  * above one that needs a single harder one, and the bands overlap instead of
  * leaving gaps. Roughly: singles 145-190, intersections and subsets 300-650,
- * fish and wings 700-1350, links and chains 1150 and up with no ceiling.
+ * fish and wings 700-1350, links, chains and finned X-Wings 1150 and up, big
+ * finned fish (level 5) about 1700 and up, with no ceiling.
  */
 function estimateRating(hardestWeight: number, advancedEffort: number): number {
   return Math.round(100 + 45 * hardestWeight + 6 * advancedEffort);
 }
 
 export function grade(puzzle: Grid, options: GradeOptions = {}): GradeResult {
-  const maxLevel = options.maxLevel ?? 4;
+  const maxLevel = options.maxLevel ?? 5;
   const allowed = options.techniques;
   const techniques = TECHNIQUES.filter((t) => t.level <= maxLevel && (!allowed || allowed.includes(t.id)));
   const state = createSolverState(puzzle);

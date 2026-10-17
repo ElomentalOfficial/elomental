@@ -10,7 +10,8 @@
     "test": "node --test \"test/**/*.test.ts\"",
     "typecheck": "tsc",
     "generate": "node scripts/generate.ts",
-    "benchmark": "node scripts/benchmark-ranked.ts"
+    "benchmark": "node scripts/benchmark-ranked.ts",
+    "build-master-bank": "node scripts/build-master-bank.ts"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",

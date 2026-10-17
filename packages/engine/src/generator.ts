@@ -1,8 +1,10 @@
-import { countClues, gridToString, type Grid } from './grid.ts';
+import { countClues, gridToString, parseGrid, type Grid } from './grid.ts';
 import { grade } from './grader.ts';
+import { MASTER_BANK } from './masterBank.ts';
 import { createRng, randomSeed, type Rng } from './rng.ts';
-import { countSolutions, randomSolvedGrid } from './solver.ts';
+import { countSolutions, randomSolvedGrid, solve } from './solver.ts';
 import type { TechniqueId, TechniqueLevel } from './techniques.ts';
+import { applyTransform, randomTransform } from './transform.ts';
 
 export type Difficulty = 'easy' | 'medium' | 'hard';
 /**
@@ -147,8 +149,12 @@ export function ratedProfile(target: number): DifficultyProfile {
   if (target < 260) return { minLevel: 1, maxLevel: 1, minClues: 30 };
   if (target < 650) return { minLevel: 1, maxLevel: 2, minClues: 24 };
   if (target < 1150) return { minLevel: 1, maxLevel: 3, minClues: 22 };
-  return { minLevel: 1, maxLevel: 4, minClues: 17 };
+  if (target < MASTER_RATING) return { minLevel: 1, maxLevel: 4, minClues: 17 };
+  return { minLevel: 1, maxLevel: 5, minClues: 17 };
 }
+
+/** From this rating Ranked may need level 5 (Finned Swordfish, Finned Jellyfish). */
+export const MASTER_RATING = 1600;
 
 /** The Ranked tier a rating falls in (the server stores it; it sets Stardust and the too-fast floor). */
 export function difficultyForRating(rating: number): Difficulty {
@@ -168,6 +174,10 @@ function generateRated(options: GenerateOptions, target: number): GeneratedPuzzl
   const seed = options.seed ?? randomSeed();
   const maxAttempts = options.maxAttempts ?? RATED_ATTEMPTS;
   const rng = createRng(seed);
+  if (profile.maxLevel === 5 && rng.next() < MASTER_SHARE) {
+    const master = fromMasterBank(options, target, seed, rng);
+    if (master) return master;
+  }
   const symmetry = pickLayout(options.symmetry, rng);
   let best: GeneratedPuzzle | null = null;
   let attempts = 0;
@@ -200,6 +210,40 @@ function generateRated(options: GenerateOptions, target: number): GeneratedPuzzl
   }
   if (!best) throw new Error(`No puzzle near rating ${target} in ${maxAttempts} attempts (seed ${seed})`);
   return { ...best, attempts };
+}
+
+/** At level-5 targets, the share of Ranked puzzles that come from MASTER_BANK. */
+const MASTER_SHARE = 0.5;
+/** A bank puzzle is used only if its rating is within this of the target. */
+const MASTER_REACH = 250;
+
+/**
+ * Level 5 from the bank: carving almost never needs a big finned fish, so
+ * those puzzles are found offline (scripts/build-master-bank.ts). One near the
+ * target is picked and shown through a random transform, so no two players
+ * see the same grid. Null when nothing in the bank is near enough.
+ */
+function fromMasterBank(options: GenerateOptions, target: number, seed: string, rng: Rng): GeneratedPuzzle | null {
+  const near = MASTER_BANK.filter((p) => Math.abs(p.rating - target) <= MASTER_REACH);
+  if (!near.length) return null;
+  const pick = near[Math.floor(rng.next() * near.length)];
+  const transform = randomTransform(rng);
+  const puzzle = applyTransform(parseGrid(pick.puzzle), transform);
+  const solution = solve(puzzle)!;
+  const result = grade(puzzle);
+  return {
+    puzzle: gridToString(puzzle),
+    solution: gridToString(solution),
+    difficulty: options.difficulty,
+    clues: countClues(puzzle),
+    level: result.level,
+    hardest: result.hardest,
+    score: result.score,
+    rating: result.rating,
+    counts: result.counts,
+    seed,
+    attempts: 1,
+  };
 }
 
 /**

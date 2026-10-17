@@ -36,20 +36,25 @@ export type TechniqueId =
   | 'swordfish'
   | 'xyzWing'
   | 'jellyfish'
+  | 'finnedXWing'
   | 'skyscraper'
   | 'twoStringKite'
+  | 'emptyRectangle'
   | 'wWing'
   | 'remotePairs'
   | 'simpleColouring'
   | 'xChain'
   | 'xyChain'
-  | 'alsXz';
+  | 'alsXz'
+  | 'finnedSwordfish'
+  | 'finnedJellyfish';
 
 /**
  * 1 = singles (easy), 2 = intersections and subsets (medium), 3 = fish and wings (hard),
- * 4 = links and chains (expert, top of Ranked only).
+ * 4 = links, chains and the lighter finned fish (expert, top of Ranked),
+ * 5 = big finned fish (master, the very top of Ranked only).
  */
-export type TechniqueLevel = 1 | 2 | 3 | 4;
+export type TechniqueLevel = 1 | 2 | 3 | 4 | 5;
 
 export interface SolverState {
   values: Uint8Array;
@@ -324,6 +329,70 @@ function fish(id: TechniqueId, size: number) {
   };
 }
 
+/**
+ * Finned X-Wing (2), Swordfish (3), Jellyfish (4): a fish whose base lines have
+ * a few extra spots for the digit (the fin), all inside one box. Either a fin
+ * square holds the digit, or the fish holds and clears its cover lines. Both
+ * ways the digit is gone from the squares that are in the fin's box and on a
+ * cover line (outside the base lines). Sashimi fish (a base line whose only
+ * spot in the cover sits next to the fin) are covered too.
+ */
+function finnedFish(id: TechniqueId, size: number) {
+  return (state: SolverState): Step | null => {
+    for (let d = 1; d <= 9; d++) {
+      const b = bit(d);
+      for (const rowBased of [true, false]) {
+        const cellAt = (line: number, cross: number) => (rowBased ? line * 9 + cross : cross * 9 + line);
+        const lineOf = (c: number) => (rowBased ? ROW_OF[c] : COL_OF[c]);
+        const crossOf = (c: number) => (rowBased ? COL_OF[c] : ROW_OF[c]);
+        const bases: { line: number; spots: number }[] = [];
+        for (let line = 0; line < 9; line++) {
+          let spots = 0;
+          for (let cross = 0; cross < 9; cross++) {
+            const c = cellAt(line, cross);
+            if (state.values[c] === 0 && state.cands[c] & b) spots |= 1 << cross;
+          }
+          // A fin lives in one box, so a base line has at most 3 spots beyond its share of the cover.
+          const n = popcount(spots);
+          if (n >= 2 && n <= size + 3) bases.push({ line, spots });
+        }
+        if (bases.length < size) continue;
+        for (const combo of combinations(bases, size)) {
+          let union = 0;
+          for (const base of combo) union |= base.spots;
+          // 1-3 crosses beyond the cover; none means a plain fish (fish() finds it).
+          const extra = popcount(union) - size;
+          if (extra < 1 || extra > 3) continue;
+          const crosses = [0, 1, 2, 3, 4, 5, 6, 7, 8].filter((x) => union & (1 << x));
+          const baseLines = combo.map((base) => base.line);
+          for (const coverCrosses of combinations(crosses, size)) {
+            let cover = 0;
+            for (const x of coverCrosses) cover |= 1 << x;
+            // Every base line must take part in the cover, or it isn't a fish at all.
+            if (!combo.every((base) => base.spots & cover)) continue;
+            const fins: number[] = [];
+            for (const base of combo) {
+              for (let x = 0; x < 9; x++) if (base.spots & ~cover & (1 << x)) fins.push(cellAt(base.line, x));
+            }
+            const box = BOX_OF[fins[0]];
+            if (!fins.every((c) => BOX_OF[c] === box)) continue;
+            const eliminations = withCandidate(state, BOXES[box], d)
+              .filter((c) => cover & (1 << crossOf(c)) && !baseLines.includes(lineOf(c)))
+              .map((c): CellDigit => [c, d]);
+            const pattern: number[] = [];
+            for (const base of combo) {
+              for (let x = 0; x < 9; x++) if (base.spots & (1 << x)) pattern.push(cellAt(base.line, x));
+            }
+            const step = elimination(id, eliminations, { pattern, digits: [d] });
+            if (step) return step;
+          }
+        }
+      }
+    }
+    return null;
+  };
+}
+
 function cellsWithCount(state: SolverState, count: number): number[] {
   const cells: number[] = [];
   for (let c = 0; c < 81; c++) if (state.values[c] === 0 && popcount(state.cands[c]) === count) cells.push(c);
@@ -440,6 +509,63 @@ const skyscraperFits = (u1: number, u2: number, a1: number, b1: number) =>
 
 const kiteFits = (u1: number, u2: number, a1: number, b1: number) =>
   ((isRow(u1) && isCol(u2)) || (isCol(u1) && isRow(u2))) && BOX_OF[a1] === BOX_OF[b1];
+
+/**
+ * Empty Rectangle: in a box, the digit only fits along one row and one column
+ * of it (a cross, using both arms). A line outside the box has just two spots
+ * for the digit, one of them (near) in line with the cross. If near holds the
+ * digit, the box's digit is pushed onto the cross's other line; if it doesn't,
+ * the far end holds it. Either way the square where the far end's line meets
+ * the cross's other line can't hold the digit.
+ */
+function findEmptyRectangle(state: SolverState): Step | null {
+  for (let d = 1; d <= 9; d++) {
+    const links = strongLinks(state, d).filter((l) => l.unit < 18);
+    if (!links.length) continue;
+    for (let box = 0; box < 9; box++) {
+      const cells = withCandidate(state, BOXES[box], d);
+      if (cells.length < 2) continue;
+      const top = ROW_OF[BOXES[box][0]];
+      const left = COL_OF[BOXES[box][0]];
+      const inBoxRows = (r: number) => r >= top && r < top + 3;
+      const inBoxCols = (c: number) => c >= left && c < left + 3;
+      for (let r = top; r < top + 3; r++) {
+        for (let c = left; c < left + 3; c++) {
+          if (!cells.every((x) => ROW_OF[x] === r || COL_OF[x] === c)) continue;
+          // Only one arm used: that's plain pointing, not an empty rectangle.
+          if (cells.every((x) => ROW_OF[x] === r) || cells.every((x) => COL_OF[x] === c)) continue;
+          for (const link of links) {
+            for (const [near, far] of [
+              [link.a, link.b],
+              [link.b, link.a],
+            ]) {
+              let target: number;
+              if (isCol(link.unit)) {
+                // Column link beside the box: near on the cross's row, far below/above the box.
+                if (inBoxCols(COL_OF[near]) || ROW_OF[near] !== r || inBoxRows(ROW_OF[far])) continue;
+                target = ROW_OF[far] * 9 + c;
+              } else {
+                // Row link above/below the box: near on the cross's column, far beside the box.
+                if (inBoxRows(ROW_OF[near]) || COL_OF[near] !== c || inBoxCols(COL_OF[far])) continue;
+                target = r * 9 + COL_OF[far];
+              }
+              if (state.values[target] !== 0 || !(state.cands[target] & bit(d))) continue;
+              return {
+                technique: 'emptyRectangle',
+                placements: [],
+                eliminations: [[target, d]],
+                // No `unit`: the hint highlights the box and the line beside it together.
+                pattern: [...cells, near, far],
+                digits: [d],
+              };
+            }
+          }
+        }
+      }
+    }
+  }
+  return null;
+}
 
 /**
  * Two cells {x,y} that don't see each other, joined by a strong link on x (one
@@ -782,14 +908,18 @@ export const TECHNIQUES: readonly Technique[] = [
   { id: 'swordfish', name: 'Swordfish', level: 3, weight: 17, find: fish('swordfish', 3) },
   { id: 'xyzWing', name: 'XYZ-Wing', level: 3, weight: 18, find: findXyzWing },
   { id: 'jellyfish', name: 'Jellyfish', level: 3, weight: 20, find: fish('jellyfish', 4) },
+  { id: 'finnedXWing', name: 'Finned X-Wing', level: 4, weight: 20.5, find: finnedFish('finnedXWing', 2) },
   { id: 'skyscraper', name: 'Skyscraper', level: 4, weight: 21, find: turbot('skyscraper', skyscraperFits) },
   { id: 'twoStringKite', name: 'Two-String Kite', level: 4, weight: 21.5, find: turbot('twoStringKite', kiteFits) },
+  { id: 'emptyRectangle', name: 'Empty Rectangle', level: 4, weight: 21.8, find: findEmptyRectangle },
   { id: 'wWing', name: 'W-Wing', level: 4, weight: 22, find: findWWing },
   { id: 'remotePairs', name: 'Remote Pairs', level: 4, weight: 23, find: findRemotePairs },
   { id: 'simpleColouring', name: 'Simple Colouring', level: 4, weight: 24, find: findSimpleColouring },
   { id: 'xChain', name: 'X-Chain', level: 4, weight: 26, find: findXChain },
   { id: 'xyChain', name: 'XY-Chain', level: 4, weight: 28, find: findXyChain },
   { id: 'alsXz', name: 'ALS-XZ', level: 4, weight: 30, find: findAlsXz },
+  { id: 'finnedSwordfish', name: 'Finned Swordfish', level: 5, weight: 32, find: finnedFish('finnedSwordfish', 3) },
+  { id: 'finnedJellyfish', name: 'Finned Jellyfish', level: 5, weight: 34, find: finnedFish('finnedJellyfish', 4) },
 ];
 
 export const TECHNIQUE_BY_ID = Object.fromEntries(TECHNIQUES.map((t) => [t.id, t])) as Record<TechniqueId, Technique>;

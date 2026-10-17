@@ -57,6 +57,20 @@ function priorStage(step: Step): Stage {
     case 'jellyfish':
       text = `${d[0]} sits in matching spots across these lines, so ${d[0]} is ruled out of the rest of the lines they cross.`;
       break;
+    case 'finnedXWing':
+    case 'finnedSwordfish':
+    case 'finnedJellyfish':
+      text =
+        `${d[0]} sits in matching spots across these lines, plus a fin: an extra spot or two inside one box. ` +
+        `Either the fin is ${d[0]}, or the lines lock ${d[0]} in and clear the lines they cross. ` +
+        `Squares in the fin's box on those crossing lines lose ${d[0]} either way.`;
+      break;
+    case 'emptyRectangle':
+      text =
+        `In this box, ${d[0]} can only sit on one row or one column. This line outside it has just two spots for ${d[0]}: ` +
+        `if the one in line with the box is ${d[0]}, the box's ${d[0]} is pushed onto its other line; if not, the far spot is ${d[0]}. ` +
+        `Either way this square can't be ${d[0]}.`;
+      break;
     case 'xyzWing':
       text = `Whatever the middle square turns out to be, one of these three squares must be ${d[0]}, so any square that sees all three can't be ${d[0]}.`;
       break;
