@@ -48,6 +48,9 @@
   /* Figma: every square holding the focused digit is filled terracotta. */
   --same-bg: #b0613c;
   --same-text: var(--c-bright);
+  /* Wrong digits invert (bright square, crimson digit) so they never read as lava highlights. */
+  --wrong-bg: var(--c-bright);
+  --wrong-text: var(--c-crimson);
   --select: var(--c-second-bright);
   --key-bg: var(--c-second-bright);
   --key-text: var(--c-bg);
@@ -102,6 +105,8 @@
   --cell-user: var(--cell-text);
   --same-bg: #dba791;
   --same-text: var(--c-crimson);
+  --wrong-bg: var(--accent);
+  --wrong-text: var(--on-accent);
   --select: var(--c-crimson);
   --key-bg: var(--c-crimson);
   --key-text: var(--c-bright);
@@ -1739,11 +1744,11 @@ html.standalone .toast {
   background: var(--same-bg);
   color: var(--same-text);
 }
-/* A wrong entry flips to an accent-filled square: no third colour, and the
-   change in fill (not just hue) keeps it readable for colour-blind players. */
+/* A wrong entry flips to a filled square (crimson in light, bright in dark):
+   the change in fill (not just hue) keeps it readable for colour-blind players. */
 .cell.wrong {
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--wrong-bg);
+  color: var(--wrong-text);
 }
 .cell.noting {
   box-shadow: inset 0 0 0 2px var(--accent);
@@ -1770,8 +1775,8 @@ html.standalone .toast {
 @keyframes wrong-fade {
   0%,
   45% {
-    background: var(--accent);
-    color: var(--on-accent);
+    background: var(--wrong-bg);
+    color: var(--wrong-text);
   }
   100% {
     background: var(--cell);
