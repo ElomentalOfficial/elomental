@@ -129,12 +129,37 @@ export function rankedTarget(elo: number): number {
   return Math.min(Math.max(Math.round(elo), MIN_TARGET), MAX_TARGET);
 }
 
-/** Puzzle-as-opponent Elo. Provisional players move faster; losses are free while protected. */
-export function eloDelta(player: number, puzzle: number, won: boolean, gamesPlayed: number): number {
+/** K by Elo, straight lines between these points: big gains while learning, small at the top. */
+const K_CURVE: [number, number][] = [
+  [600, 60],
+  [1600, 28],
+  [2400, 16],
+  [3200, 10],
+  [4800, 8],
+];
+
+function eloK(elo: number): number {
+  if (elo <= K_CURVE[0][0]) return K_CURVE[0][1];
+  for (let i = 1; i < K_CURVE.length; i++) {
+    const [e1, k1] = K_CURVE[i];
+    const [e0, k0] = K_CURVE[i - 1];
+    if (elo <= e1) return k0 + ((k1 - k0) * (elo - e0)) / (e1 - e0);
+  }
+  return K_CURVE[K_CURVE.length - 1][1];
+}
+
+/**
+ * Puzzle-as-opponent Elo, mirroring elo_delta on the server (signed-in players
+ * get theirs from there). Losses cost more the higher the player (×1.5, ×1.75
+ * from 1600, ×2 from 2400) and are free while protected.
+ */
+export function eloDelta(player: number, puzzle: number, won: boolean): number {
   const expected = 1 / (1 + 10 ** ((puzzle - player) / 400));
-  const k = gamesPlayed < 20 ? 40 : 24;
-  const delta = Math.round(k * ((won ? 1 : 0) - expected));
-  return delta < 0 && player < PROTECTED_BELOW ? 0 : delta;
+  const k = eloK(player);
+  if (won) return Math.round(k * (1 - expected));
+  if (player < PROTECTED_BELOW) return 0;
+  const lossMultiplier = player < 1600 ? 1.5 : player < 2400 ? 1.75 : 2;
+  return -Math.round(k * expected * lossMultiplier);
 }
 
 export function rankTitle(elo: number): string {
@@ -197,7 +222,7 @@ export function recordResult(input: ResultInput): Outcome {
 
   if (input.mode === 'ranked') {
     const before = profile.elo;
-    let delta = eloDelta(before, input.rating, input.won, profile.rankedGames);
+    let delta = eloDelta(before, input.rating, input.won);
     const gained = input.won && delta > 0;
     const bonus = gained ? speedBonus(input.elapsedMs, input.rating) : 0;
     // Speed bonus first, then the hint cut, so hints can't be "earned back" by speed alone.
