@@ -63,7 +63,7 @@ export function homeScreen(): Screen {
   const paintProfile = () => {
     const p = loadProfile();
     nameEl.textContent = p.name;
-    rankEl.textContent = rankTitle(p.elo);
+    rankEl.textContent = p.title ?? rankTitle(p.elo);
     eloChip.querySelector('strong')!.textContent = String(p.elo);
     dustChip.querySelector('strong')!.textContent = String(p.dust);
     crownChip.querySelector('strong')!.textContent = String(p.crowns);

@@ -14,6 +14,8 @@ export type Mode = 'casual' | 'daily' | 'ranked' | 'clash';
 export interface Profile {
   guest: boolean;
   name: string;
+  /** Shown instead of the Elo rank (e.g. "Founder"); null for most players. */
+  title: string | null;
   elo: number;
   rankedGames: number;
   dust: number;
@@ -68,6 +70,7 @@ export function loadProfile(): Profile {
     return {
       guest: account.anonymous,
       name: account.anonymous ? 'Guest' : account.name,
+      title: account.anonymous ? null : (account.title ?? null),
       elo: account.elo,
       rankedGames: account.rankedGames,
       dust: account.stardust,
@@ -86,6 +89,7 @@ export function loadProfile(): Profile {
     ...readJson<Partial<Profile>>(KEY),
     guest: true,
     name: 'Guest',
+    title: null,
   };
 }
 

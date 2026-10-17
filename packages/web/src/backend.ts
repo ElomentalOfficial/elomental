@@ -40,6 +40,8 @@ export interface Account {
   anonymous: boolean;
   email: string;
   name: string;
+  /** A fixed title (e.g. "Founder") shown instead of the Elo rank, if the account has one. */
+  title: string | null;
   /** When the name may next be changed (ISO), or null if it can change now. */
   nextNameChange: string | null;
   elo: number;
@@ -82,7 +84,7 @@ export async function refreshAccount(session?: Session | null): Promise<Account 
   const [{ data: profile, error }, { data: dailies }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('display_name, name_changed_at, elo, ranked_games, stardust, crowns, settings')
+      .select('display_name, title, name_changed_at, elo, ranked_games, stardust, crowns, settings')
       .eq('id', s.user.id)
       .single(),
     supabase.from('games').select('date_key').eq('mode', 'daily').eq('won', true),
@@ -93,6 +95,7 @@ export async function refreshAccount(session?: Session | null): Promise<Account 
     anonymous: !!s.user.is_anonymous,
     email: s.user.email ?? '',
     name: profile.display_name,
+    title: profile.title ?? null,
     nextNameChange: nextChange(profile.name_changed_at),
     elo: profile.elo,
     rankedGames: profile.ranked_games,
