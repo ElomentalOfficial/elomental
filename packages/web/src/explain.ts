@@ -57,6 +57,45 @@ function priorStage(step: Step): Stage {
     case 'jellyfish':
       text = `${d[0]} sits in matching spots across these lines, so ${d[0]} is ruled out of the rest of the lines they cross.`;
       break;
+    case 'xyzWing':
+      text = `Whatever the middle square turns out to be, one of these three squares must be ${d[0]}, so any square that sees all three can't be ${d[0]}.`;
+      break;
+    case 'skyscraper':
+    case 'twoStringKite':
+      text =
+        `Two lines each have only two spots for ${d[0]}, and one end of each sees the other. ` +
+        `They can't both be ${d[0]}, so one of the two far ends is — any square that sees both far ends can't be ${d[0]}.`;
+      break;
+    case 'wWing':
+      text =
+        `These two squares can only be ${d[0]} or ${d[1]}. They can't both be ${d[1]}, because the ${d[1]} they each see has to go somewhere. ` +
+        `So one of them is ${d[0]}, and any square that sees both can't be ${d[0]}.`;
+      break;
+    case 'remotePairs':
+      text =
+        `Each of these squares can only be ${list(d)}, and each sees the next, so along the chain they take turns. ` +
+        `A square that sees one of each kind can be neither ${d[0]} nor ${d[1]}.`;
+      break;
+    case 'simpleColouring':
+      text = ruled.every((c) => pattern.includes(c))
+        ? `Follow the pairs of spots for ${d[0]}: they take turns being ${d[0]}. Two squares on the same turn see each other, so that turn is wrong and none of them is ${d[0]}.`
+        : `Follow the pairs of spots for ${d[0]}: they take turns being ${d[0]}, so one turn holds every ${d[0]}. Any square that sees both turns can't be ${d[0]}.`;
+      break;
+    case 'xChain':
+      text =
+        `Follow this chain of ${d[0]}s: if the first square isn't ${d[0]}, each link forces the next, and the last square is ${d[0]}. ` +
+        `So one end of the chain is ${d[0]}, and any square that sees both ends can't be.`;
+      break;
+    case 'xyChain':
+      text =
+        `Each square in this chain has only two choices. If the first isn't ${d[0]}, the choices fall like dominoes until the last one is ${d[0]}. ` +
+        `So one end is ${d[0]}, and any square that sees both ends can't be.`;
+      break;
+    case 'alsXz':
+      text =
+        `These two groups each have one more digit than squares. ${d[1]} can only go in one of the groups, and that pins the other group down. ` +
+        `Either way one of the groups holds ${d[0]}, so any square that sees every ${d[0]} in both can't be ${d[0]}.`;
+      break;
     default:
       text = `These three squares force ${d[0]} into one of the outer two, so any square that sees both can't be ${d[0]}.`;
   }

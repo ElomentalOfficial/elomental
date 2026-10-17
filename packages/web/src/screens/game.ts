@@ -6,11 +6,21 @@ import {
   PEERS,
   ROWS,
   ROW_OF,
+  difficultyForRating,
   nextPlacement,
   type Difficulty,
 } from '@elomental/engine';
 import { ICONS } from '../icons.ts';
-import { HINT_ELO_PENALTY, PAR_MS, puzzleProfile, recordResult, type Mode, type Outcome } from '../profile.ts';
+import {
+  HINT_ELO_PENALTY,
+  loadProfile,
+  parMs,
+  puzzleProfile,
+  rankedTarget,
+  recordResult,
+  type Mode,
+  type Outcome,
+} from '../profile.ts';
 import { requestPuzzle } from '../puzzles.ts';
 import { openNotesWheel, type NotesWheel } from '../radial.ts';
 import { readJson, removeKey, writeJson } from '../storage.ts';
@@ -96,10 +106,15 @@ export async function startGame(options: {
     }
   }
   try {
-    const difficulty = server?.difficulty ?? options.difficulty;
+    // Ranked aims at a rating (the player's Elo) rather than a tier.
+    const targetRating =
+      options.mode === 'ranked' ? (server?.targetRating ?? rankedTarget(loadProfile().elo)) : undefined;
+    const difficulty =
+      server?.difficulty ?? (targetRating !== undefined ? difficultyForRating(targetRating) : options.difficulty);
     const p = await requestPuzzle({
       difficulty,
       profile: puzzleProfile(options.mode, difficulty, options.dateKey),
+      targetRating,
       seed: server?.seed ?? options.seed,
     });
     const game: SavedGame = {
@@ -486,7 +501,7 @@ function gameScreen(game: SavedGame): Screen {
     }
     last = now;
     timer.textContent = formatTime(game.elapsedMs);
-    if (ranked) timer.classList.toggle('over-par', game.elapsedMs > PAR_MS[config.difficulty]);
+    if (ranked) timer.classList.toggle('over-par', game.elapsedMs > parMs(config.rating));
   }
   const clock = setInterval(tick, 250);
   const autosave = setInterval(save, 2000);

@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
+  TECHNIQUES,
+  applyStep,
   countSolutions,
+  createSolverState,
   createRng,
   generatePuzzle,
   grade,
@@ -53,6 +56,31 @@ test('techniques never contradict the solution on raw minimal puzzles', (t) => {
   t.diagnostic(`technique coverage: ${[...seen].map(([id, n]) => `${id}=${n}`).join(' ')}`);
 });
 
+test('every technique stays sound at every point of a solve, not only when it is the easiest', (t) => {
+  // The grader only reaches an expert technique when everything easier is stuck,
+  // so on its own it rarely exercises them. Here every technique is asked at
+  // every state along the way, and each must fire at least once.
+  const fired = new Map<TechniqueId, number>();
+  for (let i = 0; i < 120; i++) {
+    const { puzzle, solution } = carveMinimal(`every-${i}`);
+    const state = createSolverState(puzzle);
+    for (;;) {
+      let next: Step | null = null;
+      for (const technique of TECHNIQUES) {
+        const step = technique.find(state);
+        if (!step) continue;
+        assertSound([step], solution);
+        fired.set(technique.id, (fired.get(technique.id) ?? 0) + 1);
+        next ??= step;
+      }
+      if (!next) break;
+      applyStep(state, next);
+    }
+  }
+  t.diagnostic(`fired: ${[...fired].map(([id, n]) => `${id}=${n}`).join(' ')}`);
+  for (const technique of TECHNIQUES) assert.ok(fired.get(technique.id), `${technique.id} never fired`);
+});
+
 test('grading steps on generated puzzles agree with the stored solution', () => {
   for (const difficulty of ['easy', 'medium', 'hard'] as const) {
     for (let i = 0; i < 3; i++) {
@@ -61,6 +89,12 @@ test('grading steps on generated puzzles agree with the stored solution', () => 
       assert.ok(result.solved);
       assertSound(result.steps, parseGrid(generated.solution));
     }
+  }
+  for (const target of [1500, 2000, 2500]) {
+    const generated = generatePuzzle({ difficulty: 'hard', targetRating: target, seed: `sound-rated-${target}` });
+    const result = grade(parseGrid(generated.puzzle), { recordSteps: true });
+    assert.ok(result.solved);
+    assertSound(result.steps, parseGrid(generated.solution));
   }
 });
 

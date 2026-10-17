@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
   DIFFICULTIES,
+  RATING_WINDOW,
   countClues,
   countSolutions,
   generatePuzzle,
@@ -66,6 +67,27 @@ test('casual and daily profiles stay gentle', () => {
     assert.ok(advanced(hard.counts).some(([id]) => PAIRS_TRIPLES.includes(id)), 'casual hard needs a pair or triple');
     assert.equal(countSolutions(parseGrid(hard.puzzle)), 1);
   }
+});
+
+test('ranked puzzles land near their target rating and stay unique', () => {
+  for (const target of [300, 600, 1000, 1500, 2000]) {
+    for (let i = 0; i < 3; i++) {
+      const generated = generatePuzzle({ difficulty: 'hard', targetRating: target, seed: `rated-${target}-${i}` });
+      const puzzle = parseGrid(generated.puzzle);
+      assert.equal(countSolutions(puzzle), 1);
+      assert.deepEqual(solve(puzzle), parseGrid(generated.solution));
+      // Within the starting window, or the window it had widened to by the time it stopped.
+      assert.ok(Math.abs(generated.rating - target) <= RATING_WINDOW + 150, `target ${target}, got ${generated.rating}`);
+      assert.equal(grade(puzzle).rating, generated.rating, 'grading with every technique agrees');
+    }
+  }
+});
+
+test('higher targets need harder techniques', () => {
+  const at = (target: number) => generatePuzzle({ difficulty: 'hard', targetRating: target, seed: `climb-${target}` });
+  assert.equal(at(200).level, 1);
+  assert.ok(at(1000).level >= 3);
+  assert.equal(at(2000).level, 4);
 });
 
 test('the same seed always produces the same puzzle', () => {

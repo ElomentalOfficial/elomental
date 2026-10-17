@@ -16,13 +16,16 @@ Clients never write to tables. Everything goes through these functions
 
 - `start_game(mode, difficulty?, date_key?, clash_code?)` picks the seed
   (Ranked and Casual are random; Daily uses the date; Clash uses the code),
-  chooses the Ranked difficulty from Elo, and starts the server clock. Each
+  picks the Ranked target rating from Elo (the player's Elo, kept within
+  150-3200; the client generates a puzzle rated close to it), and starts the
+  server clock. Each
   player gets one Daily per day and one attempt per Clash code. Leaving a
   Ranked game open and starting another counts the first one as a loss.
 - `finish_game(...)` settles the game once. It checks that the grid is a valid
   sudoku and rejects impossibly fast solves (under 15/30/45 s). Ranked and
   Clash are timed by the server. It then pays out Stardust, Rusted Crown drops
-  and Elo.
+  and Elo. A Ranked puzzle's reported rating must be within 350 of its target,
+  and its par time (for the speed bonus) grows with the rating.
 - `get_clash(code)` and `my_clashes()` return both players' Clash results.
 - `leaderboard(limit)`: the top players by Elo.
 - `set_display_name(name)`

@@ -34,12 +34,14 @@ const PITY_LIMIT = 40;
 
 const DUST: Record<Difficulty | 'daily' | 'ranked', number> = { easy: 4, medium: 8, hard: 15, daily: 12, ranked: 20 };
 
-/** Par solve time per ranked tier. The clock always counts up; speed against par scales Elo gains. */
-export const PAR_MS: Record<Difficulty, number> = {
-  easy: 6 * 60_000,
-  medium: 12 * 60_000,
-  hard: 20 * 60_000,
-};
+/**
+ * Par solve time for a ranked puzzle, from its rating: about 6 minutes at 150,
+ * 12 at 550, 19 at 1000, 34 at 2000, capped at an hour. The clock always counts
+ * up; speed against par scales Elo gains. Mirrors private.par_seconds on the server.
+ */
+export function parMs(rating: number): number {
+  return Math.min(Math.max(240 + Math.round(0.9 * rating), 360), 3600) * 1000;
+}
 
 /**
  * Each hint used in a ranked game cuts the Elo gain by this fraction, so two
@@ -50,8 +52,8 @@ export const PAR_MS: Record<Difficulty, number> = {
 export const HINT_ELO_PENALTY = 0.25;
 
 /** Multiplier bonus applied to a ranked Elo gain, e.g. 0.15 = +15%. */
-export function speedBonus(elapsedMs: number, difficulty: Difficulty): number {
-  const ratio = elapsedMs / PAR_MS[difficulty];
+export function speedBonus(elapsedMs: number, rating: number): number {
+  const ratio = elapsedMs / parMs(rating);
   if (ratio <= 0.5) return 0.25;
   if (ratio <= 0.75) return 0.15;
   if (ratio <= 1) return 0.1;
@@ -110,11 +112,17 @@ export function puzzleProfile(mode: Mode, difficulty: Difficulty, dateKey?: stri
   return difficulty === 'easy' ? 'casualEasy' : difficulty === 'medium' ? 'casualMedium' : 'casualHard';
 }
 
-/** Ranked puzzles get harder as the player's rating climbs. */
-export function rankedDifficulty(elo: number): Difficulty {
-  if (elo < 300) return 'easy';
-  if (elo < 750) return 'medium';
-  return 'hard';
+/** Lowest and highest rating a ranked puzzle aims for. */
+const MIN_TARGET = 150;
+const MAX_TARGET = 3200;
+
+/**
+ * The rating a ranked puzzle aims for: the player's own Elo, so every match is
+ * an even one and the puzzles keep getting harder as long as the player keeps
+ * winning. Mirrors start_game on the server (signed-in players get it from there).
+ */
+export function rankedTarget(elo: number): number {
+  return Math.min(Math.max(Math.round(elo), MIN_TARGET), MAX_TARGET);
 }
 
 /** Puzzle-as-opponent Elo. Provisional players move faster; losses are free while protected. */
@@ -187,7 +195,7 @@ export function recordResult(input: ResultInput): Outcome {
     const before = profile.elo;
     let delta = eloDelta(before, input.rating, input.won, profile.rankedGames);
     const gained = input.won && delta > 0;
-    const bonus = gained ? speedBonus(input.elapsedMs, input.difficulty) : 0;
+    const bonus = gained ? speedBonus(input.elapsedMs, input.rating) : 0;
     // Speed bonus first, then the hint cut, so hints can't be "earned back" by speed alone.
     const hintCut = gained ? Math.min(1, input.hints * HINT_ELO_PENALTY) : 0;
     delta = Math.round(delta * (1 + bonus) * (1 - hintCut));

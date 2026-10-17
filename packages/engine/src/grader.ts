@@ -8,7 +8,7 @@ import { TECHNIQUES, type SolverState, type Step, type TechniqueId, type Techniq
  */
 
 export interface GradeOptions {
-  /** Only use techniques up to this level. Defaults to 3 (all). */
+  /** Only use techniques up to this level. Defaults to 4 (all). */
   maxLevel?: TechniqueLevel;
   /** Only use these techniques (on top of maxLevel). Defaults to all. */
   techniques?: readonly TechniqueId[];
@@ -67,7 +67,7 @@ export interface Hint {
  * ...) are applied until one of them unlocks a placement, and returned in
  * `prior` so the hint can be explained step by step.
  */
-export function nextPlacement(puzzle: Grid, maxLevel: TechniqueLevel = 3): Hint | null {
+export function nextPlacement(puzzle: Grid, maxLevel: TechniqueLevel = 4): Hint | null {
   const state = createSolverState(puzzle);
   const techniques = TECHNIQUES.filter((t) => t.level <= maxLevel);
   const prior: Step[] = [];
@@ -88,16 +88,18 @@ export function nextPlacement(puzzle: Grid, maxLevel: TechniqueLevel = 3): Hint 
 }
 
 /**
- * Seed rating. The hardest technique sets the band; extra effort beyond
- * singles moves the puzzle within it. Singles-only puzzles land around
- * 160-250, X-Wing puzzles around 850+, Jellyfish around 1300+.
+ * Seed rating. The hardest technique sets the floor; every step beyond
+ * singles adds its weight again, so a puzzle that needs many hard steps rates
+ * above one that needs a single harder one, and the bands overlap instead of
+ * leaving gaps. Roughly: singles 145-190, intersections and subsets 300-650,
+ * fish and wings 700-1350, links and chains 1150 and up with no ceiling.
  */
 function estimateRating(hardestWeight: number, advancedEffort: number): number {
-  return Math.round(100 + 60 * hardestWeight + 4 * advancedEffort);
+  return Math.round(100 + 45 * hardestWeight + 6 * advancedEffort);
 }
 
 export function grade(puzzle: Grid, options: GradeOptions = {}): GradeResult {
-  const maxLevel = options.maxLevel ?? 3;
+  const maxLevel = options.maxLevel ?? 4;
   const allowed = options.techniques;
   const techniques = TECHNIQUES.filter((t) => t.level <= maxLevel && (!allowed || allowed.includes(t.id)));
   const state = createSolverState(puzzle);

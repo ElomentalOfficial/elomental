@@ -140,6 +140,8 @@ export interface ServerStart {
   gameId: string;
   seed: string;
   difficulty: Difficulty;
+  /** Ranked: the rating the puzzle must aim for (from the player's Elo). */
+  targetRating?: number;
   resumed: boolean;
 }
 
@@ -169,8 +171,14 @@ export async function startServerGame(options: {
     const key = Object.keys(REFUSALS).find((k) => error.message.includes(k));
     throw key ? new GameRefused(REFUSALS[key]) : new Error(error.message);
   }
-  const d = data as { game_id: string; seed: string; difficulty: Difficulty; resumed: boolean };
-  return { gameId: d.game_id, seed: d.seed, difficulty: d.difficulty, resumed: d.resumed };
+  const d = data as { game_id: string; seed: string; difficulty: Difficulty; target_rating?: number | null; resumed: boolean };
+  return {
+    gameId: d.game_id,
+    seed: d.seed,
+    difficulty: d.difficulty,
+    targetRating: d.target_rating ?? undefined,
+    resumed: d.resumed,
+  };
 }
 
 export interface ServerFinish {

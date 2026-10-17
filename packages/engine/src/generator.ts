@@ -1,7 +1,7 @@
 import { countClues, gridToString, type Grid } from './grid.ts';
 import { grade } from './grader.ts';
 import { createRng, randomSeed, type Rng } from './rng.ts';
-import { randomSolvedGrid } from './solver.ts';
+import { countSolutions, randomSolvedGrid } from './solver.ts';
 import type { TechniqueId, TechniqueLevel } from './techniques.ts';
 
 export type Difficulty = 'easy' | 'medium' | 'hard';
@@ -64,6 +64,11 @@ export interface GenerateOptions {
   difficulty: Difficulty;
   /** Generation shape; defaults to the difficulty's ranked tier. */
   profile?: ProfileId;
+  /**
+   * Ranked: aim for a puzzle whose rating is close to this (the player's Elo).
+   * Takes over from `profile`; see generateRated.
+   */
+  targetRating?: number;
   /** Same seed, same puzzle. Random when omitted. */
   seed?: string;
   symmetry?: Symmetry;
@@ -86,6 +91,7 @@ export interface GeneratedPuzzle {
 }
 
 export function generatePuzzle(options: GenerateOptions): GeneratedPuzzle {
+  if (options.targetRating !== undefined) return generateRated(options, options.targetRating);
   const profile: DifficultyProfile = options.profile ? PROFILES[options.profile] : DIFFICULTIES[options.difficulty];
   const seed = options.seed ?? randomSeed();
   const symmetry = options.symmetry ?? 'rotational';
@@ -116,6 +122,121 @@ export function generatePuzzle(options: GenerateOptions): GeneratedPuzzle {
   throw new Error(`No ${options.difficulty} puzzle found in ${maxAttempts} attempts (seed ${seed})`);
 }
 
+/** A ranked puzzle is on target when its rating is within this of the goal... */
+export const RATING_WINDOW = 100;
+/** ...and the window widens by this much every WIDEN_EVERY attempts that miss. */
+const WIDEN_BY = 50;
+const WIDEN_EVERY = 60;
+const RATED_ATTEMPTS = 300;
+/** Rounds of giving clues back to a puzzle that came out too hard, and cells tried per round. */
+const GIVE_BACK_ROUNDS = 8;
+const GIVE_BACK_TRIES = 3;
+
+/**
+ * Carving shape for a target rating: the technique levels the target can
+ * need, so carves land on or above it (a puzzle that comes out too hard gets
+ * clues back). See estimateRating for the rating bands.
+ */
+export function ratedProfile(target: number): DifficultyProfile {
+  if (target < 260) return { minLevel: 1, maxLevel: 1, minClues: 30 };
+  if (target < 650) return { minLevel: 1, maxLevel: 2, minClues: 24 };
+  if (target < 1150) return { minLevel: 1, maxLevel: 3, minClues: 22 };
+  return { minLevel: 1, maxLevel: 4, minClues: 17 };
+}
+
+/** The Ranked tier a rating falls in (the server stores it; it sets Stardust and the too-fast floor). */
+export function difficultyForRating(rating: number): Difficulty {
+  if (rating < 300) return 'easy';
+  if (rating < 750) return 'medium';
+  return 'hard';
+}
+
+/**
+ * Ranked: carves puzzles until one's rating lands within RATING_WINDOW of the
+ * target, widening the window as attempts run out. If nothing lands (a target
+ * beyond what the techniques can rate), the closest puzzle found is used.
+ * Deterministic for a given seed and target.
+ */
+function generateRated(options: GenerateOptions, target: number): GeneratedPuzzle {
+  const profile = ratedProfile(target);
+  const seed = options.seed ?? randomSeed();
+  const symmetry = options.symmetry ?? 'rotational';
+  const maxAttempts = options.maxAttempts ?? RATED_ATTEMPTS;
+  const rng = createRng(seed);
+  let best: GeneratedPuzzle | null = null;
+  let attempts = 0;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    attempts = attempt;
+    const window = RATING_WINDOW + WIDEN_BY * Math.floor((attempt - 1) / WIDEN_EVERY);
+    const solution = randomSolvedGrid(rng);
+    const carved = carve(solution, profile, symmetry, rng);
+    const graded = grade(carved, { maxLevel: profile.maxLevel, recordSteps: true });
+    if (!graded.solved) continue;
+    const { puzzle, result } = giveBack(carved, solution, graded, target + window, profile, symmetry, rng);
+    const miss = Math.abs(result.rating - target);
+    if (!best || miss < Math.abs(best.rating - target)) {
+      best = {
+        puzzle: gridToString(puzzle),
+        solution: gridToString(solution),
+        difficulty: options.difficulty,
+        clues: countClues(puzzle),
+        level: result.level,
+        hardest: result.hardest,
+        score: result.score,
+        rating: result.rating,
+        counts: result.counts,
+        seed,
+        attempts: attempt,
+      };
+    }
+    if (miss <= window) break;
+  }
+  if (!best) throw new Error(`No puzzle near rating ${target} in ${maxAttempts} attempts (seed ${seed})`);
+  return { ...best, attempts };
+}
+
+/**
+ * Makes a too-hard puzzle easier until its rating is at most `ceiling`: each
+ * round tries a few cells from the first step that needed the hardest
+ * technique (its pattern and the squares it cleared) and gives back the clue
+ * that brings the rating closest to the ceiling without going under it by
+ * more than needed. Adding clues keeps the solution unique.
+ */
+function giveBack(
+  carved: Grid,
+  solution: Grid,
+  graded: ReturnType<typeof grade>,
+  ceiling: number,
+  profile: DifficultyProfile,
+  symmetry: Symmetry,
+  rng: Rng,
+): { puzzle: Grid; result: ReturnType<typeof grade> } {
+  let puzzle = carved;
+  let result = graded;
+  for (let round = 0; round < GIVE_BACK_ROUNDS && result.rating > ceiling; round++) {
+    const step = result.steps.find((s) => s.technique === result.hardest)!;
+    const cells = rng.shuffle([...new Set([...(step.pattern ?? []), ...step.eliminations.map(([c]) => c)])]);
+    let next: { puzzle: Grid; result: ReturnType<typeof grade> } | null = null;
+    for (const cell of cells.slice(0, GIVE_BACK_TRIES)) {
+      const candidate = Uint8Array.from(puzzle);
+      candidate[cell] = solution[cell];
+      if (symmetry === 'rotational') candidate[80 - cell] = solution[80 - cell];
+      const r = grade(candidate, { maxLevel: profile.maxLevel, recordSteps: true });
+      // Prefer the smallest drop that still gets under the ceiling, else the biggest drop.
+      const better =
+        !next ||
+        (r.rating <= ceiling
+          ? next.result.rating > ceiling || r.rating > next.result.rating
+          : next.result.rating > ceiling && r.rating < next.result.rating);
+      if (better) next = { puzzle: candidate, result: r };
+    }
+    if (!next || next.result.rating >= result.rating) break;
+    ({ puzzle, result } = next);
+  }
+  return { puzzle, result };
+}
+
 const advancedSteps = (counts: Partial<Record<TechniqueId, number>>): number =>
   Object.entries(counts).reduce((sum, [id, n]) => sum + ((SINGLES as readonly string[]).includes(id) ? 0 : (n ?? 0)), 0);
 
@@ -133,7 +254,9 @@ function carve(solution: Grid, profile: DifficultyProfile, symmetry: Symmetry, r
     const group = symmetry === 'rotational' && cell !== 40 ? [cell, 80 - cell] : [cell];
     if (clues - group.length < profile.minClues) continue;
     for (const c of group) puzzle[c] = 0;
-    if (grade(puzzle, { maxLevel: profile.maxLevel, techniques: profile.techniques }).solved) clues -= group.length;
+    // Expert grading is slow when it gets stuck; a second solution rules the removal out faster.
+    const unique = profile.maxLevel < 3 || countSolutions(puzzle) === 1;
+    if (unique && grade(puzzle, { maxLevel: profile.maxLevel, techniques: profile.techniques }).solved) clues -= group.length;
     else for (const c of group) puzzle[c] = solution[c];
   }
   return puzzle;

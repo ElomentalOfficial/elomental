@@ -1,7 +1,7 @@
-import type { Difficulty } from '@elomental/engine';
+import { difficultyForRating, type Difficulty } from '@elomental/engine';
 import { ICONS } from '../icons.ts';
 import { enableTilt, turnstileIn, turnstileOut } from '../motion.ts';
-import { HINT_ELO_PENALTY, PROTECTED_BELOW, loadProfile, rankTitle, rankedDifficulty } from '../profile.ts';
+import { HINT_ELO_PENALTY, PROTECTED_BELOW, loadProfile, rankTitle, rankedTarget } from '../profile.ts';
 import { h, mount, navigatingBack, openModal, toast, type Screen } from '../ui.ts';
 import {
   CODE_LENGTH,
@@ -420,7 +420,7 @@ function openRanked(leave: (go: () => void) => void) {
   const saved = loadSavedGame();
   if (saved?.config.mode === 'ranked') return leave(() => resumeGame(saved));
   const profile = loadProfile();
-  const difficulty = rankedDifficulty(profile.elo);
+  const difficulty = difficultyForRating(rankedTarget(profile.elo));
   const close = openModal(
     h(
       'div',
