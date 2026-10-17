@@ -10,6 +10,7 @@ The app talks to it from `packages/web/src/backend.ts`.
 | `profiles` | name, Elo, ranked games, Stardust, crowns, pity | read their own row |
 | `games` | every signed-in game: seed, server start time, result, payout | read their own games |
 | `clashes` | Clash codes and their difficulty | read (signed in) |
+| `squares` | Square codes: the exact puzzle behind each code | only through the functions below |
 
 Clients never write to tables. Everything goes through these functions
 (signed-in players only):
@@ -29,6 +30,11 @@ Clients never write to tables. Everything goes through these functions
 - `get_clash(code)` and `my_clashes()` return both players' Clash results.
 - `leaderboard(limit)`: the top players by Elo.
 - `set_display_name(name)`
+- `square_code(givens, difficulty, rating)` and `get_square(code)`: every
+  puzzle's shareable square code (8 characters, shown as K7P2-QX9M). The same
+  puzzle always gets the same code, and the code stores the puzzle itself, so
+  it keeps working whatever changes in the generator. A shared square plays
+  as Casual.
 
 Migrations are in `migrations/` (already applied to the project).
 

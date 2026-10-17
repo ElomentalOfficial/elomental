@@ -80,6 +80,9 @@ export const ICONS = {
   close: stroke('<path d="M6 6l12 12M18 6 6 18"/>', 2.4),
   back: stroke('<path d="M15 5l-7 7 7 7"/>', 2.4),
   search: stroke('<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/>', 2.2),
+  copy: stroke('<rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5"/>', 1.8),
+  /** Square code: a puzzle's shareable code. */
+  hash: stroke('<path d="M9.5 4 7.5 20M16.5 4l-2 16M4.5 9h16M3.5 15h16"/>', 2),
   check: stroke('<path d="M5 12.5l4.5 4.5L19 7"/>', 2.6),
   lock: stroke('<rect x="5" y="10.5" width="14" height="10" rx="1.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>'),
   crown: fill('M3 8l4.5 4L12 5l4.5 7L21 8l-2 10H5Z M5 19h14v2H5Z'),

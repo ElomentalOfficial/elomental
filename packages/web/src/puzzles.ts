@@ -27,9 +27,21 @@ function getWorker(): Worker {
 }
 
 export function requestPuzzle(options: GenerateOptions): Promise<GeneratedPuzzle> {
+  return ask({ ...options });
+}
+
+/**
+ * A shared square (81 digits, 0 = empty), checked, solved and graded in the
+ * worker. Rejects with 'too_few', 'no_solution' or 'not_unique'.
+ */
+export function importPuzzle(givens: string): Promise<GeneratedPuzzle> {
+  return ask({ givens });
+}
+
+function ask(message: object): Promise<GeneratedPuzzle> {
   const id = nextId++;
   return new Promise((resolve, reject) => {
     pending.set(id, { resolve, reject });
-    getWorker().postMessage({ ...options, id });
+    getWorker().postMessage({ ...message, id });
   });
 }

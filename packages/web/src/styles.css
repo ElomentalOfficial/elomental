@@ -1658,6 +1658,50 @@ html.standalone .backdrop {
   height: 22px;
   flex: none;
 }
+/* Casual: Clash and Square code side by side. */
+.casual-extras {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  margin-top: 6px;
+}
+/* Icon over label, so both fit side by side on a phone. */
+.casual-extras .btn {
+  flex-direction: column;
+  gap: 4px;
+  min-height: 68px;
+  margin-top: 0;
+  padding: 8px 6px;
+  font-size: 17px;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+.casual-extras .btn svg {
+  width: 22px;
+  height: 22px;
+}
+.btn-square-code {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.square-sheet {
+  gap: 10px;
+}
+.square-field {
+  width: 100%;
+  text-align: center;
+  font-size: 22px !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.square-field::placeholder {
+  color: var(--muted);
+  opacity: 0.5;
+}
+.sheet .square-status:empty {
+  display: none;
+}
 .clash-sheet {
   gap: 10px;
 }
@@ -2036,8 +2080,39 @@ html.standalone .toast {
   transform: scale(1.1);
 }
 .puzzle-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
   font-family: var(--serif);
   font-size: 14px;
+}
+.puzzle-type {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+/* The square code beside the puzzle type: tap to copy. */
+.square-code {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  font: inherit;
+  font-size: 0.86em;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.square-code[hidden] {
+  display: none;
+}
+.square-code-icon {
+  display: flex;
+  width: 1.05em;
+}
+.square-code-icon svg {
+  width: 100%;
+  height: auto;
 }
 
 /* The board shrinks on short screens so the controls always fit without scrolling. */
@@ -2840,6 +2915,13 @@ html.standalone .toast {
     justify-self: end;
     /* As large as the clock, a touch smaller on short screens so it keeps clear of it. */
     font-size: min(calc(var(--key) * 0.44), calc(var(--board) * 0.052));
+    /* The code goes small under the type: beside it, it would run into the clock. */
+    flex-direction: column-reverse;
+    align-items: flex-end;
+    gap: 0.12em;
+  }
+  .game .square-code {
+    font-size: 0.5em;
   }
   .game .skull {
     width: calc(var(--key) * 0.3);

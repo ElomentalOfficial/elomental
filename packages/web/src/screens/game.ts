@@ -9,6 +9,7 @@ import {
   difficultyForRating,
   nextPlacement,
   type Difficulty,
+  type GeneratedPuzzle,
   type Move,
 } from '@elomental/engine';
 import { ICONS } from '../icons.ts';
@@ -22,7 +23,8 @@ import {
   type Mode,
   type Outcome,
 } from '../profile.ts';
-import { requestPuzzle } from '../puzzles.ts';
+import { importPuzzle, requestPuzzle } from '../puzzles.ts';
+import { formatSquareCode } from '../squareCode.ts';
 import { openNotesWheel, type NotesWheel } from '../radial.ts';
 import { RIBBON_BOX, RIBBON_PATH } from '../ribbon.ts';
 import { notesWheelOn } from '../settings.ts';
@@ -40,6 +42,7 @@ import {
   resumeServerGame,
   saveSettings,
   signedIn,
+  squareCodeFor,
   startServerGame,
   type ServerStart,
 } from '../backend.ts';
@@ -62,6 +65,8 @@ export interface GameConfig {
   serverId?: string;
   /** Clash: the shared code, and the friend's result when it came in a link. */
   clash?: { code: string; theirs?: ClashResult | null };
+  /** The puzzle's square code (squareCode.ts), once the server has given it one. */
+  squareCode?: string;
 }
 
 interface Change {
@@ -116,8 +121,22 @@ export async function startGame(options: {
   seed?: string;
   dateKey?: string;
   clash?: GameConfig['clash'];
+  /** A shared square (played as Casual): its 81 givens, and its code when it came as one. */
+  square?: { givens: string; code?: string };
 }) {
   mount(loadingScreen());
+  // A shared square is checked before anything starts on the server.
+  let shared: GeneratedPuzzle | undefined;
+  if (options.square) {
+    try {
+      shared = await importPuzzle(options.square.givens);
+    } catch (error) {
+      toast(SQUARE_ERRORS[(error as Error).message] ?? "That square can't be played");
+      return mount(homeScreen());
+    }
+  }
+  // A sudoku string has no stored difficulty: its grade sets it. A code keeps the original's.
+  if (shared && !options.square?.code) options = { ...options, difficulty: shared.difficulty };
   let server: ServerStart | undefined;
   if (signedIn()) {
     // Signed in: the server picks the seed (and Ranked's difficulty) and starts the clock.
@@ -140,12 +159,14 @@ export async function startGame(options: {
       options.mode === 'ranked' ? (server?.targetRating ?? rankedTarget(loadProfile().elo)) : undefined;
     const difficulty =
       server?.difficulty ?? (targetRating !== undefined ? difficultyForRating(targetRating) : options.difficulty);
-    const p = await requestPuzzle({
-      difficulty,
-      profile: puzzleProfile(options.mode, difficulty, options.dateKey),
-      targetRating,
-      seed: server?.seed ?? options.seed,
-    });
+    const p =
+      shared ??
+      (await requestPuzzle({
+        difficulty,
+        profile: puzzleProfile(options.mode, difficulty, options.dateKey),
+        targetRating,
+        seed: server?.seed ?? options.seed,
+      }));
     const game: SavedGame = {
       config: {
         mode: options.mode,
@@ -157,6 +178,7 @@ export async function startGame(options: {
         seed: p.seed,
         dateKey: options.dateKey,
         clash: options.clash,
+        squareCode: options.square?.code,
       },
       values: [...p.puzzle].map(Number),
       notes: new Array(81).fill(0),
@@ -184,6 +206,12 @@ function loadingScreen(): Screen {
     el: h('div', { class: 'screen loading' }, h('div', { class: 'loader' }), h('p', { text: 'Forging your square…' })),
   };
 }
+
+const SQUARE_ERRORS: Record<string, string> = {
+  too_few: 'That square has too few numbers to have one answer',
+  no_solution: "That square has no answer: some numbers clash",
+  not_unique: 'That square has more than one answer',
+};
 
 const MODE_LABEL: Record<Mode, string> = { casual: 'Casual', daily: 'Daily Square', ranked: 'Ranked', clash: 'Clash' };
 const capitalize = (s: string) => s[0].toUpperCase() + s.slice(1);
@@ -213,20 +241,53 @@ function gameScreen(game: SavedGame): Screen {
   const pauseButton = h('button', { class: 'bar-btn bar-icon', html: ICONS.pause, attrs: { 'aria-label': 'Pause' } });
 
   const skulls = Array.from({ length: MAX_MISTAKES }, () => h('span', { class: 'skull', html: ICONS.mistake }));
+  // The square code: tap to copy and send it to a friend (squareCode.ts).
+  const squareChip = h('button', {
+    class: 'square-code',
+    onclick: () => {
+      const code = config.squareCode;
+      if (!code) return;
+      navigator.clipboard
+        ?.writeText(formatSquareCode(code))
+        .then(() => toast('Square code copied. Send it to a friend.'))
+        .catch(() => toast(`Copy blocked. The code is ${formatSquareCode(code)}`));
+    },
+  });
+  const paintSquareCode = () => {
+    const code = config.squareCode;
+    squareChip.hidden = !code;
+    if (!code) return;
+    squareChip.replaceChildren(h('span', { text: `#${formatSquareCode(code)}` }), h('span', { class: 'square-code-icon', html: ICONS.copy }));
+    squareChip.setAttribute('aria-label', `Square code ${code.split('').join(' ')}. Copy`);
+  };
+  paintSquareCode();
+  if (!config.squareCode) {
+    void squareCodeFor(config.puzzle, config.difficulty, config.rating).then((code) => {
+      if (!code) return;
+      config.squareCode = code;
+      save();
+      paintSquareCode();
+    });
+  }
   const status = h(
     'div',
     { class: 'status' },
     h('div', { class: 'mistakes', attrs: { 'aria-label': 'Mistakes' } }, ...skulls),
-    h('div', {
-      class: 'puzzle-info',
-      // Only Casual shows its difficulty; Daily and Ranked keep it hidden. Clash shows
-      // its code and, when the friend's result came in a link, the time to beat.
-      text: clash
-        ? `Clash · ${clash.code}${clash.theirs?.solved ? ` · beat ${formatSeconds(clash.theirs.seconds)}` : ''}`
-        : config.mode === 'casual'
-          ? `Casual · ${capitalize(config.difficulty)}`
-          : MODE_LABEL[config.mode],
-    }),
+    h(
+      'div',
+      { class: 'puzzle-info' },
+      squareChip,
+      h('span', {
+        class: 'puzzle-type',
+        // Only Casual shows its difficulty; Daily and Ranked keep it hidden. Clash shows
+        // its code and, when the friend's result came in a link, the time to beat.
+        text: clash
+          ? `Clash · ${clash.code}${clash.theirs?.solved ? ` · beat ${formatSeconds(clash.theirs.seconds)}` : ''}`
+          : config.mode === 'casual'
+            ? `Casual · ${capitalize(config.difficulty)}`
+            : MODE_LABEL[config.mode],
+      }),
+    ),
   );
 
   // --- Board ---------------------------------------------------------------
