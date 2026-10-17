@@ -42,6 +42,14 @@ export interface SolveAudit {
    */
   evidence: number;
   /**
+   * The lowest share of its possible evidence that any run of consecutive
+   * placements kept (1 when too short to judge): a solve that's honest for a
+   * while and copied for the rest still shows its copied part.
+   */
+  worstStretch: number;
+  /** The most leaps within any run of consecutive placements (copying comes in runs; slips don't). */
+  leapBurst: number;
+  /**
    * The evidence the same solve would show had every move been workable.
    * Small on easy puzzles (nearly every square is workable at any moment), so
    * those can't be judged and are never called copied.
@@ -62,13 +70,29 @@ const HUMAN_LEAP_RATE = 0.15;
  * Calibrated on simulated solves (test/audit.test.ts).
  */
 const COPIED_EVIDENCE = -8;
+/**
+ * Copied when some run of WINDOW placements kept less than this share of the
+ * evidence it could have shown (an honest start, then the rest copied).
+ * Only runs that could show at least WINDOW_POTENTIAL are judged.
+ */
+const COPIED_STRETCH = 0.2;
+/** …and only with at least this many leaps in that run: a slip or two never makes a run look copied. */
+const COPIED_BURST = 5;
+const WINDOW = 20;
+const WINDOW_POTENTIAL = 6;
 const JUDGEABLE_POTENTIAL = 8;
-const COPIED_SHARE = 0.4;
+const COPIED_SHARE = 0.3;
 /** Technique steps tried for a square that isn't a single yet (someone using a pair or a wing right there). */
 const EXTRA_STEPS = 3;
+/**
+ * A square that only becomes a single after another one is placed counts as
+ * worked out if that other one follows within this many placements (two
+ * squares spotted together and typed in either order).
+ */
+const UNLOCK_WITHIN = 2;
 
 /** Digits that fit nowhere else: naked and hidden singles on a candidate grid. */
-function singles(state: SolverState): Map<number, number> {
+export function singles(state: SolverState): Map<number, number> {
   const found = new Map<number, number>();
   for (let c = 0; c < 81; c++) {
     if (state.values[c] === 0 && popcount(state.cands[c]) === 1) found.set(c, lowestDigit(state.cands[c]));
@@ -124,23 +148,38 @@ function easiestElimination(state: SolverState, maxLevel: TechniqueLevel): boole
 }
 
 /**
- * Can `cell` be `digit` from here? Singles first. If there are none, the
+ * Can `cell` be `digit` right now? It must be a single. If there are none, the
  * person is stuck and works with techniques (the notes they'd write persist
  * in `state`). If there are singles elsewhere, a few technique steps are still
  * allowed for this square, in case they were working on it.
  */
 function workable(state: SolverState, cell: number, digit: number, maxLevel: TechniqueLevel): boolean {
-  if (frontier(state).get(cell) === digit) return true;
+  if (singles(state).get(cell) === digit) return true;
   if (singles(state).size === 0) {
     // Stuck: eliminate until something opens up; those eliminations stay (they're the notes).
     while (singles(state).size === 0 && easiestElimination(state, maxLevel));
-    return frontier(state).get(cell) === digit;
+    return singles(state).get(cell) === digit;
   }
   const trial = copyState(state);
   for (let i = 0; i < EXTRA_STEPS && easiestElimination(trial, maxLevel); i++) {
-    if (frontier(trial).get(cell) === digit) return true;
+    if (singles(trial).get(cell) === digit) return true;
   }
   return false;
+}
+
+/**
+ * The singles that would make `cell` a single once placed: a person who types
+ * `cell` first must have seen it through one of these, and places that one
+ * next. (Someone copying a solved grid seldom does.)
+ */
+function unlockers(state: SolverState, cell: number, digit: number): Set<number> {
+  const found = new Set<number>();
+  for (const [c, d] of singles(state)) {
+    const next = copyState(state);
+    place(next, c, d);
+    if (singles(next).get(cell) === digit) found.add(c);
+  }
+  return found;
 }
 
 export function auditSolve(givens: Grid, moves: readonly Move[], maxLevel: TechniqueLevel = 5): SolveAudit {
@@ -153,6 +192,8 @@ export function auditSolve(givens: Grid, moves: readonly Move[], maxLevel: Techn
       telling: 0,
       tellingLeaps: 0,
       evidence: -Infinity,
+      worstStretch: -Infinity,
+      leapBurst: 0,
       potential: 0,
       readingOrder: 0,
       copied: true,
@@ -168,6 +209,24 @@ export function auditSolve(givens: Grid, moves: readonly Move[], maxLevel: Techn
   let tellingLeaps = 0;
   let inOrder = 0;
   let previous = -1;
+  /** Placements that become worked out if one of `unlock` is placed by placement number `until`. */
+  let pending: { index: number; unlock: Set<number>; until: number; worked: number; leapt: number; telling: boolean }[] = [];
+  // Per placement: what it earned, and what it could have (for the window below).
+  const earned: number[] = [];
+  const possible: number[] = [];
+  const count = (index: number, weight: number) => {
+    evidence += weight;
+    earned[index] = weight;
+  };
+  const leapt: boolean[] = [];
+  const settle = (p: (typeof pending)[number], worked: boolean) => {
+    count(p.index, worked ? p.worked : p.leapt);
+    if (!worked) {
+      leapt[p.index] = true;
+      leaps++;
+      if (p.telling) tellingLeaps++;
+    }
+  };
   for (const { cell, digit } of moves) {
     if (!Number.isInteger(cell) || cell < 0 || cell > 80 || givens[cell]) continue;
     if (digit === 0) {
@@ -186,28 +245,68 @@ export function auditSolve(givens: Grid, moves: readonly Move[], maxLevel: Techn
       for (let c = previous + 1; c < 81 && nextEmpty < 0; c++) if (!state.values[c]) nextEmpty = c;
       if (nextEmpty === cell) inOrder++;
     }
-    const leap = !workable(state, cell, digit, maxLevel);
     let empty = 0;
     for (const v of state.values) if (!v) empty++;
-    const open = Math.min(frontier(state).size, empty);
-    if (open * 2 <= empty) {
-      telling++;
-      if (leap) tellingLeaps++;
-    }
+    // Counted before `workable`, which may write notes into the state when stuck.
+    const before = singles(state).size;
+    const ok = workable(state, cell, digit, maxLevel);
+    const open = Math.min(Math.max(before, singles(state).size), empty);
+    const isTelling = open * 2 <= empty;
+    if (isTelling) telling++;
     // A person picks among the `open` workable squares (now and then not);
     // a copier picks any of the `empty` ones.
     const worked = Math.log(((1 - HUMAN_LEAP_RATE) * empty) / Math.max(open, 1));
+    const leapt = empty > open ? Math.log((HUMAN_LEAP_RATE * empty) / (empty - open)) : 0;
     potential += worked;
-    if (!leap) evidence += worked;
-    else if (empty > open) evidence += Math.log((HUMAN_LEAP_RATE * empty) / (empty - open));
-    if (leap) leaps++;
+    const index = placements - 1;
+    possible[index] = worked;
+    // Not a single yet, but one placement away: decided by whether that placement follows.
+    const unlock = ok ? null : unlockers(state, cell, digit);
     place(state, cell, digit);
+    // This placement may be the one an earlier square was waiting for.
+    const still: typeof pending = [];
+    for (const p of pending) {
+      if (p.unlock.has(cell)) settle(p, true);
+      else if (placements >= p.until) settle(p, false);
+      else still.push(p);
+    }
+    pending = still;
+    const entry = { index, unlock: unlock ?? new Set<number>(), until: placements + UNLOCK_WITHIN, worked, leapt, telling: isTelling };
+    if (ok) count(index, worked);
+    else if (unlock?.size) pending.push(entry);
+    else settle(entry, false);
     previous = cell;
+  }
+  for (const p of pending) settle(p, false);
+  // The worst stretch: the lowest share any run of WINDOW placements kept of what it could have shown.
+  // And the most leaps in any run of WINDOW placements; `copiedRun` when one run is both.
+  let worstStretch = 1;
+  let leapBurst = 0;
+  let copiedRun = false;
+  let got = 0;
+  let could = 0;
+  let burst = 0;
+  for (let i = 0; i < placements; i++) {
+    got += earned[i];
+    could += possible[i];
+    if (leapt[i]) burst++;
+    if (i >= WINDOW) {
+      got -= earned[i - WINDOW];
+      could -= possible[i - WINDOW];
+      if (leapt[i - WINDOW]) burst--;
+    }
+    leapBurst = Math.max(leapBurst, burst);
+    if (i >= WINDOW - 1 && could >= WINDOW_POTENTIAL) {
+      worstStretch = Math.min(worstStretch, got / could);
+      if (burst >= COPIED_BURST && got < COPIED_STRETCH * could) copiedRun = true;
+    }
   }
   const leapRatio = placements ? leaps / placements : 0;
   const readingOrder = placements > 1 ? inOrder / (placements - 1) : 0;
   const copied =
-    evidence <= COPIED_EVIDENCE || (potential >= JUDGEABLE_POTENTIAL && evidence < COPIED_SHARE * potential);
+    evidence <= COPIED_EVIDENCE ||
+    copiedRun ||
+    (potential >= JUDGEABLE_POTENTIAL && evidence < COPIED_SHARE * potential);
   return {
     placements,
     leaps,
@@ -215,6 +314,8 @@ export function auditSolve(givens: Grid, moves: readonly Move[], maxLevel: Techn
     telling,
     tellingLeaps,
     evidence,
+    worstStretch,
+    leapBurst,
     potential,
     readingOrder,
     copied,

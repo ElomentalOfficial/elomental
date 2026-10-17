@@ -83,8 +83,13 @@ Deno.serve(async (req) => {
       leaps: result.leaps,
       evidence: Math.round(result.evidence * 10) / 10,
       potential: Math.round(result.potential * 10) / 10,
+      worstStretch: Math.round(result.worstStretch * 100) / 100,
+      leapBurst: result.leapBurst,
       readingOrder: Math.round(result.readingOrder * 100) / 100,
       moves: moves.length,
+      // The moves themselves (cell, digit, seconds), so a flagged game can be
+      // looked into and the check retuned on real solves.
+      log: moves.map((m) => [m.cell, m.digit, Math.round(m.at / 100) / 10]),
     };
   }
   const { error } = await admin.from('games').update({ audit }).eq('id', game.id).is('finished_at', null);
