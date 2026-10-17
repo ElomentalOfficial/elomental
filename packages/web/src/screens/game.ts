@@ -27,7 +27,17 @@ import { readJson, removeKey, writeJson } from '../storage.ts';
 import { explainHint, type Marks } from '../explain.ts';
 import { formatSeconds, getClash, saveClash, type ClashResult } from '../clash.ts';
 import { clashTable, clashVerdict, shareButton } from '../clashView.ts';
-import { GameRefused, fetchClash, finishServerGame, registered, signedIn, startServerGame, type ServerStart } from '../backend.ts';
+import {
+  GameRefused,
+  fetchClash,
+  finishServerGame,
+  pauseServerGame,
+  registered,
+  resumeServerGame,
+  signedIn,
+  startServerGame,
+  type ServerStart,
+} from '../backend.ts';
 import { signUpForm } from '../accountForm.ts';
 import { runHintCoach } from '../hintCoach.ts';
 import { markTutorialDone, runTutorial, tutorialDone, type TutorialStep } from '../tutorial.ts';
@@ -65,7 +75,14 @@ export interface SavedGame {
   /** Wall-clock start; the ranked clock keeps running while the tab is hidden. */
   startedAt: number;
   history: Change[][];
+  /** Left paused (e.g. went Home mid-pause); reopens paused. */
+  paused?: boolean;
+  /** Ranked/Clash pauses used (3 per game). */
+  pauses?: number;
 }
+
+/** Ranked and Clash allow this many pauses per game (the server enforces it too). */
+const MAX_PAUSES = 3;
 
 const SAVE_KEY = 'elomental:game';
 const MAX_MISTAKES = 3;
@@ -164,7 +181,7 @@ function gameScreen(game: SavedGame): Screen {
   const { config } = game;
   const ranked = config.mode === 'ranked';
   const clash = config.mode === 'clash' ? config.clash : undefined;
-  /** Ranked and Clash are races: wall-clock timing, no pause. */
+  /** Ranked and Clash are races: wall-clock timing, limited pauses (server-tracked). */
   const competitive = ranked || !!clash;
   const given = [...config.puzzle].map((ch) => ch !== '0');
   const solution = [...config.solution].map(Number);
@@ -218,9 +235,9 @@ function gameScreen(game: SavedGame): Screen {
     { class: 'pause-cover', onclick: () => setPaused(false) },
     h('span', { class: 'play-badge', html: ICONS.play }),
     'Paused',
-    // Ranked and Clash are timed by the server, so the race clock doesn't stop.
-    competitive ? h('small', { class: 'pause-note', text: 'The clock keeps running' }) : null,
+    competitive ? h('small', { class: 'pause-note' }) : null,
   );
+  const pauseNote = pauseCover.querySelector<HTMLElement>('.pause-note');
   const boardWrap = h('div', { class: 'board-wrap' }, board, pauseCover);
 
   // --- Pad -----------------------------------------------------------------
@@ -449,9 +466,31 @@ function gameScreen(game: SavedGame): Screen {
     render();
   }
 
-  function setPaused(value: boolean) {
-    if (finished) return;
+  /**
+   * Pausing stops the clock in every mode. Ranked and Clash get 3 pauses per
+   * game, and the server stops counting too (each pause free for 5 minutes).
+   */
+  async function setPaused(value: boolean, restoring = false) {
+    if (finished || value === paused) return;
+    if (value && competitive && !restoring) {
+      const used = game.pauses ?? 0;
+      if (used >= MAX_PAUSES) return toast('No pauses left in this match');
+      let left = MAX_PAUSES - used - 1;
+      if (config.serverId) {
+        const serverLeft = await pauseServerGame(config.serverId);
+        if (serverLeft === null) return toast('No pauses left in this match');
+        left = serverLeft;
+      }
+      game.pauses = MAX_PAUSES - left;
+    }
+    if (!value && competitive && config.serverId) void resumeServerGame(config.serverId);
     paused = value;
+    game.paused = paused;
+    if (pauseNote) {
+      const left = MAX_PAUSES - (game.pauses ?? 0);
+      pauseNote.textContent = left === 1 ? '1 pause left' : `${left} pauses left`;
+    }
+    save();
     el.classList.toggle('paused', paused);
     // Paused Ranked: the way out is Home (the game waits), not Concede.
     if (ranked) leftButton.textContent = paused ? 'Home' : 'Concede';
@@ -516,7 +555,7 @@ function gameScreen(game: SavedGame): Screen {
   let last = performance.now();
   function tick() {
     const now = performance.now();
-    if (coaching) {
+    if (coaching || (competitive && paused)) {
       // The clock stands still during the first-game tutorial, ranked included.
       game.startedAt = Date.now() - game.elapsedMs;
     } else if (competitive) {
@@ -861,6 +900,11 @@ function gameScreen(game: SavedGame): Screen {
   document.addEventListener('visibilitychange', onHide);
 
   focusDigit = selected >= 0 ? game.values[selected] : 0;
+  // Left paused (went Home mid-pause): reopen paused, with the clock where it stopped.
+  if (game.paused) {
+    if (competitive) game.startedAt = Date.now() - game.elapsedMs;
+    void setPaused(true, true);
+  }
   render();
   tick();
 

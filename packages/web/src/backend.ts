@@ -384,6 +384,20 @@ export async function startServerGame(options: {
   };
 }
 
+/**
+ * Ranked/Clash pause: the server stops counting (each pause free for up to 5
+ * minutes, 3 per game). Returns pauses left, or null when none are left.
+ */
+export async function pauseServerGame(gameId: string): Promise<number | null> {
+  const { data, error } = await supabase.rpc('pause_game', { p_game_id: gameId });
+  if (error) return error.message.includes('no_pauses_left') ? null : 0;
+  return (data as { pauses_left: number }).pauses_left;
+}
+
+export async function resumeServerGame(gameId: string): Promise<void> {
+  await supabase.rpc('resume_game', { p_game_id: gameId });
+}
+
 export interface ServerFinish {
   outcome: Outcome;
   seconds: number;
