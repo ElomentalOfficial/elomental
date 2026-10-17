@@ -54,9 +54,12 @@ export function runTutorial(steps: TutorialStep[]): Promise<void> {
       if (!onButton(event)) event.preventDefault();
     });
     document.body.append(layer);
+    // The screen edges iOS paints itself (status bar, home indicator) dim with the page.
+    document.documentElement.classList.add('coach-open');
 
     const finish = () => {
       layer.classList.add('closing');
+      document.documentElement.classList.remove('coach-open');
       setTimeout(() => layer.remove(), 200);
       resolve();
     };

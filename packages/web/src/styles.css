@@ -238,6 +238,17 @@ html.modal-open body {
 html.modal-open #status-tint {
   background: var(--scrim-top);
 }
+/* Tutorial: the page under its 68% shade, edge to edge. */
+html.coach-open,
+html.coach-open body,
+html.coach-open #status-tint {
+  background: #1a1b16;
+}
+html[data-theme='light'].coach-open,
+html[data-theme='light'].coach-open body,
+html[data-theme='light'].coach-open #status-tint {
+  background: #5f5f55;
+}
 /* Fades with the backdrop instead of jumping ahead of it. */
 html.standalone:not(.welcome-active) #status-tint {
   transition: background-color 0.18s ease;
@@ -1092,11 +1103,7 @@ html.standalone .backdrop {
   background: var(--c-lava);
 }
 .ranked-copy {
-  font-size: 20px !important;
   line-height: 1.4;
-}
-.ranked-copy strong {
-  color: var(--accent);
 }
 .note {
   font-family: var(--serif);
@@ -1607,7 +1614,8 @@ html.standalone .toast {
   background: var(--cell);
   color: var(--cell-text);
   font-weight: 800;
-  font-size: 5.9cqi;
+  /* 28px on a phone-sized board, scaling down on smaller ones. */
+  font-size: min(28px, 8.2cqi);
   line-height: 1;
   cursor: pointer;
   transition: background 0.12s ease;
@@ -1743,6 +1751,11 @@ html.standalone .toast {
 .paused .pause-cover {
   display: flex;
 }
+.pause-note {
+  margin-top: -6px;
+  font-size: 15px;
+  color: var(--muted);
+}
 .play-badge {
   width: 64px;
   height: 64px;
@@ -1769,8 +1782,10 @@ html.standalone .toast {
   border-radius: 4px;
   background: var(--key-bg);
   color: var(--key-text);
-  font-family: var(--serif);
-  font-size: 34px;
+  /* Montserrat reads at a glance on the keys; the serif's 4 and 1 are too stylised. */
+  font-family: var(--font);
+  font-weight: 500;
+  font-size: 30px;
   line-height: 1;
   transition: transform 0.06s ease, filter 0.15s ease, opacity 0.2s ease;
 }
@@ -2002,10 +2017,10 @@ html.standalone .toast {
 }
 
 /* ---------- First-game tutorial ---------- */
+/* Absolute in the stretched body (like the pop-up backdrop), so it reaches the home indicator. */
 .coach-layer {
-  position: fixed;
+  position: absolute;
   inset: 0;
-  bottom: calc(-1 * var(--standalone-gap, 0px));
   z-index: 40;
   touch-action: none;
   animation: fade 0.25s ease;

@@ -133,7 +133,7 @@ function accountSection(): HTMLElement {
           class: 'field-hint',
           text: locked
             ? `You can change your name again on ${formatDay(locked)}.`
-            : `Names are unique. After a change, the next one is possible in ${NAME_COOLDOWN_DAYS} days.`,
+            : `You can change your name once every ${NAME_COOLDOWN_DAYS} days.`,
         }),
         ...(locked ? [] : [save]),
         error,

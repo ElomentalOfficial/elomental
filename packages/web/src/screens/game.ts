@@ -183,7 +183,6 @@ function gameScreen(game: SavedGame): Screen {
   const leftButton = h('button', { class: 'bar-btn', text: ranked ? 'Concede' : 'Home' });
   const timer = h('div', { class: 'timer' });
   const pauseButton = h('button', { class: 'bar-btn bar-icon', html: ICONS.pause, attrs: { 'aria-label': 'Pause' } });
-  if (competitive) pauseButton.style.visibility = 'hidden';
 
   const skulls = Array.from({ length: MAX_MISTAKES }, () => h('span', { class: 'skull', html: ICONS.mistake }));
   const status = h(
@@ -219,6 +218,8 @@ function gameScreen(game: SavedGame): Screen {
     { class: 'pause-cover', onclick: () => setPaused(false) },
     h('span', { class: 'play-badge', html: ICONS.play }),
     'Paused',
+    // Ranked and Clash are timed by the server, so the race clock doesn't stop.
+    competitive ? h('small', { class: 'pause-note', text: 'The clock keeps running' }) : null,
   );
   const boardWrap = h('div', { class: 'board-wrap' }, board, pauseCover);
 
@@ -449,9 +450,11 @@ function gameScreen(game: SavedGame): Screen {
   }
 
   function setPaused(value: boolean) {
-    if (competitive || finished) return;
+    if (finished) return;
     paused = value;
     el.classList.toggle('paused', paused);
+    // Paused Ranked: the way out is Home (the game waits), not Concede.
+    if (ranked) leftButton.textContent = paused ? 'Home' : 'Concede';
     pauseButton.innerHTML = paused ? ICONS.play : ICONS.pause;
     pauseButton.setAttribute('aria-label', paused ? 'Resume' : 'Pause');
     tick();
@@ -638,13 +641,11 @@ function gameScreen(game: SavedGame): Screen {
       // The new rating counts up from the old one.
       countUp(eloRow.querySelector('strong')!, outcome.elo.before, outcome.elo.after, (n) => `${outcome.elo!.before} → ${n} (${delta >= 0 ? '+' : ''}${delta})`);
       rows.push(eloRow);
-      if (outcome.elo.bonus > 0) rows.push(h('p', { class: 'note good', text: `Speed bonus +${Math.round(outcome.elo.bonus * 100)}% — under par time` }));
-      if (outcome.elo.bonus < 0) rows.push(h('p', { class: 'note', text: `Slow finish ${Math.round(outcome.elo.bonus * 100)}% — over twice par time` }));
-      if (outcome.elo.hintCut > 0) {
-        const n = game.hints;
-        rows.push(h('p', { class: 'note', text: `${n} hint${n === 1 ? '' : 's'} used: Elo gain −${Math.round(outcome.elo.hintCut * 100)}%` }));
-      }
-      if (outcome.elo.protectedLoss) rows.push(h('p', { class: 'note', text: 'Below 500 Elo your rating is protected — no points lost.' }));
+      // Only encouragement here: what went well, or one tip for a bigger gain next time.
+      if (outcome.elo.bonus > 0) rows.push(h('p', { class: 'note good', text: `Speed bonus +${Math.round(outcome.elo.bonus * 100)}%` }));
+      else if (won && game.hints > 0) rows.push(h('p', { class: 'note', text: 'Solve it without hints next time for the full Elo gain.' }));
+      else if (won && outcome.elo.bonus < 0) rows.push(h('p', { class: 'note', text: 'Finish a little faster next time for a speed bonus.' }));
+      if (outcome.elo.protectedLoss) rows.push(h('p', { class: 'note', text: 'No Elo lost: your rating is protected below 500.' }));
     }
     if (outcome.daily) {
       rows.push(statRow('This month', `${outcome.daily.done} / ${outcome.daily.days} squares`));
@@ -818,7 +819,7 @@ function gameScreen(game: SavedGame): Screen {
   pauseButton.addEventListener('click', () => setPaused(!paused));
   leftButton.addEventListener('click', () => {
     if (finished) return void goBack(homeScreen);
-    if (ranked) return concede();
+    if (ranked && !paused) return concede();
     save();
     void goBack(config.mode === 'daily' ? dailyScreen : homeScreen);
   });

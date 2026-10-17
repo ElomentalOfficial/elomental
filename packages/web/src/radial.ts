@@ -14,6 +14,8 @@ const R_OUT = 104; // ring outer radius
 const R_DIGIT = (R_IN + R_OUT) / 2;
 const SIZE = R_OUT * 2;
 const DEAD_ZONE = 22;
+/** Finger travel before the wheel starts picking (a still lift cancels). */
+const MOVE_SLOP = 10;
 const STEP = 360 / 9;
 
 export interface NotesWheel {
@@ -97,11 +99,18 @@ export function openNotesWheel(options: {
     close();
   });
 
+  // Near a screen edge the wheel is nudged inward, so the finger starts off its
+  // centre. Picking is measured from the wheel's real centre (the segment the
+  // finger is over), but only once the finger has actually moved, so a lift
+  // without sliding still cancels.
+  let moved = false;
   function digitAt(x: number, y: number): number {
-    // Measured from where the finger went down, so it still feels right when
-    // the wheel had to be nudged away from a screen edge.
-    const dx = x - options.x;
-    const dy = y - options.y;
+    if (!moved) {
+      if (Math.hypot(x - options.x, y - options.y) < MOVE_SLOP) return 0;
+      moved = true;
+    }
+    const dx = x - cx;
+    const dy = y - cy;
     if (Math.hypot(dx, dy) < DEAD_ZONE) return 0;
     const angle = (Math.atan2(dy, dx) * 180) / Math.PI + 90;
     return (Math.round((((angle % 360) + 360) % 360) / STEP) % 9) + 1;

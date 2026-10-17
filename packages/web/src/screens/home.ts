@@ -1,7 +1,7 @@
 import { difficultyForRating, type Difficulty } from '@elomental/engine';
 import { ICONS } from '../icons.ts';
 import { enableTilt, turnstileIn, turnstileOut } from '../motion.ts';
-import { HINT_ELO_PENALTY, PROTECTED_BELOW, loadProfile, rankTitle, rankedTarget } from '../profile.ts';
+import { loadProfile, rankTitle, rankedTarget } from '../profile.ts';
 import { h, mount, navigatingBack, openModal, toast, type Screen } from '../ui.ts';
 import {
   CODE_LENGTH,
@@ -429,16 +429,9 @@ function openRanked(leave: (go: () => void) => void) {
       { class: 'sheet' },
       closeButton(() => close()),
       h('span', { class: 'sheet-icon ranked', html: ICONS.ranked }),
-      h('p', {
-        class: 'ranked-copy',
-        html: 'Be aware, you will start a round of a <strong>RANKED</strong> game. You can lose or win elo points.',
-      }),
-      h(
-        'p',
-        { class: 'note' },
-        `${profile.elo} Elo · faster solves earn bonus Elo · each hint cuts your gain by ${HINT_ELO_PENALTY * 100}%` +
-          (profile.elo < PROTECTED_BELOW ? ` · losses are free below ${PROTECTED_BELOW}` : ''),
-      ),
+      h('h2', { text: 'Ranked' }),
+      h('p', { class: 'ranked-copy', text: 'A square matched to your level. Solve it to climb.' }),
+      h('p', { class: 'note', text: `${profile.elo} Elo` }),
       h('button', {
         class: 'play-btn',
         html: ICONS.play,

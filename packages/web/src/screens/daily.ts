@@ -83,7 +83,7 @@ export function dailyScreen(): Screen {
       ),
     ),
     action,
-    h('p', { class: 'reset-note', text: `New square in ${hours}h ${minutes}m · resets daily at 3:00` }),
+    h('p', { class: 'reset-note', text: `New square in ${hours}h ${minutes}m` }),
   );
   return { el };
 }
