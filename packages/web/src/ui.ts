@@ -121,8 +121,10 @@ export function toast(message: string): void {
   for (const old of document.querySelectorAll('.toast')) old.remove(); // one at a time
   const el = h('div', { class: 'toast', attrs: { role: 'status' }, text: message });
   document.body.append(el);
-  setTimeout(() => el.classList.add('out'), 2400);
-  setTimeout(() => el.remove(), 2800);
+  // Long enough to read: 2.4s, more for longer messages.
+  const shown = Math.max(2400, message.length * 55);
+  setTimeout(() => el.classList.add('out'), shown);
+  setTimeout(() => el.remove(), shown + 400);
 }
 
 export function formatTime(ms: number): string {

@@ -79,6 +79,30 @@ Now that custom SMTP is on, you could also add a typed code (`{{ .Token }}`) to 
 **Magic link or OTP** and **Change email address** templates, as a fallback
 to the hand-off.
 
+## Reviewing flagged players
+
+Ranked wins typed in from a solver are left unrated and flagged (Edge
+Function `audit-solve`, migrations `solve_audit*`). To review them, open the
+Table Editor and switch the schema to **private**:
+
+- `review_by_player`: one row per flagged player, the ones to review first,
+  with a plain summary and whether they may play Ranked.
+- `review_queue`: one row per flagged game: when, verdict and why.
+
+Then act in the SQL Editor with the player's name:
+
+```sql
+select private.clear_flags('Quiet Logician');            -- it was a mistake
+select private.restrict_ranked('Quiet Logician', 30);    -- no Ranked for 30 days
+select private.restrict_ranked('Quiet Logician');        -- no Ranked until lifted
+select private.lift_ranked('Quiet Logician');            -- Ranked again
+```
+
+A restriction never touches the account: Elo, Stardust, Daily and Clash stay,
+and Casual, Daily and Clash keep working. Restricted players are left off the
+leaderboard while it lasts. You can also tick `reviewed` and add a `note` on
+a row of `review_flags` by hand.
+
 ## Not covered yet
 
 - Every player can still generate the solution on their own device, because

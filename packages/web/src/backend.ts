@@ -392,6 +392,7 @@ const REFUSALS: Record<string, string> = {
   bad_date: 'Your clock looks off: check the date',
   bad_code: "That code isn't valid",
   not_signed_in: 'Sign in again to play',
+  ranked_restricted: 'Ranked is paused for your account for now. Casual, Daily and Clash are open.',
 };
 
 export async function startServerGame(options: {
