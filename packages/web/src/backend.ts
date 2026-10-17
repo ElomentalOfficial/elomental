@@ -1,5 +1,5 @@
 import { createClient, type Session } from '@supabase/supabase-js';
-import type { Difficulty } from '@elomental/engine';
+import type { Difficulty, Move } from '@elomental/engine';
 import type { ClashResult } from './clash.ts';
 import type { Mode, Outcome } from './profile.ts';
 import { applySettings, cleanSettings, localSettings, type Settings } from './settings.ts';
@@ -434,6 +434,19 @@ export async function resumeServerGame(gameId: string): Promise<void> {
   await supabase.rpc('resume_game', { p_game_id: gameId });
 }
 
+/**
+ * Ranked: sends the solve's moves to the audit-solve Edge Function, which
+ * replays them and records whether the squares were worked out or typed in
+ * from a solved grid. finish_game then rates the win only if it was worked
+ * out. Tried twice; if it still fails, the win stays unrated.
+ */
+export async function auditServerGame(gameId: string, givens: string, moves: Move[]): Promise<void> {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const { error } = await supabase.functions.invoke('audit-solve', { body: { gameId, givens, moves } });
+    if (!error) return;
+  }
+}
+
 export interface ServerFinish {
   outcome: Outcome;
   seconds: number;
@@ -468,7 +481,7 @@ export async function finishServerGame(input: {
     seconds: number;
     dust: number;
     crown: boolean;
-    elo: { before: number; after: number; protectedLoss: boolean; bonus: number; hintCut: number } | null;
+    elo: { before: number; after: number; protectedLoss: boolean; bonus: number; hintCut: number; unrated?: 'copied' | 'unchecked' | null } | null;
     daily: { done: number; days: number; monthComplete: boolean } | null;
   };
   void refreshAccount();

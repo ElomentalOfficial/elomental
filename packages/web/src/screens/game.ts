@@ -9,6 +9,7 @@ import {
   difficultyForRating,
   nextPlacement,
   type Difficulty,
+  type Move,
 } from '@elomental/engine';
 import { ICONS } from '../icons.ts';
 import {
@@ -30,6 +31,7 @@ import { formatSeconds, getClash, saveClash, type ClashResult } from '../clash.t
 import { clashTable, clashVerdict, shareButton } from '../clashView.ts';
 import {
   GameRefused,
+  auditServerGame,
   fetchClash,
   finishServerGame,
   pauseServerGame,
@@ -77,6 +79,12 @@ export interface SavedGame {
   /** Wall-clock start; the ranked clock keeps running while the tab is hidden. */
   startedAt: number;
   history: Change[][];
+  /**
+   * Every change to a square's value, in order, with the game clock: the server
+   * replays it to tell a solve worked out square by square from one typed in
+   * from a solved grid (engine audit.ts). Older saves don't have it.
+   */
+  moves?: Move[];
   /** Left paused (e.g. went Home mid-pause); reopens paused. */
   paused?: boolean;
   /** Ranked/Clash pauses used (3 per game). */
@@ -287,9 +295,14 @@ function gameScreen(game: SavedGame): Screen {
   function commit(changes: Change[]) {
     game.history.push(changes.map((c) => ({ cell: c.cell, value: game.values[c.cell], notes: game.notes[c.cell] })));
     for (const c of changes) {
+      if (game.values[c.cell] !== c.value) recordMove(c.cell, c.value);
       game.values[c.cell] = c.value;
       game.notes[c.cell] = c.notes;
     }
+  }
+
+  function recordMove(cell: number, digit: number) {
+    (game.moves ??= []).push({ cell, digit, at: Math.round(game.elapsedMs) });
   }
 
   const editable = (cell: number) => cell >= 0 && !given[cell] && !finished && !paused;
@@ -399,6 +412,7 @@ function gameScreen(game: SavedGame): Screen {
     const last = game.history.pop();
     if (!last) return;
     for (const c of last) {
+      if (game.values[c.cell] !== c.value) recordMove(c.cell, c.value);
       game.values[c.cell] = c.value;
       game.notes[c.cell] = c.notes;
     }
@@ -615,6 +629,8 @@ function gameScreen(game: SavedGame): Screen {
       });
       return { outcome };
     }
+    // A Ranked win only counts once the server has replayed the solve (see auditServerGame).
+    if (ranked && won) await auditServerGame(config.serverId, config.puzzle, game.moves ?? []);
     const result = await finishServerGame({
       gameId: config.serverId,
       won,
@@ -691,7 +707,17 @@ function gameScreen(game: SavedGame): Screen {
       countUp(eloRow.querySelector('strong')!, outcome.elo.before, outcome.elo.after, (n) => `${outcome.elo!.before} → ${n} (${delta >= 0 ? '+' : ''}${delta})`);
       rows.push(eloRow);
       // Only encouragement here: what went well, or one tip for a bigger gain next time.
-      if (outcome.elo.bonus > 0) rows.push(h('p', { class: 'note good', text: `Speed bonus +${Math.round(outcome.elo.bonus * 100)}%` }));
+      if (outcome.elo.unrated) {
+        rows.push(
+          h('p', {
+            class: 'note',
+            text:
+              outcome.elo.unrated === 'copied'
+                ? 'Unrated: squares went in before they could be worked out.'
+                : "Unrated: this solve couldn't be checked. Check your connection.",
+          }),
+        );
+      } else if (outcome.elo.bonus > 0) rows.push(h('p', { class: 'note good', text: `Speed bonus +${Math.round(outcome.elo.bonus * 100)}%` }));
       else if (won && game.hints > 0) rows.push(h('p', { class: 'note', text: 'Solve it without hints next time for the full Elo gain.' }));
       else if (won && outcome.elo.bonus < 0) rows.push(h('p', { class: 'note', text: 'Finish a little faster next time for a speed bonus.' }));
       if (outcome.elo.protectedLoss) rows.push(h('p', { class: 'note', text: 'No Elo lost: your rating is protected below 500.' }));

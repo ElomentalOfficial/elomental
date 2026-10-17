@@ -11,7 +11,8 @@
     "typecheck": "tsc",
     "generate": "node scripts/generate.ts",
     "benchmark": "node scripts/benchmark-ranked.ts",
-    "build-master-bank": "node scripts/build-master-bank.ts"
+    "build-master-bank": "node scripts/build-master-bank.ts",
+    "sync-edge": "node scripts/sync-edge.ts"
   },
   "devDependencies": {
     "@types/node": "^24.19.2",

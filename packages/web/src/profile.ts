@@ -209,7 +209,12 @@ export interface ResultInput {
 export interface Outcome {
   dust: number;
   crown: boolean;
-  elo?: { before: number; after: number; protectedLoss: boolean; bonus: number; hintCut: number };
+  /**
+   * `unrated`: a Ranked win that earned no Elo or speed bonus, because its
+   * squares went in before they could be worked out ('copied') or the server
+   * couldn't check the solve ('unchecked').
+   */
+  elo?: { before: number; after: number; protectedLoss: boolean; bonus: number; hintCut: number; unrated?: 'copied' | 'unchecked' | null };
   daily?: { done: number; days: number; monthComplete: boolean };
 }
 

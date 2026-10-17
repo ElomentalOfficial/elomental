@@ -6,3 +6,4 @@ export * from './grader.ts';
 export * from './generator.ts';
 export * from './masterBank.ts';
 export * from './transform.ts';
+export * from './audit.ts';
