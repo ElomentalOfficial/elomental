@@ -13,11 +13,27 @@ export function installZoomGuards(): void {
   }
 
   // Double-tap zoom: swallow the second tap's default and replay it as a click,
-  // so fast taps on buttons (like the theme switch) still register.
+  // so fast taps on buttons (like the theme switch) still register. Only taps
+  // count: quick flicks through a scrolling list must not click what they end on.
   let lastTouchEnd = 0;
+  let startX = 0;
+  let startY = 0;
+  document.addEventListener(
+    'touchstart',
+    (event) => {
+      startX = event.touches[0]?.clientX ?? 0;
+      startY = event.touches[0]?.clientY ?? 0;
+    },
+    { passive: true },
+  );
   document.addEventListener(
     'touchend',
     (event) => {
+      const end = event.changedTouches[0];
+      if (end && Math.hypot(end.clientX - startX, end.clientY - startY) > 10) {
+        lastTouchEnd = 0;
+        return;
+      }
       const now = event.timeStamp;
       if (now - lastTouchEnd < DOUBLE_TAP_MS && event.cancelable) {
         event.preventDefault();

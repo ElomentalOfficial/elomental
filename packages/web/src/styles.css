@@ -771,8 +771,9 @@ html[data-nav='back'] .screen.setup {
   flex: none;
 }
 /*
- * The few places that may scroll (Setup, tall pop-ups). Everything else in the
- * app is fixed; gestures.ts lets touch-drags through only inside these.
+ * The places that may scroll: any screen or pop-up whose content can outgrow
+ * the screen (Setup, Daily, Review, tall pop-ups). Everything else in the app
+ * is fixed; gestures.ts lets touch-drags through only inside these.
  */
 .scrollable {
   overflow-y: auto;
@@ -780,6 +781,15 @@ html[data-nav='back'] .screen.setup {
   touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
+}
+/*
+ * Buttons elsewhere are `manipulation`, and WebKit intersects that with the
+ * area's pan-y to `none`: a drag that starts on a button wouldn't scroll (a
+ * list of row buttons couldn't scroll at all). Inside a scrolling area they
+ * pan too; taps still click, and pan-y still rules out double-tap zoom.
+ */
+.scrollable :is(button, summary, label, a) {
+  touch-action: pan-y;
 }
 .scrollable::-webkit-scrollbar {
   display: none;
