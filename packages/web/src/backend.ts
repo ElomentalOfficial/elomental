@@ -147,7 +147,31 @@ export async function sendSignInEmail(email: string): Promise<{ error: string | 
   return { error: error ? friendlyAuthError(error.message) : null, switched: !!cachedAccount()?.anonymous };
 }
 
-/** Signs in with the code from the email (works inside the home-screen app, unlike the link on iOS). */
+/**
+ * After a guest asks to attach an email: resolves once the link in the email
+ * has been tapped, wherever it opened (Safari included). The confirmation
+ * lands on the server, so this account just re-reads itself until the email
+ * is on it, then refreshes its session to become a registered account.
+ */
+export async function waitForEmailConfirmation(email: string, isCancelled: () => boolean): Promise<boolean> {
+  const wanted = email.trim().toLowerCase();
+  while (!isCancelled()) {
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+    if (document.hidden) continue;
+    // Signed in elsewhere in this browser (the link opened in another tab).
+    if (registered()) return true;
+    const { data } = await supabase.auth.getUser();
+    const user = data.user;
+    if (user && user.email?.toLowerCase() === wanted && !user.is_anonymous) {
+      await supabase.auth.refreshSession();
+      await refreshAccount();
+      return true;
+    }
+  }
+  return false;
+}
+
+/** Signs in with a code from the email (only when the email template includes one). */
 export async function verifyCode(email: string, code: string): Promise<string | null> {
   const { error } = await supabase.auth.verifyOtp({ email, token: code, type: pendingCodeType });
   if (error) return friendlyAuthError(error.message);

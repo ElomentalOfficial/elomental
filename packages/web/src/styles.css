@@ -716,6 +716,18 @@ html[data-nav='back'] .screen.setup {
 .signup .field-error:empty {
   display: none;
 }
+.signup .waiting {
+  font-family: var(--serif);
+  font-size: 15px;
+  text-align: center;
+  color: var(--accent);
+  animation: waiting 1.6s ease-in-out infinite;
+}
+@keyframes waiting {
+  50% {
+    opacity: 0.45;
+  }
+}
 .signup-done {
   font-family: var(--serif);
   font-size: 16px;

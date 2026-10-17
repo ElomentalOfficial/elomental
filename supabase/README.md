@@ -32,45 +32,36 @@ Clients never write to tables. Everything goes through these functions
 
 Migrations are in `migrations/` (already applied to the project).
 
-## Dashboard settings (do once)
+## Dashboard settings
 
-These settings can't be changed through the API, so set them by hand in the
-Supabase dashboard:
+Done (2026-10-17):
 
 1. **Authentication → URL Configuration**
    - Site URL: `https://barsmin.github.io/elomental/`
-   - Redirect URLs: add `https://barsmin.github.io/elomental/**` and `http://localhost:5173/**`
-2. **Authentication → Emails → Magic Link** template. Add the code so players
-   can type it into the home-screen app. On iPhone a link opens Safari, not
-   the installed app, so only the code signs in the installed app itself.
-   ```html
-   <h2>Your Elomental sign-in</h2>
-   <p>Enter this code in the app:</p>
-   <p style="font-size:28px;letter-spacing:6px"><strong>{{ .Token }}</strong></p>
-   <p>Or <a href="{{ .ConfirmationURL }}">tap here to sign in</a> on this device.</p>
-   ```
-3. **Authentication → Sign In / Providers → Email**: keep Email enabled. The
-   app only ever sends a code or link, so players never set a password.
-4. **Authentication → Sign In / Providers → Allow anonymous sign-ins: ON.**
-   Every guest then gets a hidden account on their first launch, so their
-   games are settled on the server from the start. Signing up with an email
-   later keeps all of their Stardust, Elo and Daily streak. When this is off,
-   guests play on a local profile and only save progress from sign-up onward.
-   Anonymous guests never appear on the leaderboard.
-5. **Authentication → Emails → Change Email Address** template. Signing up from
-   a guest account attaches the email to that account, and Supabase sends
-   this email for it. Add the code here too:
-   ```html
-   <h2>Confirm your Elomental account</h2>
-   <p>Enter this code in the app:</p>
-   <p style="font-size:28px;letter-spacing:6px"><strong>{{ .Token }}</strong></p>
-   <p>Or <a href="{{ .ConfirmationURL }}">tap here to confirm</a> on this device.</p>
-   ```
-   Also check **Authentication → Sign In / Providers → Email → Secure email
-   change** is OFF. A guest account has no old email to confirm.
-6. Later, before launch: **Authentication → Emails → SMTP**. Supabase's
-   built-in mailer only sends a few emails per hour, so set up your own SMTP
-   provider (for example Resend or Postmark).
+   - Redirect URLs: `https://barsmin.github.io/elomental/**` and `http://localhost:5173/**`
+2. **Authentication → Sign In / Providers → Allow anonymous sign-ins: ON.**
+   Every guest gets a hidden account on first launch, so their games are
+   settled on the server from the start. Signing up with an email later keeps
+   all of their Stardust, Elo and Daily streak. Anonymous guests never appear
+   on the leaderboard. Supabase recommends turning on a captcha for anonymous
+   sign-ins before launch.
+3. **Email provider → Secure email change: OFF.** A guest account has no old
+   email to confirm.
+
+How sign-up works with the default emails (link only): a guest enters an
+email, and Supabase sends a confirmation link. Tapping it confirms the email on
+the server, wherever it opens (Safari included). The app waits on screen and
+continues by itself once the account has the email.
+
+Still to do, before launch: **custom SMTP** (Authentication → Emails → SMTP
+Settings), for example Resend or Brevo.
+- Supabase's built-in mailer only sends a few emails per hour.
+- Email templates can't be edited without it.
+
+With custom SMTP, add the code (`{{ .Token }}`) to the **Magic link or OTP**
+and **Change email address** templates. One case needs a code: signing in to
+an *existing* account inside the installed iPhone app (for example on a new
+phone). A link opens Safari, so it signs in Safari, not the app.
 
 ## Not covered yet
 

@@ -1,10 +1,11 @@
-import { cachedAccount, sendSignInEmail, verifyCode } from './backend.ts';
+import { sendSignInEmail, waitForEmailConfirmation } from './backend.ts';
 import { h, toast } from './ui.ts';
 
 /**
- * Passwordless sign-up / sign-in: an email, then the code from the email (or
- * its link). The code matters on iPhone: a link opens Safari, not the
- * home-screen app, so only the code signs the app itself in.
+ * Passwordless sign-up / sign-in: an email, then the link from the email.
+ * A guest account gets the email attached on the server when the link is
+ * tapped (even if it opens in Safari, not the home-screen app), and this form
+ * notices and continues by itself.
  *
  * Used in Setup and at the bottom of every result pop-up for guests.
  */
@@ -79,35 +80,30 @@ export function signUpForm(options: {
       return;
     }
 
-    const code = field({ type: 'text', inputmode: 'numeric', autocomplete: 'one-time-code', maxlength: '10', placeholder: '123456', 'aria-label': 'Code from the email' });
-    const verify = h('button', { class: 'btn btn-primary', text: 'Confirm' });
-    verify.addEventListener('click', () =>
-      run(verify, async () => {
-        const token = code.value.replace(/\D/g, '');
-        if (token.length < 6) return void fail('Enter the code from the email');
-        if (!fail(await verifyCode(email, token))) return;
-        toast(cachedAccount()?.anonymous === false ? 'Signed in. Your progress is saved.' : 'Signed in');
-        options.onDone?.();
-      }),
-    );
+    // Link only: the app waits here and continues by itself once the link is tapped.
+    const waitingFor = ++attempt;
     const back = h('button', {
       class: 'link-btn',
       text: 'Use a different email',
       onclick: () => {
+        attempt++; // stops waiting for the old link
         step = 'email';
         paint();
       },
     });
     box.replaceChildren(
-      heading('Check your email', `We sent a code to ${email}. Type it here, or tap the link in the email.`),
+      heading('Check your email', `We sent a link to ${email}. Tap it to confirm. This screen continues by itself.`),
+      h('p', { class: 'waiting', text: 'Waiting for the link…' }),
       ...(switched ? [h('p', { class: 'note', text: "That email already has an account. Signing in switches to it; this guest's progress won't move over." })] : []),
-      code,
-      verify,
-      error,
       back,
     );
-    setTimeout(() => code.focus(), 50);
+    void waitForEmailConfirmation(email, () => attempt !== waitingFor || !box.isConnected).then((done) => {
+      if (!done || attempt !== waitingFor) return;
+      toast('Signed up. Your progress is saved.');
+      options.onDone?.();
+    });
   }
+  let attempt = 0;
 
   paint();
   return box;
