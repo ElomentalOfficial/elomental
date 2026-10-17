@@ -73,6 +73,7 @@ export function openModal(content: HTMLElement, options: { dismissible?: boolean
   const close = () => {
     openModals.delete(close);
     backdrop.remove();
+    syncScrimEdges();
   };
   if (options.dismissible !== false) {
     backdrop.addEventListener('click', (event) => {
@@ -81,7 +82,17 @@ export function openModal(content: HTMLElement, options: { dismissible?: boolean
   }
   openModals.add(close);
   document.body.append(backdrop);
+  syncScrimEdges();
   return close;
+}
+
+/**
+ * While a pop-up is open, the screen edges iOS paints itself (the status-bar
+ * blur at the top, the strip by the home indicator) take the dimmed colour
+ * instead of the bright page colour (styles.css, html.modal-open).
+ */
+function syncScrimEdges(): void {
+  document.documentElement.classList.toggle('modal-open', openModals.size > 0);
 }
 
 function closeAllModals(): void {

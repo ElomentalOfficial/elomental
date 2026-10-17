@@ -216,6 +216,32 @@ html.standalone #status-tint {
 html.standalone.welcome-active #status-tint {
   display: none;
 }
+/*
+ * Pop-up open: iOS paints the status-bar blur from #status-tint and the strip
+ * by the home indicator from the page background, outside anything we can
+ * cover. Both switch to the backdrop's own edge colours (the backdrop fades
+ * into exactly these), so the dimmed page runs edge to edge.
+ * Colours = the page colour under the backdrop's 20% (top) / 55% (bottom) shade.
+ */
+html {
+  --scrim-top: #222319;
+  --scrim-bottom: #1c1d18;
+}
+html[data-theme='light'] {
+  --scrim-top: #d0d0bb;
+  --scrim-bottom: #7e7e70;
+}
+html.modal-open,
+html.modal-open body {
+  background: var(--scrim-bottom);
+}
+html.modal-open #status-tint {
+  background: var(--scrim-top);
+}
+/* Fades with the backdrop instead of jumping ahead of it. */
+html.standalone:not(.welcome-active) #status-tint {
+  transition: background-color 0.18s ease;
+}
 /* Fill the fixed body (more reliable on iOS than 100dvh). */
 #app {
   position: relative;
@@ -902,16 +928,14 @@ html[data-nav='back'] .screen.setup {
 
 /* ---------- Modals & toasts ---------- */
 /*
- * Overscans the bottom by 30vh: iOS home-screen mode can paint below the
- * measured viewport (around the home indicator), which showed as an unblurred
- * strip. The extra bottom padding keeps the panel centred in the visible area.
+ * Absolute inside the fixed body, not fixed: in home-screen mode iOS stops
+ * fixed layers above the home indicator, but the body is stretched to the real
+ * bottom edge (viewport.ts), so the backdrop now covers the whole screen.
+ * Bottom padding keeps the panel centred in the visible area.
  */
 .backdrop {
-  --overscan: 30vh;
-  position: fixed;
+  position: absolute;
   inset: 0;
-  bottom: calc(-1 * var(--standalone-gap, 0px) - var(--overscan));
-  padding-bottom: calc(var(--gutter) + var(--standalone-gap, 0px) + var(--overscan)) !important;
   z-index: 10;
   /* Heavy blur smears the page behind into a soft colour field; the gradient deepens it toward the bottom. */
   background: linear-gradient(180deg, rgba(20, 21, 17, 0.2), rgba(20, 21, 17, 0.55));
@@ -920,8 +944,20 @@ html[data-nav='back'] .screen.setup {
   display: grid;
   place-items: center;
   padding: var(--gutter);
+  padding-bottom: calc(var(--gutter) + var(--standalone-gap, 0px));
   animation: fade 0.18s ease;
   touch-action: none;
+}
+/* Home-screen app: the very edges fade into the solid colours iOS paints
+   around them (html.modal-open), so there's no seam at either end. */
+html.standalone .backdrop {
+  background: linear-gradient(
+    180deg,
+    var(--scrim-top) 0,
+    rgba(20, 21, 17, 0.2) calc(var(--status-clear) + 24px),
+    rgba(20, 21, 17, 0.55) calc(100% - 90px),
+    var(--scrim-bottom) 100%
+  );
 }
 /* Narrower than the page so its edges never line up with the tiles behind it. */
 .modal {
