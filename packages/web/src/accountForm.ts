@@ -1,4 +1,4 @@
-import { sendSignInEmail, waitForEmailConfirmation } from './backend.ts';
+import { sendSignInEmail, waitForEmailConfirmation, waitForHandoff } from './backend.ts';
 import { h, toast } from './ui.ts';
 
 /**
@@ -71,6 +71,7 @@ export function signUpForm(options: {
           const result = await sendSignInEmail(email);
           if (!fail(result.error)) return;
           switched = !!result.switched;
+          handoffCode = result.handoffCode ?? null;
           step = 'code';
           paint();
         }),
@@ -91,19 +92,38 @@ export function signUpForm(options: {
         paint();
       },
     });
-    box.replaceChildren(
-      heading('Check your email', `We sent a link to ${email}. Tap it to confirm. This screen continues by itself.`),
-      h('p', { class: 'waiting', text: 'Waiting for the link…' }),
-      ...(switched ? [h('p', { class: 'note', text: "That email already has an account. Signing in switches to it; this guest's progress won't move over." })] : []),
-      back,
-    );
-    void waitForEmailConfirmation(email, () => attempt !== waitingFor || !box.isConnected).then((done) => {
-      if (!done || attempt !== waitingFor) return;
-      toast('Signed up. Your progress is saved.');
+    const cancelled = () => attempt !== waitingFor || !box.isConnected;
+    if (handoffCode) {
+      // Signing in to an existing account: the link's page asks to confirm this code.
+      box.replaceChildren(
+        heading('Check your email', `We sent a sign-in link to ${email}. Tap it, then confirm on the page that opens.`),
+        h('div', { class: 'match-code', attrs: { 'aria-label': `Matching code ${handoffCode}` } }, h('small', { text: 'Your code' }), h('strong', { text: handoffCode })),
+        h('p', { class: 'waiting', text: 'Waiting for you to confirm…' }),
+        ...(switched ? [h('p', { class: 'note', text: "That email already has an account. Signing in switches to it; this guest's progress won't move over." })] : []),
+        error,
+        back,
+      );
+    } else {
+      box.replaceChildren(
+        heading('Check your email', `We sent a link to ${email}. Tap it to confirm. This screen continues by itself.`),
+        h('p', { class: 'waiting', text: 'Waiting for the link…' }),
+        error,
+        back,
+      );
+    }
+    const wait = handoffCode ? waitForHandoff(cancelled) : waitForEmailConfirmation(email, cancelled);
+    void wait.then((done) => {
+      if (attempt !== waitingFor) return;
+      if (!done) {
+        if (box.isConnected) fail('The link expired. Ask for a new one.');
+        return;
+      }
+      toast(handoffCode ? 'Signed in.' : 'Signed up. Your progress is saved.');
       options.onDone?.();
     });
   }
   let attempt = 0;
+  let handoffCode: string | null = null;
 
   paint();
   return box;

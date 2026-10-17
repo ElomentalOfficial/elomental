@@ -58,10 +58,19 @@ Settings), for example Resend or Brevo.
 - Supabase's built-in mailer only sends a few emails per hour.
 - Email templates can't be edited without it.
 
-With custom SMTP, add the code (`{{ .Token }}`) to the **Magic link or OTP**
-and **Change email address** templates. One case needs a code: signing in to
-an *existing* account inside the installed iPhone app (for example on a new
-phone). A link opens Safari, so it signs in Safari, not the app.
+Signing in to an *existing* account from the installed iPhone app uses the
+`handoff` Edge Function (functions/handoff, migration signin_handoffs):
+1. The app starts a request (an id plus a secret it keeps) and the email link
+   carries the id.
+2. The page the link opens (Safari) asks "Sign in the app?" and shows a
+   two-digit code that matches the one in the app.
+3. Once confirmed, the app collects a one-time sign-in token with its secret.
+
+Requests last 10 minutes and work once.
+
+With custom SMTP, you could also add a typed code (`{{ .Token }}`) to the
+**Magic link or OTP** and **Change email address** templates, as a fallback
+to the hand-off.
 
 ## Not covered yet
 

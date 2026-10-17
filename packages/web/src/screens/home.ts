@@ -20,6 +20,7 @@ import {
   takeLinkFromUrl,
 } from '../clash.ts';
 import { clashTable, clashVerdict, shareButton } from '../clashView.ts';
+import { handleHandoffLink } from '../handoff.ts';
 import { fetchMyClashes, onAccountChange, refreshAccount, signedIn } from '../backend.ts';
 import { dailyScreen } from './daily.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
@@ -100,6 +101,7 @@ export function homeScreen(): Screen {
   const backward = navigatingBack();
   requestAnimationFrame(() => turnstileIn(grid, animated, backward));
   setTimeout(() => handleClashLink((go) => leave(casual, go)), 420);
+  setTimeout(() => void handleHandoffLink(), 420);
 
   return { el, destroy: stopProfile };
 }

@@ -748,6 +748,32 @@ html[data-nav='back'] .screen.setup {
     opacity: 0.45;
   }
 }
+/* The two-digit code both the app and the link's page show for a sign-in hand-off. */
+.match-code {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px;
+  border-radius: var(--radius);
+  background: var(--modal-bg);
+  border: 1px solid var(--modal-border);
+}
+.match-code small {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+.match-code strong {
+  font-family: var(--serif);
+  font-size: 36px;
+  letter-spacing: 0.15em;
+  color: var(--accent);
+}
+.handoff .match-code {
+  align-self: stretch;
+}
 .signup-done {
   font-family: var(--serif);
   font-size: 16px;
