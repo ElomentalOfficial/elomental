@@ -66,8 +66,8 @@ export function loadProfile(): Profile {
   const account = cachedAccount();
   if (account) {
     return {
-      guest: false,
-      name: account.name,
+      guest: account.anonymous,
+      name: account.anonymous ? 'Guest' : account.name,
       elo: account.elo,
       rankedGames: account.rankedGames,
       dust: account.stardust,

@@ -51,7 +51,24 @@ Supabase dashboard:
    ```
 3. **Authentication → Sign In / Providers → Email**: keep Email enabled. The
    app only ever sends a code or link, so players never set a password.
-4. Later, before launch: **Authentication → Emails → SMTP**. Supabase's
+4. **Authentication → Sign In / Providers → Allow anonymous sign-ins: ON.**
+   Every guest then gets a hidden account on their first launch, so their
+   games are settled on the server from the start. Signing up with an email
+   later keeps all of their Stardust, Elo and Daily streak. When this is off,
+   guests play on a local profile and only save progress from sign-up onward.
+   Anonymous guests never appear on the leaderboard.
+5. **Authentication → Emails → Change Email Address** template. Signing up from
+   a guest account attaches the email to that account, and Supabase sends
+   this email for it. Add the code here too:
+   ```html
+   <h2>Confirm your Elomental account</h2>
+   <p>Enter this code in the app:</p>
+   <p style="font-size:28px;letter-spacing:6px"><strong>{{ .Token }}</strong></p>
+   <p>Or <a href="{{ .ConfirmationURL }}">tap here to confirm</a> on this device.</p>
+   ```
+   Also check **Authentication → Sign In / Providers → Email → Secure email
+   change** is OFF. A guest account has no old email to confirm.
+6. Later, before launch: **Authentication → Emails → SMTP**. Supabase's
    built-in mailer only sends a few emails per hour, so set up your own SMTP
    provider (for example Resend or Postmark).
 
@@ -63,5 +80,6 @@ Supabase dashboard:
   each move on the server.
 - Mistakes and hints are reported by the client. The server only caps them at
   3 each.
-- Guest progress (from before signing in) stays on the phone. It isn't moved
-  into the account, because the server can't verify it.
+- Local guest progress (from before this update, or while anonymous sign-ins
+  are off) stays on the phone. It isn't moved into an account, because the
+  server can't verify it.

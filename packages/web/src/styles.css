@@ -65,6 +65,7 @@
   --glass-divider: rgba(255, 255, 229, 0.2);
   --glass-hub: rgba(38, 39, 33, 0.35);
   --modal-bg: var(--c-highlight);
+  --modal-border: rgba(255, 255, 229, 0.12);
   --primary-bg: var(--accent);
   --primary-text: var(--on-accent);
   /* Colours taken from the Figma icon exports (eraser shade follows the accent). */
@@ -78,7 +79,9 @@
   color-scheme: light;
   --bg: var(--c-bright);
   --text: var(--c-crimson);
-  --accent: var(--c-forest);
+  /* Light theme is one family: crimson ink, terracotta highlights, beige surfaces
+     (Figma light game frame). Forest stays only on the Casual tile. */
+  --accent: var(--c-crimson);
   --on-accent: var(--c-bright);
   /* 0.6 was ~3.2:1 on the page; 0.8 clears 4.5:1 for small secondary text. */
   --muted: rgba(121, 67, 65, 0.8);
@@ -116,6 +119,7 @@
   --glass-divider: rgba(121, 67, 65, 0.16);
   --glass-hub: rgba(255, 255, 229, 0.55);
   --modal-bg: var(--c-bright);
+  --modal-border: rgba(121, 67, 65, 0.18);
   --primary-bg: var(--accent);
   --primary-text: var(--c-bright);
   --separator: #e8e8cc;
@@ -170,8 +174,10 @@ body {
 html.standalone {
   --status-clear: max(env(safe-area-inset-top), 60px);
 }
+/* iOS 26 draws a soft blur below the status bar; content starts under it,
+   where the blur only has the plain page colour to soften. */
 html.standalone .screen:not(.welcome) {
-  padding-top: calc(var(--status-clear) + 16px);
+  padding-top: calc(var(--status-clear) + 30px);
 }
 /* Literal page colours (not variables), for iOS's status-area sampling. */
 html,
@@ -205,7 +211,7 @@ html[data-theme='light'] #status-tint {
 }
 html.standalone #status-tint {
   z-index: 5;
-  height: calc(var(--status-clear) + 12px);
+  height: calc(var(--status-clear) + 26px);
 }
 html.standalone.welcome-active #status-tint {
   display: none;
@@ -313,6 +319,12 @@ html[data-nav='back'] .screen.setup {
 .btn-primary {
   background: var(--primary-bg);
   color: var(--primary-text);
+}
+/* Secondary call to action that shouldn't compete with the main button. */
+.btn-outline {
+  background: transparent;
+  color: var(--accent);
+  box-shadow: inset 0 0 0 1.5px var(--accent);
 }
 .icon-btn {
   width: 44px;
@@ -643,6 +655,47 @@ html[data-nav='back'] .screen.setup {
   font-size: 15px;
   color: var(--muted);
 }
+/* Sign-up box: Setup, and the end of every result pop-up for guests. */
+.signup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.result .signup {
+  padding: 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--modal-border);
+  background: var(--surface-2);
+}
+.result .signup .text-field {
+  background: var(--modal-bg);
+}
+.signup-head h3 {
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.signup-head p {
+  margin-top: 4px;
+  font-family: var(--serif);
+  font-size: 15px;
+  line-height: 1.35;
+  color: var(--muted);
+}
+.signup .field-error {
+  color: var(--accent);
+  font-family: var(--serif);
+  font-size: 14px;
+}
+.signup .field-error:empty {
+  display: none;
+}
+.signup-done {
+  font-family: var(--serif);
+  font-size: 16px;
+  text-align: center;
+  color: var(--accent);
+}
 /* Account: email and code fields (selectable, ≥16px so iOS doesn't zoom). */
 .setting.account {
   gap: 10px;
@@ -876,6 +929,8 @@ html[data-nav='back'] .screen.setup {
   width: 100%;
   max-width: min(340px, calc(100vw - 64px));
   border-radius: 10px;
+  /* A hairline edge so the panel never melts into the blurred page behind it. */
+  border: 1px solid var(--modal-border);
   background: var(--modal-bg);
   color: var(--text);
   padding: 34px 24px 26px;
@@ -1574,9 +1629,6 @@ html.standalone .toast {
   margin-top: auto;
   padding: 0 4px;
 }
-.controls .separator {
-  margin: 0 calc(-4px - var(--gutter)) 6px;
-}
 .pad {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -1895,6 +1947,7 @@ html.standalone .toast {
   width: min(340px, calc(100vw - 48px));
   padding: 18px 20px 16px;
   border-radius: 10px;
+  border: 1px solid var(--modal-border);
   background: var(--modal-bg);
   color: var(--text);
   box-shadow: 0 12px 34px rgba(0, 0, 0, 0.3);

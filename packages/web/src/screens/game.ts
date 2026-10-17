@@ -27,7 +27,8 @@ import { readJson, removeKey, writeJson } from '../storage.ts';
 import { explainHint, type Marks } from '../explain.ts';
 import { formatSeconds, getClash, saveClash, type ClashResult } from '../clash.ts';
 import { clashTable, clashVerdict, shareButton } from '../clashView.ts';
-import { GameRefused, fetchClash, finishServerGame, signedIn, startServerGame, type ServerStart } from '../backend.ts';
+import { GameRefused, fetchClash, finishServerGame, registered, signedIn, startServerGame, type ServerStart } from '../backend.ts';
+import { signUpForm } from '../accountForm.ts';
 import { runHintCoach } from '../hintCoach.ts';
 import { markTutorialDone, runTutorial, tutorialDone, type TutorialStep } from '../tutorial.ts';
 import { formatTime, goBack, h, mount, openModal, toast, type Screen } from '../ui.ts';
@@ -247,7 +248,6 @@ function gameScreen(game: SavedGame): Screen {
     h(
       'div',
       { class: 'controls' },
-      h('div', { class: 'separator', html: ICONS.separator }),
       pad,
       h('div', { class: 'actions-row' }, hintButton, undoButton),
     ),
@@ -589,6 +589,7 @@ function gameScreen(game: SavedGame): Screen {
         }),
         clashTable(code, mine, theirs),
         rewards.childElementCount ? rewards : null,
+        signupPrompt(),
         h(
           'div',
           { class: 'actions' },
@@ -651,6 +652,7 @@ function gameScreen(game: SavedGame): Screen {
         h('h2', { class: won ? 'good' : '', text: titles[reason] }),
         h('div', { class: 'stats' }, ...rows),
         rewards.childElementCount ? rewards : null,
+        signupPrompt(),
         h('div', { class: 'actions' }, again, h('button', { class: 'btn', text: 'Home', onclick: () => void goBack(homeScreen) })),
       ),
       { dismissible: false },
@@ -895,6 +897,25 @@ function gameScreen(game: SavedGame): Screen {
       document.removeEventListener('visibilitychange', onHide);
     },
   };
+}
+
+/**
+ * Guests only: a sign-up box at the end of every result. A guest account
+ * (anonymous) keeps everything it earned when an email is added; a local
+ * guest saves from the next game on.
+ */
+function signupPrompt(): HTMLElement | null {
+  if (registered()) return null;
+  const keeps = signedIn(); // anonymous account: this game is already on the server
+  const box = signUpForm({
+    collapsed: true,
+    title: keeps ? 'Keep your rewards' : 'Save your progress',
+    text: keeps
+      ? 'Sign up with just your email, no password. Your Stardust, Elo and monthly Daily streak stay yours, on any device.'
+      : 'Sign up with just your email, no password, so your Stardust, Elo and monthly Daily streak are saved from now on.',
+    onDone: () => box.replaceChildren(h('p', { class: 'signup-done', text: 'Signed up. Your progress is saved.' })),
+  });
+  return box;
 }
 
 function statRow(label: string, value: string, valueClass = ''): HTMLElement {

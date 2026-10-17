@@ -1,4 +1,5 @@
-import { cachedAccount, onAccountChange, refreshAccount, sendSignInEmail, setDisplayName, signOut, verifyCode } from '../backend.ts';
+import { signUpForm } from '../accountForm.ts';
+import { cachedAccount, onAccountChange, registered, setDisplayName, signOut } from '../backend.ts';
 import { ICONS } from '../icons.ts';
 import { getTheme, setTheme, type Theme } from '../theme.ts';
 import { resetTutorial } from '../tutorial.ts';
@@ -82,15 +83,9 @@ export function setupScreen(): Screen {
   return { el };
 }
 
-/**
- * Passwordless account: enter an email, then the code from the email (or tap
- * its link). The code matters on iPhone: a link opens Safari, not the
- * home-screen app, so only the code signs the app itself in.
- */
+/** Registered: name and sign-out. Guest: the passwordless sign-up form. */
 function accountSection(): HTMLElement {
   const section = h('section', { class: 'setting account' });
-  let email = '';
-  let step: 'email' | 'code' = 'email';
   let busy = false;
 
   const field = (attrs: Record<string, string>) => h('input', { class: 'text-field', attrs: { autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', ...attrs } });
@@ -114,7 +109,7 @@ function accountSection(): HTMLElement {
   function paint() {
     const account = cachedAccount();
     error.textContent = '';
-    if (account) {
+    if (account && !account.anonymous) {
       const name = field({ type: 'text', maxlength: '20', 'aria-label': 'Player name', value: account.name });
       const save = h('button', { class: 'btn', text: 'Save name' });
       save.addEventListener('click', () =>
@@ -136,63 +131,24 @@ function accountSection(): HTMLElement {
       return;
     }
 
-    if (step === 'email') {
-      const input = field({ type: 'email', inputmode: 'email', autocomplete: 'email', placeholder: 'you@example.com', 'aria-label': 'Email' });
-      input.value = email;
-      const send = h('button', { class: 'btn btn-primary', text: 'Email me a sign-in code' });
-      send.addEventListener('click', () =>
-        run(send, async () => {
-          email = input.value.trim();
-          if (!/^\S+@\S+\.\S+$/.test(email)) return void fail('Enter your email address');
-          if (!fail(await sendSignInEmail(email))) return;
-          step = 'code';
-          paint();
-        }),
-      );
-      section.replaceChildren(
-        h(
-          'div',
-          {},
-          h('h2', { text: 'Account' }),
-          h('p', { text: 'Sign in with just your email, no password. Your Elo, Stardust and Clash results are saved and checked on the server.' }),
-        ),
-        input,
-        send,
-        error,
-      );
-      return;
-    }
-
-    const code = field({ type: 'text', inputmode: 'numeric', autocomplete: 'one-time-code', maxlength: '10', placeholder: '123456', 'aria-label': 'Sign-in code' });
-    const verify = h('button', { class: 'btn btn-primary', text: 'Sign in' });
-    verify.addEventListener('click', () =>
-      run(verify, async () => {
-        const token = code.value.replace(/\D/g, '');
-        if (token.length < 6) return void fail('Enter the code from the email');
-        if (!fail(await verifyCode(email, token))) return;
-        await refreshAccount();
-        toast('Signed in');
+    section.replaceChildren(
+      signUpForm({
+        title: 'Account',
+        text: account?.anonymous
+          ? 'Playing as a guest. Sign up with just your email (no password) to keep your Elo, Stardust and Daily streak on any device.'
+          : 'Sign in with just your email, no password. Your Elo, Stardust and Clash results are saved and checked on the server.',
       }),
     );
-    const back = h('button', { class: 'link-btn', text: 'Use a different email' });
-    back.addEventListener('click', () => {
-      step = 'email';
-      paint();
-    });
-    section.replaceChildren(
-      h('div', {}, h('h2', { text: 'Check your email' }), h('p', { text: `We sent a code to ${email}. Type it here, or tap the link in the email.` })),
-      code,
-      verify,
-      error,
-      back,
-    );
-    setTimeout(() => code.focus(), 50);
   }
 
+  // Repaint only when the account kind changes, so a background refresh
+  // never throws away a half-typed email or code.
+  let shown = registered();
   paint();
   const stop = onAccountChange(() => {
     if (!section.isConnected) return stop();
-    step = 'email';
+    if (registered() === shown) return;
+    shown = registered();
     paint();
   });
   return section;

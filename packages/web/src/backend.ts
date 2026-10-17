@@ -10,7 +10,10 @@ import { readJson, removeKey, writeJson } from './storage.ts';
  * start_game / finish_game, which pick the seed, keep the clock, check the
  * grid and pay out Stardust and Elo (supabase/migrations).
  *
- * Guests (signed out) keep playing on the local prototype profile.
+ * Guests get an anonymous account on first launch (when the project allows
+ * anonymous sign-ins), so their games are server-settled from the start and
+ * signing up with an email keeps every reward. Without one (offline, or
+ * anonymous sign-ins off) they play on the local prototype profile.
  */
 
 // Public by design: the publishable key only reaches what RLS and the grants allow.
@@ -32,6 +35,8 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
 // kept locally and refreshed in the background.
 
 export interface Account {
+  /** A guest account: no email yet; signing up keeps its progress. */
+  anonymous: boolean;
   email: string;
   name: string;
   elo: number;
@@ -45,7 +50,13 @@ export interface Account {
 const ACCOUNT_KEY = 'elomental:account';
 
 export const cachedAccount = (): Account | null => readJson<Account>(ACCOUNT_KEY);
+/** Games go through the server (an email account or an anonymous guest account). */
 export const signedIn = (): boolean => cachedAccount() !== null;
+/** Has a real (email) account; guests and anonymous accounts don't. */
+export const registered = (): boolean => {
+  const account = cachedAccount();
+  return !!account && !account.anonymous;
+};
 
 const listeners = new Set<() => void>();
 /** Called whenever the account (or signed-in state) changes. */
@@ -71,6 +82,7 @@ export async function refreshAccount(session?: Session | null): Promise<Account 
   ]);
   if (error || !profile) return cachedAccount();
   const account: Account = {
+    anonymous: !!s.user.is_anonymous,
     email: s.user.email ?? '',
     name: profile.display_name,
     elo: profile.elo,
@@ -90,34 +102,65 @@ export function initBackend(): void {
     if (event === 'SIGNED_OUT') {
       removeKey(ACCOUNT_KEY);
       notify();
-    } else if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+    } else if (event === 'INITIAL_SESSION' && !session) {
+      // First launch (or after signing out): become an anonymous guest account.
+      setTimeout(() => void startGuestAccount(), 0);
+    } else if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'USER_UPDATED') {
       // Outside the callback: supabase-js must not be awaited from inside it.
       setTimeout(() => void refreshAccount(session), 0);
     }
   });
 }
 
+/** Anonymous account for a guest; quietly stays a local guest if that's off or offline. */
+async function startGuestAccount(): Promise<void> {
+  const { error } = await supabase.auth.signInAnonymously();
+  if (error) console.info('Playing as a local guest:', error.message);
+}
+
 // --- Sign-in: email code or magic link -----------------------------------------
 
-/** Emails a one-time code and a magic link. Creates the account on first use. */
-export async function sendSignInEmail(email: string): Promise<string | null> {
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: { shouldCreateUser: true, emailRedirectTo: `${location.origin}${location.pathname}` },
-  });
-  return error ? friendlyAuthError(error.message) : null;
+/**
+ * How the pending code will be checked: 'email' signs in (or creates) an
+ * account; 'email_change' attaches the email to the current anonymous guest
+ * account, which keeps all of its progress.
+ */
+let pendingCodeType: 'email' | 'email_change' = 'email';
+
+/**
+ * Emails a one-time code and a magic link. A guest account is upgraded in
+ * place; an email that already has an account signs into that account instead
+ * (`switched`, and the guest's progress stays behind).
+ */
+export async function sendSignInEmail(email: string): Promise<{ error: string | null; switched?: boolean }> {
+  const redirect = `${location.origin}${location.pathname}`;
+  if (cachedAccount()?.anonymous) {
+    const { error } = await supabase.auth.updateUser({ email }, { emailRedirectTo: redirect });
+    if (!error) {
+      pendingCodeType = 'email_change';
+      return { error: null };
+    }
+    if (!/already|registered|exists/i.test(error.message)) return { error: friendlyAuthError(error.message) };
+  }
+  const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true, emailRedirectTo: redirect } });
+  pendingCodeType = 'email';
+  return { error: error ? friendlyAuthError(error.message) : null, switched: !!cachedAccount()?.anonymous };
 }
 
 /** Signs in with the code from the email (works inside the home-screen app, unlike the link on iOS). */
 export async function verifyCode(email: string, code: string): Promise<string | null> {
-  const { error } = await supabase.auth.verifyOtp({ email, token: code, type: 'email' });
-  return error ? friendlyAuthError(error.message) : null;
+  const { error } = await supabase.auth.verifyOtp({ email, token: code, type: pendingCodeType });
+  if (error) return friendlyAuthError(error.message);
+  await refreshAccount();
+  return null;
 }
 
 export async function signOut(): Promise<void> {
   await supabase.auth.signOut();
   removeKey(ACCOUNT_KEY);
   notify();
+  // Back to a fresh guest account, so play keeps going through the server.
+  void startGuestAccount();
 }
 
 export async function setDisplayName(name: string): Promise<string | null> {
