@@ -1,3 +1,5 @@
+import { RIBBON_PATH as RIBBON } from './ribbon.ts';
+
 /**
  * The welcome ribbon peeling away like a piece of fabric.
  *
@@ -10,9 +12,6 @@
  * bends continuously instead of moving as one rigid piece.
  */
 
-/** Ribbon outline in the welcome frame's 390×844 units (same as welcome.ts). */
-const RIBBON =
-  'M42 0H347V152L336 196L347 188V740L291 694L300 688L253 664L244 630L236 678L178 653L126 630L170 657L49 723L42 718V388L54 386L42 366Z';
 const RIBBON_TOP = 0;
 const RIBBON_BOTTOM = 740;
 const FRONT = '#b1613c'; // Figma Lava
@@ -66,7 +65,7 @@ export function createPeel(art: SVGSVGElement): { canvas: HTMLCanvasElement; dra
     ctx.fillStyle = FRONT;
     ctx.fill(path);
     ctx.fillStyle = '#ffffe5';
-    ctx.font = '400 62px Fraunces, Georgia, serif';
+    ctx.font = '400 62px Federo, Georgia, serif';
     ctx.textAlign = 'center';
     for (const [ch, x, y] of LETTERS) ctx.fillText(ch, x, y);
   });

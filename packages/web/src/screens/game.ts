@@ -24,6 +24,7 @@ import {
 } from '../profile.ts';
 import { requestPuzzle } from '../puzzles.ts';
 import { openNotesWheel, type NotesWheel } from '../radial.ts';
+import { RIBBON_BOX, RIBBON_PATH } from '../ribbon.ts';
 import { notesWheelOn } from '../settings.ts';
 import { readJson, removeKey, writeJson } from '../storage.ts';
 import { explainHint, type Marks } from '../explain.ts';
@@ -272,9 +273,27 @@ function gameScreen(game: SavedGame): Screen {
     ? null
     : h('button', { class: 'action notes-toggle', html: `${ICONS.pencil}<span>Notes</span>`, attrs: { 'aria-pressed': 'false' } });
 
+  // The splash ribbon hanging over the controls; only the wide layouts show it (styles.css).
+  // Its outline is anchored at the bottom, so the torn tail always shows and
+  // the top runs off the edge of the screen.
+  const brand = h(
+    'div',
+    { class: 'brand-banner', attrs: { 'aria-hidden': 'true' } },
+    h('span', {
+      class: 'brand-ribbon',
+      html:
+        `<svg viewBox="${RIBBON_BOX.x} 0 ${RIBBON_BOX.width} ${RIBBON_BOX.height}" preserveAspectRatio="xMidYMax slice">` +
+        `<path d="${RIBBON_PATH}"/></svg>`,
+    }),
+    h('span', { text: 'ELO' }),
+    h('span', { text: 'MEN' }),
+    h('span', { text: 'TAL' }),
+  );
+
   const el = h(
     'div',
     { class: `screen game mode-${config.mode}` },
+    brand,
     h('div', { class: 'topbar' }, leftButton, timer, pauseButton),
     h('div', { class: 'separator', html: ICONS.separator }),
     status,

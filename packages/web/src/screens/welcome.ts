@@ -1,4 +1,5 @@
 import { peelRibbon } from '../fabric.ts';
+import { RIBBON_PATH } from '../ribbon.ts';
 import { applyTheme } from '../theme.ts';
 import { h, mount, type Screen } from '../ui.ts';
 import { homeScreen } from './home.ts';
@@ -10,8 +11,7 @@ import { homeScreen } from './home.ts';
  * turning in behind it. Drawn in the frame's own 390×844 coordinates so it
  * scales to any phone. A tap skips straight to the flip.
  */
-const RIBBON =
-  'M42 0H347V152L336 196L347 188V740L291 694L300 688L253 664L244 630L236 678L178 653L126 630L170 657L49 723L42 718V388L54 386L42 366Z';
+const RIBBON = RIBBON_PATH;
 
 const LETTERS: { ch: string; x: number; y: number }[] = [
   { ch: 'E', x: 134, y: 278 },

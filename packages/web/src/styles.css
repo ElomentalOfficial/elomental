@@ -12,7 +12,7 @@
   --c-crimson: #794341;
 
   --font: 'Montserrat', system-ui, sans-serif;
-  --serif: 'Fraunces', Georgia, serif;
+  --serif: 'Federo', Georgia, serif;
   --gutter: 12px;
   --radius: 6px;
 }
@@ -60,6 +60,8 @@
   --action-text: var(--c-bright);
   --notes-on-bg: var(--c-lava);
   --notes-on-text: var(--c-bright);
+  /* Background lines: barely there. */
+  --wave-color: rgba(232, 232, 206, 0.045);
   --wheel-bg: var(--c-second-bright);
   --wheel-text: var(--c-bg);
   --wheel-on: var(--accent);
@@ -118,6 +120,7 @@
   --action-text: var(--c-crimson);
   --notes-on-bg: var(--c-forest);
   --notes-on-text: var(--c-bright);
+  --wave-color: rgba(121, 67, 65, 0.06);
   --wheel-bg: var(--c-crimson);
   --wheel-text: var(--c-bright);
   --wheel-on: var(--accent);
@@ -274,6 +277,21 @@ html.standalone:not(.welcome-active) #status-tint {
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
+}
+/*
+ * Faint flowing lines behind every screen (waves.ts draws them). A mask, so
+ * the theme sets their colour; z-index -1 keeps them under the content but
+ * over #app's own background (#app is its own stacking context).
+ */
+#app::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--wave-color);
+  -webkit-mask: var(--waves) center / cover no-repeat;
+  mask: var(--waves) center / cover no-repeat;
 }
 button {
   font: inherit;
@@ -561,7 +579,7 @@ html[data-nav='back'] .screen.setup {
   height: 36px;
   flex: none;
 }
-/* Home buttons use the serif (Fraunces 400), like the rest of the app's labels. */
+/* Home buttons use the serif (Federo), like the rest of the app's labels. */
 .tile-label {
   font-family: var(--serif);
   font-weight: 400;
@@ -2371,5 +2389,281 @@ html.standalone .toast {
     animation-duration: 0.01ms !important;
     animation-delay: 0ms !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- Wide layouts (tablet landscape, desktop) ----------
+ *
+ * Phones keep the column above. On a wide screen the game becomes one grid
+ * (Figma "Desktop" / "iPad Pro 11 - 2"): the board on the left with the
+ * mistakes, clock and puzzle type over it; on the right Concede and Pause,
+ * a 3×3 keypad, Erase with Notes, then Hint and Undo; and the ELO MEN TAL
+ * banner hanging from the top edge over the controls. Every size derives
+ * from --board (fluid with the window), so it scales as one piece.
+ */
+.brand-banner {
+  display: none;
+}
+/* Tablets upright: the phone layout, zoomed as one piece (scale.ts sets --ui-zoom). */
+.screen:not(.welcome),
+.backdrop > .modal,
+.toast {
+  zoom: var(--ui-zoom, 1);
+}
+@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+  /*
+   * Home, wide: the phone's pieces side by side. The profile card runs the
+   * full height on the left (Setup still in its notch); the tall Daily tile
+   * with Casual under it in the middle; Store and Leaderboard over a large
+   * Play Ranked on the right.
+   */
+  .screen.home {
+    --pad-y: clamp(24px, 5dvh, 64px);
+    max-width: none;
+    padding: var(--pad-y) clamp(24px, 5vw, 96px);
+    align-items: center;
+    justify-content: center;
+  }
+  .home-grid {
+    flex: none;
+    width: min(100%, 1240px, calc((100dvh - 2 * var(--pad-y)) * 1.72));
+    aspect-ratio: 1.72;
+    padding-top: 0;
+    gap: clamp(12px, 1.3vw, 20px);
+    grid-template-columns: 1.2fr 0.62fr 1fr;
+    grid-template-rows: 1fr 1fr 1.45fr;
+    grid-template-areas:
+      'profile daily store'
+      'profile daily leader'
+      'profile casual ranked';
+  }
+  .home-grid .tile-face,
+  .profile-main,
+  .profile-stats,
+  .tile-setup {
+    zoom: var(--wide-zoom, 1);
+  }
+  .profile-card {
+    padding: 28px 24px 24px;
+  }
+  .area-daily {
+    padding: 40px 12px 32px;
+  }
+  /* Corners grow with the tiles, by the same factor as their contents (the
+     Setup tile is zoomed, so its own corners already follow). */
+  .home-grid > .tile,
+  .profile-card {
+    border-radius: calc(var(--radius) * var(--wide-zoom, 1));
+  }
+  .setup-notch {
+    padding: 0 0 calc(12px * var(--wide-zoom, 1)) calc(12px * var(--wide-zoom, 1));
+    border-bottom-left-radius: calc(10px * var(--wide-zoom, 1));
+  }
+  .setup-notch::before,
+  .setup-notch::after {
+    --r: calc(10px * var(--wide-zoom, 1));
+    width: var(--r);
+    height: var(--r);
+    background: radial-gradient(circle at 0 100%, transparent calc(var(--r) - 0.5px), var(--bg) var(--r));
+  }
+  .setup-notch::before {
+    left: calc(-1 * var(--r));
+  }
+  .setup-notch::after {
+    bottom: calc(-1 * var(--r));
+  }
+  /* The other pages keep their phone column, a little larger. */
+  .screen.daily,
+  .screen.setup,
+  .screen.loading {
+    zoom: var(--wide-zoom, 1);
+  }
+
+  /* On the root so overlays outside the game (the hint card) can line up with it. */
+  :root {
+    --status-h: 44px;
+    --g: 6px;
+    --board: min(calc(100dvh - 240px), 50vw, 780px);
+    --split: clamp(28px, 3.5vw, 64px);
+    --side: clamp(220px, calc(var(--board) * 0.42), 340px);
+    --col: calc((var(--side) - 5 * var(--g)) / 6);
+    /* A digit key: two of the six columns, square. */
+    --key: calc(2 * var(--col) + var(--g));
+    --bar: calc(var(--key) * 0.6);
+    --total: calc(var(--board) + var(--split) + var(--side));
+    /* Left edge of the controls column, and the space above/below the centred game. */
+    --side-left: calc(50% - var(--total) / 2 + var(--board) + var(--split));
+    --game-margin: calc((100dvh - var(--status-h) - var(--g) - var(--board)) / 2);
+    /* From the top edge down to just above Concede. */
+    --banner-h: calc(var(--game-margin) + var(--status-h) + var(--g) + var(--side-room) + var(--g) - 14px);
+    /* The board's height left over above the controls, which sit level with its bottom edge. */
+    --side-room: calc(var(--board) - 2 * var(--bar) - 4.25 * var(--key) - 7 * var(--g));
+  }
+  /* The hint card sits over the lower controls, level with the board's bottom edge. */
+  .hint-card {
+    left: var(--side-left);
+    right: auto;
+    width: var(--side);
+    bottom: var(--game-margin);
+  }
+  .screen.game {
+    position: relative;
+    max-width: none;
+    padding: 0;
+    display: grid;
+    align-content: center;
+    justify-content: center;
+    gap: var(--g);
+    grid-template-columns: var(--board) calc(var(--split) - 2 * var(--g)) repeat(6, var(--col));
+    /* status | room for the banner | Concede | breathing room | 3 key rows | Erase+Notes | Hint+Undo,
+       so the controls end level with the board's bottom edge. */
+    grid-template-rows:
+      var(--status-h) var(--side-room) var(--bar) calc(var(--key) * 0.25) var(--key) var(--key) var(--key) var(--key)
+      var(--bar);
+  }
+  .game .topbar,
+  .game .status,
+  .game .controls,
+  .game .pad,
+  .game .actions-row {
+    display: contents;
+  }
+  .game .separator {
+    display: none;
+  }
+  /* Over the board: mistakes left, clock centred, puzzle type right. */
+  .game .mistakes,
+  .game .timer,
+  .game .puzzle-info {
+    grid-area: 1 / 1;
+    align-self: end;
+  }
+  .game .mistakes {
+    justify-self: start;
+    margin-bottom: 4px;
+  }
+  .game .timer {
+    justify-self: center;
+    font-size: 30px;
+    line-height: 1;
+  }
+  .game .puzzle-info {
+    justify-self: end;
+    font-size: 16px;
+    margin-bottom: 2px;
+  }
+  .game .skull {
+    width: 21px;
+    height: 20px;
+  }
+  .game .board-wrap {
+    grid-area: 2 / 1 / -1 / 2;
+    width: var(--board);
+    align-self: start;
+  }
+  .game .cell {
+    font-size: 5.4cqi;
+  }
+  /*
+   * Rounded corners keep the phone's proportions as everything grows: a
+   * square's 2px on a ~351px board, a key's 4px on a ~65px key, an action's
+   * 4px on ~57px, a bar button's 2px on 40px.
+   */
+  .game .cell {
+    border-radius: calc(var(--board) * 0.0057);
+  }
+  .game .pause-cover {
+    border-radius: calc(var(--board) * 0.017);
+  }
+  .game .key {
+    border-radius: calc(var(--key) * 0.062);
+  }
+  .game .action {
+    border-radius: calc(var(--bar) * 0.07);
+  }
+  .game .bar-btn {
+    border-radius: calc(var(--bar) * 0.05);
+  }
+  /* The side column. */
+  .game .topbar > .bar-btn:not(.bar-icon) {
+    grid-area: 3 / 3 / 4 / 7;
+  }
+  .game .topbar > .bar-icon {
+    grid-area: 3 / 7 / 4 / 9;
+    width: auto;
+    padding: calc(var(--bar) * 0.26);
+  }
+  .game .bar-btn {
+    height: auto;
+    font-size: calc(var(--bar) * 0.5);
+  }
+  .game .pad > :nth-child(1) { grid-area: 5 / 3 / 6 / 5; }
+  .game .pad > :nth-child(2) { grid-area: 5 / 5 / 6 / 7; }
+  .game .pad > :nth-child(3) { grid-area: 5 / 7 / 6 / 9; }
+  .game .pad > :nth-child(4) { grid-area: 6 / 3 / 7 / 5; }
+  .game .pad > :nth-child(5) { grid-area: 6 / 5 / 7 / 7; }
+  .game .pad > :nth-child(6) { grid-area: 6 / 7 / 7 / 9; }
+  .game .pad > :nth-child(7) { grid-area: 7 / 3 / 8 / 5; }
+  .game .pad > :nth-child(8) { grid-area: 7 / 5 / 8 / 7; }
+  .game .pad > :nth-child(9) { grid-area: 7 / 7 / 8 / 9; }
+  .game .key-erase { grid-area: 8 / 3 / 9 / 5; }
+  .game .notes-toggle { grid-area: 8 / 5 / 9 / 9; }
+  .game .actions-row > :nth-child(1) { grid-area: 9 / 3 / 10 / 6; }
+  .game .actions-row > :nth-child(2) { grid-area: 9 / 6 / 10 / 9; }
+  /* Without the Notes button, Erase takes the whole row. */
+  .game:not(:has(.notes-toggle)) .key-erase { grid-area: 8 / 3 / 9 / 9; }
+  .game .key {
+    height: auto;
+    font-size: calc(var(--key) * 0.42);
+  }
+  .game .key-erase svg {
+    width: calc(var(--key) * 0.42);
+    height: calc(var(--key) * 0.43);
+  }
+  .game .action {
+    height: auto;
+    gap: calc(var(--bar) * 0.16);
+    font-size: calc(var(--bar) * 0.4);
+  }
+  .game .action svg {
+    width: calc(var(--bar) * 0.34);
+    height: calc(var(--bar) * 0.34);
+  }
+  /*
+   * The splash ribbon, hanging from the top edge down to just above Concede.
+   * Its outline (game.ts) is pinned at the bottom, so the torn tail shows and
+   * the top runs off the screen; the wordmark sits just above the tail
+   * (the tail is (740 - 630) / 305 ≈ 0.36 of the ribbon's width).
+   */
+  .game .brand-banner {
+    --tail: calc(var(--side) * 0.36);
+    isolation: isolate;
+    position: absolute;
+    top: 0;
+    left: var(--side-left);
+    width: var(--side);
+    height: var(--banner-h);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    gap: calc(var(--side) * 0.025);
+    padding-bottom: calc(var(--tail) + var(--side) * 0.05);
+    color: var(--c-bright);
+    font-family: var(--serif);
+    /* Three lines above the tail must fit the hanging length. */
+    font-size: min(calc(var(--side) * 0.12), calc((var(--banner-h) - var(--tail)) / 3.8));
+    line-height: 1;
+    letter-spacing: 0.45em;
+    /* letter-spacing trails each line; this re-centres it. */
+    text-indent: 0.45em;
+  }
+  .game .brand-ribbon {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+  .game .brand-ribbon path {
+    fill: var(--c-lava);
   }
 }
