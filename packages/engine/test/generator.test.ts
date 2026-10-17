@@ -39,6 +39,35 @@ for (const difficulty of Object.keys(SAMPLES) as Difficulty[]) {
   });
 }
 
+const SINGLES = ['fullHouse', 'hiddenSingle', 'nakedSingle'];
+const PAIRS_TRIPLES = ['nakedPair', 'hiddenPair', 'nakedTriple', 'hiddenTriple'];
+const advanced = (counts: Record<string, number | undefined>) =>
+  Object.entries(counts).filter(([id]) => !SINGLES.includes(id));
+
+test('casual and daily profiles stay gentle', () => {
+  for (let i = 0; i < 4; i++) {
+    const easy = generatePuzzle({ difficulty: 'easy', profile: 'casualEasy', seed: `ce-${i}` });
+    assert.ok(easy.clues >= 38);
+    assert.equal(advanced(easy.counts).length, 0, 'casual easy is singles only');
+
+    const lean = generatePuzzle({ difficulty: 'easy', profile: 'singlesLean', seed: `sl-${i}` });
+    assert.ok(lean.clues >= 32);
+    assert.equal(advanced(lean.counts).length, 0, 'lean daily is singles only');
+
+    const medium = generatePuzzle({ difficulty: 'medium', profile: 'casualMedium', seed: `cm-${i}` });
+    const steps = advanced(medium.counts);
+    assert.ok(medium.clues >= 32);
+    assert.ok(steps.length > 0, 'casual medium needs at least one pointing/claiming step');
+    assert.ok(steps.every(([id]) => id === 'pointing' || id === 'claiming'), JSON.stringify(medium.counts));
+    assert.ok(steps.reduce((n, [, c]) => n + (c ?? 0), 0) <= 4);
+
+    const hard = generatePuzzle({ difficulty: 'hard', profile: 'casualHard', seed: `ch-${i}` });
+    assert.ok(hard.level === 2, 'casual hard never needs expert techniques');
+    assert.ok(advanced(hard.counts).some(([id]) => PAIRS_TRIPLES.includes(id)), 'casual hard needs a pair or triple');
+    assert.equal(countSolutions(parseGrid(hard.puzzle)), 1);
+  }
+});
+
 test('the same seed always produces the same puzzle', () => {
   const a = generatePuzzle({ difficulty: 'medium', seed: 'repeat' });
   const b = generatePuzzle({ difficulty: 'medium', seed: 'repeat' });

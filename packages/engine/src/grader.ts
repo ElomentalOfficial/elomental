@@ -10,6 +10,8 @@ import { TECHNIQUES, type SolverState, type Step, type TechniqueId, type Techniq
 export interface GradeOptions {
   /** Only use techniques up to this level. Defaults to 3 (all). */
   maxLevel?: TechniqueLevel;
+  /** Only use these techniques (on top of maxLevel). Defaults to all. */
+  techniques?: readonly TechniqueId[];
   /** Keep every step (for hints, replays and soundness tests). */
   recordSteps?: boolean;
 }
@@ -96,7 +98,8 @@ function estimateRating(hardestWeight: number, advancedEffort: number): number {
 
 export function grade(puzzle: Grid, options: GradeOptions = {}): GradeResult {
   const maxLevel = options.maxLevel ?? 3;
-  const techniques = TECHNIQUES.filter((t) => t.level <= maxLevel);
+  const allowed = options.techniques;
+  const techniques = TECHNIQUES.filter((t) => t.level <= maxLevel && (!allowed || allowed.includes(t.id)));
   const state = createSolverState(puzzle);
   const counts: Partial<Record<TechniqueId, number>> = {};
   const steps: Step[] = [];

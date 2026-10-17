@@ -10,7 +10,7 @@ import {
   type Difficulty,
 } from '@elomental/engine';
 import { ICONS } from '../icons.ts';
-import { HINT_ELO_PENALTY, PAR_MS, recordResult, type Mode, type Outcome } from '../profile.ts';
+import { HINT_ELO_PENALTY, PAR_MS, puzzleProfile, recordResult, type Mode, type Outcome } from '../profile.ts';
 import { requestPuzzle } from '../puzzles.ts';
 import { openNotesWheel, type NotesWheel } from '../radial.ts';
 import { readJson, removeKey, writeJson } from '../storage.ts';
@@ -97,7 +97,11 @@ export async function startGame(options: {
   }
   try {
     const difficulty = server?.difficulty ?? options.difficulty;
-    const p = await requestPuzzle({ difficulty, seed: server?.seed ?? options.seed });
+    const p = await requestPuzzle({
+      difficulty,
+      profile: puzzleProfile(options.mode, difficulty, options.dateKey),
+      seed: server?.seed ?? options.seed,
+    });
     const game: SavedGame = {
       config: {
         mode: options.mode,

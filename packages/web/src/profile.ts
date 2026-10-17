@@ -1,4 +1,4 @@
-import type { Difficulty } from '@elomental/engine';
+import type { Difficulty, ProfileId } from '@elomental/engine';
 import { cachedAccount } from './backend.ts';
 import { readJson, writeJson } from './storage.ts';
 
@@ -89,6 +89,25 @@ export function loadProfile(): Profile {
 
 export function saveProfile(profile: Profile): void {
   writeJson(KEY, profile);
+}
+
+/**
+ * Which puzzle shape a game gets. Casual, Clash and Daily are tuned to be
+ * enjoyable (no expert techniques); only Ranked keeps climbing.
+ *
+ * Daily follows a weekly rhythm, never harder than Casual Medium:
+ * Mon-Tue relaxed, Wed-Thu leaner (more scanning), Fri-Sun a few pointing steps.
+ */
+export function puzzleProfile(mode: Mode, difficulty: Difficulty, dateKey?: string): ProfileId {
+  if (mode === 'ranked') return difficulty;
+  if (mode === 'daily') {
+    const [y, m, d] = (dateKey ?? '').split('-').map(Number);
+    const weekday = dateKey ? new Date(y, m - 1, d).getDay() : 1; // 0 = Sunday
+    if (weekday === 1 || weekday === 2) return 'casualEasy';
+    if (weekday === 3 || weekday === 4) return 'singlesLean';
+    return 'casualMedium';
+  }
+  return difficulty === 'easy' ? 'casualEasy' : difficulty === 'medium' ? 'casualMedium' : 'casualHard';
 }
 
 /** Ranked puzzles get harder as the player's rating climbs. */
