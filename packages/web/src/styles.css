@@ -758,6 +758,52 @@ html[data-nav='back'] .screen.setup {
 .scrollable::-webkit-scrollbar {
   display: none;
 }
+/*
+ * Scrolling pages fade out at an edge while there's more past it (ui.ts
+ * watchEdges). A mask, not an overlay: the content turns transparent onto the
+ * page colour, so it's right in both themes. In the home-screen app the top
+ * band starts below the status bar; the bottom one ends above the home indicator.
+ */
+@property --fade-t {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --fade-b {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+.screen.scrollable {
+  --edge-t: 0px;
+  --edge-b: env(safe-area-inset-bottom, 0px);
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    transparent var(--edge-t),
+    #000 calc(var(--edge-t) + var(--fade-t)),
+    #000 calc(100% - var(--edge-b) - var(--fade-b)),
+    transparent calc(100% - var(--edge-b))
+  );
+  mask-image: linear-gradient(
+    180deg,
+    transparent var(--edge-t),
+    #000 calc(var(--edge-t) + var(--fade-t)),
+    #000 calc(100% - var(--edge-b) - var(--fade-b)),
+    transparent calc(100% - var(--edge-b))
+  );
+  transition:
+    --fade-t 0.25s ease,
+    --fade-b 0.25s ease;
+}
+html.standalone .screen.scrollable {
+  --edge-t: var(--status-clear);
+}
+.screen.scrollable.fade-top {
+  --fade-t: 40px;
+}
+.screen.scrollable.fade-bottom {
+  --fade-b: 56px;
+}
 .field-hint {
   font-size: 14px !important;
 }
@@ -791,7 +837,7 @@ html[data-nav='back'] .screen.setup {
   background: var(--surface-2);
 }
 .result .signup .text-field {
-  background: var(--modal-bg);
+  --field-bg: var(--modal-bg);
 }
 .signup-head h3 {
   font-size: 15px;
@@ -862,12 +908,13 @@ html[data-nav='back'] .screen.setup {
   gap: 10px;
 }
 .text-field {
+  --field-bg: var(--surface-2);
   width: 100%;
   min-height: 48px;
   padding: 0 14px;
   border: 0;
   border-radius: var(--radius);
-  background: var(--surface-2);
+  background: var(--field-bg);
   color: var(--text);
   font: 17px var(--serif);
   outline: none;
@@ -880,6 +927,20 @@ html[data-nav='back'] .screen.setup {
 }
 .text-field:focus {
   box-shadow: inset 0 0 0 2px var(--select);
+}
+/* An autofilled email gets the browser's pale yellow and black text; paint
+   the field's own colours back over it (the UA background can't be overridden,
+   so a full inset shadow covers it). */
+.text-field:-webkit-autofill {
+  -webkit-text-fill-color: var(--text);
+  caret-color: var(--text);
+  box-shadow: inset 0 0 0 100px var(--field-bg);
+  transition: background-color 9999s step-end;
+}
+.text-field:-webkit-autofill:focus {
+  box-shadow:
+    inset 0 0 0 2px var(--select),
+    inset 0 0 0 100px var(--field-bg);
 }
 .text-field::placeholder {
   color: var(--muted);

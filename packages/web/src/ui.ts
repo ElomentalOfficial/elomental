@@ -36,6 +36,24 @@ export function mount(screen: Screen): void {
   closeAllModals();
   current = screen;
   document.getElementById('app')!.replaceChildren(screen.el);
+  if (screen.el.classList.contains('scrollable')) watchEdges(screen.el);
+}
+
+/**
+ * A scrolling page fades out at an edge while more content lies past it
+ * (styles.css .fade-top / .fade-bottom), instead of cutting off hard.
+ */
+function watchEdges(area: HTMLElement): void {
+  const update = () => {
+    area.classList.toggle('fade-top', area.scrollTop > 1);
+    area.classList.toggle('fade-bottom', area.scrollTop + area.clientHeight < area.scrollHeight - 1);
+  };
+  area.addEventListener('scroll', update, { passive: true });
+  // Content can grow without the page resizing (the account form changing step).
+  const resize = new ResizeObserver(update);
+  resize.observe(area);
+  for (const child of area.children) resize.observe(child);
+  requestAnimationFrame(update);
 }
 
 /** True while a backward navigation is landing; screens use it to play their entry in reverse. */
