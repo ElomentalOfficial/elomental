@@ -659,8 +659,17 @@ function gameScreen(game: SavedGame): Screen {
     }
     if (outcome.crown) rewards.append(h('div', { class: 'reward rare', html: `${ICONS.crown}<span>Rare drop: Rusted Crown!</span>` }));
 
+    // A failed Daily can be retried (same square) until it's solved; only a solve marks the day.
+    const retryDaily = config.mode === 'daily' && !won;
+    if (retryDaily) rows.push(h('p', { class: 'note', text: 'Not solved yet: try today’s square again. The day counts once you solve it.' }));
     const again =
-      config.mode === 'daily'
+      retryDaily
+        ? h('button', {
+            class: 'btn btn-primary',
+            text: 'Try again',
+            onclick: () => void startGame({ mode: 'daily', difficulty: config.difficulty, seed: config.seed, dateKey: config.dateKey }),
+          })
+        : config.mode === 'daily'
         ? h('button', { class: 'btn btn-primary', text: 'Calendar', onclick: () => void goBack(dailyScreen) })
         : h('button', {
             class: 'btn btn-primary',
