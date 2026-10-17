@@ -12,7 +12,7 @@
   --c-crimson: #794341;
 
   --font: 'Montserrat', system-ui, sans-serif;
-  --serif: 'Marcellus', Georgia, serif;
+  --serif: 'Fraunces', Georgia, serif;
   --gutter: 12px;
   --radius: 6px;
 }
@@ -486,11 +486,13 @@ html[data-nav='back'] .screen.setup {
   height: 36px;
   flex: none;
 }
+/* Home buttons use the serif (Fraunces 400), like the rest of the app's labels. */
 .tile-label {
-  font-weight: 800;
-  font-size: 15px;
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 17px;
   line-height: 1.15;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 .area-daily {
   grid-area: daily;
@@ -509,7 +511,7 @@ html[data-nav='back'] .screen.setup {
   height: 35px;
 }
 .area-daily .tile-label {
-  font-size: 14px;
+  font-size: 15px;
 }
 .area-store,
 .area-leader {
@@ -594,7 +596,7 @@ html[data-nav='back'] .screen.setup {
   height: 34px;
 }
 .tile-setup .tile-label {
-  font-size: 13px;
+  font-size: 14px;
 }
 .profile-main {
   display: flex;
