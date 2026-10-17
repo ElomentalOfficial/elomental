@@ -84,11 +84,19 @@ to the hand-off.
 Ranked wins typed in from a solver are left unrated and flagged (Edge
 Function `audit-solve`, migrations `solve_audit*`).
 
-**In the app:** sign in with a founder account, then Setup → Review. Each
-flagged player shows why they were flagged, with buttons for "It was a
-mistake", a Ranked ban (30 days or until lifted) and "Lift ban". Only
-founders see the entry, and the server checks again (`admin_review` and
-`admin_moderate`, migration `admin_review`).
+**In the app:** sign in with a founder account, then Setup → Review. Three
+tabs:
+- **To review**: one row per player with flags still open, worst first, 25
+  at a time. Open a row for why and the buttons: "It was a mistake", a Ranked
+  ban (30 days or until lifted) and "Lift ban". A decided player leaves the
+  queue and the next row opens. "Again" marks a player decided on before.
+- **Banned**: everyone banned from Ranked right now.
+- **History**: every decision, newest first, with who made it.
+
+Only founders see the entry, and the server checks again
+(`admin_review_page` and `admin_moderate`, migrations `admin_review` and
+`review_log`). Every decision, from the app or the SQL helpers below, goes
+into `private.moderation_log`.
 
 **In Supabase:** open the Table Editor and switch the schema to **private**:
 

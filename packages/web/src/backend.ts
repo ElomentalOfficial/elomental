@@ -517,6 +517,8 @@ export interface ReviewGame {
   note: string | null;
 }
 
+export type ModerationAction = 'clear' | 'restrict' | 'lift';
+
 export interface ReviewPlayer {
   userId: string;
   name: string;
@@ -528,19 +530,42 @@ export interface ReviewPlayer {
   restrictedUntil: string | null;
   restrictionReason: string | null;
   toReview: number;
-  copied: number;
-  unchecked: number;
-  lastFlag: string;
+  /** Every flag the player has had, reviewed or not. */
+  flagged: number;
+  /** Earlier decisions about this player, and the latest one. */
+  decisions: number;
+  lastDecision: { action: ModerationAction; days: number | null; note: string | null; at: string } | null;
+  /** In the queue just the flags to review; otherwise the latest ones. Newest first. */
   games: ReviewGame[];
 }
 
-export async function fetchReview(): Promise<ReviewPlayer[]> {
-  const { data, error } = await supabase.rpc('admin_review');
-  if (error) throw new Error(error.message.includes('not_admin') ? 'Only founders can open the review.' : error.message);
-  return (data ?? []) as ReviewPlayer[];
+export interface ReviewDecision {
+  id: number;
+  at: string;
+  userId: string;
+  name: string;
+  action: ModerationAction;
+  days: number | null;
+  note: string | null;
+  /** How many flags it settled. */
+  flags: number;
+  /** The founder's name; null from the SQL Editor. */
+  by: string | null;
 }
 
-export type ModerationAction = 'clear' | 'restrict' | 'lift';
+/** 'open': flags to review, worst first; 'banned': banned from Ranked now; 'history': decisions, newest first. */
+export type ReviewView = 'open' | 'banned' | 'history';
+export interface ReviewPage<T> {
+  counts: Record<ReviewView, number>;
+  items: T[];
+}
+export const REVIEW_PAGE = 25;
+
+export async function fetchReviewPage(view: ReviewView, offset = 0, limit = REVIEW_PAGE): Promise<ReviewPage<ReviewPlayer | ReviewDecision>> {
+  const { data, error } = await supabase.rpc('admin_review_page', { p_view: view, p_limit: limit, p_offset: offset });
+  if (error) throw new Error(error.message.includes('not_admin') ? 'Only founders can open the review.' : 'Couldn’t load the review. Try again.');
+  return data as ReviewPage<ReviewPlayer | ReviewDecision>;
+}
 
 /** Clear a player's flags (a mistake), ban them from Ranked (for `days`, or until lifted), or lift the ban. */
 export async function moderate(userId: string, action: ModerationAction, days: number | null, note: string): Promise<string | null> {
