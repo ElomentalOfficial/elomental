@@ -23,7 +23,9 @@ const LETTERS = [
   ['T', 134, 428], ['A', 195, 428], ['L', 256, 428],
 ] as const;
 
-const DURATION_MS = 1600;
+const DURATION_MS = 1150;
+/** How much larger the cloth grows by the end of the peel (0.55 = 55%). */
+const EXPAND = 0.55;
 /** Source rows per slice (device pixels); small enough to look continuous. */
 const SLICE = 2;
 /** Distance from the eye to the screen, in CSS pixels. */
@@ -103,6 +105,8 @@ export function createPeel(art: SVGSVGElement): { canvas: HTMLCanvasElement; dra
       const away = easeIn(Math.max(0, (t - 0.7) / 0.3));
       const liftY = -away * canvas.height * 1.1;
       const liftZ = away * 160 * dpr;
+      // Starting at its own size, the cloth expands as it flips up and away.
+      const grow = 1 + EXPAND * easeInOutSine(t);
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       for (let s = 0; s < length; s += SLICE) {
@@ -133,9 +137,9 @@ export function createPeel(art: SVGSVGElement): { canvas: HTMLCanvasElement; dra
         const facingAway = a.angle > Math.PI / 2;
 
         // Perspective: rows lifted toward the eye grow and spread from the centre.
-        const scale = eye / (eye - a.z - liftZ);
+        const scale = (eye / (eye - a.z - liftZ)) * grow;
         const yTop = vy + (top + a.y + liftY - vy) * scale;
-        const yBottom = vy + (top + b.y + liftY - vy) * (eye / (eye - b.z - liftZ));
+        const yBottom = vy + (top + b.y + liftY - vy) * (eye / (eye - b.z - liftZ)) * grow;
         const destY = Math.min(yTop, yBottom);
         // Rows overlap by a pixel so no hairline of the page shows between them.
         const destH = Math.abs(yBottom - yTop) + dpr;
