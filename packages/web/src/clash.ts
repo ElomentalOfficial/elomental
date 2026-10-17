@@ -107,7 +107,7 @@ export function getClash(code: string): ClashRecord {
 
 export function saveClash(code: string, update: Partial<ClashRecord>): ClashRecord {
   const all = loadAll();
-  const next = { ...getClash(code), ...update, updated: Date.now() };
+  const next = { ...getClash(code), ...update, updated: update.updated ?? Date.now() };
   all[code] = next;
   writeJson(STORE_KEY, all);
   return next;

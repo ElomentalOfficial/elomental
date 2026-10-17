@@ -20,6 +20,7 @@ import {
   takeLinkFromUrl,
 } from '../clash.ts';
 import { clashTable, clashVerdict, shareButton } from '../clashView.ts';
+import { fetchMyClashes, onAccountChange, refreshAccount, signedIn } from '../backend.ts';
 import { dailyScreen } from './daily.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
 import { setupScreen } from './setup.ts';
@@ -52,6 +53,24 @@ export function homeScreen(): Screen {
   );
   enableTilt(setupTile);
 
+  const nameEl = h('strong', { class: 'profile-name' });
+  const rankEl = h('span', { class: 'profile-rank' });
+  const eloChip = stat('', 'Elo');
+  const dustChip = stat('', 'Stardust', ICONS.dust);
+  const crownChip = stat('', 'Crowns', ICONS.crown);
+  /** Signed in, the numbers come from the server cache and update when it refreshes. */
+  const paintProfile = () => {
+    const p = loadProfile();
+    nameEl.textContent = p.name;
+    rankEl.textContent = rankTitle(p.elo);
+    eloChip.querySelector('strong')!.textContent = String(p.elo);
+    dustChip.querySelector('strong')!.textContent = String(p.dust);
+    crownChip.querySelector('strong')!.textContent = String(p.crowns);
+  };
+  paintProfile();
+  const stopProfile = onAccountChange(paintProfile);
+  if (signedIn()) void refreshAccount();
+
   const profileCard = h(
     'section',
     { class: 'profile-card area-profile' },
@@ -59,16 +78,10 @@ export function homeScreen(): Screen {
       'div',
       { class: 'profile-main' },
       h('span', { class: 'avatar' }),
-      h('strong', { class: 'profile-name', text: 'Guest' }),
-      h('span', { class: 'profile-rank', text: rankTitle(profile.elo) }),
+      nameEl,
+      rankEl,
     ),
-    h(
-      'div',
-      { class: 'profile-stats' },
-      stat(String(profile.elo), 'Elo'),
-      stat(String(profile.dust), 'Stardust', ICONS.dust),
-      stat(String(profile.crowns), 'Crowns', ICONS.crown),
-    ),
+    h('div', { class: 'profile-stats' }, eloChip, dustChip, crownChip),
     h('div', { class: 'setup-notch' }, setupTile),
   );
   setupTile.addEventListener('click', () => leave(profileCard, () => mount(setupScreen())));
@@ -88,7 +101,7 @@ export function homeScreen(): Screen {
   requestAnimationFrame(() => turnstileIn(grid, animated, backward));
   setTimeout(() => handleClashLink((go) => leave(casual, go)), 420);
 
-  return { el };
+  return { el, destroy: stopProfile };
 }
 
 function stat(value: string, label: string, icon?: string): HTMLElement {
@@ -224,7 +237,7 @@ function openClash(leave: (go: () => void) => void, prefill = '') {
     h('div', { class: 'divider', text: 'or create one' }),
     picker,
     created,
-    listClashes().length
+    listClashes().length || signedIn()
       ? h('button', {
           class: 'btn clash-log-btn',
           text: 'Clash log',
@@ -312,11 +325,27 @@ const STATUS_LABEL: Record<ClashStatus, string> = {
   unplayed: 'Not played',
 };
 
+/** Signed in: copies every clash this account played (and the friends' results) from the server. */
+async function syncClashes(): Promise<void> {
+  if (!signedIn()) return;
+  const clashes = await fetchMyClashes();
+  if (!clashes) return;
+  for (const [code, { difficulty, updated, entries }] of clashes) {
+    saveClash(code, {
+      difficulty,
+      updated,
+      mine: entries.find((e) => e.isMe)?.result,
+      theirs: entries.find((e) => !e.isMe)?.result,
+    });
+  }
+}
+
 /**
  * Every clash on this device, newest first: who won, or what it is waiting
  * for. Tapping one opens its comparison (or starts it, if not played yet).
  */
-function openClashLog(leave: (go: () => void) => void) {
+async function openClashLog(leave: (go: () => void) => void) {
+  await syncClashes();
   const entries = listClashes().slice(0, 8);
   const row = ({ code, record }: (typeof entries)[number]) => {
     const status = statusOf(record);
@@ -343,8 +372,15 @@ function openClashLog(leave: (go: () => void) => void) {
       { class: 'sheet clash-log' },
       closeButton(() => close()),
       h('h2', { text: 'Clash log' }),
-      h('p', { class: 'note', text: 'You vs friend. A result appears once its link is opened on this phone.' }),
-      h('div', { class: 'log-list' }, ...entries.map(row)),
+      h('p', {
+        class: 'note',
+        text: signedIn()
+          ? "You vs friend. Results arrive on their own once your friend finishes (they need an account too)."
+          : 'You vs friend. A result appears once its link is opened on this phone. Sign in (Setup) to get results automatically.',
+      }),
+      entries.length
+        ? h('div', { class: 'log-list' }, ...entries.map(row))
+        : h('p', { class: 'note', text: 'No clashes yet. Create a code and send it to a friend.' }),
     ),
   );
 }
@@ -352,7 +388,8 @@ function openClashLog(leave: (go: () => void) => void) {
 const capitalize = (s: string) => s[0].toUpperCase() + s.slice(1);
 
 /** The comparison for a clash this device has already played. */
-function showClashRecord(code: string) {
+async function showClashRecord(code: string) {
+  await syncClashes();
   const record = getClash(code);
   if (!record.mine) return;
   const verdict = clashVerdict(record.mine, record.theirs);

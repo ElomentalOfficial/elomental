@@ -17,6 +17,7 @@ import { readJson, removeKey, writeJson } from '../storage.ts';
 import { explainHint, type Marks } from '../explain.ts';
 import { formatSeconds, getClash, saveClash, type ClashResult } from '../clash.ts';
 import { clashTable, clashVerdict, shareButton } from '../clashView.ts';
+import { GameRefused, fetchClash, finishServerGame, signedIn, startServerGame, type ServerStart } from '../backend.ts';
 import { runHintCoach } from '../hintCoach.ts';
 import { markTutorialDone, runTutorial, tutorialDone, type TutorialStep } from '../tutorial.ts';
 import { formatTime, goBack, h, mount, openModal, toast, type Screen } from '../ui.ts';
@@ -31,6 +32,8 @@ export interface GameConfig {
   rating: number;
   seed: string;
   dateKey?: string;
+  /** Signed-in games: the server's game id; the server settles the result. */
+  serverId?: string;
   /** Clash: the shared code, and the friend's result when it came in a link. */
   clash?: { code: string; theirs?: ClashResult | null };
 }
@@ -76,12 +79,30 @@ export async function startGame(options: {
   clash?: GameConfig['clash'];
 }) {
   mount(loadingScreen());
+  let server: ServerStart | undefined;
+  if (signedIn()) {
+    // Signed in: the server picks the seed (and Ranked's difficulty) and starts the clock.
+    try {
+      server = await startServerGame({
+        mode: options.mode,
+        difficulty: options.difficulty,
+        dateKey: options.dateKey,
+        clashCode: options.clash?.code,
+      });
+    } catch (error) {
+      console.error(error);
+      toast(error instanceof GameRefused ? error.message : 'No connection: games need the server while signed in');
+      return mount(options.mode === 'daily' ? dailyScreen() : homeScreen());
+    }
+  }
   try {
-    const p = await requestPuzzle({ difficulty: options.difficulty, seed: options.seed });
+    const difficulty = server?.difficulty ?? options.difficulty;
+    const p = await requestPuzzle({ difficulty, seed: server?.seed ?? options.seed });
     const game: SavedGame = {
       config: {
         mode: options.mode,
-        difficulty: options.difficulty,
+        difficulty,
+        serverId: server?.gameId,
         puzzle: p.puzzle,
         solution: p.solution,
         rating: p.rating,
@@ -476,33 +497,57 @@ function gameScreen(game: SavedGame): Screen {
     focusDigit = 0;
     render();
     el.classList.add(won ? 'won' : 'lost');
-    const outcome = recordResult({
-      mode: config.mode,
-      difficulty: config.difficulty,
-      rating: config.rating,
-      dateKey: config.dateKey,
+    // The result appears after the win animation, and never before the server has answered.
+    const shown = new Promise((resolve) => setTimeout(resolve, won ? 650 : 350));
+    void settle(won).then(async ({ outcome, notice }) => {
+      await shown;
+      if (clash) await showClash(won, outcome, notice);
+      else showResult(won, reason, outcome, notice);
+    });
+  }
+
+  /** Signed in: the server settles the game (and its clock wins). Guest: the local profile does. */
+  async function settle(won: boolean): Promise<{ outcome: Outcome; notice?: string }> {
+    if (!config.serverId) {
+      const outcome = recordResult({
+        mode: config.mode,
+        difficulty: config.difficulty,
+        rating: config.rating,
+        dateKey: config.dateKey,
+        won,
+        mistakes: game.mistakes,
+        hints: game.hints,
+        elapsedMs: game.elapsedMs,
+      });
+      return { outcome };
+    }
+    const result = await finishServerGame({
+      gameId: config.serverId,
       won,
       mistakes: game.mistakes,
       hints: game.hints,
-      elapsedMs: game.elapsedMs,
+      seconds: Math.floor(game.elapsedMs / 1000),
+      rating: config.rating,
+      grid: game.values.join(''),
     });
-    if (clash) {
-      const mine: ClashResult = {
-        solved: won,
-        seconds: Math.floor(game.elapsedMs / 1000),
-        mistakes: game.mistakes,
-        hints: game.hints,
-      };
-      // A result that arrived in a link wins over an older one stored here.
-      const theirs = clash.theirs ?? getClash(clash.code).theirs ?? null;
-      saveClash(clash.code, { mine, theirs: theirs ?? undefined });
-      setTimeout(() => showClashResult(clash.code, mine, theirs, outcome), won ? 650 : 350);
-      return;
-    }
-    setTimeout(() => showResult(won, reason, outcome), won ? 650 : 350);
+    if ('refused' in result) return { outcome: { dust: 0, crown: false }, notice: result.refused };
+    game.elapsedMs = result.seconds * 1000;
+    timer.textContent = formatTime(game.elapsedMs);
+    return { outcome: result.outcome };
   }
 
-  function showClashResult(code: string, mine: ClashResult, theirs: ClashResult | null, outcome: Outcome) {
+  async function showClash(won: boolean, outcome: Outcome, notice?: string) {
+    const code = clash!.code;
+    const mine: ClashResult = { solved: won, seconds: Math.floor(game.elapsedMs / 1000), mistakes: game.mistakes, hints: game.hints };
+    // Signed in, the friend's result comes from the server; otherwise from a link or this phone.
+    const entries = config.serverId ? await fetchClash(code) : null;
+    const fromServer = entries?.find((e) => !e.isMe)?.result;
+    const theirs = fromServer ?? clash!.theirs ?? getClash(code).theirs ?? null;
+    saveClash(code, { mine, theirs: theirs ?? undefined });
+    showClashResult(code, mine, theirs, outcome, notice, !!config.serverId);
+  }
+
+  function showClashResult(code: string, mine: ClashResult, theirs: ClashResult | null, outcome: Outcome, notice?: string, online = false) {
     const verdict = clashVerdict(mine, theirs);
     const rewards = h('div', { class: 'rewards' });
     if (outcome.dust) rewards.append(h('div', { class: 'reward' }, h('span', { html: ICONS.dust }), h('span', { text: `+${outcome.dust} Stardust` })));
@@ -512,11 +557,16 @@ function gameScreen(game: SavedGame): Screen {
         'div',
         { class: 'result clash-result' },
         h('h2', { class: verdict.tone, text: verdict.title }),
+        notice ? h('p', { class: 'note', text: notice }) : null,
         h('p', {
           class: 'note',
-          text: theirs
-            ? 'Send your result back so your friend sees who won too.'
-            : "Send your result to your friend. When their result link comes back, open it here and you'll see who won. Both results stay in the Clash log.",
+          text: online
+            ? theirs
+              ? 'Your friend sees this result too, in their Clash log.'
+              : "Send the code to your friend. When they finish, you'll both see who won in the Clash log."
+            : theirs
+              ? 'Send your result back so your friend sees who won too.'
+              : "Send your result to your friend. When their result link comes back, open it here and you'll see who won. Both results stay in the Clash log.",
         }),
         clashTable(code, mine, theirs),
         rewards.childElementCount ? rewards : null,
@@ -531,9 +581,10 @@ function gameScreen(game: SavedGame): Screen {
     );
   }
 
-  function showResult(won: boolean, reason: string, outcome: Outcome) {
+  function showResult(won: boolean, reason: string, outcome: Outcome, notice?: string) {
     const titles: Record<string, string> = { solved: 'Square Complete', mistakes: 'Three Strikes', concede: 'Conceded' };
     const rows: (HTMLElement | null)[] = [
+      notice ? h('p', { class: 'note', text: notice }) : null,
       statRow('Time', formatTime(game.elapsedMs)),
       statRow('Mistakes', `${game.mistakes} / ${MAX_MISTAKES}`),
     ];

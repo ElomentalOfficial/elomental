@@ -1,4 +1,5 @@
 import type { Difficulty } from '@elomental/engine';
+import { cachedAccount } from './backend.ts';
 import { readJson, writeJson } from './storage.ts';
 
 /**
@@ -12,6 +13,7 @@ export type Mode = 'casual' | 'daily' | 'ranked' | 'clash';
 
 export interface Profile {
   guest: boolean;
+  name: string;
   elo: number;
   rankedGames: number;
   dust: number;
@@ -57,9 +59,22 @@ export function speedBonus(elapsedMs: number, difficulty: Difficulty): number {
   return -0.25;
 }
 
+/** Signed in: the cached server profile (read-only here). Signed out: the local guest profile. */
 export function loadProfile(): Profile {
+  const account = cachedAccount();
+  if (account) {
+    return {
+      guest: false,
+      name: account.name,
+      elo: account.elo,
+      rankedGames: account.rankedGames,
+      dust: account.stardust,
+      crowns: account.crowns,
+      pity: 0,
+      daily: account.daily,
+    };
+  }
   return {
-    guest: false,
     elo: START_ELO,
     rankedGames: 0,
     dust: 0,
@@ -67,6 +82,8 @@ export function loadProfile(): Profile {
     pity: 0,
     daily: {},
     ...readJson<Partial<Profile>>(KEY),
+    guest: true,
+    name: 'Guest',
   };
 }
 
