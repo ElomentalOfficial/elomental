@@ -21,6 +21,20 @@ export interface TutorialStep {
   gesture?: 'tap' | 'hold-slide';
 }
 
+/**
+ * The area a target covers. A `display: contents` wrapper (the keypad in the
+ * desktop layout) has no box of its own, so it's the area its children cover.
+ */
+function areaOf(el: HTMLElement): DOMRect {
+  const r = el.getBoundingClientRect();
+  if (r.width || r.height) return r;
+  const parts = [...el.children].map((c) => c.getBoundingClientRect()).filter((c) => c.width || c.height);
+  if (!parts.length) return r;
+  const left = Math.min(...parts.map((p) => p.left));
+  const top = Math.min(...parts.map((p) => p.top));
+  return new DOMRect(left, top, Math.max(...parts.map((p) => p.right)) - left, Math.max(...parts.map((p) => p.bottom)) - top);
+}
+
 export function runTutorial(steps: TutorialStep[]): Promise<void> {
   return new Promise((resolve) => {
     let index = 0;
@@ -67,7 +81,7 @@ export function runTutorial(steps: TutorialStep[]): Promise<void> {
 
     const show = () => {
       const step = steps[index];
-      const r = step.target.getBoundingClientRect();
+      const r = areaOf(step.target);
       const pad = 6;
       Object.assign(spotlight.style, {
         left: `${r.left - pad}px`,
