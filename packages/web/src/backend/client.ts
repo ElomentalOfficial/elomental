@@ -16,3 +16,13 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
     flowType: 'implicit',
   },
 });
+
+/**
+ * Errors from the server functions carry a code in their message ("name_taken",
+ * "not_admin", ...). The player-facing text for the first code in `messages`
+ * that the error mentions, or undefined for an error that isn't one of them.
+ */
+export function knownError(error: { message: string }, messages: Record<string, string>): string | undefined {
+  const code = Object.keys(messages).find((key) => error.message.includes(key));
+  return code === undefined ? undefined : messages[code];
+}

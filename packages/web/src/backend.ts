@@ -6,6 +6,12 @@
  * anonymous sign-ins), so their games are server-settled from the start and
  * signing up with an email keeps every reward. Without one (offline, or
  * anonymous sign-ins off) they play on the local guest profile (profile.ts).
+ *
+ * Errors: a call the player waits on either returns the reason to show
+ * (`string | null`, null meaning it worked) or throws an Error whose message
+ * is the reason to show; each function's comment says which. Calls that run
+ * in the background (settings sync, square codes, clash results) quietly
+ * return null when the server can't be reached.
  */
 export * from './backend/account.ts';
 export * from './backend/signIn.ts';

@@ -1,4 +1,4 @@
-import { supabase } from './client.ts';
+import { knownError, supabase } from './client.ts';
 
 /**
  * Review dashboard calls (founders only). The server checks the caller is a
@@ -67,21 +67,28 @@ export interface ReviewPage<T> {
 }
 export const REVIEW_PAGE = 25;
 
+const NOT_ADMIN = { not_admin: 'Only founders can open the review.' };
+
+/** Throws with the reason to show. */
 export async function fetchReviewPage(view: ReviewView, offset = 0, limit = REVIEW_PAGE): Promise<ReviewPage<ReviewPlayer | ReviewDecision>> {
   const { data, error } = await supabase.rpc('admin_review_page', { p_view: view, p_limit: limit, p_offset: offset });
-  if (error) throw new Error(error.message.includes('not_admin') ? 'Only founders can open the review.' : 'Couldn’t load the review. Try again.');
+  if (error) throw new Error(knownError(error, NOT_ADMIN) ?? 'Couldn’t load the review. Try again.');
   return data as ReviewPage<ReviewPlayer | ReviewDecision>;
 }
 
-/** Players with a case whose name or email contains `query`, or whose account id it is; best matches first. */
+/** Players with a case whose name or email contains `query`, or whose account id it is; best matches first. Throws with the reason to show. */
 export async function searchReview(query: string): Promise<ReviewPlayer[]> {
   const { data, error } = await supabase.rpc('admin_search', { p_query: query });
-  if (error) throw new Error(error.message.includes('not_admin') ? 'Only founders can open the review.' : 'Couldn’t search. Try again.');
+  if (error) throw new Error(knownError(error, NOT_ADMIN) ?? 'Couldn’t search. Try again.');
   return (data ?? []) as ReviewPlayer[];
 }
 
-/** Clear a player's flags (a mistake), ban them from Ranked (for `days`, or until lifted), or lift the ban. */
+/**
+ * Clear a player's flags (a mistake), ban them from Ranked (for `days`, or
+ * until lifted), or lift the ban. Null when done, otherwise why not.
+ */
 export async function moderate(userId: string, action: ModerationAction, days: number | null, note: string): Promise<string | null> {
   const { error } = await supabase.rpc('admin_moderate', { p_user: userId, p_action: action, p_days: days, p_note: note });
-  return error ? (error.message.includes('not_admin') ? 'Only founders can do this.' : 'That didn’t work. Try again.') : null;
+  if (!error) return null;
+  return knownError(error, { not_admin: 'Only founders can do this.' }) ?? 'That didn’t work. Try again.';
 }

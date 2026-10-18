@@ -236,8 +236,8 @@ function openSquareCode(leave: (go: () => void) => void) {
       }
       close();
       leave(() => void startGame({ mode: 'casual', difficulty: square.difficulty, square: { givens: square.givens, code: square.code } }));
-    } catch {
-      status.textContent = 'No connection. Square codes need the internet.';
+    } catch (error) {
+      status.textContent = (error as Error).message;
     } finally {
       busy = false;
       if (play.isConnected) update(false);

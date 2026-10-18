@@ -1,7 +1,7 @@
 import type { Difficulty, Move } from '@elomental/engine';
 import type { Mode, Outcome } from '../profile.ts';
 import { refreshAccount } from './account.ts';
-import { supabase } from './client.ts';
+import { knownError, supabase } from './client.ts';
 
 /**
  * The server side of every signed-in game. The browser never writes
@@ -18,6 +18,7 @@ export interface ServerStart {
   resumed: boolean;
 }
 
+/** A game the server won't start, with the reason to show the player. */
 export class GameRefused extends Error {}
 
 const REFUSALS: Record<string, string> = {
@@ -29,6 +30,7 @@ const REFUSALS: Record<string, string> = {
   ranked_restricted: 'Ranked is paused for your account for now. Casual, Daily and Clash are open.',
 };
 
+/** Throws GameRefused (with the player-facing reason) or, for anything else, a plain Error. */
 export async function startServerGame(options: {
   mode: Mode;
   difficulty?: Difficulty;
@@ -42,8 +44,8 @@ export async function startServerGame(options: {
     p_clash_code: options.clashCode ?? null,
   });
   if (error) {
-    const key = Object.keys(REFUSALS).find((k) => error.message.includes(k));
-    throw key ? new GameRefused(REFUSALS[key]) : new Error(error.message);
+    const refusal = knownError(error, REFUSALS);
+    throw refusal ? new GameRefused(refusal) : new Error(error.message);
   }
   const d = data as { game_id: string; seed: string; difficulty: Difficulty; target_rating?: number | null; resumed: boolean };
   return {
@@ -87,7 +89,13 @@ export interface ServerFinish {
   seconds: number;
 }
 
-/** Settles the game on the server; returns null with a reason when it wasn't counted. */
+const FINISH_REFUSALS: Record<string, string> = {
+  too_fast: 'Solved faster than humanly possible: not counted',
+  already_finished: 'This game was already settled',
+  invalid_solution: "The grid didn't check out: not counted",
+};
+
+/** Settles the game on the server; `refused` with the reason to show when it wasn't counted. */
 export async function finishServerGame(input: {
   gameId: string;
   won: boolean;
@@ -107,10 +115,7 @@ export async function finishServerGame(input: {
     p_grid: input.grid,
   });
   if (error) {
-    if (error.message.includes('too_fast')) return { refused: 'Solved faster than humanly possible: not counted' };
-    if (error.message.includes('already_finished')) return { refused: 'This game was already settled' };
-    if (error.message.includes('invalid_solution')) return { refused: "The grid didn't check out: not counted" };
-    return { refused: 'No connection: this game was not saved to your account' };
+    return { refused: knownError(error, FINISH_REFUSALS) ?? 'No connection: this game was not saved to your account' };
   }
   const d = data as {
     seconds: number;
