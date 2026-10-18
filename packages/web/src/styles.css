@@ -678,21 +678,23 @@ h2 {
   background: var(--bg);
   border-bottom-left-radius: 10px;
 }
-/* Concave fillets where the card bends around the Setup notch. */
+/* The card's rounded corners where it bends around the Setup notch: the same
+   radius as every other box corner. */
 .setup-notch::before,
 .setup-notch::after {
+  --r: var(--radius);
   content: '';
   position: absolute;
-  width: 10px;
-  height: 10px;
-  background: radial-gradient(circle at 0 100%, transparent 9.5px, var(--bg) 10px);
+  width: var(--r);
+  height: var(--r);
+  background: radial-gradient(circle at 0 100%, transparent calc(var(--r) - 0.5px), var(--bg) var(--r));
 }
 .setup-notch::before {
   top: 0;
-  left: -10px;
+  left: calc(-1 * var(--r));
 }
 .setup-notch::after {
-  bottom: -10px;
+  bottom: calc(-1 * var(--r));
   right: 0;
 }
 .tile-setup {
@@ -2810,16 +2812,7 @@ html.standalone .toast {
   }
   .setup-notch::before,
   .setup-notch::after {
-    --r: calc(10px * var(--wide-zoom, 1));
-    width: var(--r);
-    height: var(--r);
-    background: radial-gradient(circle at 0 100%, transparent calc(var(--r) - 0.5px), var(--bg) var(--r));
-  }
-  .setup-notch::before {
-    left: calc(-1 * var(--r));
-  }
-  .setup-notch::after {
-    bottom: calc(-1 * var(--r));
+    --r: calc(var(--radius) * var(--wide-zoom, 1));
   }
   /* The other pages keep their phone column, a little larger. */
   .screen.daily,
