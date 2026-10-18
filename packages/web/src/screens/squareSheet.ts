@@ -4,6 +4,7 @@ import { ICONS } from '../icons.ts';
 import { formatSquareCode, readSquareInput } from '../squareCode.ts';
 import { closeButton, h, openModal } from '../ui.ts';
 import { startGame } from './game.ts';
+import * as copy from '../copy/en.ts';
 /**
  * Square code: play the exact square a friend sent (their code, or a standard
  * 81-digit sudoku string from anywhere). It plays as Casual, at the square's
@@ -15,17 +16,17 @@ export function openSquareCode(leave: (go: () => void) => void) {
     class: 'text-field square-field',
     attrs: {
       type: 'text',
-      placeholder: 'K7P2-QX9M',
+      placeholder: copy.squareCode.placeholder,
       autocapitalize: 'characters',
       autocomplete: 'off',
       autocorrect: 'off',
       spellcheck: 'false',
       enterkeyhint: 'go',
-      'aria-label': 'Square code or 81-digit sudoku',
+      'aria-label': copy.squareCode.a11yField,
     },
   });
   const status = h('p', { class: 'note square-status', attrs: { role: 'status' } });
-  const play = h('button', { class: 'btn btn-primary', text: 'Play square' });
+  const play = h('button', { class: 'btn btn-primary', text: copy.squareCode.play });
 
   /** `typed`: the field changed, so the line under it describes the new input. */
   const update = (typed = true) => {
@@ -33,7 +34,7 @@ export function openSquareCode(leave: (go: () => void) => void) {
     play.disabled = busy || input.kind === 'partial';
     if (!typed) return;
     status.textContent =
-      input.kind === 'grid' ? `Sudoku string with ${input.givens.replace(/0/g, '').length} numbers.` : '';
+      input.kind === 'grid' ? copy.squareCode.gridInfo(input.givens.replace(/0/g, '').length) : '';
   };
   const fill = (text: string) => {
     const input = readSquareInput(text);
@@ -57,11 +58,11 @@ export function openSquareCode(leave: (go: () => void) => void) {
     }
     busy = true;
     update(false);
-    status.textContent = 'Finding the square…';
+    status.textContent = copy.squareCode.finding;
     try {
       const square = await fetchSquare(input.code);
       if (!square) {
-        status.textContent = 'No square has that code. Check it with your friend.';
+        status.textContent = copy.squareCode.notFound;
         return;
       }
       close();
@@ -80,13 +81,13 @@ export function openSquareCode(leave: (go: () => void) => void) {
       { class: 'sheet square-sheet' },
       closeButton(() => close()),
       h('span', { class: 'sheet-icon clash', html: ICONS.hash }),
-      h('h2', { text: 'Square code' }),
-      h('p', { text: 'Play the exact square a friend sent you. Every game shows its code at the top.' }),
+      h('h2', { text: copy.squareCode.title }),
+      h('p', { text: copy.squareCode.intro }),
       h(
         'div',
         { class: 'clash-label-row' },
-        h('label', { class: 'clash-label', text: 'Code or sudoku string' }),
-        pasteButton(fill, 'Paste blocked. Long-press the box instead.'),
+        h('label', { class: 'clash-label', text: copy.squareCode.label }),
+        pasteButton(fill, copy.squareCode.pasteBlocked),
       ),
       field,
       status,

@@ -20,6 +20,7 @@ import { pasteButton, routePaste } from '../clipboard.ts';
 import { ICONS } from '../icons.ts';
 import { closeButton, formatSeconds, h, openModal, toast } from '../ui.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
+import * as copy from '../copy/en.ts';
 /**
  * Clash: join a friend's code, or make one. `prefill` comes from a shared
  * link; their result (if any) is already stored by then.
@@ -34,7 +35,7 @@ export function openClash(leave: (go: () => void) => void, prefill = '') {
     leave(() => void startGame({ mode: 'clash', difficulty: difficultyOf(code), seed: seedOf(code), clash: { code, theirs: record.theirs } }));
   };
 
-  const join = h('button', { class: 'btn btn-primary', text: 'Join clash', onclick: () => play(input.value()) });
+  const join = h('button', { class: 'btn btn-primary', text: copy.clash.join, onclick: () => play(input.value()) });
   const input = codeInput(prefill, (code) => {
     join.disabled = !isValidCode(code);
   });
@@ -44,9 +45,9 @@ export function openClash(leave: (go: () => void) => void, prefill = '') {
     const code = newCode(difficulty);
     saveClash(code, {}); // listed in the log right away
     created.replaceChildren(
-      h('p', { class: 'note', text: `Your ${difficulty} code. Send it now or after you play: your time goes with the result.` }),
-      h('div', { class: 'clash-code', attrs: { 'aria-label': `Code ${code.split('').join(' ')}` } }, ...code.split('').map((ch) => h('span', { text: ch }))),
-      h('div', { class: 'clash-actions' }, shareButton(code, undefined, 'Share code', false), h('button', { class: 'btn btn-primary', text: 'Play', onclick: () => play(code) })),
+      h('p', { class: 'note', text: copy.clash.created(difficulty) }),
+      h('div', { class: 'clash-code', attrs: { 'aria-label': copy.clash.a11y.code(code) } }, ...code.split('').map((ch) => h('span', { text: ch }))),
+      h('div', { class: 'clash-actions' }, shareButton(code, undefined, copy.clash.shareCode, false), h('button', { class: 'btn btn-primary', text: copy.common.play, onclick: () => play(code) })),
     );
     // Once a code exists, the sheet is about that code only.
     sheet.classList.add('has-code');
@@ -54,9 +55,9 @@ export function openClash(leave: (go: () => void) => void, prefill = '') {
   const picker = h(
     'div',
     { class: 'clash-picker' },
-    h('button', { class: 'btn', text: 'Easy', onclick: () => create('easy') }),
-    h('button', { class: 'btn', text: 'Medium', onclick: () => create('medium') }),
-    h('button', { class: 'btn', text: 'Hard', onclick: () => create('hard') }),
+    h('button', { class: 'btn', text: copy.common.difficulty.easy, onclick: () => create('easy') }),
+    h('button', { class: 'btn', text: copy.common.difficulty.medium, onclick: () => create('medium') }),
+    h('button', { class: 'btn', text: copy.common.difficulty.hard, onclick: () => create('hard') }),
   );
 
   const resume = saved?.config.mode === 'clash' && saved.config.clash ? saved : null;
@@ -65,8 +66,8 @@ export function openClash(leave: (go: () => void) => void, prefill = '') {
     ? h('p', {
         class: 'clash-challenge',
         text: theirs.solved
-          ? `Your friend set ${formatSeconds(theirs.seconds)} with ${theirs.mistakes} mistake${theirs.mistakes === 1 ? '' : 's'} and ${theirs.hints} hint${theirs.hints === 1 ? '' : 's'}. Beat it.`
-          : "Your friend couldn't crack this one. Can you?",
+          ? copy.clash.challenge(formatSeconds(theirs.seconds), theirs.mistakes, theirs.hints)
+          : copy.clash.challengeUnsolved,
       })
     : null;
   const sheet = h(
@@ -74,13 +75,13 @@ export function openClash(leave: (go: () => void) => void, prefill = '') {
     { class: 'sheet clash-sheet' },
     closeButton(() => close()),
     h('span', { class: 'sheet-icon clash', html: ICONS.clash }),
-    h('h2', { text: 'Clash' }),
-    h('p', { text: 'Race a friend on the same square. Lowest time wins; hints and mistakes add seconds.' }),
+    h('h2', { text: copy.clash.title }),
+    h('p', { text: copy.clash.intro }),
     challenge,
     resume
       ? h('button', {
           class: 'btn btn-primary clash-join',
-          text: `Resume ${resume.config.clash!.code}`,
+          text: copy.clash.resume(resume.config.clash!.code),
           onclick: () => {
             close();
             leave(() => resumeGame(resume));
@@ -93,20 +94,20 @@ export function openClash(leave: (go: () => void) => void, prefill = '') {
       h(
         'div',
         { class: 'clash-label-row' },
-        h('label', { class: 'clash-label', text: 'Enter a code' }),
+        h('label', { class: 'clash-label', text: copy.clash.enterCode }),
         // iOS's own long-press Paste is unreliable on a hidden field; this reads the clipboard directly.
         input.pasteButton,
       ),
       input.el,
       join,
     ),
-    h('div', { class: 'divider', text: 'or create one' }),
+    h('div', { class: 'divider', text: copy.clash.orCreate }),
     picker,
     created,
     listClashes().length || signedIn()
       ? h('button', {
           class: 'btn clash-log-btn',
-          text: 'Clash log',
+          text: copy.clash.log,
           onclick: () => {
             close();
             openClashLog(leave);
@@ -130,7 +131,7 @@ function codeInput(initial: string, onChange: (code: string) => void) {
       autocorrect: 'off',
       spellcheck: 'false',
       maxlength: '12',
-      'aria-label': 'Clash code, 6 characters',
+      'aria-label': copy.clash.a11y.codeField,
     },
   });
   const boxes = Array.from({ length: CODE_LENGTH }, () => h('span', { class: 'code-box' }));
@@ -155,7 +156,7 @@ function codeInput(initial: string, onChange: (code: string) => void) {
   paint();
   const fill = (text: string) => {
     const code = extractCode(text);
-    if (!code) return toast('No code on the clipboard');
+    if (!code) return toast(copy.clash.noCodeOnClipboard);
     field.value = code;
     paint();
   };
@@ -165,7 +166,7 @@ function codeInput(initial: string, onChange: (code: string) => void) {
     el,
     value: () => normalizeCode(field.value),
     focus: () => field.focus(),
-    pasteButton: pasteButton(fill, 'Paste blocked. Long-press the boxes instead.'),
+    pasteButton: pasteButton(fill, copy.clash.pasteBlocked),
   };
 }
 
@@ -176,13 +177,7 @@ function extractCode(text: string): string {
   return normalizeCode(fromLink ?? upperWord ?? text);
 }
 
-const STATUS_LABEL: Record<ClashStatus, string> = {
-  won: 'Won',
-  lost: 'Lost',
-  draw: 'Draw',
-  waiting: 'Waiting',
-  unplayed: 'Not played',
-};
+const STATUS_LABEL: Record<ClashStatus, string> = copy.clash.status;
 
 /** Signed in: copies every clash this account played (and the friends' results) from the server. */
 async function syncClashes(): Promise<void> {
@@ -208,20 +203,20 @@ async function openClashLog(leave: (go: () => void) => void) {
   const entries = listClashes().slice(0, 8);
   const row = ({ code, record }: (typeof entries)[number]) => {
     const status = statusOf(record);
-    const time = (r?: ClashResult) => (r ? (r.solved ? formatSeconds(r.seconds) : 'DNF') : '—');
+    const time = (r?: ClashResult) => (r ? (r.solved ? formatSeconds(r.seconds) : copy.clash.notFinished) : copy.clash.noTime);
     return h(
       'button',
       {
         class: 'log-row',
-        attrs: { 'aria-label': `Clash ${code}, ${record.difficulty}, ${STATUS_LABEL[status]}` },
+        attrs: { 'aria-label': copy.clash.a11y.logRow(code, record.difficulty, STATUS_LABEL[status]) },
         onclick: () => {
           close();
           if (record.mine) showClashRecord(code);
           else openClash(leave, code);
         },
       },
-      h('span', { class: 'log-code' }, h('strong', { text: code }), h('small', { text: capitalize(record.difficulty) })),
-      h('span', { class: 'log-times', text: `${time(record.mine)} vs ${time(record.theirs)}` }),
+      h('span', { class: 'log-code' }, h('strong', { text: code }), h('small', { text: copy.capitalize(record.difficulty) })),
+      h('span', { class: 'log-times', text: copy.clash.versus(time(record.mine), time(record.theirs)) }),
       h('span', { class: `log-status ${status}`, text: STATUS_LABEL[status] }),
     );
   };
@@ -230,21 +225,19 @@ async function openClashLog(leave: (go: () => void) => void) {
       'div',
       { class: 'sheet clash-log' },
       closeButton(() => close()),
-      h('h2', { text: 'Clash log' }),
+      h('h2', { text: copy.clash.log }),
       h('p', {
         class: 'note',
         text: signedIn()
-          ? "You vs friend. Results arrive on their own once your friend finishes (they need an account too)."
-          : 'You vs friend. A result appears once its link is opened on this phone. Sign in (Setup) to get results automatically.',
+          ? copy.clash.logNoteOnline
+          : copy.clash.logNoteOffline,
       }),
       entries.length
         ? h('div', { class: 'log-list' }, ...entries.map(row))
-        : h('p', { class: 'note', text: 'No clashes yet. Create a code and send it to a friend.' }),
+        : h('p', { class: 'note', text: copy.clash.logEmpty }),
     ),
   );
 }
-
-const capitalize = (s: string) => s[0].toUpperCase() + s.slice(1);
 
 /** The comparison for a clash this device has already played. */
 async function showClashRecord(code: string) {
@@ -259,9 +252,9 @@ async function showClashRecord(code: string) {
       h('h2', { class: verdict.tone, text: verdict.title }),
       record.theirs
         ? null
-        : h('p', { class: 'note', text: "Waiting for your friend's result. Open the result link they send you and it lands here." }),
+        : h('p', { class: 'note', text: copy.clash.waitingForFriend }),
       clashTable(code, record.mine, record.theirs),
-      h('div', { class: 'actions' }, shareButton(code, record.mine, record.theirs ? 'Send result' : 'Challenge a friend'), h('button', { class: 'btn', text: 'Close', onclick: () => close() })),
+      h('div', { class: 'actions' }, shareButton(code, record.mine, record.theirs ? copy.clash.sendResult : copy.clash.challengeFriend), h('button', { class: 'btn', text: copy.common.close, onclick: () => close() })),
     ),
   );
 }

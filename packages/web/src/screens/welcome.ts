@@ -3,6 +3,7 @@ import { RIBBON_PATH } from '../ribbon.ts';
 import { applyTheme } from '../theme.ts';
 import { h, mount, type Screen } from '../ui.ts';
 import { homeScreen } from './home.ts';
+import * as copy from '../copy/en.ts';
 
 /**
  * Welcome (Figma "welcome screen"): the copper ribbon fades in with
@@ -37,11 +38,11 @@ export function welcomeScreen(): Screen {
 
   const el = h('button', {
     class: 'screen welcome',
-    attrs: { 'aria-label': 'Elomental. Tap to continue.' },
+    attrs: { 'aria-label': copy.welcome.a11y },
     html:
       `<svg class="welcome-art" viewBox="0 0 390 844" preserveAspectRatio="xMidYMin meet" aria-hidden="true">` +
       `<g class="ribbon"><path d="${RIBBON}"/><g class="wordmark">${letters}</g></g>` +
-      `<text class="tagline" x="195" y="800">Competitive sudoku</text>` +
+      `<text class="tagline" x="195" y="800">${copy.common.tagline}</text>` +
       `</svg>`,
   });
 

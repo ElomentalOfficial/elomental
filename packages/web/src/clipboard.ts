@@ -1,4 +1,5 @@
 import { h, toast } from './ui.ts';
+import * as copy from './copy/en.ts';
 
 /**
  * Copying and pasting codes (Clash codes, square codes, share links).
@@ -39,7 +40,7 @@ export function pasteButton(fill: (text: string) => void, blocked: string): HTML
   if (!('readText' in (navigator.clipboard ?? {}))) return null;
   return h('button', {
     class: 'paste-btn',
-    text: 'Paste',
+    text: copy.common.paste,
     onclick: async () => {
       try {
         fill(await navigator.clipboard.readText());

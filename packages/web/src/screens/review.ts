@@ -13,6 +13,7 @@ import {
 import { ICONS } from '../icons.ts';
 import { formatSeconds, goBack, h, openModal, toast, type Screen } from '../ui.ts';
 import { setupScreen } from './setup.ts';
+import * as copy from '../copy/en.ts';
 
 type Item = ReviewPlayer | ReviewDecision;
 interface Sources {
@@ -21,9 +22,9 @@ interface Sources {
 }
 
 const VIEWS: { view: ReviewView; label: string }[] = [
-  { view: 'open', label: 'To review' },
-  { view: 'banned', label: 'Banned' },
-  { view: 'history', label: 'History' },
+  { view: 'open', label: copy.review.tabs.open },
+  { view: 'banned', label: copy.review.tabs.banned },
+  { view: 'history', label: copy.review.tabs.history },
 ];
 
 /** Typing pauses this long before a search goes out. */
@@ -59,8 +60,8 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
     class: 'review-search-input',
     attrs: {
       type: 'search',
-      placeholder: 'Search name, email or ID',
-      'aria-label': 'Search players',
+      placeholder: copy.review.searchPlaceholder,
+      'aria-label': copy.review.a11ySearch,
       autocapitalize: 'off',
       autocorrect: 'off',
       spellcheck: 'false',
@@ -70,7 +71,7 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
   const clear = h('button', {
     class: 'review-search-clear',
     html: ICONS.close,
-    attrs: { 'aria-label': 'Clear search' },
+    attrs: { 'aria-label': copy.review.a11yClearSearch },
     onclick: () => {
       input.value = '';
       onQuery(true);
@@ -98,7 +99,7 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
     );
     return { value, tab, count };
   });
-  const tabBar = h('div', { class: 'segmented review-tabs', attrs: { role: 'radiogroup', 'aria-label': 'Show' } }, ...tabs.map((t) => t.tab));
+  const tabBar = h('div', { class: 'segmented review-tabs', attrs: { role: 'radiogroup', 'aria-label': copy.review.a11yTabs } }, ...tabs.map((t) => t.tab));
 
   const searching = () => query !== '';
 
@@ -117,16 +118,12 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
     paintTabs();
     if (searching()) {
       resultsNote.textContent = items.length
-        ? items.length === 1
-          ? `1 player matches “${query}”`
-          : items.length >= SEARCH_LIMIT
-            ? `${SEARCH_LIMIT}+ players match “${query}”. Type more to narrow it down.`
-            : `${items.length} players match “${query}”`
+        ? copy.review.matches(items.length, query, SEARCH_LIMIT)
         : '';
       list.replaceChildren(
         ...(items.length
           ? items.map((item, i) => playerRow(item as ReviewPlayer, i))
-          : [h('p', { class: 'review-empty', text: `No case found for “${query}”. Check the spelling, or try their email or account ID.` })]),
+          : [h('p', { class: 'review-empty', text: copy.review.noMatch(query) })]),
       );
       more.hidden = true;
       return;
@@ -139,7 +136,7 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
     );
     const total = counts[view];
     more.hidden = items.length >= total;
-    more.textContent = `Show more (${items.length} of ${total})`;
+    more.textContent = copy.review.showMore(items.length, total);
   }
 
   /** Reloads the view or the search, keeping as many rows as were showing; `open` is the row to open afterwards. */
@@ -148,7 +145,7 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
     const keep = Math.min(Math.max(items.length, REVIEW_PAGE), 100);
     const viewNow = view;
     paintTabs();
-    if (!items.length || open < 0) list.replaceChildren(h('p', { class: 'review-empty', text: 'Loading…' }));
+    if (!items.length || open < 0) list.replaceChildren(h('p', { class: 'review-empty', text: copy.common.loading }));
     try {
       const page = await sources.page(viewNow, 0, open >= 0 ? keep : REVIEW_PAGE);
       if (viewNow !== view || searching()) return; // moved on meanwhile
@@ -203,7 +200,7 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
         items = [];
         tabBar.hidden = true;
         more.hidden = true;
-        list.replaceChildren(h('p', { class: 'review-empty', text: 'Searching…' }));
+        list.replaceChildren(h('p', { class: 'review-empty', text: copy.common.searching }));
       }
       void runSearch();
     };
@@ -229,7 +226,7 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
       items = items.concat(page.items);
       paint();
     } catch {
-      toast('Couldn’t load more. Try again.');
+      toast(copy.review.loadMoreFailed);
     } finally {
       more.disabled = false;
     }
@@ -239,9 +236,9 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
     const open = index === expanded;
     const latest = player.games[0];
     let summary: string;
-    if (searching()) summary = `${status(player)} · ${player.email ?? 'Guest'}`;
-    else if (view === 'banned') summary = `Banned ${banLength(player)}${player.restrictionReason ? ` · ${player.restrictionReason}` : ''}`;
-    else summary = `${latest ? verdict(latest) : 'Flagged'}${player.games.length > 1 ? ` · ${player.games.length} games` : ''}`;
+    if (searching()) summary = `${status(player)} · ${player.email ?? copy.common.guest}`;
+    else if (view === 'banned') summary = copy.review.bannedSummary(banLength(player), player.restrictionReason);
+    else summary = `${latest ? verdict(latest) : copy.review.flagged}${player.games.length > 1 ? ` · ${copy.review.games(player.games.length)}` : ''}`;
     const inQueue = !searching() && view === 'open';
     const head = h(
       'button',
@@ -254,9 +251,9 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
         },
       },
       h('span', { class: 'review-row-text' }, h('strong', { text: player.name }), h('span', { text: summary })),
-      inQueue && player.decisions ? h('span', { class: 'review-pill', text: 'Again' }) : null,
-      (inQueue || searching()) && player.restricted ? h('span', { class: 'review-pill banned', text: 'Banned' }) : null,
-      searching() && player.toReview ? h('span', { class: 'review-pill', text: 'Open' }) : null,
+      inQueue && player.decisions ? h('span', { class: 'review-pill', text: copy.review.pillAgain }) : null,
+      (inQueue || searching()) && player.restricted ? h('span', { class: 'review-pill banned', text: copy.review.pillBanned }) : null,
+      searching() && player.toReview ? h('span', { class: 'review-pill', text: copy.review.pillOpen }) : null,
       h('span', { class: 'review-chevron', html: ICONS.back }),
     );
     return h('section', { class: `review-row${open ? ' open' : ''}` }, head, open ? detail(player, index) : null);
@@ -275,23 +272,23 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
     const actions = h(
       'div',
       { class: 'review-actions' },
-      act('It was a mistake', 'clear', null),
-      player.restricted && !player.restrictedUntil ? act('Ban 30 days instead', 'restrict', 30) : act('Ban until lifted', 'restrict', null),
-      player.restricted ? act('Lift ban', 'lift', null, true) : act('Ban from Ranked 30 days', 'restrict', 30, true),
+      act(copy.review.actions.clear, 'clear', null),
+      player.restricted && !player.restrictedUntil ? act(copy.review.actions.ban30Instead, 'restrict', 30) : act(copy.review.actions.banUntilLifted, 'restrict', null),
+      player.restricted ? act(copy.review.actions.lift, 'lift', null, true) : act(copy.review.actions.ban30, 'restrict', 30, true),
     );
     const last = player.lastDecision;
     const openGames = player.games.filter((g) => !g.reviewed).length;
     return h(
       'div',
       { class: 'review-detail' },
-      h('p', { class: 'note', text: `${player.email ?? 'Guest account'} · Elo ${player.elo}` }),
-      searching() ? h('p', { class: 'note review-id', text: `ID ${player.userId}` }) : null,
+      h('p', { class: 'note', text: copy.review.emailAndElo(player.email ?? copy.review.guestAccount, player.elo) }),
+      searching() ? h('p', { class: 'note review-id', text: copy.review.id(player.userId) }) : null,
       latest ? h('p', { class: 'review-verdict', text: `${verdict(latest)}: ${why(latest)}` }) : null,
       player.restricted
-        ? h('p', { class: 'note', text: `Banned from Ranked ${banLength(player)}${player.restrictionReason ? `: ${player.restrictionReason}` : ''}.` })
+        ? h('p', { class: 'note', text: copy.review.bannedLine(banLength(player), player.restrictionReason) })
         : null,
       // A search shows the full decision list instead.
-      last && !player.log ? h('p', { class: 'note', text: `Earlier: ${decisionText(last.action, last.days)} on ${when(last.at)}${last.note ? ` (${last.note})` : ''}` }) : null,
+      last && !player.log ? h('p', { class: 'note', text: copy.review.earlier(decisionText(last.action, last.days), when(last.at), last.note) }) : null,
       player.games.length
         ? h(
             'details',
@@ -299,8 +296,8 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
             h('summary', {
               text:
                 !searching() && view === 'open'
-                  ? `Flagged games (${player.games.length})`
-                  : `Flagged games (${player.flagged}${openGames ? `, ${openGames} open` : ''})`,
+                  ? copy.review.flaggedGames(player.games.length)
+                  : copy.review.flaggedGamesOpen(player.flagged, openGames),
             }),
             ...player.games.map((game) => gameRow(game, searching())),
           )
@@ -309,7 +306,7 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
         ? h(
             'details',
             { class: 'review-games', attrs: { open: '' } },
-            h('summary', { text: `Decisions (${player.log.length})` }),
+            h('summary', { text: copy.review.decisions(player.log.length) }),
             ...player.log.map((entry) => logRow(entry, false)),
           )
         : null,
@@ -319,14 +316,14 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
 
   function confirmAction(player: ReviewPlayer, index: number, action: ModerationAction, days: number | null, label: string) {
     const explain: Record<ModerationAction, string> = {
-      clear: `${player.name}'s flags are marked as a mistake, and any Ranked ban is lifted.`,
-      restrict: `${player.name} can't play Ranked ${days ? `for ${days} days` : 'until you lift the ban'} and is off the leaderboard meanwhile. Nothing else changes: Elo, Stardust, Casual, Daily and Clash all stay.`,
-      lift: `${player.name} can play Ranked again and returns to the leaderboard.`,
+      clear: copy.review.confirm.clear(player.name),
+      restrict: copy.review.confirm.restrict(player.name, days),
+      lift: copy.review.confirm.lift(player.name),
     };
-    const confirmLabel = { clear: 'Clear flags', restrict: 'Ban', lift: 'Lift ban' }[action];
+    const confirmLabel = copy.review.confirm.button[action];
     const note = h('input', {
       class: 'text-field',
-      attrs: { type: 'text', maxlength: '200', placeholder: action === 'restrict' ? 'Reason (optional)' : 'Note (optional)' },
+      attrs: { type: 'text', maxlength: '200', placeholder: action === 'restrict' ? copy.review.confirm.reason : copy.review.confirm.note },
     });
     const status = h('p', { class: 'note', attrs: { role: 'status' } });
     const go = h('button', { class: 'btn btn-primary', text: confirmLabel });
@@ -338,7 +335,7 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
       action === 'lift' ? null : note,
       status,
       go,
-      h('button', { class: 'btn', text: 'Cancel', onclick: () => close() }),
+      h('button', { class: 'btn', text: copy.common.cancel, onclick: () => close() }),
     );
     const close = openModal(body);
     go.addEventListener('click', async () => {
@@ -350,7 +347,7 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
         return;
       }
       close();
-      toast(action === 'clear' ? `${player.name}: cleared` : action === 'lift' ? `${player.name} can play Ranked again` : `${player.name} is banned from Ranked`);
+      toast(copy.review.done[action](player.name));
       // In a list the player leaves (or changes in place): open whichever row is now in their spot.
       // In a search they stay, updated, with the new decision on top.
       void load(index);
@@ -363,8 +360,8 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
     h(
       'div',
       { class: 'subbar' },
-      h('button', { class: 'icon-btn', html: ICONS.back, attrs: { 'aria-label': 'Back' }, onclick: () => void goBack(setupScreen) }),
-      h('h1', { text: 'Review' }),
+      h('button', { class: 'icon-btn', html: ICONS.back, attrs: { 'aria-label': copy.common.back }, onclick: () => void goBack(setupScreen) }),
+      h('h1', { text: copy.review.title }),
       h('span', { class: 'icon-btn-spacer' }),
     ),
     searchBox,
@@ -379,24 +376,20 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
   return { el, destroy: () => clearTimeout(searchTimer) };
 }
 
-const EMPTY: Record<ReviewView, string> = {
-  open: 'Nothing to review. All clear.',
-  banned: 'Nobody is banned from Ranked.',
-  history: 'No decisions yet.',
-};
+const EMPTY: Record<ReviewView, string> = copy.review.empty;
 
 /** Where a player's case stands, in a few words. */
 function status(player: ReviewPlayer): string {
-  if (player.restricted) return `Banned ${banLength(player)}`;
-  if (player.toReview) return `${player.toReview} flag${player.toReview === 1 ? '' : 's'} to review`;
+  if (player.restricted) return copy.review.status.banned(banLength(player));
+  if (player.toReview) return copy.review.status.toReview(player.toReview);
   if (player.lastDecision) return decisionText(player.lastDecision.action, player.lastDecision.days);
-  return 'No open flags';
+  return copy.review.status.none;
 }
 
 /** One decision; `named` adds the player's name (History lists everyone, a case only one player). */
 function logRow(entry: ReviewDecision, named: boolean): HTMLElement {
-  const facts = [when(entry.at), entry.by ? `by ${entry.by}` : 'from the SQL Editor'];
-  if (entry.flags) facts.push(`${entry.flags} flag${entry.flags === 1 ? '' : 's'}`);
+  const facts = [when(entry.at), entry.by ? copy.review.by(entry.by) : copy.review.fromSqlEditor];
+  if (entry.flags) facts.push(copy.review.flags(entry.flags));
   return h(
     'div',
     { class: `review-log ${entry.action}${named ? '' : ' inline'}` },
@@ -409,38 +402,38 @@ function logRow(entry: ReviewDecision, named: boolean): HTMLElement {
 /** One flagged game; `markOpen` tags the ones still to review (where settled ones show too). */
 function gameRow(game: ReviewGame, markOpen: boolean): HTMLElement {
   const facts = [when(game.at)];
-  if (game.rating) facts.push(`puzzle rated ${game.rating}`);
-  if (game.seconds) facts.push(`solved in ${formatSeconds(game.seconds)}`);
+  if (game.rating) facts.push(copy.review.rated(game.rating));
+  if (game.seconds) facts.push(copy.review.solvedIn(formatSeconds(game.seconds)));
   return h(
     'div',
     { class: 'review-game' },
-    h('strong', { text: verdict(game) + (markOpen && !game.reviewed ? ' · to review' : '') }),
+    h('strong', { text: verdict(game) + (markOpen && !game.reviewed ? copy.review.toReviewTag : '') }),
     h('span', { text: why(game) }),
     h('span', { class: 'note', text: facts.join(' · ') }),
-    game.reviewed && game.note ? h('span', { class: 'note', text: `Note: ${game.note}` }) : null,
+    game.reviewed && game.note ? h('span', { class: 'note', text: copy.review.noteLine(game.note) }) : null,
   );
 }
 
 function verdict(game: ReviewGame): string {
-  if (game.reason === 'unchecked') return 'Not checked';
-  if (game.potential !== null && game.evidence !== null && game.potential > 0 && game.evidence < 0) return 'Very likely copied';
-  return 'Likely copied';
+  if (game.reason === 'unchecked') return copy.review.verdict.unchecked;
+  if (game.potential !== null && game.evidence !== null && game.potential > 0 && game.evidence < 0) return copy.review.verdict.veryLikely;
+  return copy.review.verdict.likely;
 }
 
 function why(game: ReviewGame): string {
-  if (game.reason === 'unchecked') return 'the app never sent its moves for checking, usually a dropped connection.';
-  if (!game.validPuzzle) return 'the puzzle it reported was not a valid Sudoku.';
-  return `${game.leaps} of ${game.placements} squares were filled in before they could be worked out.`;
+  if (game.reason === 'unchecked') return copy.review.why.unchecked;
+  if (!game.validPuzzle) return copy.review.why.invalid;
+  return copy.review.why.leaps(game.leaps, game.placements);
 }
 
 function banLength(player: ReviewPlayer): string {
-  return player.restrictedUntil ? `until ${day(player.restrictedUntil)}` : 'until lifted';
+  return player.restrictedUntil ? copy.review.until(day(player.restrictedUntil)) : copy.review.untilLifted;
 }
 
 function decisionText(action: ModerationAction, days: number | null): string {
-  if (action === 'clear') return 'Cleared as a mistake';
-  if (action === 'lift') return 'Ban lifted';
-  return days ? `Banned from Ranked for ${days} days` : 'Banned from Ranked until lifted';
+  if (action === 'clear') return copy.review.decision.clear;
+  if (action === 'lift') return copy.review.decision.lift;
+  return copy.review.decision.restrict(days);
 }
 
 const day = (iso: string) => new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });

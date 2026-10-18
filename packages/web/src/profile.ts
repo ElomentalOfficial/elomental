@@ -1,6 +1,7 @@
 import type { Difficulty, ProfileId } from '@elomental/engine';
 import { cachedAccount } from './backend.ts';
 import { readJson, writeJson } from './storage.ts';
+import * as copy from './copy/en.ts';
 
 /**
  * Player progress. With an account (guests get an anonymous one), every
@@ -71,7 +72,7 @@ export function loadProfile(): Profile {
   if (account) {
     return {
       guest: account.anonymous,
-      name: account.anonymous ? 'Guest' : account.name,
+      name: account.anonymous ? copy.common.guest : account.name,
       title: account.anonymous ? null : (account.title ?? null),
       elo: account.elo,
       rankedGames: account.rankedGames,
@@ -90,7 +91,7 @@ export function loadProfile(): Profile {
     daily: {},
     ...readJson<Partial<Profile>>(KEY),
     guest: true,
-    name: 'Guest',
+    name: copy.common.guest,
     title: null,
   };
 }
@@ -174,11 +175,12 @@ export function eloDelta(player: number, puzzle: number, won: boolean): number {
 }
 
 export function rankTitle(elo: number): string {
-  if (elo < 300) return 'Novice';
-  if (elo < 600) return 'Apprentice';
-  if (elo < 900) return 'Adept';
-  if (elo < 1200) return 'Elementalist';
-  return 'Archmage';
+  const [novice, apprentice, adept, elementalist, archmage] = copy.common.ranks;
+  if (elo < 300) return novice;
+  if (elo < 600) return apprentice;
+  if (elo < 900) return adept;
+  if (elo < 1200) return elementalist;
+  return archmage;
 }
 
 /** The daily square rolls over at 3 AM local time. */

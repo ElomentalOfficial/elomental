@@ -1,5 +1,6 @@
 import { readJson, removeKey, writeJson } from './storage.ts';
 import { h } from './ui.ts';
+import * as copy from './copy/en.ts';
 
 /**
  * First-game coach marks: a spotlight moves over each control with a short
@@ -29,7 +30,7 @@ export function runTutorial(steps: TutorialStep[]): Promise<void> {
     const title = h('h3');
     const text = h('p');
     const next = h('button', { class: 'btn btn-primary coach-next' });
-    const skip = h('button', { class: 'coach-skip', text: 'Skip' });
+    const skip = h('button', { class: 'coach-skip', text: copy.tutorial.skip });
     const card = h(
       'div',
       { class: 'coach-card', attrs: { role: 'dialog', 'aria-live': 'polite' } },
@@ -78,10 +79,10 @@ export function runTutorial(steps: TutorialStep[]): Promise<void> {
       finger.style.left = `${r.left + r.width / 2}px`;
       finger.style.top = `${r.top + r.height / 2}px`;
 
-      counter.textContent = `${index + 1} / ${steps.length}`;
+      counter.textContent = copy.tutorial.counter(index + 1, steps.length);
       title.textContent = step.title;
       text.textContent = step.text;
-      next.textContent = index === steps.length - 1 ? "Let's play" : 'Next';
+      next.textContent = index === steps.length - 1 ? copy.tutorial.start : copy.common.next;
       skip.style.visibility = index === steps.length - 1 ? 'hidden' : 'visible';
 
       // Place the card where it fits inside the *visible* area (Safari's toolbars

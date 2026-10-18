@@ -10,6 +10,7 @@ import { dailyScreen } from './daily.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
 import { setupScreen } from './setup.ts';
 import { openSquareCode } from './squareSheet.ts';
+import * as copy from '../copy/en.ts';
 
 /** Layout from the Figma home frame: profile card with the Setup notch, then the mode tiles. */
 export function homeScreen(): Screen {
@@ -34,15 +35,15 @@ export function homeScreen(): Screen {
   const setupTile = h(
     'button',
     { class: 'tile tile-setup' },
-    h('span', { class: 'tile-face' }, h('span', { class: 'tile-icon', html: ICONS.setup }), h('span', { class: 'tile-label', text: 'Setup' })),
+    h('span', { class: 'tile-face' }, h('span', { class: 'tile-icon', html: ICONS.setup }), h('span', { class: 'tile-label', text: copy.home.tiles.setup })),
   );
   enableTilt(setupTile);
 
   const nameEl = h('strong', { class: 'profile-name' });
   const rankEl = h('span', { class: 'profile-rank' });
-  const eloChip = stat('', 'Elo');
-  const dustChip = stat('', 'Stardust', ICONS.dust);
-  const crownChip = stat('', 'Crowns', ICONS.crown);
+  const eloChip = stat('', copy.common.elo);
+  const dustChip = stat('', copy.common.stardust, ICONS.dust);
+  const crownChip = stat('', copy.common.crowns, ICONS.crown);
   /** Signed in, the numbers come from the server cache and update when it refreshes. */
   const paintProfile = () => {
     const p = loadProfile();
@@ -71,13 +72,13 @@ export function homeScreen(): Screen {
   );
   setupTile.addEventListener('click', () => leave(profileCard, () => mount(setupScreen())));
 
-  const daily = tile('daily', ICONS.daily, 'Daily Square', (el) => leave(el, () => mount(dailyScreen())));
-  const store = tile('store', ICONS.store, 'Store', () => toast('The store opens later'));
-  const leader = tile('leader', ICONS.leaderboard, 'Leaderboard', () => toast('Leaderboards need accounts'));
-  const casual = tile('casual', ICONS.casual, 'Casual', (el) => openCasual((go) => leave(el, go)));
-  const ranked = tile('ranked', ICONS.ranked, 'Play Ranked', (el) => openRanked((go) => leave(el, go)));
+  const daily = tile('daily', ICONS.daily, copy.home.tiles.daily, (el) => leave(el, () => mount(dailyScreen())));
+  const store = tile('store', ICONS.store, copy.home.tiles.store, () => toast(copy.home.storeLater));
+  const leader = tile('leader', ICONS.leaderboard, copy.home.tiles.leaderboard, () => toast(copy.home.leaderboardLater));
+  const casual = tile('casual', ICONS.casual, copy.home.tiles.casual, (el) => openCasual((go) => leave(el, go)));
+  const ranked = tile('ranked', ICONS.ranked, copy.home.tiles.ranked, (el) => openRanked((go) => leave(el, go)));
   // Wide screens give Setup a tile of its own (Figma desktop home); phones keep it in the notch.
-  const setupWide = tile('setup', ICONS.setup, 'Setup', (el) => leave(el, () => mount(setupScreen())));
+  const setupWide = tile('setup', ICONS.setup, copy.home.tiles.setup, (el) => leave(el, () => mount(setupScreen())));
 
   const animated = [profileCard, daily, store, leader, casual, ranked, setupWide];
   const grid = h('div', { class: 'home-grid' }, ...animated);
@@ -115,27 +116,27 @@ function openCasual(leave: (go: () => void) => void) {
       { class: 'sheet' },
       closeButton(() => close()),
       h('span', { class: 'sheet-icon casual', html: ICONS.casual }),
-      h('h2', { text: 'Casual' }),
-      h('p', { text: 'No pressure, no elo.' }),
+      h('h2', { text: copy.home.casual.title }),
+      h('p', { text: copy.home.casual.text }),
       saved?.config.mode === 'casual'
         ? h('button', {
             class: 'btn btn-primary',
-            text: `Resume ${saved.config.difficulty}`,
+            text: copy.home.casual.resume(saved.config.difficulty),
             onclick: () => {
               close();
               leave(() => resumeGame(saved));
             },
           })
         : null,
-      h('button', { class: 'btn', text: 'Easy', onclick: () => choose('easy') }),
-      h('button', { class: 'btn', text: 'Medium', onclick: () => choose('medium') }),
-      h('button', { class: 'btn', text: 'Hard', onclick: () => choose('hard') }),
+      h('button', { class: 'btn', text: copy.common.difficulty.easy, onclick: () => choose('easy') }),
+      h('button', { class: 'btn', text: copy.common.difficulty.medium, onclick: () => choose('medium') }),
+      h('button', { class: 'btn', text: copy.common.difficulty.hard, onclick: () => choose('hard') }),
       h(
         'div',
         { class: 'casual-extras' },
         h('button', {
           class: 'btn btn-clash',
-          html: `${ICONS.clash}<span>Clash a friend</span>`,
+          html: `${ICONS.clash}<span>${copy.home.casual.clash}</span>`,
           onclick: () => {
             close();
             openClash(leave);
@@ -143,7 +144,7 @@ function openCasual(leave: (go: () => void) => void) {
         }),
         h('button', {
           class: 'btn btn-clash btn-square-code',
-          html: `${ICONS.hash}<span>Square code</span>`,
+          html: `${ICONS.hash}<span>${copy.home.casual.squareCode}</span>`,
           onclick: () => {
             close();
             openSquareCode(leave);
@@ -165,11 +166,11 @@ function openRanked(leave: (go: () => void) => void) {
       { class: 'sheet' },
       closeButton(() => close()),
       h('span', { class: 'sheet-icon ranked', html: ICONS.ranked }),
-      h('h2', { text: 'Ranked' }),
-      h('p', { class: 'ranked-copy', text: 'A square matched to your level. Solve it to climb.' }),
+      h('h2', { text: copy.home.ranked.title }),
+      h('p', { class: 'ranked-copy', text: copy.home.ranked.text }),
       h('button', {
         class: 'btn btn-primary btn-start',
-        text: 'Start',
+        text: copy.home.ranked.start,
         onclick: () => {
           close();
           leave(() => void startGame({ mode: 'ranked', difficulty }));

@@ -1,5 +1,6 @@
 import { ICONS } from './icons.ts';
 import { h } from './ui.ts';
+import * as copy from './copy/en.ts';
 
 /**
  * Notes wheel: a frosted-glass ring of nine segments (1 at the top, clockwise)
@@ -67,7 +68,7 @@ export function openNotesWheel(options: {
 
   const wheel = h(
     'div',
-    { class: 'wheel', attrs: { role: 'dialog', 'aria-label': 'Slide toward a number to add or remove a note' } },
+    { class: 'wheel', attrs: { role: 'dialog', 'aria-label': copy.game.wheelHelp } },
     h('div', { class: 'wheel-glass', html: RING_SVG }),
     h('div', { class: 'wheel-hub', html: ICONS.pencil }),
   );
@@ -81,7 +82,7 @@ export function openNotesWheel(options: {
     const digit = h('span', {
       class: `wheel-digit${options.notes & (1 << d) ? ' on' : ''}`,
       text: String(d),
-      attrs: { 'aria-label': `Note ${d}${options.notes & (1 << d) ? ', set' : ''}` },
+      attrs: { 'aria-label': copy.game.a11y.wheelNote(d, !!(options.notes & (1 << d))) },
     });
     digit.style.setProperty('--x', `${Math.cos(rad(deg)) * R_DIGIT}px`);
     digit.style.setProperty('--y', `${Math.sin(rad(deg)) * R_DIGIT}px`);

@@ -1,5 +1,6 @@
 import { sendSignInEmail, waitForEmailConfirmation, waitForHandoff } from './backend.ts';
 import { h, toast } from './ui.ts';
+import * as copy from './copy/en.ts';
 
 /**
  * Passwordless sign-up / sign-in: an email, then the link from the email.
@@ -50,7 +51,7 @@ export function signUpForm(options: {
         heading(options.title, options.text),
         h('button', {
           class: 'btn btn-outline',
-          text: 'Sign up with email',
+          text: copy.account.signUp,
           onclick: () => {
             step = 'email';
             paint();
@@ -61,13 +62,13 @@ export function signUpForm(options: {
     }
 
     if (step === 'email') {
-      const input = field({ type: 'email', inputmode: 'email', autocomplete: 'email', placeholder: 'you@example.com', 'aria-label': 'Email' });
+      const input = field({ type: 'email', inputmode: 'email', autocomplete: 'email', placeholder: copy.account.emailPlaceholder, 'aria-label': copy.account.emailLabel });
       input.value = email;
-      const send = h('button', { class: 'btn btn-primary', text: 'Email me a link' });
+      const send = h('button', { class: 'btn btn-primary', text: copy.account.sendLink });
       send.addEventListener('click', () =>
         run(send, async () => {
           email = input.value.trim();
-          if (!/^\S+@\S+\.\S+$/.test(email)) return void fail('Enter your email address');
+          if (!/^\S+@\S+\.\S+$/.test(email)) return void fail(copy.account.enterEmail);
           const result = await sendSignInEmail(email);
           if (!fail(result.error)) return;
           switched = !!result.switched;
@@ -85,7 +86,7 @@ export function signUpForm(options: {
     const waitingFor = ++attempt;
     const back = h('button', {
       class: 'link-btn',
-      text: 'Use a different email',
+      text: copy.account.useDifferentEmail,
       onclick: () => {
         attempt++; // stops waiting for the old link
         step = 'email';
@@ -96,17 +97,17 @@ export function signUpForm(options: {
     if (handoffCode) {
       // Signing in to an existing account: the link's page asks to confirm this code.
       box.replaceChildren(
-        heading('Check your email', `We sent a sign-in link to ${email}. Tap it, then confirm on the page that opens.`),
-        h('div', { class: 'match-code', attrs: { 'aria-label': `Matching code ${handoffCode}` } }, h('small', { text: 'Your code' }), h('strong', { text: handoffCode })),
-        h('p', { class: 'waiting', text: 'Waiting for you to confirm…' }),
-        ...(switched ? [h('p', { class: 'note', text: "That email already has an account. Signing in switches to it; this guest's progress won't move over." })] : []),
+        heading(copy.account.checkEmail, copy.account.linkSentConfirm(email)),
+        h('div', { class: 'match-code', attrs: { 'aria-label': copy.account.a11yMatchCode(handoffCode) } }, h('small', { text: copy.account.yourCode }), h('strong', { text: handoffCode })),
+        h('p', { class: 'waiting', text: copy.account.waitingConfirm }),
+        ...(switched ? [h('p', { class: 'note', text: copy.account.switchWarning })] : []),
         error,
         back,
       );
     } else {
       box.replaceChildren(
-        heading('Check your email', `We sent a link to ${email}. Tap it to confirm. This screen continues by itself.`),
-        h('p', { class: 'waiting', text: 'Waiting for the link…' }),
+        heading(copy.account.checkEmail, copy.account.linkSent(email)),
+        h('p', { class: 'waiting', text: copy.account.waitingLink }),
         error,
         back,
       );
@@ -115,10 +116,10 @@ export function signUpForm(options: {
     void wait.then((done) => {
       if (attempt !== waitingFor) return;
       if (!done) {
-        if (box.isConnected) fail('The link expired. Ask for a new one.');
+        if (box.isConnected) fail(copy.account.linkExpired);
         return;
       }
-      toast(handoffCode ? 'Signed in.' : 'Signed up. Your progress is saved.');
+      toast(handoffCode ? copy.account.signedIn : copy.account.signedUp);
       options.onDone?.();
     });
   }

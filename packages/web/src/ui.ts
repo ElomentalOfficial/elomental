@@ -1,4 +1,5 @@
 import { ICONS } from './icons.ts';
+import * as copy from './copy/en.ts';
 
 type Child = Node | string | null | undefined | false;
 
@@ -135,7 +136,7 @@ export function toast(message: string): void {
 
 /** The ✕ in the corner of a pop-up sheet. */
 export function closeButton(onClose: () => void): HTMLElement {
-  return h('button', { class: 'close-btn', html: ICONS.close, attrs: { 'aria-label': 'Close' }, onclick: onClose });
+  return h('button', { class: 'close-btn', html: ICONS.close, attrs: { 'aria-label': copy.common.close }, onclick: onClose });
 }
 
 /** 75 → "1:15": a duration in whole seconds, as the clock and results show it. */

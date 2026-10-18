@@ -17,11 +17,12 @@ import { deviceInfo } from '../viewport.ts';
 import { goBack, h, mount, toast, type Screen } from '../ui.ts';
 import { homeScreen } from './home.ts';
 import { reviewScreen } from './review.ts';
+import * as copy from '../copy/en.ts';
 
 export function setupScreen(): Screen {
   const options: { theme: Theme; label: string; icon: string }[] = [
-    { theme: 'dark', label: 'Dark', icon: ICONS.moon },
-    { theme: 'light', label: 'Light', icon: ICONS.sun },
+    { theme: 'dark', label: copy.setup.dark, icon: ICONS.moon },
+    { theme: 'light', label: copy.setup.light, icon: ICONS.sun },
   ];
 
   const buttons = options.map((o) =>
@@ -60,7 +61,7 @@ export function setupScreen(): Screen {
           syncWheel();
         },
       },
-      h('span', { text: on ? 'On' : 'Off' }),
+      h('span', { text: on ? copy.common.on : copy.common.off }),
     ),
   );
   const syncWheel = () => {
@@ -80,7 +81,7 @@ export function setupScreen(): Screen {
   });
 
   // Hidden diagnostics: five taps on the title show what the phone reports about its screen.
-  const title = h('h1', { text: 'Setup' });
+  const title = h('h1', { text: copy.setup.title });
   const info = h('pre', { class: 'device-info' });
   let taps = 0;
   title.addEventListener('click', () => {
@@ -95,7 +96,7 @@ export function setupScreen(): Screen {
     h(
       'div',
       { class: 'subbar' },
-      h('button', { class: 'icon-btn', html: ICONS.back, attrs: { 'aria-label': 'Back' }, onclick: () => void goBack(homeScreen) }),
+      h('button', { class: 'icon-btn', html: ICONS.back, attrs: { 'aria-label': copy.common.back }, onclick: () => void goBack(homeScreen) }),
       title,
       h('span', { class: 'icon-btn-spacer' }),
     ),
@@ -104,25 +105,25 @@ export function setupScreen(): Screen {
     h(
       'section',
       { class: 'setting' },
-      h('div', {}, h('h2', { text: 'Theme' }), h('p', { text: 'Dark is the default.' })),
-      h('div', { class: 'segmented', attrs: { role: 'radiogroup', 'aria-label': 'Theme' } }, ...buttons),
+      h('div', {}, h('h2', { text: copy.setup.theme }), h('p', { text: copy.setup.themeHelp })),
+      h('div', { class: 'segmented', attrs: { role: 'radiogroup', 'aria-label': copy.setup.theme } }, ...buttons),
     ),
     h(
       'section',
       { class: 'setting' },
-      h('div', {}, h('h2', { text: 'Notes wheel' }), h('p', { text: 'Long-press a square to take notes. Off adds a Notes button instead.' })),
-      h('div', { class: 'segmented', attrs: { role: 'radiogroup', 'aria-label': 'Notes wheel' } }, ...wheelButtons),
+      h('div', {}, h('h2', { text: copy.setup.notesWheel }), h('p', { text: copy.setup.notesWheelHelp })),
+      h('div', { class: 'segmented', attrs: { role: 'radiogroup', 'aria-label': copy.setup.notesWheel } }, ...wheelButtons),
     ),
     h(
       'section',
       { class: 'setting' },
-      h('div', {}, h('h2', { text: 'Tutorial' }), h('p', { text: 'How to fill squares, take notes, erase and undo.' })),
+      h('div', {}, h('h2', { text: copy.setup.tutorial }), h('p', { text: copy.setup.tutorialHelp })),
       h('button', {
         class: 'btn',
-        text: 'Show again next game',
+        text: copy.setup.tutorialReplay,
         onclick: () => {
           saveSettings({ tutorialDone: false });
-          toast('The tutorial will play at the start of your next game');
+          toast(copy.setup.tutorialQueued);
         },
       }),
     ),
@@ -136,8 +137,8 @@ function reviewSection(): HTMLElement {
   const section = h(
     'section',
     { class: 'setting' },
-    h('div', {}, h('h2', { text: 'Review' }), h('p', { text: 'Players flagged for copying answers in Ranked.' })),
-    h('button', { class: 'btn', text: 'Open review', onclick: () => mount(reviewScreen()) }),
+    h('div', {}, h('h2', { text: copy.setup.review }), h('p', { text: copy.setup.reviewHelp })),
+    h('button', { class: 'btn', text: copy.setup.openReview, onclick: () => mount(reviewScreen()) }),
   );
   const paint = () => (section.hidden = !isFounder() || !!cachedAccount()?.anonymous);
   paint();
@@ -177,28 +178,28 @@ function accountSection(): HTMLElement {
     if (account && !account.anonymous) {
       // A name can change once every 15 days; while locked, the field just shows it.
       const locked = account.nextNameChange;
-      const name = field({ type: 'text', maxlength: '20', 'aria-label': 'Player name', value: account.name });
+      const name = field({ type: 'text', maxlength: '20', 'aria-label': copy.account.playerName, value: account.name });
       name.disabled = !!locked;
-      const save = h('button', { class: 'btn', text: 'Save name' });
+      const save = h('button', { class: 'btn', text: copy.account.saveName });
       save.addEventListener('click', () =>
         run(save, async () => {
           if (name.value.trim() === account.name) return;
           if (!fail(await setDisplayName(name.value))) return;
-          toast('Name saved');
+          toast(copy.account.nameSaved);
           paint();
         }),
       );
-      const out = h('button', { class: 'btn', text: 'Sign out' });
+      const out = h('button', { class: 'btn', text: copy.account.signOut });
       out.addEventListener('click', () => run(out, () => signOut()));
       section.replaceChildren(
-        h('div', {}, h('h2', { text: 'Account' }), h('p', { text: `Signed in as ${account.email}` })),
-        h('label', { class: 'field-label', text: 'Player name' }),
+        h('div', {}, h('h2', { text: copy.account.title }), h('p', { text: copy.account.signedInAs(account.email) })),
+        h('label', { class: 'field-label', text: copy.account.playerName }),
         name,
         h('p', {
           class: 'field-hint',
           text: locked
-            ? `You can change your name again on ${formatDay(locked)}.`
-            : `You can change your name once every ${NAME_COOLDOWN_DAYS} days.`,
+            ? copy.account.nameAgainOnHint(formatDay(locked))
+            : copy.account.nameCooldown(NAME_COOLDOWN_DAYS),
         }),
         ...(locked ? [] : [save]),
         error,
@@ -209,10 +210,8 @@ function accountSection(): HTMLElement {
 
     section.replaceChildren(
       signUpForm({
-        title: 'Account',
-        text: account?.anonymous
-          ? 'Playing as a guest. Sign up with your email to keep your Elo, Stardust and Daily streak on any device.'
-          : 'Sign in with your email. Your Elo, Stardust and Clash results are saved on any device.',
+        title: copy.account.title,
+        text: account?.anonymous ? copy.account.guestIntro : copy.account.signInIntro,
       }),
     );
   }

@@ -2,6 +2,7 @@ import type { Session } from '@supabase/supabase-js';
 import { applySettings, cleanSettings, localSettings, type Settings } from '../settings.ts';
 import { readJson, removeKey, writeJson } from '../storage.ts';
 import { supabase } from './client.ts';
+import * as copy from '../copy/en.ts';
 
 // --- Account cache ------------------------------------------------------------
 // The home screen renders synchronously, so the last known server profile is
@@ -158,9 +159,9 @@ export async function setDisplayName(name: string): Promise<string | null> {
   const { error } = await supabase.rpc('set_display_name', { p_name: name });
   if (error) {
     const cooldown = error.message.match(/name_cooldown:(\S+)/);
-    if (cooldown) return `You can change your name again on ${formatDay(cooldown[1])}`;
-    if (error.message.includes('name_taken')) return 'That name is taken';
-    return 'Names are 3–20 letters, digits, spaces, . _ -';
+    if (cooldown) return copy.account.nameAgainOn(formatDay(cooldown[1]));
+    if (error.message.includes('name_taken')) return copy.account.nameTaken;
+    return copy.account.nameRules;
   }
   await refreshAccount();
   return null;

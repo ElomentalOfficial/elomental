@@ -1,6 +1,7 @@
 import { readJson, removeKey, writeJson } from '../storage.ts';
 import { cachedAccount, refreshAccount, registered } from './account.ts';
 import { SUPABASE_KEY, SUPABASE_URL, supabase } from './client.ts';
+import * as copy from '../copy/en.ts';
 
 // --- Sign-in email -----------------------------------------------------------------
 
@@ -34,9 +35,9 @@ export async function sendSignInEmail(
 }
 
 function friendlyAuthError(message: string): string {
-  if (/rate limit|too many|security purposes/i.test(message)) return 'Too many emails. Wait a minute and try again.';
-  if (/expired|invalid/i.test(message)) return 'That code is wrong or expired';
-  if (/email/i.test(message)) return 'Check the email address';
+  if (/rate limit|too many|security purposes/i.test(message)) return copy.account.errors.tooManyEmails;
+  if (/expired|invalid/i.test(message)) return copy.account.errors.badCode;
+  if (/email/i.test(message)) return copy.account.errors.badEmail;
   return message;
 }
 
@@ -157,13 +158,13 @@ export function takeHandoffFromUrl(): string | null {
 /** Approves a hand-off for the account this browser just signed in as. Null when approved, otherwise why not. */
 export async function approveHandoff(id: string): Promise<string | null> {
   const session = (await supabase.auth.getSession()).data.session;
-  if (!session || session.user.is_anonymous) return 'The sign-in link has expired. Ask for a new one in the app.';
+  if (!session || session.user.is_anonymous) return copy.handoff.errors.expiredLink;
   try {
     const { status, data } = await callHandoff({ action: 'approve', id }, session.access_token);
     if (status === 200 && data.ok) return null;
-    if (data.error === 'wrong_account') return 'This request was made for a different email.';
-    return 'This request has expired. Ask for a new link in the app.';
+    if (data.error === 'wrong_account') return copy.handoff.errors.wrongAccount;
+    return copy.handoff.errors.expiredRequest;
   } catch {
-    return 'No connection. Try again.';
+    return copy.handoff.errors.offline;
   }
 }

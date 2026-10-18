@@ -2,6 +2,7 @@ import type { Difficulty, Move } from '@elomental/engine';
 import type { Mode, Outcome } from '../profile.ts';
 import { refreshAccount } from './account.ts';
 import { knownError, supabase } from './client.ts';
+import * as copy from '../copy/en.ts';
 
 /**
  * The server side of every signed-in game. The browser never writes
@@ -21,14 +22,6 @@ export interface ServerStart {
 /** A game the server won't start, with the reason to show the player. */
 export class GameRefused extends Error {}
 
-const REFUSALS: Record<string, string> = {
-  daily_done: "You've already played today's square",
-  clash_played: "You've already played this clash",
-  bad_date: 'Your clock looks off: check the date',
-  bad_code: "That code isn't valid",
-  not_signed_in: 'Sign in again to play',
-  ranked_restricted: 'Ranked is paused for your account for now. Casual, Daily and Clash are open.',
-};
 
 /** Throws GameRefused (with the player-facing reason) or, for anything else, a plain Error. */
 export async function startServerGame(options: {
@@ -44,7 +37,7 @@ export async function startServerGame(options: {
     p_clash_code: options.clashCode ?? null,
   });
   if (error) {
-    const refusal = knownError(error, REFUSALS);
+    const refusal = knownError(error, copy.refusals.start);
     throw refusal ? new GameRefused(refusal) : new Error(error.message);
   }
   const d = data as { game_id: string; seed: string; difficulty: Difficulty; target_rating?: number | null; resumed: boolean };
@@ -89,12 +82,6 @@ export interface ServerFinish {
   seconds: number;
 }
 
-const FINISH_REFUSALS: Record<string, string> = {
-  too_fast: 'Solved faster than humanly possible: not counted',
-  already_finished: 'This game was already settled',
-  invalid_solution: "The grid didn't check out: not counted",
-};
-
 /** Settles the game on the server; `refused` with the reason to show when it wasn't counted. */
 export async function finishServerGame(input: {
   gameId: string;
@@ -115,7 +102,7 @@ export async function finishServerGame(input: {
     p_grid: input.grid,
   });
   if (error) {
-    return { refused: knownError(error, FINISH_REFUSALS) ?? 'No connection: this game was not saved to your account' };
+    return { refused: knownError(error, copy.refusals.finish) ?? copy.refusals.finishOffline };
   }
   const d = data as {
     seconds: number;

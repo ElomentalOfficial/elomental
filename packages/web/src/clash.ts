@@ -2,6 +2,7 @@ import type { Difficulty } from '@elomental/engine';
 import { copyText } from './clipboard.ts';
 import { readJson, writeJson } from './storage.ts';
 import { formatSeconds } from './ui.ts';
+import * as copy from './copy/en.ts';
 
 /**
  * Clash: race a friend on the same square.
@@ -149,14 +150,13 @@ export function compare(mine: ClashResult, theirs: ClashResult): -1 | 0 | 1 {
 
 export async function share(code: string, result?: ClashResult): Promise<'shared' | 'copied' | 'failed'> {
   const url = shareLink(code, result);
-  const text = result
-    ? result.solved
-      ? `Clash me on Elomental! Code ${code}. Beat my ${formatSeconds(result.seconds)} (${result.mistakes} mistakes, ${result.hints} hints).`
-      : `Clash me on Elomental! Code ${code}. I didn't crack it. Can you?`
-    : `Clash me on Elomental! Code ${code}.`;
+  const text = copy.clash.shareText(
+    code,
+    result && { solved: result.solved, time: formatSeconds(result.seconds), mistakes: result.mistakes, hints: result.hints },
+  );
   try {
     if (navigator.share) {
-      await navigator.share({ title: 'Elomental Clash', text, url });
+      await navigator.share({ title: copy.clash.shareTitle, text, url });
       return 'shared';
     }
   } catch (error) {

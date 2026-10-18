@@ -53,6 +53,7 @@ import { runTutorial, tutorialDone, type TutorialStep } from '../tutorial.ts';
 import { formatSeconds, formatTime, goBack, h, mount, openModal, toast, type Screen } from '../ui.ts';
 import { dailyScreen } from './daily.ts';
 import { homeScreen } from './home.ts';
+import * as copy from '../copy/en.ts';
 
 export interface GameConfig {
   mode: Mode;
@@ -150,7 +151,7 @@ export async function startGame(options: {
     try {
       shared = await importPuzzle(options.square.givens);
     } catch (error) {
-      toast(SQUARE_ERRORS[(error as Error).message] ?? "That square can't be played");
+      toast(copy.game.squareErrors[(error as Error).message] ?? copy.game.squareUnplayable);
       return show(homeScreen);
     }
   }
@@ -168,7 +169,7 @@ export async function startGame(options: {
       });
     } catch (error) {
       console.error(error);
-      toast(error instanceof GameRefused ? error.message : 'No connection: games need the server while signed in');
+      toast(error instanceof GameRefused ? error.message : copy.game.offlineSignedIn);
       return show(options.mode === 'daily' ? dailyScreen : homeScreen);
     }
   }
@@ -211,7 +212,7 @@ export async function startGame(options: {
     show(() => gameScreen(game));
   } catch (error) {
     console.error(error);
-    toast('Could not forge a puzzle');
+    toast(copy.game.forgeFailed);
     show(homeScreen);
   }
 }
@@ -222,18 +223,11 @@ export function resumeGame(game: SavedGame): void {
 
 function loadingScreen(): Screen {
   return {
-    el: h('div', { class: 'screen loading' }, h('div', { class: 'loader' }), h('p', { text: 'Forging your square…' })),
+    el: h('div', { class: 'screen loading' }, h('div', { class: 'loader' }), h('p', { text: copy.game.loading })),
   };
 }
 
-const SQUARE_ERRORS: Record<string, string> = {
-  too_few: 'That square has too few numbers to have one answer',
-  no_solution: "That square has no answer: some numbers clash",
-  not_unique: 'That square has more than one answer',
-};
-
-const MODE_LABEL: Record<Mode, string> = { casual: 'Casual', daily: 'Daily Square', ranked: 'Ranked', clash: 'Clash' };
-const capitalize = (s: string) => s[0].toUpperCase() + s.slice(1);
+const MODE_LABEL: Record<Mode, string> = copy.common.modes;
 
 function gameScreen(game: SavedGame): Screen {
   const { config } = game;
@@ -255,9 +249,9 @@ function gameScreen(game: SavedGame): Screen {
   let finished = false;
 
   // --- Top bar -------------------------------------------------------------
-  const leftButton = h('button', { class: 'bar-btn', text: ranked ? 'Concede' : 'Home' });
+  const leftButton = h('button', { class: 'bar-btn', text: ranked ? copy.game.concede : copy.common.home });
   const timer = h('div', { class: 'timer' });
-  const pauseButton = h('button', { class: 'bar-btn bar-icon', html: ICONS.pause, attrs: { 'aria-label': 'Pause' } });
+  const pauseButton = h('button', { class: 'bar-btn bar-icon', html: ICONS.pause, attrs: { 'aria-label': copy.game.a11y.pause } });
 
   const skulls = Array.from({ length: MAX_MISTAKES }, () => h('span', { class: 'skull', html: ICONS.mistake }));
   // The square code: tap to copy and send it to a friend (squareCode.ts).
@@ -268,7 +262,7 @@ function gameScreen(game: SavedGame): Screen {
       if (!code) return;
       void copyText(formatSquareCode(code)).then((copied) => {
         if (copied === null) return;
-        toast(copied ? 'Square code copied. Send it to a friend.' : `Copy blocked. The code is ${formatSquareCode(code)}`);
+        toast(copied ? copy.game.squareCodeCopied : copy.game.squareCodeBlocked(formatSquareCode(code)));
       });
     },
   });
@@ -276,8 +270,8 @@ function gameScreen(game: SavedGame): Screen {
     const code = config.squareCode;
     squareChip.hidden = !code;
     if (!code) return;
-    squareChip.replaceChildren(h('span', { text: `#${formatSquareCode(code)}` }), h('span', { class: 'square-code-icon', html: ICONS.copy }));
-    squareChip.setAttribute('aria-label', `Square code ${code.split('').join(' ')}. Copy`);
+    squareChip.replaceChildren(h('span', { text: copy.game.squareCode(formatSquareCode(code)) }), h('span', { class: 'square-code-icon', html: ICONS.copy }));
+    squareChip.setAttribute('aria-label', copy.game.a11y.squareCode(code));
   };
   paintSquareCode();
   if (!config.squareCode) {
@@ -291,7 +285,7 @@ function gameScreen(game: SavedGame): Screen {
   const status = h(
     'div',
     { class: 'status' },
-    h('div', { class: 'mistakes', attrs: { 'aria-label': 'Mistakes' } }, ...skulls),
+    h('div', { class: 'mistakes', attrs: { 'aria-label': copy.game.a11y.mistakes } }, ...skulls),
     h(
       'div',
       { class: 'puzzle-info' },
@@ -301,9 +295,9 @@ function gameScreen(game: SavedGame): Screen {
         // Only Casual shows its difficulty; Daily and Ranked keep it hidden. Clash shows
         // its code and, when the friend's result came in a link, the time to beat.
         text: clash
-          ? `Clash · ${clash.code}${clash.theirs?.solved ? ` · beat ${formatSeconds(clash.theirs.seconds)}` : ''}`
+          ? copy.game.label.clash(clash.code, clash.theirs?.solved ? formatSeconds(clash.theirs.seconds) : undefined)
           : config.mode === 'casual'
-            ? `Casual · ${capitalize(config.difficulty)}`
+            ? copy.game.label.casual(config.difficulty)
             : MODE_LABEL[config.mode],
       }),
     ),
@@ -311,7 +305,7 @@ function gameScreen(game: SavedGame): Screen {
 
   // --- Board ---------------------------------------------------------------
   const cells: HTMLElement[] = [];
-  const board = h('div', { class: 'board', attrs: { role: 'grid', 'aria-label': 'Sudoku board' } });
+  const board = h('div', { class: 'board', attrs: { role: 'grid', 'aria-label': copy.game.a11y.board } });
   for (let b = 0; b < 9; b++) {
     const box = h('div', { class: 'box' });
     for (const c of BOXES[b]) {
@@ -325,7 +319,7 @@ function gameScreen(game: SavedGame): Screen {
     'button',
     { class: 'pause-cover', onclick: () => setPaused(false) },
     h('span', { class: 'play-badge', html: ICONS.play }),
-    'Paused',
+    copy.game.paused,
     competitive ? h('small', { class: 'pause-note' }) : null,
   );
   const pauseNote = pauseCover.querySelector<HTMLElement>('.pause-note');
@@ -340,18 +334,18 @@ function gameScreen(game: SavedGame): Screen {
     keys[d] = key;
     pad.append(key);
   }
-  pad.append(h('button', { class: 'key key-erase', html: ICONS.eraser, attrs: { 'data-digit': '0', 'aria-label': 'Erase' } }));
+  pad.append(h('button', { class: 'key key-erase', html: ICONS.eraser, attrs: { 'data-digit': '0', 'aria-label': copy.game.a11y.erase } }));
 
   const hintButton = h('button', {
     class: 'action',
-    html: `${ICONS.hint}<span>Hint</span>`,
+    html: `${ICONS.hint}<span>${copy.game.hint}</span>`,
   });
-  const undoButton = h('button', { class: 'action', html: `${ICONS.undo}<span>Undo</span>` });
+  const undoButton = h('button', { class: 'action', html: `${ICONS.undo}<span>${copy.game.undo}</span>` });
   // With the notes wheel turned off in Setup, notes come from a Notes mode toggle instead.
   const useWheel = notesWheelOn();
   const notesButton = useWheel
     ? null
-    : h('button', { class: 'action notes-toggle', html: `${ICONS.pencil}<span>Notes</span>`, attrs: { 'aria-pressed': 'false' } });
+    : h('button', { class: 'action notes-toggle', html: `${ICONS.pencil}<span>${copy.game.notes}</span>`, attrs: { 'aria-pressed': 'false' } });
 
   // The splash ribbon hanging over the controls; only the wide layouts show it (styles.css).
   // The whole outline is stretched to the hanging length, so its tears and torn
@@ -527,11 +521,11 @@ function gameScreen(game: SavedGame): Screen {
    */
   async function hint() {
     if (finished || paused || coaching) return;
-    if (game.hints >= MAX_HINTS) return toast(`No hints left — ${MAX_HINTS} per game`);
+    if (game.hints >= MAX_HINTS) return toast(copy.game.noHintsLeft(MAX_HINTS));
     // Only correct digits count as known; a wrong entry must not mislead the hint.
     const known = Uint8Array.from(game.values, (v, c) => (v === solution[c] ? v : 0));
     const next = nextPlacement(known);
-    if (!next) return toast('No logical step found from here');
+    if (!next) return toast(copy.game.noHintStep);
     game.hints++;
     coaching = true;
     selected = -1;
@@ -542,7 +536,7 @@ function gameScreen(game: SavedGame): Screen {
     board.classList.add('explaining');
     const placed = await runHintCoach({
       stages: explainHint(next, known),
-      placeLabel: `Place ${next.digit}`,
+      placeLabel: copy.game.placeNumber(next.digit),
       show: markHint,
     });
     markHint({});
@@ -556,7 +550,7 @@ function gameScreen(game: SavedGame): Screen {
       cells[next.cell].classList.add('hinted');
       setTimeout(() => cells[next.cell].classList.remove('hinted'), 900);
     } else render();
-    if (ranked) toast(`Elo gain −${Math.round(HINT_ELO_PENALTY * 100 * game.hints)}% for hints this game`);
+    if (ranked) toast(copy.game.hintEloCut(Math.round(HINT_ELO_PENALTY * 100 * game.hints)));
   }
 
   /** Apply a stage's highlights to the board. */
@@ -576,8 +570,8 @@ function gameScreen(game: SavedGame): Screen {
     const left = MAX_HINTS - game.hints;
     hintButton.classList.toggle('locked', left <= 0);
     hintButton.setAttribute('aria-disabled', String(left <= 0));
-    hintButton.setAttribute('aria-label', `Hint, ${left} left`);
-    hintButton.innerHTML = `${left > 0 ? ICONS.hint : ICONS.lock}<span>Hint</span><span class="hint-count" aria-hidden="true">${left}</span>`;
+    hintButton.setAttribute('aria-label', copy.game.a11y.hint(left));
+    hintButton.innerHTML = `${left > 0 ? ICONS.hint : ICONS.lock}<span>${copy.game.hint}</span><span class="hint-count" aria-hidden="true">${left}</span>`;
   }
 
   function select(cell: number) {
@@ -595,11 +589,11 @@ function gameScreen(game: SavedGame): Screen {
     if (finished || value === paused) return;
     if (value && competitive && !restoring) {
       const used = game.pauses ?? 0;
-      if (used >= MAX_PAUSES) return toast('No pauses left in this match');
+      if (used >= MAX_PAUSES) return toast(copy.game.noPausesLeft);
       let left = MAX_PAUSES - used - 1;
       if (config.serverId) {
         const serverLeft = await pauseServerGame(config.serverId);
-        if (serverLeft === null) return toast('No pauses left in this match');
+        if (serverLeft === null) return toast(copy.game.noPausesLeft);
         left = serverLeft;
       }
       game.pauses = MAX_PAUSES - left;
@@ -609,14 +603,14 @@ function gameScreen(game: SavedGame): Screen {
     game.paused = paused;
     if (pauseNote) {
       const left = MAX_PAUSES - (game.pauses ?? 0);
-      pauseNote.textContent = left === 1 ? '1 pause left' : `${left} pauses left`;
+      pauseNote.textContent = copy.game.pausesLeft(left);
     }
     save();
     el.classList.toggle('paused', paused);
     // Paused Ranked: the way out is Home (the game waits), not Concede.
-    if (ranked) leftButton.textContent = paused ? 'Home' : 'Concede';
+    if (ranked) leftButton.textContent = paused ? copy.common.home : copy.game.concede;
     pauseButton.innerHTML = paused ? ICONS.play : ICONS.pause;
-    pauseButton.setAttribute('aria-label', paused ? 'Resume' : 'Pause');
+    pauseButton.setAttribute('aria-label', paused ? copy.game.a11y.resume : copy.game.a11y.pause);
     tick();
   }
 
@@ -641,8 +635,11 @@ function gameScreen(game: SavedGame): Screen {
       cell.dataset.k = key;
       cell.setAttribute(
         'aria-label',
-        `Row ${ROW_OF[c] + 1}, column ${COL_OF[c] + 1}: ` +
-          (value ? String(value) : game.notes[c] ? `notes ${digitsIn(game.notes[c]).join(' ')}` : 'empty'),
+        copy.game.a11y.cell(
+          ROW_OF[c] + 1,
+          COL_OF[c] + 1,
+          value ? String(value) : game.notes[c] ? copy.game.a11y.cellNotes(digitsIn(game.notes[c])) : copy.game.a11y.cellEmpty,
+        ),
       );
       if (value) {
         cell.textContent = String(value);
@@ -759,8 +756,8 @@ function gameScreen(game: SavedGame): Screen {
   function showClashResult(code: string, mine: ClashResult, theirs: ClashResult | null, outcome: Outcome, notice?: string, online = false) {
     const verdict = clashVerdict(mine, theirs);
     const rewards = h('div', { class: 'rewards' });
-    if (outcome.dust) rewards.append(h('div', { class: 'reward' }, h('span', { html: ICONS.dust }), h('span', { text: `+${outcome.dust} Stardust` })));
-    if (outcome.crown) rewards.append(h('div', { class: 'reward rare', html: `${ICONS.crown}<span>Rare drop: Rusted Crown!</span>` }));
+    if (outcome.dust) rewards.append(h('div', { class: 'reward' }, h('span', { html: ICONS.dust }), h('span', { text: copy.common.plusStardust(outcome.dust) })));
+    if (outcome.crown) rewards.append(h('div', { class: 'reward rare', html: `${ICONS.crown}<span>${copy.common.rareCrown}</span>` }));
     openModal(
       h(
         'div',
@@ -771,11 +768,11 @@ function gameScreen(game: SavedGame): Screen {
           class: 'note',
           text: online
             ? theirs
-              ? 'Your friend sees this result too, in their Clash log.'
-              : "Send the code to your friend. When they finish, you'll both see who won in the Clash log."
+              ? copy.clash.resultNote.onlineAnswered
+              : copy.clash.resultNote.onlineWaiting
             : theirs
-              ? 'Send your result back so your friend sees who won too.'
-              : "Send your result to your friend. When their result link comes back, open it here and you'll see who won. Both results stay in the Clash log.",
+              ? copy.clash.resultNote.offlineAnswered
+              : copy.clash.resultNote.offlineWaiting,
         }),
         clashTable(code, mine, theirs),
         rewards.childElementCount ? rewards : null,
@@ -783,8 +780,8 @@ function gameScreen(game: SavedGame): Screen {
         h(
           'div',
           { class: 'actions' },
-          shareButton(code, mine, theirs ? 'Send result' : 'Challenge a friend'),
-          h('button', { class: 'btn', text: 'Home', onclick: () => void goBack(homeScreen) }),
+          shareButton(code, mine, theirs ? copy.clash.sendResult : copy.clash.challengeFriend),
+          h('button', { class: 'btn', text: copy.common.home, onclick: () => void goBack(homeScreen) }),
         ),
       ),
       { dismissible: false },
@@ -792,18 +789,18 @@ function gameScreen(game: SavedGame): Screen {
   }
 
   function showResult(won: boolean, reason: string, outcome: Outcome, notice?: string) {
-    const titles: Record<string, string> = { solved: 'Square Complete', mistakes: 'Three Strikes', concede: 'Conceded' };
+    const titles = copy.result.titles;
     const rows: (HTMLElement | null)[] = [
       notice ? h('p', { class: 'note', text: notice }) : null,
-      statRow('Time', formatTime(game.elapsedMs)),
-      statRow('Mistakes', `${game.mistakes} / ${MAX_MISTAKES}`),
+      statRow(copy.result.time, formatTime(game.elapsedMs)),
+      statRow(copy.result.mistakes, copy.result.mistakesOf(game.mistakes, MAX_MISTAKES)),
     ];
-    if (game.hints) rows.push(statRow('Hints', String(game.hints)));
+    if (game.hints) rows.push(statRow(copy.result.hints, String(game.hints)));
     if (outcome.elo) {
       const delta = outcome.elo.after - outcome.elo.before;
-      const eloRow = statRow('Elo', `${outcome.elo.before} → ${outcome.elo.after} (${delta >= 0 ? '+' : ''}${delta})`, delta > 0 ? 'good' : '');
+      const eloRow = statRow(copy.result.elo, copy.result.eloChange(outcome.elo.before, outcome.elo.after), delta > 0 ? 'good' : '');
       // The new rating counts up from the old one.
-      countUp(eloRow.querySelector('strong')!, outcome.elo.before, outcome.elo.after, (n) => `${outcome.elo!.before} → ${n} (${delta >= 0 ? '+' : ''}${delta})`);
+      countUp(eloRow.querySelector('strong')!, outcome.elo.before, outcome.elo.after, (n) => copy.result.eloChange(outcome.elo!.before, n, delta));
       rows.push(eloRow);
       // Only encouragement here: what went well, or one tip for a bigger gain next time.
       if (outcome.elo.unrated) {
@@ -811,44 +808,42 @@ function gameScreen(game: SavedGame): Screen {
           h('p', {
             class: 'note',
             text:
-              outcome.elo.unrated === 'copied'
-                ? 'Unrated: squares went in before they could be worked out.'
-                : "Unrated: this solve couldn't be checked. Check your connection.",
+              outcome.elo.unrated === 'copied' ? copy.result.unratedCopied : copy.result.unratedUnchecked,
           }),
         );
-      } else if (outcome.elo.bonus > 0) rows.push(h('p', { class: 'note good', text: `Speed bonus +${Math.round(outcome.elo.bonus * 100)}%` }));
-      else if (won && game.hints > 0) rows.push(h('p', { class: 'note', text: 'Solve it without hints next time for the full Elo gain.' }));
-      else if (won && outcome.elo.bonus < 0) rows.push(h('p', { class: 'note', text: 'Finish a little faster next time for a speed bonus.' }));
-      if (outcome.elo.protectedLoss) rows.push(h('p', { class: 'note', text: 'No Elo lost: your rating is protected below 500.' }));
+      } else if (outcome.elo.bonus > 0) rows.push(h('p', { class: 'note good', text: copy.result.speedBonus(Math.round(outcome.elo.bonus * 100)) }));
+      else if (won && game.hints > 0) rows.push(h('p', { class: 'note', text: copy.result.tipNoHints }));
+      else if (won && outcome.elo.bonus < 0) rows.push(h('p', { class: 'note', text: copy.result.tipFaster }));
+      if (outcome.elo.protectedLoss) rows.push(h('p', { class: 'note', text: copy.result.protectedLoss }));
     }
     if (outcome.daily) {
-      rows.push(statRow('This month', `${outcome.daily.done} / ${outcome.daily.days} squares`));
-      if (outcome.daily.monthComplete) rows.push(h('p', { class: 'note good', text: 'Month complete — avatar unlocked!' }));
+      rows.push(statRow(copy.result.thisMonth, copy.result.monthOf(outcome.daily.done, outcome.daily.days)));
+      if (outcome.daily.monthComplete) rows.push(h('p', { class: 'note good', text: copy.result.monthComplete }));
     }
 
     const rewards = h('div', { class: 'rewards' });
     if (outcome.dust) {
-      const amount = h('span', { text: `+${outcome.dust} Stardust` });
-      countUp(amount, 0, outcome.dust, (n) => `+${n} Stardust`);
+      const amount = h('span', { text: copy.common.plusStardust(outcome.dust) });
+      countUp(amount, 0, outcome.dust, copy.common.plusStardust);
       rewards.append(h('div', { class: 'reward' }, h('span', { html: ICONS.dust }), amount));
     }
-    if (outcome.crown) rewards.append(h('div', { class: 'reward rare', html: `${ICONS.crown}<span>Rare drop: Rusted Crown!</span>` }));
+    if (outcome.crown) rewards.append(h('div', { class: 'reward rare', html: `${ICONS.crown}<span>${copy.common.rareCrown}</span>` }));
 
     // A failed Daily can be retried (same square) until it's solved; only a solve marks the day.
     const retryDaily = config.mode === 'daily' && !won;
-    if (retryDaily) rows.push(h('p', { class: 'note', text: 'Not solved yet: try today’s square again. The day counts once you solve it.' }));
+    if (retryDaily) rows.push(h('p', { class: 'note', text: copy.result.dailyRetry }));
     const again =
       retryDaily
         ? h('button', {
             class: 'btn btn-primary',
-            text: 'Try again',
+            text: copy.result.tryAgain,
             onclick: () => void startGame({ mode: 'daily', difficulty: config.difficulty, seed: config.seed, dateKey: config.dateKey }),
           })
         : config.mode === 'daily'
-        ? h('button', { class: 'btn btn-primary', text: 'Calendar', onclick: () => void goBack(dailyScreen) })
+        ? h('button', { class: 'btn btn-primary', text: copy.result.calendar, onclick: () => void goBack(dailyScreen) })
         : h('button', {
             class: 'btn btn-primary',
-            text: ranked ? 'Next match' : 'New square',
+            text: ranked ? copy.result.nextRanked : copy.result.newSquare,
             onclick: () => void startGame({ mode: config.mode, difficulty: config.difficulty }),
           });
 
@@ -860,7 +855,7 @@ function gameScreen(game: SavedGame): Screen {
         h('div', { class: 'stats' }, ...rows),
         rewards.childElementCount ? rewards : null,
         signupPrompt(),
-        h('div', { class: 'actions' }, again, h('button', { class: 'btn', text: 'Home', onclick: () => void goBack(homeScreen) })),
+        h('div', { class: 'actions' }, again, h('button', { class: 'btn', text: copy.common.home, onclick: () => void goBack(homeScreen) })),
       ),
       { dismissible: false },
     );
@@ -871,19 +866,19 @@ function gameScreen(game: SavedGame): Screen {
       h(
         'div',
         { class: 'confirm' },
-        h('p', { text: 'Concede this match? It counts as a loss.' }),
+        h('p', { text: copy.game.concedeConfirm }),
         h(
           'div',
           { class: 'actions' },
           h('button', {
             class: 'btn btn-primary',
-            text: 'Concede',
+            text: copy.game.concede,
             onclick: () => {
               close();
               finish(false, 'concede');
             },
           }),
-          h('button', { class: 'btn', text: 'Keep playing', onclick: () => close() }),
+          h('button', { class: 'btn', text: copy.game.keepPlaying, onclick: () => close() }),
         ),
       ),
     );
@@ -1016,7 +1011,7 @@ function gameScreen(game: SavedGame): Screen {
     else if (event.key === 'Backspace' || event.key === 'Delete' || event.key === '0') input(0);
     else if (event.key === 'n' || event.key === 'N') {
       notesMode = !notesMode;
-      if (!notesButton) toast(notesMode ? 'Notes mode on' : 'Notes mode off');
+      if (!notesButton) toast(notesMode ? copy.game.notesModeOn : copy.game.notesModeOff);
       render();
     } else if ((event.ctrlKey || event.metaKey) && event.key === 'z') undo();
     else if (event.key.startsWith('Arrow') && selected < 0) select(40); // first arrow press starts in the centre
@@ -1054,47 +1049,39 @@ function gameScreen(game: SavedGame): Screen {
     const steps: TutorialStep[] = [
       {
         target: board,
-        title: 'Pick a square',
-        text: 'Tap any empty square to select it. Its row and column light up. Tap a filled square to highlight every matching number.',
+        ...copy.tutorial.pick,
         gesture: 'tap',
       },
       {
         target: pad,
-        title: 'Fill it in',
-        text: 'Tap a number to place it in the selected square. A wrong number flashes, fades away by itself and costs a skull. Three skulls and the square is lost.',
+        ...copy.tutorial.fill,
         gesture: 'tap',
       },
       notesButton
         ? {
             target: notesButton,
-            title: 'Take notes',
-            text: 'Tap Notes and the numbers pencil small notes into the square instead of filling it. The keys shrink to show it. Tap Notes again to go back.',
+            ...copy.tutorial.notesButton,
             gesture: 'tap',
           }
         : {
             target: board,
-            title: 'Take notes',
-            text: 'Long-press a square for the notes wheel, slide toward a number and lift to pencil it in (or out). Faster: just swipe from the square toward the number. Lift without choosing to cancel.',
+            ...copy.tutorial.notesWheel,
             gesture: 'hold-slide',
           },
       {
         target: pad.querySelector<HTMLElement>('.key-erase')!,
-        title: 'Erase',
-        text: 'Clears the selected square — its number or its notes.',
+        ...copy.tutorial.erase,
         gesture: 'tap',
       },
       {
         target: undoButton,
-        title: 'Undo',
-        text: 'Takes back your last move. Mistakes still count, though.',
+        ...copy.tutorial.undo,
         gesture: 'tap',
       },
       {
         target: hintButton,
-        title: 'Hints',
-        text:
-          `Fills in the next logical square. ${MAX_HINTS} per game and each one trims your Stardust` +
-          (ranked ? ` — in Ranked, each also cuts your Elo gain by ${Math.round(HINT_ELO_PENALTY * 100)}%.` : '.'),
+        title: copy.tutorial.hints.title,
+        text: copy.tutorial.hints.text(MAX_HINTS, ranked ? Math.round(HINT_ELO_PENALTY * 100) : undefined),
         gesture: 'tap',
       },
     ];
@@ -1135,11 +1122,9 @@ function signupPrompt(): HTMLElement | null {
   const keeps = signedIn(); // anonymous account: this game is already on the server
   const box = signUpForm({
     collapsed: true,
-    title: keeps ? 'Keep your rewards' : 'Save your progress',
-    text: keeps
-      ? 'Sign up with your email. Your Stardust, Elo and monthly Daily streak stay yours, on any device.'
-      : 'Sign up with your email so your Stardust, Elo and monthly Daily streak are saved from now on.',
-    onDone: () => box.replaceChildren(h('p', { class: 'signup-done', text: 'Signed up. Your progress is saved.' })),
+    title: keeps ? copy.account.keepRewards : copy.account.saveProgress,
+    text: keeps ? copy.account.keepRewardsText : copy.account.saveProgressText,
+    onDone: () => box.replaceChildren(h('p', { class: 'signup-done', text: copy.account.signedUp })),
   });
   return box;
 }

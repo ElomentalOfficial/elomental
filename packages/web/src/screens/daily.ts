@@ -3,8 +3,9 @@ import { dailyKey, dateKey, loadProfile, nextResetIn } from '../profile.ts';
 import { goBack, h, toast, type Screen } from '../ui.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
 import { homeScreen } from './home.ts';
+import * as copy from '../copy/en.ts';
 
-const WEEKDAYS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+const WEEKDAYS = copy.daily.weekdays;
 
 export function dailyScreen(): Screen {
   const profile = loadProfile();
@@ -30,9 +31,9 @@ export function dailyScreen(): Screen {
         'button',
         {
           class: `day ${state}`,
-          attrs: { 'aria-label': `${monthName} ${d}: ${state}` },
+          attrs: { 'aria-label': copy.daily.a11yDay(monthName, d, state) },
           onclick: () => {
-            if (state === 'missed') toast('Missed squares can be restored with tokens — coming later');
+            if (state === 'missed') toast(copy.daily.missedLater);
           },
         },
         // Done days show a check instead of the number; every other day shows its number.
@@ -49,10 +50,10 @@ export function dailyScreen(): Screen {
   const minutes = Math.floor((untilReset % 3_600_000) / 60_000);
 
   const action = doneToday
-    ? h('div', { class: 'done-today', html: `${ICONS.check}<span>Today's square is complete</span>` })
+    ? h('div', { class: 'done-today', html: `${ICONS.check}<span>${copy.daily.doneToday}</span>` })
     : h('button', {
         class: 'btn btn-primary',
-        text: resumable ? "Continue today's square" : "Play today's square",
+        text: resumable ? copy.daily.continue : copy.daily.play,
         onclick: () =>
           resumable
             ? resumeGame(resumable)
@@ -70,8 +71,8 @@ export function dailyScreen(): Screen {
     h(
       'div',
       { class: 'subbar' },
-      h('button', { class: 'icon-btn', html: ICONS.back, attrs: { 'aria-label': 'Back' }, onclick: () => void goBack(homeScreen) }),
-      h('h1', { text: 'Daily Square' }),
+      h('button', { class: 'icon-btn', html: ICONS.back, attrs: { 'aria-label': copy.common.back }, onclick: () => void goBack(homeScreen) }),
+      h('h1', { text: copy.daily.title }),
       h('span', { class: 'icon-btn-spacer' }),
     ),
     h(
@@ -84,7 +85,7 @@ export function dailyScreen(): Screen {
           'div',
           { class: 'month-head' },
           h('h2', { text: `${monthName} ${year}` }),
-          h('span', { class: 'month-count', text: `${done} of ${days}` }),
+          h('span', { class: 'month-count', text: copy.daily.monthCount(done, days) }),
         ),
         progress,
         calendar,
@@ -96,11 +97,11 @@ export function dailyScreen(): Screen {
         h(
           'div',
           {},
-          h('strong', { text: `${monthName} avatar` }),
-          h('p', { text: done === days ? 'Unlocked — well played.' : 'Complete every square this month to unlock it.' }),
+          h('strong', { text: copy.daily.avatar(monthName) }),
+          h('p', { text: done === days ? copy.daily.avatarUnlocked : copy.daily.avatarLocked }),
         ),
       ),
-      h('div', { class: 'daily-actions' }, action, h('p', { class: 'reset-note', text: `New square in ${hours}h ${minutes}m` })),
+      h('div', { class: 'daily-actions' }, action, h('p', { class: 'reset-note', text: copy.daily.nextIn(hours, minutes) })),
     ),
   );
   return { el };

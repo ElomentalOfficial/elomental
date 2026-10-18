@@ -1,8 +1,10 @@
 import { PEERS, TECHNIQUE_BY_ID, UNITS, type Hint, type Step } from '@elomental/engine';
+import * as copy from './copy/en.ts';
 
 /**
  * Turns a hint into a short walkthrough, like sudoku.com's explained hints:
- * each stage has a sentence and the squares to highlight.
+ * each stage has a sentence and the squares to highlight. The sentences are
+ * in copy/en.ts (hints); this file picks them and the highlights.
  */
 
 export interface Marks {
@@ -23,8 +25,6 @@ export interface Stage {
 }
 
 const unitKind = (u: number) => (u < 9 ? 'row' : u < 18 ? 'column' : 'box');
-const list = (digits: number[]) =>
-  digits.length <= 1 ? String(digits[0] ?? '') : `${digits.slice(0, -1).join(', ')} and ${digits[digits.length - 1]}`;
 const uniq = (cells: number[]) => [...new Set(cells)];
 
 function priorStage(step: Step): Stage {
@@ -34,86 +34,67 @@ function priorStage(step: Step): Stage {
   const ruled = uniq(step.eliminations.map(([c]) => c));
   const kind = step.unit !== undefined ? unitKind(step.unit) : 'line';
   const focus = step.unit !== undefined ? UNITS[step.unit] : uniq([...pattern, ...ruled]);
+  const say = copy.hints.prior;
   let text: string;
   switch (step.technique) {
     case 'pointing':
-      text = `In this box, ${d[0]} can only go in one line, so ${d[0]} can't go anywhere else along that line.`;
+      text = say.pointing(d);
       break;
     case 'claiming':
-      text = `In this ${kind}, ${d[0]} can only go inside one box, so ${d[0]} is ruled out of the rest of that box.`;
+      text = say.claiming(d, kind);
       break;
     case 'nakedPair':
     case 'nakedTriple':
     case 'nakedQuad':
-      text = `These ${pattern.length} squares can only hold ${list(d)} between them, so no other square in this ${kind} can.`;
+      text = say.nakedSubset(d, pattern.length, kind);
       break;
     case 'hiddenPair':
     case 'hiddenTriple':
     case 'hiddenQuad':
-      text = `${list(d)} fit only in these ${pattern.length} squares of this ${kind}, so those squares can't hold anything else.`;
+      text = say.hiddenSubset(d, pattern.length, kind);
       break;
     case 'xWing':
     case 'swordfish':
     case 'jellyfish':
-      text = `${d[0]} sits in matching spots across these lines, so ${d[0]} is ruled out of the rest of the lines they cross.`;
+      text = say.fish(d);
       break;
     case 'finnedXWing':
     case 'finnedSwordfish':
     case 'finnedJellyfish':
-      text =
-        `${d[0]} sits in matching spots across these lines, plus a fin: an extra spot or two inside one box. ` +
-        `Either the fin is ${d[0]}, or the lines lock ${d[0]} in and clear the lines they cross. ` +
-        `Squares in the fin's box on those crossing lines lose ${d[0]} either way.`;
+      text = say.finnedFish(d);
       break;
     case 'emptyRectangle':
-      text =
-        `In this box, ${d[0]} can only sit on one row or one column. This line outside it has just two spots for ${d[0]}: ` +
-        `if the one in line with the box is ${d[0]}, the box's ${d[0]} is pushed onto its other line; if not, the far spot is ${d[0]}. ` +
-        `Either way this square can't be ${d[0]}.`;
+      text = say.emptyRectangle(d);
       break;
     case 'xyzWing':
-      text = `Whatever the middle square turns out to be, one of these three squares must be ${d[0]}, so any square that sees all three can't be ${d[0]}.`;
+      text = say.xyzWing(d);
       break;
     case 'skyscraper':
     case 'twoStringKite':
-      text =
-        `Two lines each have only two spots for ${d[0]}, and one end of each sees the other. ` +
-        `They can't both be ${d[0]}, so one of the two far ends is — any square that sees both far ends can't be ${d[0]}.`;
+      text = say.turbot(d);
       break;
     case 'wWing':
-      text =
-        `These two squares can only be ${d[0]} or ${d[1]}. They can't both be ${d[1]}, because the ${d[1]} they each see has to go somewhere. ` +
-        `So one of them is ${d[0]}, and any square that sees both can't be ${d[0]}.`;
+      text = say.wWing(d);
       break;
     case 'remotePairs':
-      text =
-        `Each of these squares can only be ${list(d)}, and each sees the next, so along the chain they take turns. ` +
-        `A square that sees one of each kind can be neither ${d[0]} nor ${d[1]}.`;
+      text = say.remotePairs(d);
       break;
     case 'simpleColouring':
-      text = ruled.every((c) => pattern.includes(c))
-        ? `Follow the pairs of spots for ${d[0]}: they take turns being ${d[0]}. Two squares on the same turn see each other, so that turn is wrong and none of them is ${d[0]}.`
-        : `Follow the pairs of spots for ${d[0]}: they take turns being ${d[0]}, so one turn holds every ${d[0]}. Any square that sees both turns can't be ${d[0]}.`;
+      text = ruled.every((c) => pattern.includes(c)) ? say.colourWrap(d) : say.colourTrap(d);
       break;
     case 'xChain':
-      text =
-        `Follow this chain of ${d[0]}s: if the first square isn't ${d[0]}, each link forces the next, and the last square is ${d[0]}. ` +
-        `So one end of the chain is ${d[0]}, and any square that sees both ends can't be.`;
+      text = say.xChain(d);
       break;
     case 'xyChain':
-      text =
-        `Each square in this chain has only two choices. If the first isn't ${d[0]}, the choices fall like dominoes until the last one is ${d[0]}. ` +
-        `So one end is ${d[0]}, and any square that sees both ends can't be.`;
+      text = say.xyChain(d);
       break;
     case 'alsXz':
-      text =
-        `These two groups each have one more digit than squares. ${d[1]} can only go in one of the groups, and that pins the other group down. ` +
-        `Either way one of the groups holds ${d[0]}, so any square that sees every ${d[0]} in both can't be ${d[0]}.`;
+      text = say.alsXz(d);
       break;
     default:
-      text = `These three squares force ${d[0]} into one of the outer two, so any square that sees both can't be ${d[0]}.`;
+      text = say.xyWing(d);
   }
-  return { title: `First: ${name}`, text, marks: { focus, ring: pattern, ruled } };
+  return { title: copy.hints.first(name), text, marks: { focus, ring: pattern, ruled } };
 }
 
 /**
@@ -129,20 +110,22 @@ export function explainHint(hint: Hint, values: ArrayLike<number>): Stage[] {
   const relevant = hint.prior.filter((step) =>
     step.eliminations.some(([c, d]) => (unitCells ? unitCells.has(c) && d === D : c === target)),
   );
-  const stages = relevant.map(priorStage).map((stage, i) => (i === 0 ? stage : { ...stage, title: stage.title.replace('First:', 'Then:') }));
+  const stages = relevant
+    .map(priorStage)
+    .map((stage, i) => (i === 0 ? stage : { ...stage, title: copy.hints.then(TECHNIQUE_BY_ID[relevant[i].technique].name) }));
   const eliminatedByPrior = new Set(
     relevant.flatMap((s) => s.eliminations.filter(([, d]) => d === D).map(([c]) => c)),
   );
-  const stepsAbove = relevant.length > 1 ? 'the steps above rule' : 'the step before rules';
+  const stepsAbove = copy.hints.stepsAbove(relevant.length > 1);
 
   if (hint.technique === 'fullHouse' && hint.unit !== undefined) {
     const unit = UNITS[hint.unit];
     const kind = unitKind(hint.unit);
     stages.push(
-      { title: name, text: `Only one square is still empty in this ${kind}.`, marks: { focus: unit, target } },
+      { title: name, text: copy.hints.fullHouse.one(kind), marks: { focus: unit, target } },
       {
         title: name,
-        text: `Every other digit is already here — the one missing is ${D}.`,
+        text: copy.hints.fullHouse.missing(D),
         marks: { focus: unit, ring: unit.filter((c) => values[c]), target },
       },
     );
@@ -158,15 +141,13 @@ export function explainHint(hint: Hint, values: ArrayLike<number>): Stage[] {
     );
     const viaPrior = others.some((c) => eliminatedByPrior.has(c) && !PEERS[c].some((p) => values[p] === D));
     stages.push(
-      { title: name, text: `Where can ${D} go in this ${kind}?`, marks: { focus: unit } },
+      { title: name, text: copy.hints.hiddenSingle.where(D, kind), marks: { focus: unit } },
       {
         title: name,
-        text:
-          `The ${D}s already on the board rule out every other empty square here` +
-          (viaPrior ? ` (${stepsAbove} out the rest).` : '.'),
+        text: copy.hints.hiddenSingle.ruledOut(D, viaPrior ? stepsAbove : undefined),
         marks: { focus: unit, ring: blockers, ruled: others },
       },
-      { title: name, text: `That leaves just one place for ${D}.`, marks: { focus: unit, target } },
+      { title: name, text: copy.hints.hiddenSingle.one(D), marks: { focus: unit, target } },
     );
   } else {
     // Naked single: the square's row, column and box between them leave one digit.
@@ -174,13 +155,10 @@ export function explainHint(hint: Hint, values: ArrayLike<number>): Stage[] {
     const present = [...new Set(seen.map((c) => values[c]).filter(Boolean))].sort((a, b) => a - b);
     const area = [target, ...seen];
     stages.push(
-      { title: name, text: `Look at everything this square can see: its row, column and box.`, marks: { focus: area, target } },
+      { title: name, text: copy.hints.nakedSingle.look, marks: { focus: area, target } },
       {
         title: name,
-        text:
-          `Between them they already hold ${list(present)}` +
-          (present.length < 8 && relevant.length ? `, and ${stepsAbove} out the rest` : '') +
-          `. The only digit left for this square is ${D}.`,
+        text: copy.hints.nakedSingle.left(present, present.length < 8 && relevant.length ? stepsAbove : undefined, D),
         marks: { focus: area, ring: seen.filter((c) => values[c]), target },
       },
     );

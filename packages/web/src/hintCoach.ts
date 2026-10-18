@@ -1,5 +1,6 @@
 import type { Marks, Stage } from './explain.ts';
 import { h } from './ui.ts';
+import * as copy from './copy/en.ts';
 
 /**
  * Steps through a hint's explanation with the tutorial's card. The board stays
@@ -21,7 +22,7 @@ export function runHintCoach(options: {
     const title = h('h3');
     const text = h('p');
     const next = h('button', { class: 'btn btn-primary coach-next' });
-    const close = h('button', { class: 'coach-skip', text: 'Close' });
+    const close = h('button', { class: 'coach-skip', text: copy.common.close });
     const card = h(
       'div',
       { class: 'coach-card hint-card', attrs: { role: 'dialog', 'aria-live': 'polite' } },
@@ -40,10 +41,10 @@ export function runHintCoach(options: {
 
     const show = () => {
       const stage = stages[index];
-      counter.textContent = `Hint · ${index + 1} / ${stages.length}`;
+      counter.textContent = copy.hints.counter(index + 1, stages.length);
       title.textContent = stage.title;
       text.textContent = stage.text;
-      next.textContent = index === stages.length - 1 ? options.placeLabel : 'Next';
+      next.textContent = index === stages.length - 1 ? options.placeLabel : copy.common.next;
       options.show(stage.marks);
       card.classList.remove('enter');
       void card.offsetWidth;
