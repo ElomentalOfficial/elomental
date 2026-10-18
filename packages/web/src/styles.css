@@ -13,6 +13,18 @@
 
   --font: 'Montserrat', system-ui, sans-serif;
   --serif: 'Federo', Georgia, serif;
+  /*
+   * Type scale: every fixed font size in the app is one of these six. Pick by role.
+   * Sizes that grow with the board or the desktop game layout (cell numbers,
+   * notes, keypad and bar on desktop) and the logo wordmark are tied to their
+   * geometry instead.
+   */
+  --fs-caption: 12px; /* uppercase micro labels, badges, ids */
+  --fs-small: 14px; /* help text, errors, toasts, segments, chips */
+  --fs-body: 16px; /* paragraphs, list rows, inputs */
+  --fs-label: 20px; /* buttons, tile labels, card titles, stat numbers */
+  --fs-title: 24px; /* screen and sheet titles, names, Home/Concede */
+  --fs-display: 30px; /* timer, keypad numbers, big codes */
   --gutter: 12px;
   --radius: 6px;
 }
@@ -383,7 +395,7 @@ h2 {
   background: var(--surface-2);
   color: var(--text);
   font-family: var(--serif);
-  font-size: 21px;
+  font-size: var(--fs-label);
   transition: transform 0.08s ease, filter 0.15s ease;
 }
 .btn:active {
@@ -481,7 +493,7 @@ h2 {
 }
 .tagline {
   font-family: var(--serif);
-  font-size: 22px;
+  font-size: var(--fs-title);
   text-anchor: middle;
   fill: var(--text);
   opacity: 0;
@@ -592,7 +604,7 @@ h2 {
 .tile-label {
   font-family: var(--serif);
   font-weight: 400;
-  font-size: 17px;
+  font-size: var(--fs-label);
   line-height: 1.15;
   letter-spacing: 0.02em;
 }
@@ -613,7 +625,7 @@ h2 {
   height: 35px;
 }
 .area-daily .tile-label {
-  font-size: 15px;
+  font-size: var(--fs-label);
 }
 .area-store,
 .area-leader {
@@ -708,7 +720,7 @@ h2 {
   height: 34px;
 }
 .tile-setup .tile-label {
-  font-size: 14px;
+  font-size: var(--fs-label);
 }
 .profile-main {
   display: flex;
@@ -726,13 +738,13 @@ h2 {
   margin-bottom: 8px;
 }
 .profile-name {
-  font-size: 22px;
+  font-size: var(--fs-title);
   font-weight: 800;
   text-transform: uppercase;
 }
 .profile-rank {
   font-family: var(--serif);
-  font-size: 17px;
+  font-size: var(--fs-body);
   opacity: 0.8;
 }
 .profile-stats {
@@ -750,11 +762,11 @@ h2 {
   background: var(--chip-bg);
 }
 .stat-chip strong {
-  font-size: 18px;
+  font-size: var(--fs-label);
   font-weight: 800;
 }
 .stat-chip span:last-child {
-  font-size: 11px;
+  font-size: var(--fs-caption);
   font-weight: 700;
   text-transform: uppercase;
   opacity: 0.7;
@@ -772,7 +784,7 @@ h2 {
   margin-bottom: 8px;
 }
 .subbar h1 {
-  font-size: 20px;
+  font-size: var(--fs-title);
   text-transform: uppercase;
 }
 .setup {
@@ -852,7 +864,7 @@ html.standalone .screen.scrollable {
   --fade-b: 56px;
 }
 .field-hint {
-  font-size: 14px !important;
+  font-size: var(--fs-small) !important;
 }
 .setting {
   display: flex;
@@ -866,12 +878,12 @@ html.standalone .screen.scrollable {
   display: none;
 }
 .setting h2 {
-  font-size: 16px;
+  font-size: var(--fs-body);
   text-transform: uppercase;
 }
 .setting p {
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: var(--fs-body);
   color: var(--muted);
 }
 /* Review dashboard (founders only, screens/review.ts): compact rows, one open at a time. */
@@ -918,7 +930,7 @@ html.standalone .screen.scrollable {
   color: var(--text);
   font-family: var(--serif);
   /* 16px or more, or iOS zooms in on focus. */
-  font-size: 17px;
+  font-size: var(--fs-body);
 }
 .review-search-input::placeholder {
   color: var(--muted);
@@ -938,11 +950,11 @@ html.standalone .screen.scrollable {
 }
 .review-results {
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: var(--fs-body);
   color: var(--muted);
 }
 .review-id {
-  font-size: 12px !important;
+  font-size: var(--fs-caption) !important;
   user-select: all;
 }
 .review-log.inline {
@@ -957,13 +969,13 @@ html.standalone .screen.scrollable {
   flex-direction: column;
   gap: 1px;
   height: 56px;
-  font-size: 13px;
+  font-size: var(--fs-small);
 }
 .review-count:empty {
   display: none;
 }
 .review-count {
-  font-size: 15px;
+  font-size: var(--fs-body);
   opacity: 0.75;
 }
 .review-list {
@@ -974,7 +986,7 @@ html.standalone .screen.scrollable {
 .review-empty {
   padding: 24px 0;
   font-family: var(--serif);
-  font-size: 17px;
+  font-size: var(--fs-body);
   text-align: center;
   color: var(--muted);
 }
@@ -1004,7 +1016,7 @@ html.standalone .screen.scrollable {
 }
 .review-row-text strong {
   overflow: hidden;
-  font-size: 15px;
+  font-size: var(--fs-body);
   text-transform: uppercase;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -1012,7 +1024,7 @@ html.standalone .screen.scrollable {
 .review-row-text span {
   overflow: hidden;
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: var(--fs-body);
   white-space: nowrap;
   text-overflow: ellipsis;
   color: var(--muted);
@@ -1036,7 +1048,7 @@ html.standalone .screen.scrollable {
   flex: none;
   padding: 4px 8px;
   border-radius: 999px;
-  font-size: 11px;
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   white-space: nowrap;
   background: var(--surface-2);
@@ -1057,11 +1069,11 @@ html.standalone .screen.scrollable {
 }
 .review-verdict {
   font-family: var(--serif);
-  font-size: 17px;
+  font-size: var(--fs-label);
 }
 .review-games summary {
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--fs-small);
   text-transform: uppercase;
   color: var(--accent);
 }
@@ -1074,10 +1086,10 @@ html.standalone .screen.scrollable {
   border-radius: calc(var(--radius) * 0.6);
   background: var(--surface-2);
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: var(--fs-body);
 }
 .review-game strong {
-  font-size: 13px;
+  font-size: var(--fs-small);
   text-transform: uppercase;
 }
 .review-actions {
@@ -1088,7 +1100,7 @@ html.standalone .screen.scrollable {
 }
 .review-actions .btn {
   min-height: 48px;
-  font-size: 17px;
+  font-size: var(--fs-label);
 }
 .review-actions .btn-primary {
   grid-column: 1 / -1;
@@ -1102,7 +1114,7 @@ html.standalone .screen.scrollable {
   border-radius: var(--radius);
   background: var(--surface);
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: var(--fs-body);
   box-shadow: inset 4px 0 0 var(--surface-2);
 }
 .review-log.restrict {
@@ -1110,7 +1122,7 @@ html.standalone .screen.scrollable {
 }
 .review-log strong {
   font-family: var(--font);
-  font-size: 14px;
+  font-size: var(--fs-small);
   text-transform: uppercase;
 }
 .review-more[hidden] {
@@ -1138,28 +1150,28 @@ html.standalone .screen.scrollable {
   --field-bg: var(--modal-bg);
 }
 .signup-head h3 {
-  font-size: 15px;
+  font-size: var(--fs-body);
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
 .signup-head p {
   margin-top: 4px;
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: var(--fs-body);
   line-height: 1.35;
   color: var(--muted);
 }
 .signup .field-error {
   color: var(--accent);
   font-family: var(--serif);
-  font-size: 14px;
+  font-size: var(--fs-small);
 }
 .signup .field-error:empty {
   display: none;
 }
 .signup .waiting {
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: var(--fs-body);
   text-align: center;
   color: var(--accent);
   animation: waiting 1.6s ease-in-out infinite;
@@ -1181,14 +1193,14 @@ html.standalone .screen.scrollable {
   border: 1px solid var(--modal-border);
 }
 .match-code small {
-  font-size: 12px;
+  font-size: var(--fs-caption);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--muted);
 }
 .match-code strong {
   font-family: var(--serif);
-  font-size: 36px;
+  font-size: var(--fs-display);
   letter-spacing: 0.15em;
   color: var(--accent);
 }
@@ -1197,7 +1209,7 @@ html.standalone .screen.scrollable {
 }
 .signup-done {
   font-family: var(--serif);
-  font-size: 16px;
+  font-size: var(--fs-body);
   text-align: center;
   color: var(--accent);
 }
@@ -1214,7 +1226,7 @@ html.standalone .screen.scrollable {
   border-radius: var(--radius);
   background: var(--field-bg);
   color: var(--text);
-  font: 17px var(--serif);
+  font: var(--fs-body) var(--serif);
   outline: none;
   box-shadow: inset 0 0 0 1.5px transparent;
   transition: box-shadow 0.15s ease;
@@ -1244,18 +1256,18 @@ html.standalone .screen.scrollable {
   color: var(--muted);
 }
 .text-field[inputmode='numeric'] {
-  font-size: 24px;
+  font-size: var(--fs-title);
   letter-spacing: 0.3em;
   text-align: center;
 }
 .field-label {
   font-family: var(--serif);
-  font-size: 14px;
+  font-size: var(--fs-small);
   color: var(--muted);
 }
 .setting .field-error {
   color: var(--accent);
-  font-size: 14px;
+  font-size: var(--fs-small);
 }
 .setting .field-error:empty {
   display: none;
@@ -1265,12 +1277,12 @@ html.standalone .screen.scrollable {
   min-height: 44px;
   padding: 0 8px;
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: var(--fs-body);
   color: var(--muted);
   text-decoration: underline;
 }
 .device-info {
-  font-size: 12px;
+  font-size: var(--fs-caption);
   line-height: 1.6;
   white-space: pre-wrap;
   color: var(--muted);
@@ -1290,7 +1302,7 @@ html.standalone .screen.scrollable {
   background: var(--surface-2);
   font-weight: 800;
   text-transform: uppercase;
-  font-size: 14px;
+  font-size: var(--fs-small);
 }
 .segment.on {
   background: var(--primary-bg);
@@ -1332,7 +1344,7 @@ html.standalone .screen.scrollable {
   padding: 0 2px;
 }
 .month-head h2 {
-  font-size: 17px;
+  font-size: var(--fs-label);
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -1340,7 +1352,7 @@ html.standalone .screen.scrollable {
 }
 .month-count {
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: var(--fs-body);
   color: var(--muted);
 }
 .month-progress {
@@ -1364,7 +1376,7 @@ html.standalone .screen.scrollable {
 .weekday {
   padding-bottom: 2px;
   text-align: center;
-  font-size: 11px;
+  font-size: var(--fs-caption);
   font-weight: 700;
   color: var(--muted);
 }
@@ -1376,7 +1388,7 @@ html.standalone .screen.scrollable {
   place-items: center;
 }
 .day-num {
-  font-size: 13px;
+  font-size: var(--fs-small);
   font-weight: 600;
 }
 .day-icon {
@@ -1398,7 +1410,7 @@ html.standalone .screen.scrollable {
   box-shadow: inset 0 0 0 2px var(--accent);
 }
 .day.today .day-num {
-  font-size: 16px;
+  font-size: var(--fs-body);
   font-weight: 800;
 }
 .day.future {
@@ -1422,13 +1434,13 @@ html.standalone .screen.scrollable {
   color: var(--profile-text);
 }
 .reward-card strong {
-  font-size: 15px;
+  font-size: var(--fs-body);
   font-weight: 800;
   text-transform: uppercase;
 }
 .reward-card p {
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: var(--fs-body);
   opacity: 0.8;
 }
 .avatar-reward {
@@ -1451,7 +1463,7 @@ html.standalone .screen.scrollable {
   min-height: 52px;
   font-weight: 800;
   text-transform: uppercase;
-  font-size: 14px;
+  font-size: var(--fs-small);
 }
 .done-today svg {
   width: 22px;
@@ -1460,7 +1472,7 @@ html.standalone .screen.scrollable {
 .reset-note {
   text-align: center;
   font-family: var(--serif);
-  font-size: 14px;
+  font-size: var(--fs-small);
   color: var(--muted);
 }
 
@@ -1540,12 +1552,12 @@ html.standalone .backdrop {
   text-align: center;
 }
 .sheet h2 {
-  font-size: 22px;
+  font-size: var(--fs-title);
   text-transform: uppercase;
 }
 .sheet p {
   font-family: var(--serif);
-  font-size: 17px;
+  font-size: var(--fs-body);
 }
 .sheet-icon {
   width: 72px;
@@ -1574,7 +1586,7 @@ html.standalone .backdrop {
 }
 .note {
   font-family: var(--serif);
-  font-size: 14px;
+  font-size: var(--fs-small);
   color: var(--muted);
 }
 .good {
@@ -1590,7 +1602,7 @@ html.standalone .backdrop {
   gap: 18px;
 }
 .result h2 {
-  font-size: 24px;
+  font-size: var(--fs-title);
   text-align: center;
   text-transform: uppercase;
 }
@@ -1610,7 +1622,7 @@ html.standalone .backdrop {
   padding-bottom: 6px;
   border-bottom: 1px solid var(--line);
   font-family: var(--serif);
-  font-size: 18px;
+  font-size: var(--fs-label);
 }
 .stat span {
   color: var(--muted);
@@ -1675,7 +1687,7 @@ html.standalone .backdrop {
   min-height: 68px;
   margin-top: 0;
   padding: 8px 6px;
-  font-size: 17px;
+  font-size: var(--fs-label);
   line-height: 1.1;
   white-space: nowrap;
 }
@@ -1693,7 +1705,7 @@ html.standalone .backdrop {
 .square-field {
   width: 100%;
   text-align: center;
-  font-size: 22px !important;
+  font-size: var(--fs-title) !important;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -1713,7 +1725,7 @@ html.standalone .backdrop {
   border-radius: var(--radius);
   background: var(--surface-2);
   color: var(--accent);
-  font-size: 16px;
+  font-size: var(--fs-body);
 }
 .clash-join {
   display: flex;
@@ -1731,7 +1743,7 @@ html.standalone .backdrop {
   align-self: flex-start;
   margin-top: 4px;
   font-family: var(--serif);
-  font-size: 14px;
+  font-size: var(--fs-small);
   color: var(--muted);
 }
 /* Six painted boxes; the real text field sits invisibly on top of them. */
@@ -1750,7 +1762,7 @@ html.standalone .backdrop {
   border-radius: var(--radius);
   background: var(--surface-2);
   font-family: var(--serif);
-  font-size: 24px;
+  font-size: var(--fs-title);
   color: var(--text);
 }
 .code-box {
@@ -1778,7 +1790,7 @@ html.standalone .backdrop {
   width: 100%;
   opacity: 0;
   /* ≥16px stops iOS zooming into the field. */
-  font-size: 16px;
+  font-size: var(--fs-body);
   color: transparent;
   caret-color: transparent;
   background: transparent;
@@ -1804,7 +1816,7 @@ html.standalone .backdrop {
   border-radius: var(--radius);
   background: var(--surface-2);
   font-family: var(--serif);
-  font-size: 15px;
+  font-size: var(--fs-body);
 }
 .paste-btn:active {
   transform: scale(0.96);
@@ -1816,7 +1828,7 @@ html.standalone .backdrop {
   width: 100%;
   margin: 6px 0 2px;
   font-family: var(--serif);
-  font-size: 14px;
+  font-size: var(--fs-small);
   color: var(--muted);
 }
 .divider::before,
@@ -1834,7 +1846,7 @@ html.standalone .backdrop {
 }
 .clash-picker .btn {
   padding: 0;
-  font-size: 17px;
+  font-size: var(--fs-label);
 }
 .clash-created {
   display: flex;
@@ -1866,11 +1878,11 @@ html.standalone .backdrop {
 }
 .clash-actions .btn {
   padding: 0 8px;
-  font-size: 18px;
+  font-size: var(--fs-label);
 }
 .clash-log-btn {
   min-height: 44px;
-  font-size: 17px;
+  font-size: var(--fs-label);
 }
 .log-list {
   display: flex;
@@ -1899,22 +1911,22 @@ html.standalone .backdrop {
   line-height: 1.15;
 }
 .log-code strong {
-  font-size: 17px;
+  font-size: var(--fs-label);
   letter-spacing: 0.06em;
 }
 .log-code small {
-  font-size: 12px;
+  font-size: var(--fs-caption);
   color: var(--muted);
 }
 .log-times {
-  font-size: 15px;
+  font-size: var(--fs-body);
   color: var(--muted);
   text-align: center;
 }
 .log-status {
   padding: 4px 8px;
   border-radius: 4px;
-  font-size: 13px;
+  font-size: var(--fs-caption);
   background: var(--surface);
 }
 .log-status.won {
@@ -1933,7 +1945,7 @@ html.standalone .backdrop {
   align-items: baseline;
   padding-bottom: 6px;
   border-bottom: 1px solid var(--line);
-  font-size: 18px;
+  font-size: var(--fs-label);
 }
 .clash-row > :not(:first-child) {
   text-align: right;
@@ -1945,7 +1957,7 @@ html.standalone .backdrop {
   font-weight: normal;
 }
 .clash-head {
-  font-size: 13px;
+  font-size: var(--fs-caption);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
@@ -1960,7 +1972,7 @@ html.standalone .backdrop {
   gap: 20px;
   text-align: center;
   font-family: var(--serif);
-  font-size: 19px;
+  font-size: var(--fs-label);
 }
 /* Centred with margins, not translateX, so the drop animation is purely vertical. */
 .toast {
@@ -1978,7 +1990,7 @@ html.standalone .backdrop {
   color: var(--on-accent);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
   font-weight: 700;
-  font-size: 14px;
+  font-size: var(--fs-small);
   text-align: center;
   animation: drop 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.2);
   transition: opacity 0.35s ease, transform 0.35s ease;
@@ -2003,7 +2015,7 @@ html.standalone .toast {
   justify-content: center;
   gap: 18px;
   font-family: var(--serif);
-  font-size: 20px;
+  font-size: var(--fs-label);
 }
 .loader {
   width: 48px;
@@ -2039,7 +2051,7 @@ html.standalone .toast {
   border-radius: 2px;
   background: var(--bar-bg);
   font-family: var(--serif);
-  font-size: 22px;
+  font-size: var(--fs-title);
 }
 .bar-icon {
   width: 36px;
@@ -2047,7 +2059,7 @@ html.standalone .toast {
 }
 .timer {
   font-family: var(--serif);
-  font-size: 30px;
+  font-size: var(--fs-display);
   font-variant-numeric: tabular-nums;
 }
 .timer.over-par {
@@ -2087,7 +2099,7 @@ html.standalone .toast {
   gap: 10px;
   min-width: 0;
   font-family: var(--serif);
-  font-size: 14px;
+  font-size: var(--fs-small);
 }
 .puzzle-type {
   overflow: hidden;
@@ -2278,14 +2290,14 @@ html.standalone .toast {
   border-radius: var(--radius);
   background: var(--surface);
   font-family: var(--serif);
-  font-size: 24px;
+  font-size: var(--fs-title);
 }
 .paused .pause-cover {
   display: flex;
 }
 .pause-note {
   margin-top: -6px;
-  font-size: 15px;
+  font-size: var(--fs-body);
   color: var(--muted);
 }
 .play-badge {
@@ -2317,7 +2329,7 @@ html.standalone .toast {
   /* Montserrat reads at a glance on the keys; the serif's 4 and 1 are too stylised. */
   font-family: var(--font);
   font-weight: 500;
-  font-size: 30px;
+  font-size: var(--fs-display);
   line-height: 1;
   transition: transform 0.06s ease, filter 0.15s ease, opacity 0.2s ease;
 }
@@ -2357,7 +2369,7 @@ html.standalone .toast {
   background: var(--action-bg);
   color: var(--action-text);
   font-family: var(--serif);
-  font-size: 22px;
+  font-size: var(--fs-label);
 }
 .action svg {
   width: 20px;
@@ -2372,7 +2384,6 @@ html.standalone .toast {
 /* Three buttons share the row when the Notes button is there. */
 .actions-row:has(> :nth-child(3)) .action {
   gap: 7px;
-  font-size: 19px;
 }
 .action.notes-toggle {
   transition: background-color 0.18s ease, color 0.18s ease;
@@ -2415,7 +2426,7 @@ html.standalone .toast {
   background: var(--accent);
   color: var(--on-accent);
   font-family: var(--font);
-  font-size: 12px;
+  font-size: var(--fs-caption);
   font-weight: 800;
 }
 
@@ -2516,7 +2527,7 @@ html.standalone .toast {
   place-items: center;
   color: var(--text);
   font-weight: 800;
-  font-size: 20px;
+  font-size: var(--fs-label);
   transform: translate(var(--x), var(--y));
   transition: color 0.12s ease-out, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
@@ -2685,20 +2696,20 @@ html.standalone .toast {
   animation: rise 0.25s ease;
 }
 .coach-count {
-  font-size: 11px;
+  font-size: var(--fs-caption);
   font-weight: 800;
   color: var(--accent);
   letter-spacing: 0.08em;
 }
 .coach-card h3 {
   margin: 4px 0 6px;
-  font-size: 17px;
+  font-size: var(--fs-label);
   font-weight: 800;
   text-transform: uppercase;
 }
 .coach-card p {
   font-family: var(--serif);
-  font-size: 16px;
+  font-size: var(--fs-body);
   line-height: 1.4;
 }
 .coach-actions {
@@ -2712,12 +2723,12 @@ html.standalone .toast {
   width: auto;
   min-height: 44px;
   padding: 0 22px;
-  font-size: 18px;
+  font-size: var(--fs-label);
 }
 .coach-skip {
   padding: 10px 4px;
   font-weight: 700;
-  font-size: 13px;
+  font-size: var(--fs-small);
   text-transform: uppercase;
   color: var(--muted);
 }
@@ -2982,11 +2993,12 @@ html.standalone .toast {
   .game .action {
     height: auto;
     gap: calc(var(--bar) * 0.12);
-    font-size: calc(var(--bar) * 0.3);
+    /* label : title on the type scale (20 : 24), against Home's 0.44. */
+    font-size: calc(var(--bar) * 0.37);
   }
   .game .action svg {
-    width: calc(var(--bar) * 0.24);
-    height: calc(var(--bar) * 0.24);
+    width: calc(var(--bar) * 0.28);
+    height: calc(var(--bar) * 0.28);
   }
   /*
    * The splash ribbon, hanging from the top edge down to a little above

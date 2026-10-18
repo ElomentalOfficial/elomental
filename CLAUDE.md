@@ -16,3 +16,11 @@
 - `index.html` (title, meta description) and `public/manifest.webmanifest` can't import the
   module: keep them in line with the guide by hand.
 - Run the guide's pre-ship checklist on any new text.
+
+## Font sizes
+
+- Use the six type-scale tokens at the top of `packages/web/src/styles.css`
+  (`--fs-caption` 12, `--fs-small` 14, `--fs-body` 16, `--fs-label` 20, `--fs-title` 24,
+  `--fs-display` 30), picked by role. Never add a new fixed `font-size` in px.
+- Only sizes tied to geometry (board numbers, notes, the desktop game controls) and the
+  wordmark are computed instead.
