@@ -337,6 +337,13 @@ h2 {
 .screen.loading {
   transform-origin: 0 50%;
   animation: page-in 0.42s cubic-bezier(0.1, 0.9, 0.2, 1) both;
+  /* Keeps the page on its own layer after the turn too (as the home tiles do):
+     otherwise iOS Safari flattens it the moment the 3D turn ends and repaints
+     it, and the masked, scrolling pages flicker for a frame. Fixed layers are
+     all on <body>, so this moves nothing. */
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 /* Returning to a page (e.g. the calendar after a daily game) swings it in
    from the other side: the reverse of leaving it. The class stays on that
@@ -352,7 +359,7 @@ h2 {
     opacity: 0;
   }
   to {
-    transform: none;
+    transform: perspective(1200px) rotateY(0deg);
     opacity: 1;
   }
 }
@@ -362,7 +369,7 @@ h2 {
     opacity: 0;
   }
   to {
-    transform: none;
+    transform: perspective(1200px) rotateY(0deg);
     opacity: 1;
   }
 }
