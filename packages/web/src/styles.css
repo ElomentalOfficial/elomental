@@ -86,8 +86,8 @@
   color-scheme: light;
   --bg: var(--c-bright);
   --text: var(--c-crimson);
-  /* Light theme is one family: crimson ink, terracotta highlights, beige surfaces
-     (Figma light game frame). Forest stays only on the Casual tile. */
+  /* Light theme is one family: crimson ink, beige surfaces (Figma light game
+     frame). Forest marks what's on: same-number highlights, Notes on, Casual. */
   --accent: var(--c-crimson);
   --on-accent: var(--c-bright);
   /* 0.6 was ~3.2:1 on the page; 0.8 clears 4.5:1 for small secondary text. */
@@ -107,8 +107,8 @@
   --cell-cross: var(--c-mud);
   --cell-text: var(--c-crimson);
   --cell-user: var(--cell-text);
-  --same-bg: #dba791;
-  --same-text: var(--c-crimson);
+  --same-bg: var(--c-forest);
+  --same-text: var(--c-bright);
   --wrong-bg: var(--accent);
   --wrong-text: var(--on-accent);
   --select: var(--c-crimson);
