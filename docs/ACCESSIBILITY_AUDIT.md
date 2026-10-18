@@ -192,7 +192,7 @@ Plus:
 
 | # | Decision | My recommendation |
 | --- | --- | --- |
-| D1 | Zoom: keep blocking pinch zoom (app feel) or allow it. | Keep the guards on the board (they protect the notes wheel), remove `user-scalable=no`/`maximum-scale` from the meta so Android and desktop zoom work, and ship Text size to 200% (G178). |
+| D1 | Zoom: keep blocking pinch zoom (app feel) or allow it. | **Decided: zoom stays blocked on mobile** (a zoomed app shell drifts and players get lost). C3 is met instead by an in-app **Text size** setting up to 200% (WCAG technique G178), with every screen reflowing and scrolling at that size. axe's `meta-viewport` finding is a documented, accepted exception. |
 | D2 | A Casual-only "no mistake limit" / "don't check numbers" option changes a game rule. | Offer "Mistake limit: Off" in **Casual only**; Ranked, Daily, Clash unchanged; such games are marked and earn no Stardust bonus. Or skip it. |
 | D3 | Lava `#B1613C` → `#A85B37` changes the brand colour slightly (also in Figma). | Yes: the difference is barely visible and it fixes nine failing pairs. |
 | D4 | Given vs entered numbers will differ (weight + tone); the Figma said identical. | Yes: it's a key sudoku affordance. |

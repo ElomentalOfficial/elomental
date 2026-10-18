@@ -7,7 +7,7 @@
   --c-second-bright: #e8e8ce;
   --c-mud: #dadbb9;
   --c-rock: #b3b5a0;
-  --c-lava: #b1613c;
+  --c-lava: #a85b37; /* was #b1613c; Bright on it reaches 4.91:1 (WCAG AA) */
   --c-lava-highlight: #413226;
   --c-forest: #636945;
   --c-forest-highlight: #c9d09d;
@@ -38,7 +38,7 @@
   --bg: var(--c-bg);
   --text: var(--c-bright);
   /* One accent per theme: Lava in dark, Crimson in light. Text on the Figma
-     Lava (#B1613C) is Bright, which reads clearly on it. */
+     Lava is Bright, which reads clearly on it. */
   --accent: var(--c-lava);
   --on-accent: var(--c-bright);
   --muted: rgba(255, 255, 229, 0.62);
@@ -59,7 +59,8 @@
   --cell-cross: var(--c-lava-highlight);
   --cell-text: var(--c-bright);
   /* Correct player digits look exactly like the givens; only mistakes stand out. */
-  --cell-user: var(--cell-text);
+  /* The player's own numbers: Forest highlight, a lighter weight than the givens (styles .cell.filled). */
+  --cell-user: var(--c-forest-highlight);
   /* Figma: every square holding the focused digit is filled terracotta. */
   --same-bg: var(--c-lava);
   --same-text: var(--c-bright);
@@ -67,6 +68,13 @@
   --wrong-bg: var(--c-bright);
   --wrong-text: var(--c-crimson);
   --select: var(--c-second-bright);
+  /* A second ring inside the selection, for fills the selection colour is too close to. */
+  --select-inner: transparent;
+  /* Keyboard focus: one colour on every surface (9.9:1 on modals, 12:1 on the page). */
+  --focus: var(--c-second-bright);
+  /* Field edges and the 3x3 box outline: 3:1 against what they sit on. */
+  --field-border: #85867c;
+  --grid-line: #77786e;
   --key-bg: var(--c-second-bright);
   --key-text: var(--c-bg);
   --erase-bg: var(--key-bg);
@@ -93,7 +101,6 @@
   /* Colours taken from the Figma icon exports (eraser shade follows the accent). */
   --separator: #40413c;
   --mistake-on: var(--c-bright);
-  --mistake-off: #40413c;
   --eraser-shade: rgba(38, 39, 33, 0.45);
 }
 
@@ -105,8 +112,8 @@
      frame). Forest marks what's on: same-number highlights, Notes on, Casual. */
   --accent: var(--c-crimson);
   --on-accent: var(--c-bright);
-  /* 0.6 was ~3.2:1 on the page; 0.8 clears 4.5:1 for small secondary text. */
-  --muted: rgba(121, 67, 65, 0.8);
+  /* 0.92 keeps small secondary text at 4.5:1 or more on Mud too (4.70:1), 6.3:1 on the page. */
+  --muted: rgba(121, 67, 65, 0.92);
   --line: var(--c-second-bright);
   --surface: var(--c-second-bright);
   --surface-2: var(--c-mud);
@@ -122,12 +129,18 @@
   /* The selected cell's row and column. */
   --cell-cross: var(--c-forest-highlight);
   --cell-text: var(--c-crimson);
-  --cell-user: var(--cell-text);
+  /* The player's own numbers: Forest, a lighter weight than the givens. */
+  --cell-user: var(--c-forest);
   --same-bg: var(--c-forest);
   --same-text: var(--c-bright);
   --wrong-bg: var(--accent);
   --wrong-text: var(--on-accent);
   --select: var(--c-crimson);
+  /* Bright inside the Crimson ring keeps the selection visible on a Forest same-number fill. */
+  --select-inner: var(--c-bright);
+  --focus: var(--c-crimson);
+  --field-border: #8c8d76;
+  --grid-line: #8c8d76;
   --key-bg: var(--c-crimson);
   --key-text: var(--c-bright);
   --erase-bg: var(--key-bg);
@@ -152,7 +165,6 @@
   --primary-text: var(--c-bright);
   --separator: #e8e8cc;
   --mistake-on: var(--c-crimson);
-  --mistake-off: var(--c-mud);
   --eraser-shade: rgba(255, 255, 229, 0.55);
 }
 
@@ -322,8 +334,9 @@ button {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
-button:focus-visible {
-  outline: 2px solid var(--accent);
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
 svg {
@@ -778,7 +791,7 @@ h2 {
   font-size: var(--fs-caption);
   font-weight: 700;
   text-transform: uppercase;
-  opacity: 0.7;
+  color: var(--muted);
 }
 .stat-icon {
   width: 16px;
@@ -1237,7 +1250,7 @@ html.standalone .screen.scrollable {
   color: var(--text);
   font: var(--fs-body) var(--serif);
   outline: none;
-  box-shadow: inset 0 0 0 1.5px transparent;
+  box-shadow: inset 0 0 0 1px var(--field-border);
   transition: box-shadow 0.15s ease;
   -webkit-user-select: text;
   user-select: text;
@@ -1316,6 +1329,7 @@ html.standalone .screen.scrollable {
 .segment.on {
   background: var(--primary-bg);
   color: var(--primary-text);
+  box-shadow: inset 0 0 0 2px var(--select);
 }
 .segment-icon {
   width: 20px;
@@ -1410,8 +1424,16 @@ html.standalone .screen.scrollable {
 }
 /* Missed days stay quiet: just a dimmed number. */
 .day.missed {
+  position: relative;
   color: var(--muted);
-  opacity: 0.5;
+}
+.day.missed::after {
+  content: '';
+  position: absolute;
+  inset: 22% 22%;
+  background: linear-gradient(to top right, transparent calc(50% - 0.75px), currentColor calc(50% - 0.75px), currentColor calc(50% + 0.75px), transparent calc(50% + 0.75px));
+  opacity: 0.6;
+  pointer-events: none;
 }
 .day.today {
   background: transparent;
@@ -1773,7 +1795,7 @@ html.standalone .backdrop {
 .difficulty.on {
   background: var(--surface-2);
   color: var(--text);
-  box-shadow: inset 0 0 0 1px var(--modal-border);
+  box-shadow: inset 0 0 0 1.5px var(--select);
 }
 /* One to three filled squares: how hard it is. */
 .pips {
@@ -2217,8 +2239,13 @@ html.standalone .toast {
 .skull {
   width: 19px;
   height: 18px;
-  color: var(--mistake-off);
+  color: var(--muted);
   transition: color 0.2s ease, transform 0.2s ease;
+}
+.skull:not(.used) svg * {
+  fill: transparent;
+  stroke: currentColor;
+  stroke-width: 1.2px;
 }
 .skull.used {
   color: var(--mistake-on);
@@ -2282,6 +2309,9 @@ html.standalone .toast {
   display: grid;
   grid-template: repeat(3, minmax(0, 1fr)) / repeat(3, minmax(0, 1fr));
   gap: 2px;
+  border-radius: 3px;
+  outline: 1px solid var(--grid-line);
+  outline-offset: 1px;
 }
 .cell {
   position: relative;
@@ -2305,10 +2335,12 @@ html.standalone .toast {
   background: var(--cell-cross);
 }
 .cell.selected {
-  box-shadow: inset 0 0 0 2px var(--select);
+  box-shadow: inset 0 0 0 2px var(--select), inset 0 0 0 4px var(--select-inner);
 }
+/* The player's own numbers: their own colour and a lighter weight than the givens. */
 .cell.filled {
   color: var(--cell-user);
+  font-weight: 500;
 }
 /* Figma: every square holding the focused digit, given or entered, is filled.
    Comes after .filled so the player's own digits light up too. */
@@ -2470,9 +2502,22 @@ html.standalone .toast {
 }
 /* All nine placed: the key settles back and fades. */
 .key.done {
-  opacity: 0.3;
+  position: relative;
+  opacity: 0.55;
   transform: scale(0.94);
   transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+/* A small check in the corner: "all nine placed" as a shape, not only fading. */
+.key.done::after {
+  content: '';
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 9px;
+  height: 5px;
+  border-left: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
 }
 .key-erase {
   display: grid;
@@ -2773,7 +2818,7 @@ html.standalone .toast {
   margin: -13px 0 0 -13px;
   border-radius: 50%;
   background: rgba(255, 255, 229, 0.85);
-  box-shadow: 0 0 0 6px rgba(177, 97, 60, 0.45);
+  box-shadow: 0 0 0 6px rgba(168, 91, 55, 0.45);
   pointer-events: none;
 }
 .coach-finger.tap {
@@ -2789,22 +2834,22 @@ html.standalone .toast {
   }
   40% {
     transform: scale(0.7);
-    box-shadow: 0 0 0 14px rgba(177, 97, 60, 0);
+    box-shadow: 0 0 0 14px rgba(168, 91, 55, 0);
   }
 }
 @keyframes coach-hold {
   0% {
     transform: none;
-    box-shadow: 0 0 0 0 rgba(177, 97, 60, 0.5);
+    box-shadow: 0 0 0 0 rgba(168, 91, 55, 0.5);
   }
   40% {
     transform: scale(0.85);
-    box-shadow: 0 0 0 16px rgba(177, 97, 60, 0.35);
+    box-shadow: 0 0 0 16px rgba(168, 91, 55, 0.35);
   }
   75%,
   90% {
     transform: translate(46px, -8px) scale(0.85);
-    box-shadow: 0 0 0 4px rgba(177, 97, 60, 0.35);
+    box-shadow: 0 0 0 4px rgba(168, 91, 55, 0.35);
   }
   100% {
     transform: none;

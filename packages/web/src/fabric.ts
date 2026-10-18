@@ -14,8 +14,14 @@ import { RIBBON_PATH as RIBBON } from './ribbon.ts';
 
 const RIBBON_TOP = 0;
 const RIBBON_BOTTOM = 740;
-const FRONT = '#b1613c'; // Figma Lava
-const BACK = '#7f4227';
+/** The ribbon's colour is the theme's accent (Lava in dark, Crimson in light), as on the static splash. */
+const front = () => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#a85b37';
+/** Its back: the same colour, about 28% darker. */
+function darker(hex: string): string {
+  const m = hex.match(/^#([0-9a-f]{6})$/i);
+  if (!m) return '#7f4227';
+  return '#' + [0, 2, 4].map((i) => Math.round(parseInt(m[1].slice(i, i + 2), 16) * 0.72).toString(16).padStart(2, '0')).join('');
+}
 const LETTERS = [
   ['E', 134, 278], ['L', 195, 278], ['O', 256, 278],
   ['M', 134, 353], ['E', 195, 353], ['N', 256, 353],
@@ -61,8 +67,9 @@ export function createPeel(art: SVGSVGElement): { canvas: HTMLCanvasElement; dra
   const srcW = 390 * k;
   const srcH = (RIBBON_BOTTOM - RIBBON_TOP) * k;
   const path = new Path2D(RIBBON);
-  const front = ribbonCanvas(srcW, srcH, k, (ctx) => {
-    ctx.fillStyle = FRONT;
+  const colour = front();
+  const frontFace = ribbonCanvas(srcW, srcH, k, (ctx) => {
+    ctx.fillStyle = colour;
     ctx.fill(path);
     ctx.fillStyle = '#ffffe5';
     ctx.font = '400 62px Federo, Georgia, serif';
@@ -70,7 +77,7 @@ export function createPeel(art: SVGSVGElement): { canvas: HTMLCanvasElement; dra
     for (const [ch, x, y] of LETTERS) ctx.fillText(ch, x, y);
   });
   const back = ribbonCanvas(srcW, srcH, k, (ctx) => {
-    ctx.fillStyle = BACK;
+    ctx.fillStyle = darker(colour);
     ctx.fill(path);
   });
   const shade = ribbonCanvas(srcW, srcH, k, (ctx) => {
@@ -158,7 +165,7 @@ export function createPeel(art: SVGSVGElement): { canvas: HTMLCanvasElement; dra
         const destX = vx + (left - vx) * scale + sway - (destW - srcW * scale) / 2;
 
         ctx.globalAlpha = 1;
-        ctx.drawImage(facingAway ? back : front, 0, s, srcW, h, destX, destY, destW, destH);
+        ctx.drawImage(facingAway ? back : frontFace, 0, s, srcW, h, destX, destY, destW, destH);
         // Light: darker where the cloth turns away, a soft highlight on the crest of the roll.
         // The underside is lit near the roll and falls into shade further from it.
         const beyond = Math.max(0, s - fold - Math.PI * radius);
