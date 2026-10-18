@@ -1,4 +1,5 @@
 import type { Difficulty } from '@elomental/engine';
+import { copyText } from './clipboard.ts';
 import { readJson, writeJson } from './storage.ts';
 import { formatSeconds } from './ui.ts';
 
@@ -161,10 +162,5 @@ export async function share(code: string, result?: ClashResult): Promise<'shared
   } catch (error) {
     if ((error as DOMException)?.name === 'AbortError') return 'failed';
   }
-  try {
-    await navigator.clipboard.writeText(`${text} ${url}`);
-    return 'copied';
-  } catch {
-    return 'failed';
-  }
+  return (await copyText(`${text} ${url}`)) ? 'copied' : 'failed';
 }

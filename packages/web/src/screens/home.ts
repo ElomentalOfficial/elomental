@@ -22,6 +22,7 @@ import { clashTable, clashVerdict, shareButton } from '../clashView.ts';
 import { handleHandoffLink } from '../handoff.ts';
 import { fetchMyClashes, fetchSquare, onAccountChange, refreshAccount, signedIn } from '../backend.ts';
 import { formatSquareCode, readSquareInput } from '../squareCode.ts';
+import { pasteButton, routePaste } from '../clipboard.ts';
 import { dailyScreen } from './daily.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
 import { setupScreen } from './setup.ts';
@@ -207,12 +208,7 @@ function openSquareCode(leave: (go: () => void) => void) {
   };
   field.addEventListener('input', () => update());
   // A pasted message is cut down to the code (or the grid) it carries.
-  field.addEventListener('paste', (event) => {
-    const text = event.clipboardData?.getData('text');
-    if (text == null) return;
-    event.preventDefault();
-    fill(text);
-  });
+  routePaste(field, fill);
   field.addEventListener('keydown', (event) => {
     if (event.key === 'Enter' && !play.disabled) play.click();
   });
@@ -256,19 +252,7 @@ function openSquareCode(leave: (go: () => void) => void) {
         'div',
         { class: 'clash-label-row' },
         h('label', { class: 'clash-label', text: 'Code or sudoku string' }),
-        'readText' in (navigator.clipboard ?? {})
-          ? h('button', {
-              class: 'paste-btn',
-              text: 'Paste',
-              onclick: async () => {
-                try {
-                  fill(await navigator.clipboard.readText());
-                } catch {
-                  toast('Paste blocked. Long-press the box instead.');
-                }
-              },
-            })
-          : null,
+        pasteButton(fill, 'Paste blocked. Long-press the box instead.'),
       ),
       field,
       status,
@@ -354,7 +338,7 @@ function openClash(leave: (go: () => void) => void, prefill = '') {
         { class: 'clash-label-row' },
         h('label', { class: 'clash-label', text: 'Enter a code' }),
         // iOS's own long-press Paste is unreliable on a hidden field; this reads the clipboard directly.
-        'readText' in (navigator.clipboard ?? {}) ? h('button', { class: 'paste-btn', text: 'Paste', onclick: () => void input.paste() }) : null,
+        input.pasteButton,
       ),
       input.el,
       join,
@@ -419,20 +403,13 @@ function codeInput(initial: string, onChange: (code: string) => void) {
     paint();
   };
   // The system Paste (long-press) gets the same treatment as the button.
-  field.addEventListener('paste', (event) => {
-    const text = event.clipboardData?.getData('text');
-    if (text == null) return;
-    event.preventDefault();
-    fill(text);
-  });
-  const paste = async () => {
-    try {
-      fill(await navigator.clipboard.readText());
-    } catch {
-      toast('Paste blocked. Long-press the boxes instead.');
-    }
+  routePaste(field, fill);
+  return {
+    el,
+    value: () => normalizeCode(field.value),
+    focus: () => field.focus(),
+    pasteButton: pasteButton(fill, 'Paste blocked. Long-press the boxes instead.'),
   };
-  return { el, value: () => normalizeCode(field.value), focus: () => field.focus(), paste };
 }
 
 /** A bare code, or the code inside a whole shared message/link ("…#clash=K7P2QX.6z…"). */

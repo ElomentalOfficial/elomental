@@ -25,6 +25,7 @@ import {
 } from '../profile.ts';
 import { importPuzzle, requestPuzzle } from '../puzzles.ts';
 import { formatSquareCode } from '../squareCode.ts';
+import { copyText } from '../clipboard.ts';
 import { openNotesWheel, type NotesWheel } from '../radial.ts';
 import { RIBBON_BOX, RIBBON_PATH } from '../ribbon.ts';
 import { notesWheelOn } from '../settings.ts';
@@ -247,10 +248,10 @@ function gameScreen(game: SavedGame): Screen {
     onclick: () => {
       const code = config.squareCode;
       if (!code) return;
-      navigator.clipboard
-        ?.writeText(formatSquareCode(code))
-        .then(() => toast('Square code copied. Send it to a friend.'))
-        .catch(() => toast(`Copy blocked. The code is ${formatSquareCode(code)}`));
+      void copyText(formatSquareCode(code)).then((copied) => {
+        if (copied === null) return;
+        toast(copied ? 'Square code copied. Send it to a friend.' : `Copy blocked. The code is ${formatSquareCode(code)}`);
+      });
     },
   });
   const paintSquareCode = () => {
