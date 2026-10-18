@@ -1,3 +1,4 @@
+import { reducedMotion } from './a11y.ts';
 import { ICONS } from './icons.ts';
 import * as copy from './copy/en.ts';
 
@@ -148,7 +149,7 @@ export const navigatingBack = (): boolean => document.documentElement.dataset.na
 export async function goBack(next: () => Screen): Promise<void> {
   const leaving = current?.el;
   closeAllModals();
-  if (leaving && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (leaving && !reducedMotion()) {
     leaving.style.transformOrigin = '0 50%';
     await leaving
       .animate(

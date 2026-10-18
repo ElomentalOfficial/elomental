@@ -1,3 +1,4 @@
+import { reducedMotion } from './a11y.ts';
 import { RIBBON_PATH as RIBBON } from './ribbon.ts';
 
 /**
@@ -188,7 +189,7 @@ export function createPeel(art: SVGSVGElement): { canvas: HTMLCanvasElement; dra
  */
 export function peelRibbon(art: SVGSVGElement): Promise<void> {
   // Reduced motion: no peel; the page just fades (styles.css).
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (reducedMotion()) {
     return new Promise((resolve) => setTimeout(resolve, 320));
   }
   const { canvas, draw } = createPeel(art);

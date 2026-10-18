@@ -1,3 +1,6 @@
+import { a11yPrefs, haptic, onA11yChange, reducedMotion } from '../a11y.ts';
+import { openShortcuts } from '../shortcuts.ts';
+import { playSound } from '../sound.ts';
 import {
   BOXES,
   BOX_OF,
@@ -437,6 +440,20 @@ function gameScreen(game: SavedGame): Screen {
    */
   const fading = new Map<number, { digit: number; timer: number }>();
   const WRONG_FADE_MS = 1400;
+  /**
+   * Setup > Accessibility > Wrong numbers "Keep until next move": the wrong
+   * digit stays (no fade) until the player's next move clears it.
+   */
+  const clearKeptWrong = () => {
+    if (!fading.size) return;
+    for (const [cell, f] of fading) {
+      clearTimeout(f.timer);
+      cells[cell].classList.remove('fading');
+    }
+    fading.clear();
+  };
+  /** Casual can turn the three-mistake limit off (Setup > Accessibility); other modes keep it. */
+  const mistakeLimit = () => config.mode !== 'casual' || a11yPrefs().casualMistakeLimit;
 
   function place(cell: number, digit: number) {
     if (game.values[cell] === digit) return;
@@ -444,25 +461,32 @@ function gameScreen(game: SavedGame): Screen {
     focusDigit = digit;
     if (!correct) {
       clearTimeout(fading.get(cell)?.timer);
+      const keep = a11yPrefs().keepWrong;
       fading.set(cell, {
         digit,
-        timer: window.setTimeout(() => {
-          fading.delete(cell);
-          cells[cell].classList.remove('fading');
-          render();
-        }, WRONG_FADE_MS),
+        timer: keep
+          ? 0
+          : window.setTimeout(() => {
+              fading.delete(cell);
+              cells[cell].classList.remove('fading');
+              render();
+            }, WRONG_FADE_MS),
       });
       game.mistakes++;
-      navigator.vibrate?.(40);
+      haptic(40);
+      playSound('wrong');
       // The last mistake ends the game; the result dialog says so.
-      if (game.mistakes < MAX_MISTAKES) announce(copy.game.a11y.wrongNumber(MAX_MISTAKES - game.mistakes));
+      const left = MAX_MISTAKES - game.mistakes;
+      if (!mistakeLimit()) announce(copy.game.a11y.wrongNumberNoLimit);
+      else if (left > 0) announce(copy.game.a11y.wrongNumber(left));
       render();
-      replay(cells[cell], 'fading');
+      if (!keep) replay(cells[cell], 'fading');
       replay(status, 'strike');
       save();
-      if (game.mistakes >= MAX_MISTAKES) finish(false, 'mistakes');
+      if (mistakeLimit() && game.mistakes >= MAX_MISTAKES) finish(false, 'mistakes');
       return;
     }
+    playSound('place');
     const changes: Change[] = [{ cell, value: digit, notes: 0 }];
     // Clear this digit from the notes of every peer, like pencil marks on paper.
     for (const p of PEERS[cell]) {
@@ -510,12 +534,16 @@ function gameScreen(game: SavedGame): Screen {
       cells[c].style.animationDelay = `${distance * 35}ms`;
       replay(cells[c], 'sweep');
     }
-    if (swept.size) navigator.vibrate?.(12);
-    if (done.length) announce(a11y.unitsComplete(done));
+    if (swept.size) haptic(12);
+    if (done.length) {
+      playSound('complete');
+      announce(a11y.unitsComplete(done));
+    }
   }
 
   function input(digit: number) {
     if (finished || paused || selected < 0) return;
+    clearKeptWrong();
     if (digit === 0) return erase();
     if (!editable(selected) || (game.values[selected] && game.values[selected] === solution[selected])) {
       // Pressing a digit on a locked cell just highlights every cell with that digit.
@@ -535,6 +563,7 @@ function gameScreen(game: SavedGame): Screen {
 
   function undo() {
     if (finished || paused) return;
+    clearKeptWrong();
     const last = game.history.pop();
     if (!last) return;
     for (const c of last) {
@@ -610,6 +639,7 @@ function gameScreen(game: SavedGame): Screen {
 
   function select(cell: number) {
     if (finished || paused) return;
+    if (cell !== selected) clearKeptWrong();
     selected = cell;
     focusDigit = game.values[cell];
     render();
@@ -653,18 +683,24 @@ function gameScreen(game: SavedGame): Screen {
 
   // --- Rendering -----------------------------------------------------------
   function render() {
+    // Which highlights the player wants (Setup > Accessibility > Highlights).
+    const prefs = a11yPrefs();
     for (let c = 0; c < 81; c++) {
       const flash = fading.get(c)?.digit ?? 0;
       // A fading wrong digit is shown but not part of the game state.
       const value = game.values[c] || flash;
       const cell = cells[c];
-      const cross = selected >= 0 && c !== selected && (ROW_OF[c] === ROW_OF[selected] || COL_OF[c] === COL_OF[selected]);
+      const cross =
+        selected >= 0 &&
+        c !== selected &&
+        ((prefs.highlightLines && (ROW_OF[c] === ROW_OF[selected] || COL_OF[c] === COL_OF[selected])) ||
+          (prefs.highlightBox && BOX_OF[c] === BOX_OF[selected]));
       cell.classList.toggle('given', given[c]);
       cell.classList.toggle('filled', !given[c] && value > 0);
       cell.classList.toggle('wrong', !given[c] && value > 0 && value !== solution[c]);
       cell.classList.toggle('selected', c === selected);
       cell.classList.toggle('cross', cross);
-      cell.classList.toggle('same', focusDigit > 0 && value === focusDigit && !flash);
+      cell.classList.toggle('same', prefs.highlightSame && focusDigit > 0 && value === focusDigit && !flash);
       // One cell is in the Tab order: the selected one (or the centre), and arrows move it.
       cell.tabIndex = c === (selected >= 0 ? selected : 40) ? 0 : -1;
       cell.setAttribute('aria-selected', String(c === selected));
@@ -709,7 +745,7 @@ function gameScreen(game: SavedGame): Screen {
     }
 
     skulls.forEach((s, i) => s.classList.toggle('used', i < game.mistakes));
-    mistakesEl.setAttribute('aria-label', copy.game.a11y.mistakes(game.mistakes, MAX_MISTAKES));
+    mistakesEl.setAttribute('aria-label', mistakeLimit() ? copy.game.a11y.mistakes(game.mistakes, MAX_MISTAKES) : copy.game.a11y.mistakesNoLimit(game.mistakes));
     for (let d = 1; d <= 9; d++) {
       let placed = 0;
       for (let c = 0; c < 81; c++) if (game.values[c] === d && solution[c] === d) placed++;
@@ -1078,6 +1114,7 @@ function gameScreen(game: SavedGame): Screen {
 
   const onKey = (event: KeyboardEvent) => {
     if (coaching) return; // tutorial or hint explanation on screen
+    if (document.querySelector('body > .backdrop')) return; // a pop-up has the keyboard
     if (wheel) {
       if (event.key === 'Escape') wheel.close();
       return;
@@ -1092,6 +1129,9 @@ function gameScreen(game: SavedGame): Screen {
       announce(copy.game.a11y.notesMode(notesMode));
       render();
     } else if ((event.ctrlKey || event.metaKey) && event.key === 'z') undo();
+    else if (event.key === '?') openShortcuts();
+    else if ((event.key === 'h' || event.key === 'H') && !event.ctrlKey && !event.metaKey) void hint();
+    else if ((event.key === 'p' || event.key === 'P') && !event.ctrlKey && !event.metaKey) void setPaused(!paused);
     else if (event.key.startsWith('Arrow') && selected < 0) select(40); // first arrow press starts in the centre
     else if (event.key.startsWith('Arrow')) {
       const r = ROW_OF[selected];
@@ -1111,6 +1151,8 @@ function gameScreen(game: SavedGame): Screen {
     if (document.hidden) save();
   };
   window.addEventListener('keydown', onKey);
+  // Highlight and mistake-limit preferences apply to the game in progress.
+  const stopA11y = onA11yChange(() => render());
   document.addEventListener('visibilitychange', onHide);
 
   focusDigit = selected >= 0 ? game.values[selected] : 0;
@@ -1179,6 +1221,7 @@ function gameScreen(game: SavedGame): Screen {
       clearInterval(clock);
       clearInterval(autosave);
       window.removeEventListener('keydown', onKey);
+      stopA11y();
       window.removeEventListener('pointermove', onPressMove, true);
       window.removeEventListener('pointerup', onPressUp, true);
       window.removeEventListener('pointercancel', onPressCancel, true);
@@ -1214,7 +1257,7 @@ function statRow(label: string, value: string, valueClass = ''): HTMLElement {
  */
 function countUp(target: HTMLElement, from: number, to: number, format: (n: number) => string): void {
   target.textContent = format(to);
-  if (from === to || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (from === to || reducedMotion()) return;
   target.textContent = format(from);
   const duration = 700;
   let start = 0;

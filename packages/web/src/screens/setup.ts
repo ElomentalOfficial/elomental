@@ -1,4 +1,6 @@
+import { TEXT_SIZES, a11yPrefs, storeA11y, type A11yPrefs } from '../a11y.ts';
 import { signUpForm } from '../accountForm.ts';
+import { openShortcuts } from '../shortcuts.ts';
 import {
   NAME_COOLDOWN_DAYS,
   cachedAccount,
@@ -114,6 +116,7 @@ export function setupScreen(): Screen {
       h('div', {}, h('h2', { text: copy.setup.notesWheel }), h('p', { text: copy.setup.notesWheelHelp })),
       h('div', { class: 'segmented', attrs: { role: 'radiogroup', 'aria-label': copy.setup.notesWheel } }, ...wheelButtons),
     ),
+    accessibilitySection(),
     h(
       'section',
       { class: 'setting' },
@@ -130,6 +133,83 @@ export function setupScreen(): Screen {
     info,
   );
   return { el, title: copy.setup.title };
+}
+
+/**
+ * One accessibility choice: a label, a line of help and a row of options
+ * (a radio group). Reads and writes a11y.ts preferences.
+ */
+function choice<K extends keyof A11yPrefs>(key: K, label: string, help: string | null, options: [A11yPrefs[K], string][]): HTMLElement {
+  const buttons = options.map(([value, text]) =>
+    h('button', {
+      class: 'segment',
+      text,
+      attrs: { role: 'radio' },
+      onclick: () => {
+        storeA11y({ [key]: value } as Partial<A11yPrefs>);
+        sync();
+      },
+    }),
+  );
+  const sync = () => {
+    const current = a11yPrefs()[key];
+    buttons.forEach((b, i) => {
+      const on = options[i][0] === current;
+      b.classList.toggle('on', on);
+      b.setAttribute('aria-checked', String(on));
+    });
+  };
+  sync();
+  const id = `a11y-${key}`;
+  return h(
+    'div',
+    { class: 'a11y-choice' },
+    h('h3', { text: label, attrs: { id } }),
+    help ? h('p', { text: help }) : null,
+    h('div', { class: `segmented cols-${options.length}`, attrs: { role: 'radiogroup', 'aria-labelledby': id } }, ...buttons),
+  );
+}
+
+/** Setup > Accessibility (a11y.ts; docs/ACCESSIBILITY_AUDIT.md section 4). */
+function accessibilitySection(): HTMLElement {
+  const t = copy.setup.a11y;
+  const onOff: [boolean, string][] = [
+    [true, copy.common.on],
+    [false, copy.common.off],
+  ];
+  return h(
+    'section',
+    { class: 'setting a11y-setting' },
+    h('div', {}, h('h2', { text: t.title }), h('p', { text: t.intro })),
+    choice('textSize', t.textSize, t.textSizeHelp, TEXT_SIZES.map((n) => [n, t.percent(n)])),
+    choice('contrast', t.contrast, t.contrastHelp, [
+      ['system', t.system],
+      ['standard', t.standard],
+      ['high', t.high],
+    ]),
+    choice('colourBlind', t.colourBlind, t.colourBlindHelp, onOff),
+    choice('motion', t.motion, t.motionHelp, [
+      ['system', t.system],
+      ['reduce', t.reduce],
+    ]),
+    choice('showTimer', t.timer, t.timerHelp, [
+      [true, t.show],
+      [false, t.hide],
+    ]),
+    h('h3', { class: 'a11y-group', text: t.highlights }),
+    h('p', { class: 'a11y-group-help', text: t.highlightsHelp }),
+    choice('highlightLines', t.lines, null, onOff),
+    choice('highlightBox', t.box, null, onOff),
+    choice('highlightSame', t.same, null, onOff),
+    choice('keepWrong', t.wrong, t.wrongHelp, [
+      [false, t.briefly],
+      [true, t.untilNextMove],
+    ]),
+    choice('casualMistakeLimit', t.mistakeLimit, t.mistakeLimitHelp, onOff),
+    choice('haptics', t.haptics, null, onOff),
+    choice('sounds', t.sounds, t.soundsHelp, onOff),
+    h('button', { class: 'btn', text: t.shortcuts, onclick: () => openShortcuts() }),
+  );
 }
 
 /** Founders only: the way into the Review dashboard (the server checks again). */
