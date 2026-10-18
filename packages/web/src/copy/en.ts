@@ -464,6 +464,33 @@ export const refusals = {
 
 // --- Setup -----------------------------------------------------------------
 
+/** Setup > Accessibility > Accessibility statement (screens/statement.ts). */
+export const statement = {
+  title: 'Accessibility',
+  intro: 'Elomental is made to be played by everyone: by touch, mouse, keyboard or screen reader. We aim for WCAG 2.2 level AA.',
+  supportedTitle: 'What works',
+  supported: [
+    'The whole game plays from the keyboard: arrows, numbers, Shift with a number for notes. Press ? in a game for every shortcut.',
+    'Screen readers hear each cell (row, column, box, number, given or yours), mistakes left, completed lines and hints.',
+    'Text size up to 200%, a high-contrast mode, and a colour-blind friendly mode that marks every state with a shape.',
+    'Reduce motion, hide the timer, choose the highlights, keep wrong numbers on the board, turn off vibration, turn on sounds.',
+    'Casual can drop the three-mistake limit, so you can practise without losing the square.',
+  ] as const,
+  limitsTitle: 'Known limits',
+  limits: [
+    'Pinch zoom is off on phones so the board stays still while you play. Use Text size instead.',
+    'The notes wheel needs a long press or a drag. With a keyboard or screen reader, use Notes (N) or Shift with a number.',
+    'Ranked, Daily and Clash are timed races: you can hide the clock, not stop it, and pauses are limited.',
+    'Accessibility settings stay on this device for now.',
+    'Tested with automated checks and keyboard only so far; testing with VoiceOver, TalkBack and NVDA is under way.',
+  ] as const,
+  feedbackTitle: 'Tell us',
+  feedback: 'Something hard to see, hear or use? Open an issue and tell us what happened and on which device.',
+  feedbackLink: 'Open an issue on GitHub',
+  feedbackUrl: 'https://github.com/barsmin/elomental/issues',
+  reviewed: 'Last reviewed October 2026.',
+};
+
 /** The keyboard shortcuts panel ("?" in a game). */
 export const shortcuts = {
   title: 'Keyboard shortcuts',

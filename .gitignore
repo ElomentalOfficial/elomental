@@ -2,3 +2,5 @@ node_modules/
 *.jsonl
 dist/
 mood_board/
+packages/web/test-results/
+packages/web/playwright-report/

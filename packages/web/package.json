@@ -9,13 +9,16 @@
     "preview": "vite preview",
     "typecheck": "tsc",
     "test": "node --test \"test/**/*.test.ts\"",
-    "a11y:contrast": "node scripts/contrast.ts"
+    "a11y:contrast": "node scripts/contrast.ts",
+    "test:a11y": "playwright test"
   },
   "dependencies": {
     "@elomental/engine": "0.1.0",
     "@supabase/supabase-js": "^2.118.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.1",
+    "@playwright/test": "^1.55.1",
     "typescript": "^7.0.2",
     "vite": "^8.3.4"
   }

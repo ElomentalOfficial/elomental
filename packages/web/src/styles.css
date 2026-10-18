@@ -3020,6 +3020,22 @@ html.standalone .toast {
   text-align: center;
 }
 
+/* Accessibility statement (screens/statement.ts). */
+.statement-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-left: 1.2em;
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+  line-height: 1.4;
+}
+.statement-link {
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+}
+
 /* Keyboard shortcuts panel. */
 .shortcut-list {
   display: flex;

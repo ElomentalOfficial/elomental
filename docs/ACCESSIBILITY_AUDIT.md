@@ -1,6 +1,6 @@
 # Elomental accessibility audit
 
-Status: **Phase 2: report, awaiting approval.** No app code has been changed yet.
+Status: **Phases 3–4 done** on the `accessibility` branch (results in section 6). Sections 1–5 are the original audit, kept as written.
 Standard: WCAG 2.2 AA everywhere, AAA text contrast where it costs the design nothing.
 Audited: `main` at `0d6fb0a` (2026-10-18), dark and light themes, phone (320×568, 375×812) and desktop (1024×768, 1302×735).
 
@@ -214,3 +214,88 @@ Commits on `accessibility`, in this order (each small and reviewable):
 ### Current screen reader experience (one game, before fixes)
 
 Home: tiles read as buttons ("Casual"); the profile card reads as loose text. Opening Casual: nothing is announced and focus stays behind the pop-up; the user must swipe past the whole Home screen to reach "Resume Easy". In the game: the board reads "Sudoku board", then 81 items such as "Row 1, column 3: empty" in box order (1-1, 1-2, 1-3, 2-1…), not row order; cells can't be activated to select, so VoiceOver users can only play by moving a hardware keyboard's arrows from an unknown position. The on-screen keypad may work with VoiceOver on iOS (which sends touch events) but not with NVDA/JAWS/macOS VoiceOver (which send clicks). Wrong numbers, mistakes and hints are silent. The win/loss dialog appears without being announced. Result: a blind player cannot complete a game today.
+
+---
+
+## 6. Results after Phases 3–4
+
+Commits on `accessibility`: `fe2de2f` tokens & contrast · `038b440` dialogs & keyboard · `7012c7b` board & screen reader · `95f213b` settings & features · tests & docs (this commit).
+
+### Issue status
+
+| ID | Status | How |
+| --- | --- | --- |
+| C1 | Fixed | Keypad, Notes, Undo act on `click` too (a tap still counts once); Playwright presses Enter/Space on them |
+| C2 | Fixed | Board is 9 `row`s × 9 `gridcell`s in reading order, boxes drawn by CSS (pixel-identical); roving `tabindex`, `aria-selected`, givens `aria-readonly`; "Skip to board" link |
+| C3 | Fixed (D1) | Text size 100/125/150/200% scales every type token; Home turns into one column, game status/actions wrap, every screen scrolls; zoom stays blocked by decision |
+| C4 | Fixed | `openModal` = labelled `dialog` + `aria-modal`, focus in, Tab trapped, Esc closes, page behind `inert`, focus returns |
+| M1 | Fixed | Polite live region: wrong number + mistakes left, completed row/column/box, hint placed, paused/resumed, notes on/off |
+| M2 | Fixed | "Row 5, column 7, box 6: 1, wrong" / "7, given" / "8, your number" / "empty, notes 1 4 9" |
+| M3 | Fixed (D4) | Your numbers: Forest tone + weight 500; givens unchanged |
+| M4 | Fixed | Corner slash on wrong cells; announcement; "Wrong numbers: until next move" option. Rule unchanged |
+| M5 | Fixed (D3) | Lava `#A85B37`: 4.91:1 |
+| M6 | Fixed | `--focus` ring everywhere incl. cells (9.9–12:1 dark, 7.7:1 light) |
+| M7 | Fixed | Inner Bright ring inside the selection (5.69:1 on Forest) |
+| M8 | Fixed | Ring on selected difficulty and Setup options |
+| M9 | Fixed | Light `--muted` 0.92; stat labels at full opacity |
+| M10 | Fixed | Unused skulls outlined in `--muted`; "1 of 3 mistakes" as one labelled image |
+| M11 | Fixed | Notes `clamp(9px, 2.3cqi × text scale, 3cqi)` |
+| M12 | Fixed | Field edge `--field-border` 3.3:1 |
+| M13 | Fixed | Tutorial and hint cards: focus on Next, Tab trapped, Esc skips, steps announced |
+| M14 | Fixed | Square code chip hit area ≥ 30px tall |
+| M15 | Fixed | Missed days: readable number + slash |
+| M16 | Fixed | Timer: Show/Hide (time still recorded) |
+| m1 | Mitigated | High contrast outlines highlighted cells; colour-blind mode adds an edge; default unchanged (supplementary) |
+| m2 | Fixed | 3×3 box outline at 3.3:1 |
+| m3 | Fixed | All-placed keys at 55% + a check mark |
+| m4 | Fixed | `<main>`, a hidden `h1` on Home and the game, page titles per screen, heading order |
+| m5 | Open | Toast timing unchanged (2.4s+); every toast is also `role="status"` |
+| m6 | Open | Over-par timer still signalled by colour only |
+| m7 | Fixed | Splash label "Elomental. Continue." |
+| m8 | Fixed | Vibration on/off |
+| m9 | Fixed | Reduce motion: System / Reduce |
+| m10 | Fixed | Shortcuts panel (`?`), also in Setup; statement lists the keyboard alternatives |
+| m11 | Fixed | Hints flash with a ring, not only a fill |
+
+### Before / after
+
+| Check | Before | After |
+| --- | --- | --- |
+| Required contrast pairs failing (both themes) | 29 | **0** (10 supplementary/decorative pairs below ratio by design, listed in `ACCEPTED`) |
+| Colour-blind look-alike states without a shape cue | 3 (light: same/wrong, wrong/hint; dark: same/hint) | **0** (slash on wrong, ring on hint; tested by `npm test`) |
+| axe, game screen | 4 violations (2 critical ARIA grid, 1 prohibited attr, 1 zoom) + landmarks | **0** (zoom excluded by decision D1) |
+| axe, Home / Casual pop-up / Setup | contrast (Play button), landmarks, zoom | **0** |
+| Keypad/Notes/Undo by keyboard | did nothing | work |
+| Pop-up focus | stayed on the page behind; Esc ignored | moves in, trapped, Esc closes, returns |
+| Automated tests | none in the web package | `npm test` (contrast + colour-blind), `npm run test:a11y` (Playwright + axe, 12 tests, dark and light) |
+
+### Keyboard-only walkthrough (one game)
+
+1. The splash advances by itself (or Enter). On Home, Tab reaches the tiles in reading order; Enter on **Casual** opens the dialog with focus on its title.
+2. Tab to **Easy / Medium / Hard** (radio buttons), Enter to pick, Tab to **Play Easy**, Enter. Esc would close the dialog and return focus to the Casual tile.
+3. In the game, the first Tab is **Skip to board**; Enter lands on the centre cell (or the last selected one).
+4. Arrows move around the board (wrapping at the edges); the focus ring and the selection move together. 1–9 place a number, Shift+1–9 toggle a note, N switches notes mode, Backspace erases, Ctrl/Cmd+Z undoes, H asks for a hint (the explanation card takes focus; Enter steps through, Esc closes), P pauses and resumes.
+5. Tab from the board reaches the keypad, Erase, Hint, Undo and Notes; Enter/Space activate them.
+6. `?` opens the shortcuts dialog at any time. The result dialog takes focus when the game ends; Tab reaches its buttons.
+
+### Screen reader experience (one full solve, as built)
+
+Home is announced as "Elomental, heading level 1", then the profile and the tiles as buttons. Opening Casual announces "Casual, dialog" and reads its title; "Resume Easy, 1:24 · 38% done", the "New game" radio group and "Play Easy" follow. In the game the reader hears the page title "Casual · Easy", the mistakes as "0 of 3 mistakes", then "Sudoku board, grid". Moving with arrows reads each cell: "Row 1, column 3, box 1: 5, given", "Row 5, column 7, box 6: empty, notes 1 4 9". Typing a number updates the focused cell's label ("…: 8, your number"); a wrong number is announced as "Wrong number. 2 mistakes left."; finishing a line says "Row 4 and box 5 complete."; a hint says "Hint: 7 in row 3, column 5." The clock is never announced. The final number opens the result dialog, which takes focus and reads its title and stats.
+
+This is the designed behaviour, verified in Chromium's accessibility tree by the Playwright tests. It has **not yet been tested with VoiceOver, TalkBack or NVDA**; see the human test list below.
+
+### Remaining limitations
+
+- Pinch zoom stays blocked on phones (D1); Text size is the supported way to enlarge text.
+- The notes wheel is pointer-only; keyboard and screen reader players use Notes mode or Shift+number.
+- Accessibility preferences are stored on the device only. Syncing them to the account needs the `save_settings` database function to accept an `a11y` key (a migration), which hasn't been applied.
+- Toast timing (m5) and the over-par timer colour (m6) are unchanged.
+- High contrast covers the board, controls and text; the decorative waves and the home tiles keep their palette colours.
+
+### Needs a human test with real assistive technology
+
+- VoiceOver on iPhone (installed app and Safari): moving through the grid with swipes and with a keyboard, double-tap on keypad keys, live announcements during play, the result dialog.
+- TalkBack on Android Chrome: the same flow.
+- NVDA + Firefox/Chrome and VoiceOver on macOS: grid navigation in browse vs focus mode, dialogs.
+- Switch Control (iOS) through the keypad and actions.
+- 200% text on a real small phone (iPhone SE size) in both orientations.

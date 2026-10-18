@@ -19,6 +19,7 @@ import { deviceInfo } from '../viewport.ts';
 import { goBack, h, mount, toast, type Screen } from '../ui.ts';
 import { homeScreen } from './home.ts';
 import { reviewScreen } from './review.ts';
+import { statementScreen } from './statement.ts';
 import * as copy from '../copy/en.ts';
 
 export function setupScreen(): Screen {
@@ -209,6 +210,7 @@ function accessibilitySection(): HTMLElement {
     choice('haptics', t.haptics, null, onOff),
     choice('sounds', t.sounds, t.soundsHelp, onOff),
     h('button', { class: 'btn', text: t.shortcuts, onclick: () => openShortcuts() }),
+    h('button', { class: 'btn', text: t.statement, onclick: () => mount(statementScreen()) }),
   );
 }
 
