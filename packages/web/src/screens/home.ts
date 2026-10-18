@@ -2,7 +2,7 @@ import { difficultyForRating, type Difficulty } from '@elomental/engine';
 import { ICONS } from '../icons.ts';
 import { enableTilt, turnstileIn, turnstileOut } from '../motion.ts';
 import { loadProfile, rankTitle, rankedTarget } from '../profile.ts';
-import { closeButton, formatTime, h, mount, navigatingBack, openModal, toast, type Screen } from '../ui.ts';
+import { closeButton, formatTime, h, hiddenHeading, mount, navigatingBack, openModal, toast, type Screen } from '../ui.ts';
 import { readJson, writeJson } from '../storage.ts';
 import { handleHandoffLink } from '../handoff.ts';
 import { onAccountChange, refreshAccount, signedIn } from '../backend.ts';
@@ -83,7 +83,7 @@ export function homeScreen(): Screen {
 
   const animated = [profileCard, daily, store, leader, casual, ranked, setupWide];
   const grid = h('div', { class: 'home-grid' }, ...animated);
-  const el = h('div', { class: 'screen home' }, grid);
+  const el = h('div', { class: 'screen home' }, hiddenHeading(copy.common.appName), grid);
 
   // Runs before the first paint of the new screen, so tiles never flash in place.
   const backward = navigatingBack();

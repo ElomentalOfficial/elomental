@@ -50,7 +50,7 @@ import {
 import { signUpForm } from '../accountForm.ts';
 import { runHintCoach } from '../hintCoach.ts';
 import { runTutorial, tutorialDone, type TutorialStep } from '../tutorial.ts';
-import { formatSeconds, formatTime, goBack, h, mount, openModal, toast, type Screen } from '../ui.ts';
+import { formatSeconds, formatTime, goBack, h, hiddenHeading, mount, openModal, toast, type Screen } from '../ui.ts';
 import { dailyScreen } from './daily.ts';
 import { homeScreen } from './home.ts';
 import * as copy from '../copy/en.ts';
@@ -282,26 +282,21 @@ function gameScreen(game: SavedGame): Screen {
       paintSquareCode();
     });
   }
+  // Only Casual shows its difficulty; Daily and Ranked keep it hidden. Clash shows,
+  // when the friend's result came in a link, the time to beat. Its code stays off
+  // the label: the Square code chip beside it is the one code to copy.
+  const typeLabel = clash
+    ? copy.game.label.clash(clash.theirs?.solved ? formatSeconds(clash.theirs.seconds) : undefined)
+    : config.mode === 'casual'
+      ? copy.game.label.casual(config.difficulty)
+      : MODE_LABEL[config.mode];
+  // The mistake count as one image with a literal label ("1 of 3 mistakes"); render() keeps it current.
+  const mistakesEl = h('div', { class: 'mistakes', attrs: { role: 'img' } }, ...skulls);
   const status = h(
     'div',
     { class: 'status' },
-    h('div', { class: 'mistakes', attrs: { 'aria-label': copy.game.a11y.mistakes } }, ...skulls),
-    h(
-      'div',
-      { class: 'puzzle-info' },
-      squareChip,
-      h('span', {
-        class: 'puzzle-type',
-        // Only Casual shows its difficulty; Daily and Ranked keep it hidden. Clash shows,
-        // when the friend's result came in a link, the time to beat. Its code stays off
-        // the label: the Square code chip beside it is the one code to copy.
-        text: clash
-          ? copy.game.label.clash(clash.theirs?.solved ? formatSeconds(clash.theirs.seconds) : undefined)
-          : config.mode === 'casual'
-            ? copy.game.label.casual(config.difficulty)
-            : MODE_LABEL[config.mode],
-      }),
-    ),
+    mistakesEl,
+    h('div', { class: 'puzzle-info' }, squareChip, h('span', { class: 'puzzle-type', text: typeLabel })),
   );
 
   // --- Board ---------------------------------------------------------------
@@ -367,6 +362,7 @@ function gameScreen(game: SavedGame): Screen {
   const el = h(
     'div',
     { class: `screen game mode-${config.mode}` },
+    hiddenHeading(typeLabel),
     brand,
     h('div', { class: 'topbar' }, leftButton, timer, pauseButton),
     h('div', { class: 'separator', html: ICONS.separator }),
@@ -657,6 +653,7 @@ function gameScreen(game: SavedGame): Screen {
     }
 
     skulls.forEach((s, i) => s.classList.toggle('used', i < game.mistakes));
+    mistakesEl.setAttribute('aria-label', copy.game.a11y.mistakes(game.mistakes, MAX_MISTAKES));
     for (let d = 1; d <= 9; d++) {
       let placed = 0;
       for (let c = 0; c < 81; c++) if (game.values[c] === d && solution[c] === d) placed++;
@@ -981,23 +978,34 @@ function gameScreen(game: SavedGame): Screen {
   window.addEventListener('pointerup', onPressUp, true);
   window.addEventListener('pointercancel', onPressCancel, true);
 
-  pad.addEventListener('pointerdown', (event) => {
+  /**
+   * Touch and mouse act on pointerdown, with no tap delay. Keyboards, switch
+   * access and screen readers only send a click, so a click counts too, unless
+   * it's the click that follows a press already handled.
+   */
+  const onPress = (target: HTMLElement, act: (event: Event) => void) => {
+    let pressedAt = -Infinity;
+    target.addEventListener('pointerdown', (event) => {
+      event.preventDefault();
+      pressedAt = event.timeStamp;
+      act(event);
+    });
+    target.addEventListener('click', (event) => {
+      if (event.timeStamp - pressedAt < 1000) return;
+      act(event);
+    });
+  };
+  onPress(pad, (event) => {
     const key = (event.target as HTMLElement).closest<HTMLElement>('[data-digit]');
-    if (!key) return;
-    event.preventDefault();
-    input(Number(key.dataset.digit));
+    if (key) input(Number(key.dataset.digit));
   });
   hintButton.addEventListener('click', () => void hint());
-  notesButton.addEventListener('pointerdown', (event) => {
-    event.preventDefault();
+  onPress(notesButton, () => {
     if (finished || paused) return;
     notesMode = !notesMode;
     render();
   });
-  undoButton.addEventListener('pointerdown', (event) => {
-    event.preventDefault();
-    undo();
-  });
+  onPress(undoButton, () => undo());
   pauseButton.addEventListener('click', () => setPaused(!paused));
   leftButton.addEventListener('click', () => {
     if (finished) return void goBack(homeScreen);
@@ -1100,6 +1108,7 @@ function gameScreen(game: SavedGame): Screen {
 
   return {
     el,
+    title: typeLabel,
     destroy() {
       save();
       wheel?.close();

@@ -129,7 +129,7 @@ export function setupScreen(): Screen {
     ),
     info,
   );
-  return { el };
+  return { el, title: copy.setup.title };
 }
 
 /** Founders only: the way into the Review dashboard (the server checks again). */

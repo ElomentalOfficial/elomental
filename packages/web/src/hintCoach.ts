@@ -1,5 +1,5 @@
 import type { Marks, Stage } from './explain.ts';
-import { h } from './ui.ts';
+import { h, holdFocus, labelByHeading } from './ui.ts';
 import * as copy from './copy/en.ts';
 
 /**
@@ -23,12 +23,11 @@ export function runHintCoach(options: {
     const text = h('p');
     const next = h('button', { class: 'btn btn-primary coach-next' });
     const close = h('button', { class: 'coach-skip', text: copy.common.close });
+    // Focus stays on Next while the stages change; the live text announces each one.
     const card = h(
       'div',
-      { class: 'coach-card hint-card', attrs: { role: 'dialog', 'aria-live': 'polite' } },
-      counter,
-      title,
-      text,
+      { class: 'coach-card hint-card', attrs: { role: 'dialog', 'aria-modal': 'true' } },
+      h('div', { attrs: { 'aria-live': 'polite' } }, counter, title, text),
       h('div', { class: 'coach-actions' }, close, next),
     );
     const layer = h('div', { class: 'hint-layer' }, card);
@@ -38,6 +37,8 @@ export function runHintCoach(options: {
     layer.addEventListener('touchstart', (event) => !onButton(event) && event.preventDefault(), { passive: false });
     layer.addEventListener('pointerdown', (event) => !onButton(event) && event.preventDefault());
     document.body.append(layer);
+    labelByHeading(card);
+    const release = holdFocus(card, { onEscape: () => finish(false), initial: next });
 
     const show = () => {
       const stage = stages[index];
@@ -54,6 +55,7 @@ export function runHintCoach(options: {
     const finish = (placed: boolean) => {
       if (done) return;
       done = true;
+      release();
       layer.classList.add('closing');
       setTimeout(() => layer.remove(), 180);
       resolve(placed);

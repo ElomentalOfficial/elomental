@@ -30,6 +30,8 @@ export function pick<T>(lines: readonly T[], key: string): T {
 
 export const common = {
   appName: 'Elomental',
+  /** The browser tab and window title for a screen. */
+  pageTitle: (screen: string) => `${screen} · Elomental`,
   tagline: 'Competitive sudoku',
   ok: 'OK',
   close: 'Close',
@@ -62,7 +64,7 @@ export const common = {
 // --- Welcome ---------------------------------------------------------------
 
 export const welcome = {
-  a11y: 'Elomental. Tap to continue.',
+  a11y: 'Elomental. Continue.',
 };
 
 // --- Home ------------------------------------------------------------------
@@ -153,7 +155,7 @@ export const game = {
   a11y: {
     pause: 'Pause',
     resume: 'Resume',
-    mistakes: 'Mistakes',
+    mistakes: (used: number, max: number) => `${used} of ${max} mistakes`,
     board: 'Sudoku board',
     erase: 'Erase',
     hint: (left: number) => `Hint, ${left} left`,
