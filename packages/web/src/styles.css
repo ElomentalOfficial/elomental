@@ -151,7 +151,7 @@
   --action-text: var(--c-crimson);
   --notes-on-bg: var(--c-forest);
   --notes-on-text: var(--c-bright);
-  --grain-color: rgba(121, 67, 65, 0.06);
+  --grain-color: rgba(121, 67, 65, 0.1);
   --wheel-bg: var(--c-crimson);
   --wheel-text: var(--c-bright);
   --wheel-on: var(--accent);
@@ -316,16 +316,38 @@ html.standalone:not(.welcome-active) #status-tint {
  * Faint wood-grain lines behind every screen (grain.ts draws them). A mask, so
  * the theme sets their colour; z-index -1 keeps them under the content but
  * over #app's own background (#app is its own stacking context).
+ *
+ * Pinned to the whole screen, 60px past the top and bottom edges (and the
+ * home-screen app's bottom gap), so they run under the status bar and the
+ * home indicator too. #status-tint draws the same layer in the same place
+ * (below), so the lines carry on through the status-bar strip.
  */
-#app::before {
+#app::before,
+#status-tint::after {
   content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
+  left: 0;
+  width: 100%;
+  top: -60px;
+  height: calc(100lvh + 120px + var(--standalone-gap, 0px));
   pointer-events: none;
   background: var(--grain-color);
   -webkit-mask: var(--grain) center / cover no-repeat;
   mask: var(--grain) center / cover no-repeat;
+}
+#app::before {
+  position: fixed;
+  z-index: -1;
+}
+#status-tint {
+  overflow: hidden;
+}
+#status-tint::after {
+  position: absolute;
+  transition: opacity 0.18s ease;
+}
+/* Under a pop-up or the tutorial the strip takes the dimmed colour; the lines there are covered too. */
+html:is(.modal-open, .coach-open) #status-tint::after {
+  opacity: 0;
 }
 button {
   font: inherit;

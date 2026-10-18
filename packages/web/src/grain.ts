@@ -1,9 +1,9 @@
 /**
  * The faint wood-grain lines behind every screen: contour lines of a smooth,
  * seeded height field, like the rings in a cut log. Two bands of evenly
- * spaced rings run in from opposite corners, with a few knots the rings bend
- * around, and calm empty space between them on the diagonal, so the page
- * never gets busy behind the tiles or the board. The lines wobble slightly,
+ * spaced rings run in from opposite corners and bend gently as they go, with
+ * calm empty space between them on the diagonal, so the page never gets busy
+ * behind the tiles or the board. The lines wobble slightly and vary in weight,
  * as if drawn by hand.
  *
  * The drawing is made for the screen's own shape (portrait phone, landscape
@@ -74,6 +74,9 @@ function field(W: number, H: number): (x: number, y: number) => number {
   const random = rng(11);
   const warpX = valueNoise(random, 3);
   const warpY = valueNoise(random, 3);
+  // A second, finer warp: the gentle bends real grain takes around what grew in it.
+  const bendX = valueNoise(random, 7);
+  const bendY = valueNoise(random, 7);
   const wobble = valueNoise(random, 48);
   const spacing = valueNoise(random, 7);
   const D = Math.hypot(W, H);
@@ -86,23 +89,13 @@ function field(W: number, H: number): (x: number, y: number) => number {
     { x: 0, y: H, along: 0.8 * D, across: 0.86 * toDiagonal, angle: grain, weight: 1 },
     { x: W, y: 0, along: 0.8 * D, across: 0.86 * toDiagonal, angle: grain, weight: 1 },
   ];
-  const at = (u: number, v: number, size: number, weight: number): Ellipse => ({
-    x: u * W,
-    y: v * H,
-    along: size * D,
-    across: size * 0.38 * D,
-    angle: grain,
-    weight,
-  });
-  const knots = [at(0.15, 0.66, 0.07, 0.2), at(0.84, 0.3, 0.065, 0.19), at(0.9, 0.62, 0.04, 0.12)];
   return (x0: number, y0: number) => {
     const u = x0 / W;
     const v = y0 / H;
-    const x = x0 + 0.09 * D * warpX(u, v);
-    const y = y0 + 0.09 * D * warpY(u, v);
+    const x = x0 + 0.09 * D * warpX(u, v) + 0.025 * D * bendX(u, v);
+    const y = y0 + 0.09 * D * warpY(u, v) + 0.025 * D * bendY(u, v);
     let h = -1;
     for (const b of bands) h = Math.max(h, b.weight * (1 - distance(b, x, y)));
-    for (const k of knots) h += k.weight * Math.max(0, 1 - distance(k, x, y)) ** 2;
     return h * (1 + 0.12 * spacing(u, v)) + 0.006 * wobble(u, v);
   };
 }
@@ -206,19 +199,28 @@ export function grainSvg(aspect: number): string {
   const h = field(W, H);
   const values = new Float64Array(nx * ny);
   for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) values[j * nx + i] = h(i * STEP, j * STEP);
-  const paths: string[] = [];
+  // Each ring gets its own weight, like ink lines drawn by hand: most about 1,
+  // some thinner, a few a little heavier. Grouped so the SVG stays a few paths.
+  const widths = [0.6, 0.85, 1.1, 1.45];
+  const odds = [0.2, 0.3, 0.35, 0.15];
+  const pickWidth = rng(29);
+  const groups: string[][] = widths.map(() => []);
   // Evenly spaced rings from each band's outline in to its core; none in the calm space between.
   for (let level = 0.004; level < 1.3; level += 0.0165) {
     for (const line of contours(values, nx, ny, level)) {
       if (line.length < 4) continue; // crumbs from the wobble
-      paths.push(pathOf(simplify(line, 0.7)));
+      let roll = pickWidth();
+      let w = 0;
+      while (w < odds.length - 1 && roll > odds[w]) roll -= odds[w++];
+      groups[w].push(pathOf(simplify(line, 0.7)));
     }
   }
   return (
     // Explicit size: without it browsers rasterise data-URL SVGs at a default size and crop them.
     `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">` +
-    `<path fill="none" stroke="#fff" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" d="${paths.join('')}"/>` +
-    `</svg>`
+    `<g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round">` +
+    groups.map((g, i) => (g.length ? `<path stroke-width="${widths[i]}" d="${g.join('')}"/>` : '')).join('') +
+    `</g></svg>`
   );
 }
 
@@ -238,7 +240,8 @@ function grainUrl(aspect: number): string {
  * idle: the splash (which covers the page) is never held up by it.
  */
 export function applyGrain(): void {
-  const apply = () => document.documentElement.style.setProperty('--grain', grainUrl(innerWidth / innerHeight));
+  // The layer runs 60px past the top and bottom of the screen (styles.css).
+  const apply = () => document.documentElement.style.setProperty('--grain', grainUrl(innerWidth / (innerHeight + 120)));
   if ('requestIdleCallback' in window) requestIdleCallback(apply, { timeout: 800 });
   else setTimeout(apply, 50);
   let timer = 0;
