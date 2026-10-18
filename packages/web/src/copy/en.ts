@@ -15,6 +15,17 @@ export const capitalize = (s: string): string => s[0].toUpperCase() + s.slice(1)
 export const listOf = (items: (string | number)[]): string =>
   items.length <= 1 ? String(items[0] ?? '') : `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`;
 
+/**
+ * One of several lines for the same moment, so it doesn't read the same every
+ * game: the same `key` (a game's seed) always gets the same line, different
+ * keys spread across them.
+ */
+export function pick<T>(lines: readonly T[], key: string): T {
+  let hash = 0;
+  for (let i = 0; i < key.length; i++) hash = (hash * 31 + key.charCodeAt(i)) >>> 0;
+  return lines[hash % lines.length];
+}
+
 // --- Shared ----------------------------------------------------------------
 
 export const common = {
@@ -103,7 +114,8 @@ export const daily = {
 // --- Game ------------------------------------------------------------------
 
 export const game = {
-  loading: 'Forging your square…',
+  /** Shown while a square is made (only when that takes a moment). */
+  loading: ['Forging your square…', 'Sharpening the logic…', 'Setting up the grid…', 'Placing the given numbers…'] as const,
   forgeFailed: 'Couldn’t make a square. Try again.',
   offlineSignedIn: 'No connection. Games need the internet while you’re signed in.',
   squareUnplayable: 'That square can’t be played.',
@@ -154,6 +166,21 @@ export const game = {
 
 export const result = {
   titles: { solved: 'Solved', mistakes: 'Out of mistakes', concede: 'Conceded' } as Record<string, string>,
+  /**
+   * The line under "Solved", by how the game went; `key` (the game's seed)
+   * picks among equally fitting lines. Mistakes and hints are never shamed.
+   */
+  winLine: (game: { mistakes: number; hints: number; maxMistakes: number }, key: string): string => {
+    if (game.hints > 0) {
+      return pick(['Solved, with a little help. That’s how patterns stick.', 'Solved. The hints did their job; next time, maybe fewer.'], key);
+    }
+    if (game.mistakes === 0) return pick(['Clean solve: no mistakes, no hints.', 'Checkmate, grid. Not a single mistake.', 'Flawless. Every number where it belongs.'], key);
+    if (game.mistakes >= game.maxMistakes - 1) return pick(['Two mistakes, still standing. Solved.', 'Close one. You held your nerve.'], key);
+    return pick(['One slip, no harm done.', 'Solved. One mistake, quickly put right.'], key);
+  },
+  /** Losses: kind, plain, no jokes. */
+  lossLine: (reason: 'mistakes' | 'concede'): string =>
+    reason === 'mistakes' ? 'Three mistakes this time. The next square is waiting.' : 'Game conceded. The next square is waiting.',
   time: 'Time',
   mistakes: 'Mistakes',
   hints: 'Hints',

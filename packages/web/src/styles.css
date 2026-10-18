@@ -1592,6 +1592,10 @@ html.standalone .backdrop {
   text-align: center;
   text-transform: uppercase;
 }
+/* The line on how the game went, right under the title (copy.result.winLine / lossLine). */
+.stats .result-line {
+  text-align: center;
+}
 .stats {
   display: flex;
   flex-direction: column;

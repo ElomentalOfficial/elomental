@@ -223,7 +223,7 @@ export function resumeGame(game: SavedGame): void {
 
 function loadingScreen(): Screen {
   return {
-    el: h('div', { class: 'screen loading' }, h('div', { class: 'loader' }), h('p', { text: copy.game.loading })),
+    el: h('div', { class: 'screen loading' }, h('div', { class: 'loader' }), h('p', { text: copy.pick(copy.game.loading, String(Date.now())) })),
   };
 }
 
@@ -790,8 +790,16 @@ function gameScreen(game: SavedGame): Screen {
 
   function showResult(won: boolean, reason: string, outcome: Outcome, notice?: string) {
     const titles = copy.result.titles;
+    // One line on how it went: a win line that fits the game, or a kind word after a loss
+    // (a failed Daily has its own retry note below instead).
+    const line = won
+      ? copy.result.winLine({ mistakes: game.mistakes, hints: game.hints, maxMistakes: MAX_MISTAKES }, config.seed)
+      : config.mode === 'daily'
+        ? null
+        : copy.result.lossLine(reason === 'mistakes' ? 'mistakes' : 'concede');
     const rows: (HTMLElement | null)[] = [
       notice ? h('p', { class: 'note', text: notice }) : null,
+      line ? h('p', { class: 'note result-line', text: line }) : null,
       statRow(copy.result.time, formatTime(game.elapsedMs)),
       statRow(copy.result.mistakes, copy.result.mistakesOf(game.mistakes, MAX_MISTAKES)),
     ];
