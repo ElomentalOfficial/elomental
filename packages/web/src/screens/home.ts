@@ -2,7 +2,8 @@ import { difficultyForRating, type Difficulty } from '@elomental/engine';
 import { ICONS } from '../icons.ts';
 import { enableTilt, turnstileIn, turnstileOut } from '../motion.ts';
 import { loadProfile, rankTitle, rankedTarget } from '../profile.ts';
-import { closeButton, h, mount, navigatingBack, openModal, toast, type Screen } from '../ui.ts';
+import { closeButton, formatTime, h, mount, navigatingBack, openModal, toast, type Screen } from '../ui.ts';
+import { readJson, writeJson } from '../storage.ts';
 import { handleHandoffLink } from '../handoff.ts';
 import { onAccountChange, refreshAccount, signedIn } from '../backend.ts';
 import { handleClashLink, openClash } from './clashSheet.ts';
@@ -103,55 +104,108 @@ function stat(value: string, label: string, icon?: string): HTMLElement {
   );
 }
 
-/** `leave` plays the home exit animation before the game screen takes over. */
+const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard'];
+/** The difficulty the Casual sheet last started, picked again next time. */
+const CASUAL_PICK_KEY = 'elomental:casual-difficulty';
+
+/**
+ * Casual: a card for playing alone (resume, pick a difficulty, play) and a card
+ * of the same weight for playing with a friend (Clash, Square code).
+ * `leave` plays the home exit animation before the game screen takes over.
+ */
 function openCasual(leave: (go: () => void) => void) {
   const saved = loadSavedGame();
+  const say = copy.home.casual;
+  const stored = readJson<Difficulty>(CASUAL_PICK_KEY);
+  let pick: Difficulty = stored && DIFFICULTIES.includes(stored) ? stored : 'easy';
+
+  const segments = DIFFICULTIES.map((difficulty, i) =>
+    h(
+      'button',
+      { class: 'difficulty', attrs: { role: 'radio', 'data-difficulty': difficulty }, onclick: () => choose(difficulty) },
+      // One to three filled squares: how hard it is.
+      h('span', { class: 'pips', attrs: { 'aria-hidden': 'true' } }, ...DIFFICULTIES.map((_, j) => h('i', { class: j <= i ? 'on' : '' }))),
+      h('span', { text: copy.common.difficulty[difficulty] }),
+    ),
+  );
+  const playButton = h('button', { class: 'btn btn-play', onclick: () => play() });
   const choose = (difficulty: Difficulty) => {
-    close();
-    leave(() => void startGame({ mode: 'casual', difficulty }));
+    pick = difficulty;
+    for (const segment of segments) {
+      const on = segment.dataset.difficulty === difficulty;
+      segment.classList.toggle('on', on);
+      segment.setAttribute('aria-checked', String(on));
+    }
+    playButton.textContent = say.play(difficulty);
   };
+  choose(pick);
+  const play = () => {
+    writeJson(CASUAL_PICK_KEY, pick);
+    close();
+    leave(() => void startGame({ mode: 'casual', difficulty: pick }));
+  };
+
+  let resume: HTMLElement | null = null;
+  if (saved?.config.mode === 'casual') {
+    // Progress counts only the cells the player has to fill, not the givens.
+    const givens = [...saved.config.puzzle].filter((c) => c !== '0').length;
+    const filled = saved.values.filter(Boolean).length - givens;
+    const percent = Math.max(0, Math.round((filled / Math.max(1, 81 - givens)) * 100));
+    resume = h(
+      'button',
+      {
+        class: 'resume-card',
+        onclick: () => {
+          close();
+          leave(() => resumeGame(saved));
+        },
+      },
+      h(
+        'span',
+        { class: 'resume-text' },
+        h('strong', { text: say.resume(saved.config.difficulty) }),
+        h('small', { text: say.resumeInfo(formatTime(saved.elapsedMs), percent) }),
+      ),
+      h('span', { class: 'resume-go', html: ICONS.play, attrs: { 'aria-hidden': 'true' } }),
+    );
+  }
+
+  const friend = (icon: string, label: string, info: string, onTap: () => void) =>
+    h(
+      'button',
+      { class: 'friend-option', onclick: () => { close(); onTap(); } },
+      h('span', { class: 'friend-icon', html: icon, attrs: { 'aria-hidden': 'true' } }),
+      h('strong', { text: label }),
+      h('small', { text: info }),
+    );
+
   const close = openModal(
     h(
       'div',
-      { class: 'sheet' },
-      closeButton(() => close()),
-      h('span', { class: 'sheet-icon casual', html: ICONS.casual }),
-      h('h2', { text: copy.home.casual.title }),
-      h('p', { text: copy.home.casual.text }),
-      saved?.config.mode === 'casual'
-        ? h('button', {
-            class: 'btn btn-primary',
-            text: copy.home.casual.resume(saved.config.difficulty),
-            onclick: () => {
-              close();
-              leave(() => resumeGame(saved));
-            },
-          })
-        : null,
-      h('button', { class: 'btn', text: copy.common.difficulty.easy, onclick: () => choose('easy') }),
-      h('button', { class: 'btn', text: copy.common.difficulty.medium, onclick: () => choose('medium') }),
-      h('button', { class: 'btn', text: copy.common.difficulty.hard, onclick: () => choose('hard') }),
+      { class: 'casual-sheet' },
       h(
-        'div',
-        { class: 'casual-extras' },
-        h('button', {
-          class: 'btn btn-clash',
-          html: `${ICONS.clash}<span>${copy.home.casual.clash}</span>`,
-          onclick: () => {
-            close();
-            openClash(leave);
-          },
-        }),
-        h('button', {
-          class: 'btn btn-clash btn-square-code',
-          html: `${ICONS.hash}<span>${copy.home.casual.squareCode}</span>`,
-          onclick: () => {
-            close();
-            openSquareCode(leave);
-          },
-        }),
+        'section',
+        { class: 'casual-card' },
+        closeButton(() => close()),
+        h(
+          'div',
+          { class: 'casual-head' },
+          h('span', { class: 'casual-badge', html: ICONS.casual, attrs: { 'aria-hidden': 'true' } }),
+          h('div', {}, h('h2', { text: say.title }), h('p', { text: say.text })),
+        ),
+        resume,
+        h('h3', { class: 'casual-label', attrs: { id: 'casual-new-game' }, text: say.newGame }),
+        h('div', { class: 'difficulty-picker', attrs: { role: 'radiogroup', 'aria-labelledby': 'casual-new-game' } }, ...segments),
+        playButton,
+      ),
+      h(
+        'section',
+        { class: 'friend-card' },
+        friend(ICONS.clash, say.clash, say.clashInfo, () => openClash(leave)),
+        friend(ICONS.hash, say.squareCode, say.squareCodeInfo, () => openSquareCode(leave)),
       ),
     ),
+    { class: 'casual-modal' },
   );
 }
 

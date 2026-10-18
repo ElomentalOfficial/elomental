@@ -1657,48 +1657,184 @@ html.standalone .backdrop {
   transform: none;
 }
 
-/* ---------- Clash ---------- */
-.btn-clash {
+/* ---------- Casual ---------- */
+/* Two cards of equal weight: playing alone, and playing with a friend. */
+.modal.casual-modal {
+  max-width: min(360px, calc(100vw - 32px));
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.casual-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.casual-card,
+.friend-option {
+  position: relative;
+  border-radius: 12px;
+  border: 1px solid var(--modal-border);
+  background: var(--modal-bg);
+}
+.casual-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 18px 18px;
+}
+.casual-head {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 6px;
-  background: var(--accent);
-  color: var(--on-accent);
+  gap: 12px;
+  padding-right: 44px; /* clear of the close button */
 }
-.btn-clash svg {
-  width: 22px;
-  height: 22px;
+.casual-badge {
+  width: 52px;
+  height: 52px;
   flex: none;
+  padding: 13px;
+  border-radius: 50%;
+  background: var(--c-forest);
+  color: var(--c-bright);
 }
-/* Casual: Clash and Square code side by side. */
-.casual-extras {
+.casual-head h2 {
+  font-size: var(--fs-title);
+  text-transform: uppercase;
+}
+.casual-head p {
+  margin-top: 2px;
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.resume-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 12px 12px 18px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  box-shadow: inset 4px 0 0 var(--primary-bg);
+  color: var(--text);
+  text-align: left;
+}
+.resume-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.resume-text strong {
+  font-family: var(--serif);
+  font-size: var(--fs-label);
+  font-weight: 400;
+}
+.resume-text small {
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.resume-go {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  padding: 13px 12px 13px 14px;
+  border-radius: 50%;
+  background: var(--primary-bg);
+  color: var(--primary-text);
+}
+.casual-label {
+  margin-bottom: -6px;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.difficulty-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 4px;
+  border-radius: 8px;
+  background: var(--chip-bg);
+}
+.difficulty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 0 10px;
+  border-radius: 6px;
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+  color: var(--muted);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.difficulty.on {
+  background: var(--surface-2);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--modal-border);
+}
+/* One to three filled squares: how hard it is. */
+.pips {
+  display: flex;
+  gap: 3px;
+}
+.pips i {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.25;
+}
+.pips i.on {
+  opacity: 1;
+}
+.btn-play {
+  background: var(--c-forest);
+  color: var(--c-bright);
+}
+/* Clash and Square code: two cards side by side, the same gap as between the cards. */
+.friend-card {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  width: 100%;
-  margin-top: 6px;
 }
-/* Icon over label, so both fit side by side on a phone. */
-.casual-extras .btn {
+.friend-option {
+  display: flex;
   flex-direction: column;
-  gap: 4px;
-  min-height: 68px;
-  margin-top: 0;
-  padding: 8px 6px;
-  font-size: var(--fs-label);
-  line-height: 1.1;
-  white-space: nowrap;
+  align-items: center;
+  gap: 6px;
+  padding: 18px 18px 16px; /* the Casual card's side padding */
+  color: var(--text);
 }
-.casual-extras .btn svg {
-  width: 22px;
-  height: 22px;
-}
-.btn-square-code {
+.friend-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 4px;
+  padding: 12px;
+  border-radius: 50%;
   background: var(--surface-2);
   color: var(--text);
 }
+.friend-option strong {
+  font-family: var(--serif);
+  font-size: var(--fs-label);
+  font-weight: 400;
+  white-space: nowrap;
+}
+.friend-option small {
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.resume-card:active,
+.difficulty:active,
+.friend-option:active {
+  filter: brightness(1.08);
+}
+
+/* ---------- Clash ---------- */
 .square-sheet {
   gap: 10px;
 }

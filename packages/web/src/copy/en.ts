@@ -82,8 +82,13 @@ export const home = {
     title: 'Casual',
     text: 'No pressure, no Elo.',
     resume: (difficulty: string) => `Resume ${capitalize(difficulty)}`,
+    resumeInfo: (time: string, percent: number) => `${time} · ${percent}% done`,
+    newGame: 'New game',
+    play: (difficulty: string) => `Play ${capitalize(difficulty)}`,
     clash: 'Clash a friend',
+    clashInfo: 'Race to finish',
     squareCode: 'Square code',
+    squareCodeInfo: 'Play from a code',
   },
   ranked: {
     title: 'Ranked',
