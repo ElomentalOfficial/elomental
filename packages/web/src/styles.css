@@ -431,7 +431,8 @@ h2 {
 
 .screen {
   width: 100%;
-  max-width: 440px;
+  /* The column widens with Text size, so larger words keep the same line lengths (phones are narrower anyway). */
+  max-width: calc(440px * var(--text-scale, 1));
   height: 100%;
   padding: max(var(--gutter), env(safe-area-inset-top)) var(--gutter) max(var(--gutter), env(safe-area-inset-bottom));
   display: flex;

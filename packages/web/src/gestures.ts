@@ -85,3 +85,38 @@ export function installZoomGuards(): void {
   };
   window.visualViewport?.addEventListener('resize', reset);
 }
+
+/** Whether `el` can scroll further in the direction of `dy`. */
+const canScroll = (el: Element, dy: number) =>
+  /auto|scroll/.test(getComputedStyle(el).overflowY) &&
+  el.scrollHeight > el.clientHeight + 1 &&
+  (dy > 0 ? el.scrollTop + el.clientHeight < el.scrollHeight - 1 : el.scrollTop > 0);
+
+/**
+ * Desktop: the mouse wheel scrolls the page from anywhere in the window, not
+ * only over the column that scrolls. A wheel turn outside it is handed to the
+ * topmost scrolling area: the tutorial card, an open pop-up, then the page.
+ */
+export function installWheelScroll(): void {
+  document.addEventListener(
+    'wheel',
+    (event) => {
+      if (event.ctrlKey || !event.deltaY) return; // ctrl+wheel is the browser's zoom
+      // The last match is the newest: the screen coming in during a page turn, the pop-up on top.
+      const last = (selector: string) => [...document.querySelectorAll(selector)].pop();
+      const area =
+        last('.coach-card') ??
+        last('.backdrop') ??
+        last('.screen.sub > .sub-body, .screen.scrollable, html[data-large-text] .screen:not(.sub)');
+      const target = event.target as Element | null;
+      if (!area || !target || area.contains(target)) return;
+      // Something under the mouse scrolls by itself (a list in a pop-up): leave it be.
+      for (let el: Element | null = target; el && el !== document.body; el = el.parentElement) {
+        if (canScroll(el, event.deltaY)) return;
+      }
+      const lines = event.deltaMode === WheelEvent.DOM_DELTA_LINE ? 16 : event.deltaMode === WheelEvent.DOM_DELTA_PAGE ? area.clientHeight : 1;
+      area.scrollBy({ top: event.deltaY * lines });
+    },
+    { passive: true },
+  );
+}

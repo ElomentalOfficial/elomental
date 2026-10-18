@@ -95,6 +95,21 @@ test('on long pages the header with Back stays in view while the body scrolls', 
   expect((await back.boundingBox())?.y).toBe(before?.y);
 });
 
+test('desktop: the wheel scrolls the page from anywhere, and the column widens with Text size', async ({ app }) => {
+  await app.setViewportSize({ width: 1302, height: 735 });
+  await app.locator('.tile.area-setup').click();
+  await app.getByRole('button', { name: 'Open accessibility' }).click();
+  await settled(app);
+  const width = () => app.locator('.screen.sub').evaluate((s) => s.getBoundingClientRect().width);
+  const normal = await width();
+  // The far left edge, well outside the column.
+  await app.mouse.move(20, 400);
+  await app.mouse.wheel(0, 300);
+  await expect.poll(() => app.locator('.sub-body').evaluate((b) => b.scrollTop)).toBeGreaterThan(0);
+  await app.getByRole('radio', { name: '200%' }).click();
+  expect(await width()).toBeGreaterThan(normal * 1.5);
+});
+
 test('200% text: nothing is cut off and nothing scrolls sideways', async ({ app }) => {
   await app.locator('.tile-setup').click();
   await app.getByRole('button', { name: 'Open accessibility' }).click();
