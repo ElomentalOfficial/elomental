@@ -81,7 +81,11 @@ export async function goBack(next: () => Screen): Promise<void> {
       .finished.catch(() => undefined);
   }
   document.documentElement.dataset.nav = 'back';
-  mount(next());
+  const screen = next();
+  // The entering screen keeps this class for good: its CSS entry (page-back-in)
+  // must not change name later, or the browser plays the other entry again.
+  screen.el.classList.add('from-back');
+  mount(screen);
   setTimeout(() => delete document.documentElement.dataset.nav, 800);
 }
 

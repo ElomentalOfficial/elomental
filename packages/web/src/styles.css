@@ -339,9 +339,11 @@ h2 {
   animation: page-in 0.42s cubic-bezier(0.1, 0.9, 0.2, 1) both;
 }
 /* Returning to a page (e.g. the calendar after a daily game) swings it in
-   from the other side: the reverse of leaving it. */
-html[data-nav='back'] .screen.daily,
-html[data-nav='back'] .screen.setup {
+   from the other side: the reverse of leaving it. The class stays on that
+   screen (ui.ts goBack): if the entry's name changed once it had played, the
+   browser would play the new one too, and the page would swing in twice. */
+.screen.daily.from-back,
+.screen.setup.from-back {
   animation-name: page-back-in;
 }
 @keyframes page-back-in {

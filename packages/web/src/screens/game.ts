@@ -116,6 +116,11 @@ export function loadSavedGame(): SavedGame | null {
   return saved;
 }
 
+/** Forging faster than this skips the loading screen (most puzzles take well under it). */
+const LOADING_DELAY_MS = 250;
+/** Once shown, the loading screen finishes turning in (page-in, 0.42s) before the game replaces it. */
+const LOADING_MIN_MS = 420;
+
 export async function startGame(options: {
   mode: Mode;
   difficulty: Difficulty;
@@ -125,7 +130,20 @@ export async function startGame(options: {
   /** A shared square (played as Casual): its 81 givens, and its code when it came as one. */
   square?: { givens: string; code?: string };
 }) {
-  mount(loadingScreen());
+  // The loading screen only when forging takes a moment: shown and then replaced
+  // within a few frames, it would flash half turned-in under the game.
+  let loadingShownAt = 0;
+  const loading = setTimeout(() => {
+    loadingShownAt = performance.now();
+    mount(loadingScreen());
+  }, LOADING_DELAY_MS);
+  /** Builds the next screen only when it goes up, so a game's clock doesn't start early. */
+  const show = (next: () => Screen) => {
+    clearTimeout(loading);
+    const wait = loadingShownAt ? LOADING_MIN_MS - (performance.now() - loadingShownAt) : 0;
+    if (wait > 0) setTimeout(() => mount(next()), wait);
+    else mount(next());
+  };
   // A shared square is checked before anything starts on the server.
   let shared: GeneratedPuzzle | undefined;
   if (options.square) {
@@ -133,7 +151,7 @@ export async function startGame(options: {
       shared = await importPuzzle(options.square.givens);
     } catch (error) {
       toast(SQUARE_ERRORS[(error as Error).message] ?? "That square can't be played");
-      return mount(homeScreen());
+      return show(homeScreen);
     }
   }
   // A sudoku string has no stored difficulty: its grade sets it. A code keeps the original's.
@@ -151,7 +169,7 @@ export async function startGame(options: {
     } catch (error) {
       console.error(error);
       toast(error instanceof GameRefused ? error.message : 'No connection: games need the server while signed in');
-      return mount(options.mode === 'daily' ? dailyScreen() : homeScreen());
+      return show(options.mode === 'daily' ? dailyScreen : homeScreen);
     }
   }
   try {
@@ -190,11 +208,11 @@ export async function startGame(options: {
       history: [],
     };
     writeJson(SAVE_KEY, game);
-    mount(gameScreen(game));
+    show(() => gameScreen(game));
   } catch (error) {
     console.error(error);
     toast('Could not forge a puzzle');
-    mount(homeScreen());
+    show(homeScreen);
   }
 }
 
