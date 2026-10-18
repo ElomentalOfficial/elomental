@@ -29,7 +29,6 @@ import { setupScreen } from './setup.ts';
 
 /** Layout from the Figma home frame: profile card with the Setup notch, then the mode tiles. */
 export function homeScreen(): Screen {
-  const profile = loadProfile();
   let leaving = false;
 
   /** Play the turnstile-out with `from` last, then run `then`. */

@@ -1573,19 +1573,6 @@ html.standalone .backdrop {
 .btn-start {
   margin-top: 6px;
 }
-.play-btn {
-  width: 72px;
-  height: 72px;
-  margin-top: 6px;
-  padding: 20px 18px 20px 23px;
-  border-radius: 50%;
-  background: var(--c-lava);
-  color: var(--c-bright);
-  transition: transform 0.08s ease;
-}
-.play-btn:active {
-  transform: scale(0.94);
-}
 .result {
   display: flex;
   flex-direction: column;
@@ -2188,9 +2175,6 @@ html.standalone .toast {
     background: var(--accent);
     color: var(--on-accent);
   }
-}
-.cell.shake {
-  animation: shake 0.3s ease;
 }
 /* A wrong digit shakes, holds in the mistake colour, then fades back to the
    empty square (the game removes it when this ends; game.ts WRONG_FADE_MS). */

@@ -1,6 +1,6 @@
 import { ICONS } from '../icons.ts';
 import { dailyKey, dateKey, loadProfile, nextResetIn } from '../profile.ts';
-import { goBack, h, mount, toast, type Screen } from '../ui.ts';
+import { goBack, h, toast, type Screen } from '../ui.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
 import { homeScreen } from './home.ts';
 

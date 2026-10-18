@@ -133,16 +133,10 @@ async function startGuestAccount(): Promise<void> {
 // --- Sign-in: email code or magic link -----------------------------------------
 
 /**
- * How the pending code will be checked: 'email' signs in (or creates) an
- * account; 'email_change' attaches the email to the current anonymous guest
- * account, which keeps all of its progress.
- */
-let pendingCodeType: 'email' | 'email_change' = 'email';
-
-/**
- * Emails a one-time code and a magic link. A guest account is upgraded in
- * place; an email that already has an account signs into that account instead
- * (`switched`, and the guest's progress stays behind).
+ * Emails a sign-in link. A guest account is upgraded in place (the email is
+ * attached to it and it keeps all of its progress); an email that already has
+ * an account signs into that account instead (`switched`, and the guest's
+ * progress stays behind).
  */
 export async function sendSignInEmail(
   email: string,
@@ -150,10 +144,7 @@ export async function sendSignInEmail(
   const redirect = `${location.origin}${location.pathname}`;
   if (cachedAccount()?.anonymous) {
     const { error } = await supabase.auth.updateUser({ email }, { emailRedirectTo: redirect });
-    if (!error) {
-      pendingCodeType = 'email_change';
-      return { error: null };
-    }
+    if (!error) return { error: null };
     if (!/already|registered|exists/i.test(error.message)) return { error: friendlyAuthError(error.message) };
   }
   // Signing in to an account: the link may open in another browser (on iPhone,
@@ -163,7 +154,6 @@ export async function sendSignInEmail(
     email,
     options: { shouldCreateUser: true, emailRedirectTo: handoff ? `${redirect}?handoff=${handoff.id}` : redirect },
   });
-  pendingCodeType = 'email';
   return {
     error: error ? friendlyAuthError(error.message) : null,
     switched: !!cachedAccount()?.anonymous,
@@ -297,14 +287,6 @@ export async function waitForEmailConfirmation(email: string, isCancelled: () =>
     }
   }
   return false;
-}
-
-/** Signs in with a code from the email (only when the email template includes one). */
-export async function verifyCode(email: string, code: string): Promise<string | null> {
-  const { error } = await supabase.auth.verifyOtp({ email, token: code, type: pendingCodeType });
-  if (error) return friendlyAuthError(error.message);
-  await refreshAccount();
-  return null;
 }
 
 export async function signOut(): Promise<void> {
