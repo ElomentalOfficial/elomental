@@ -2914,8 +2914,10 @@ html.standalone .toast {
   .home-grid {
     --gap: clamp(8px, 0.95vw, 14px);
     flex: none;
-    width: min(100%, 1240px, calc((100dvh - 2 * var(--pad-y)) * 2.36));
-    aspect-ratio: 2.36;
+    /* Taller than Frame 116 (2.36 : 1) so Home reads as the page, not a header;
+       the columns and rows keep their proportions to each other. */
+    width: min(100%, 1400px, calc((100dvh - 2 * var(--pad-y)) * 1.9));
+    aspect-ratio: 1.9;
     padding-top: 0;
     gap: var(--gap);
     /* Figma Frame 116: the profile card 652 wide, two tile columns of 281,
