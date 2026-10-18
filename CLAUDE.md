@@ -31,6 +31,20 @@
   needs go through the game's live region (`announce`), never the clock.
 - Run `npm run test:a11y -w @elomental/web` (Playwright + axe) after UI changes.
 
+## Spacing and pages
+
+- Gaps and paddings in page layouts use the spacing tokens at the top of `styles.css`
+  (`--space-1` 4 · `-2` 8 · `-3` 12 · `-4` 16 · `-5` 24 · `-6` 32), picked by how closely two
+  things belong: title → its help line `--space-1`; help line → its control `--space-3`; one item
+  → the next in a card `--space-5` with a hairline between; card padding `--space-5` / `--space-4`;
+  card → card `--space-4`; group title → its card `--space-3`; group → next group `--space-6`.
+  No one-off pixel gaps.
+- Long settings pages are split into titled groups (`.setting-group` > `h2` + `.setting` card),
+  never one card with everything in it. A topic with more than a handful of options gets its own
+  page, reached from one row in Setup.
+- Every page under Home or Setup is built with `subPage()` (ui.ts): the header with Back stays
+  fixed and only the body scrolls, so Back is always in reach.
+
 ## Font sizes
 
 - Use the six type-scale tokens at the top of `packages/web/src/styles.css`

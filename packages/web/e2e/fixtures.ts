@@ -31,11 +31,18 @@ export { expect };
  * size (to 200%) meets WCAG 1.4.4 instead (docs/ACCESSIBILITY_AUDIT.md, D1).
  */
 export async function axe(page: Page) {
+  // Page turns and tiles fade in; contrast is only meaningful once they've settled.
+  await settled(page);
   const result = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa', 'best-practice'])
     .disableRules(['meta-viewport'])
     .analyze();
   return result.violations.map((v) => `${v.impact} ${v.id}: ${v.nodes.map((n) => n.target.join(' ')).slice(0, 3).join(' | ')}`);
+}
+
+/** Waits until no animation on the page is still running (page turns, tile entries). */
+export async function settled(page: Page) {
+  await page.waitForFunction(() => document.getAnimations().every((a) => a.playState !== 'running' || a.effect?.getTiming().iterations === Infinity));
 }
 
 /** Start a Casual Easy game from Home using only the keyboard. */

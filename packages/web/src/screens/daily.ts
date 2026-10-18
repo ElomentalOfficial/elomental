@@ -1,6 +1,6 @@
 import { ICONS } from '../icons.ts';
 import { dailyKey, dateKey, loadProfile, nextResetIn } from '../profile.ts';
-import { goBack, h, toast, type Screen } from '../ui.ts';
+import { goBack, h, subPage, toast, type Screen } from '../ui.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
 import { homeScreen } from './home.ts';
 import * as copy from '../copy/en.ts';
@@ -65,16 +65,8 @@ export function dailyScreen(): Screen {
 
   // Header, then one block centred in the space below it: the month card
   // (title, progress, calendar), the avatar reward and the play button.
-  const el = h(
-    'div',
-    { class: 'screen daily scrollable' },
-    h(
-      'div',
-      { class: 'subbar' },
-      h('button', { class: 'icon-btn', html: ICONS.back, attrs: { 'aria-label': copy.common.back }, onclick: () => void goBack(homeScreen) }),
-      h('h1', { text: copy.daily.title }),
-      h('span', { class: 'icon-btn-spacer' }),
-    ),
+  const el = subPage(
+    { className: 'daily', title: copy.daily.title, onBack: () => void goBack(homeScreen) },
     h(
       'div',
       { class: 'daily-body' },

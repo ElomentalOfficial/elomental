@@ -43,7 +43,29 @@ export function mount(screen: Screen): void {
   current = screen;
   document.getElementById('app')!.replaceChildren(screen.el);
   document.title = screen.title ? copy.common.pageTitle(screen.title) : copy.common.appName;
-  if (screen.el.classList.contains('scrollable')) watchEdges(screen.el);
+  const scroller = screen.el.classList.contains('scrollable') ? screen.el : screen.el.querySelector<HTMLElement>(':scope > .sub-body');
+  if (scroller) watchEdges(scroller);
+}
+
+/**
+ * A page under Home or Setup: a header that stays put (back button, title)
+ * over a body that scrolls when it outgrows the screen, so Back is always in
+ * reach. `className` keeps each page's own styles and entry animation.
+ */
+export function subPage(options: { className: string; title: string | HTMLElement; onBack: () => void }, ...body: Child[]): HTMLElement {
+  const title = typeof options.title === 'string' ? h('h1', { text: options.title }) : options.title;
+  return h(
+    'div',
+    { class: `screen sub ${options.className}` },
+    h(
+      'header',
+      { class: 'subbar' },
+      h('button', { class: 'icon-btn', html: ICONS.back, attrs: { 'aria-label': copy.common.back }, onclick: options.onBack }),
+      title,
+      h('span', { class: 'icon-btn-spacer' }),
+    ),
+    h('div', { class: 'sub-body scrollable' }, ...body),
+  );
 }
 
 /** A visually hidden heading: screen readers can jump to it, the design doesn't show it. */

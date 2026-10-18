@@ -11,7 +11,7 @@ import {
   type ReviewView,
 } from '../backend.ts';
 import { ICONS } from '../icons.ts';
-import { formatSeconds, goBack, h, openModal, toast, type Screen } from '../ui.ts';
+import { formatSeconds, goBack, h, openModal, subPage, toast, type Screen } from '../ui.ts';
 import { setupScreen } from './setup.ts';
 import * as copy from '../copy/en.ts';
 
@@ -354,16 +354,8 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
     });
   }
 
-  const el = h(
-    'div',
-    { class: 'screen setup review scrollable' },
-    h(
-      'div',
-      { class: 'subbar' },
-      h('button', { class: 'icon-btn', html: ICONS.back, attrs: { 'aria-label': copy.common.back }, onclick: () => void goBack(setupScreen) }),
-      h('h1', { text: copy.review.title }),
-      h('span', { class: 'icon-btn-spacer' }),
-    ),
+  const el = subPage(
+    { className: 'setup review', title: copy.review.title, onBack: () => void goBack(setupScreen) },
     searchBox,
     tabBar,
     resultsNote,

@@ -1,32 +1,27 @@
-import { ICONS } from '../icons.ts';
-import { goBack, h, type Screen } from '../ui.ts';
-import { setupScreen } from './setup.ts';
+import { goBack, h, subPage, type Screen } from '../ui.ts';
+import { accessibilityScreen } from './accessibility.ts';
 import * as copy from '../copy/en.ts';
 
 /** Setup > Accessibility > Accessibility statement: what works, the known limits, and how to tell us. */
 export function statementScreen(): Screen {
   const s = copy.statement;
   const list = (items: readonly string[]) => h('ul', { class: 'statement-list' }, ...items.map((text) => h('li', { text })));
-  const el = h(
-    'div',
-    { class: 'screen setup statement scrollable' },
-    h(
-      'div',
-      { class: 'subbar' },
-      h('button', { class: 'icon-btn', html: ICONS.back, attrs: { 'aria-label': copy.common.back }, onclick: () => void goBack(setupScreen) }),
-      h('h1', { text: s.title }),
-      h('span', { class: 'icon-btn-spacer' }),
-    ),
-    h('section', { class: 'setting' }, h('p', { text: s.intro })),
-    h('section', { class: 'setting' }, h('h2', { text: s.supportedTitle }), list(s.supported)),
-    h('section', { class: 'setting' }, h('h2', { text: s.limitsTitle }), list(s.limits)),
+  const el = subPage(
+    { className: 'setup statement', title: s.title, onBack: () => void goBack(accessibilityScreen) },
+    h('p', { class: 'page-intro', text: s.intro }),
+    h('section', { class: 'setting-group' }, h('h2', { text: s.supportedTitle }), h('div', { class: 'setting' }, list(s.supported))),
+    h('section', { class: 'setting-group' }, h('h2', { text: s.limitsTitle }), h('div', { class: 'setting' }, list(s.limits))),
     h(
       'section',
-      { class: 'setting' },
+      { class: 'setting-group' },
       h('h2', { text: s.feedbackTitle }),
-      h('p', { text: s.feedback }),
-      h('a', { class: 'btn statement-link', text: s.feedbackLink, attrs: { href: s.feedbackUrl, target: '_blank', rel: 'noopener' } }),
-      h('p', { class: 'note', text: s.reviewed }),
+      h(
+        'div',
+        { class: 'setting' },
+        h('p', { text: s.feedback }),
+        h('a', { class: 'btn statement-link', text: s.feedbackLink, attrs: { href: s.feedbackUrl, target: '_blank', rel: 'noopener' } }),
+        h('p', { class: 'note', text: s.reviewed }),
+      ),
     ),
   );
   return { el, title: s.title };
