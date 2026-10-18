@@ -8,7 +8,9 @@
   --c-mud: #dadbb9;
   --c-rock: #b3b5a0;
   --c-lava: #b1613c;
+  --c-lava-highlight: #413226;
   --c-forest: #636945;
+  --c-forest-highlight: #c9d09d;
   --c-crimson: #794341;
 
   --font: 'Montserrat', system-ui, sans-serif;
@@ -52,13 +54,14 @@
   --avatar-bg: var(--c-highlight);
   --avatar-ring: rgba(255, 255, 229, 0.14);
   --bar-bg: var(--c-highlight-2);
-  --cell: var(--c-highlight);
-  --cell-cross: var(--c-highlight-2);
+  --cell: var(--c-highlight-2);
+  /* The selected cell's row and column. */
+  --cell-cross: var(--c-lava-highlight);
   --cell-text: var(--c-bright);
   /* Correct player digits look exactly like the givens; only mistakes stand out. */
   --cell-user: var(--cell-text);
   /* Figma: every square holding the focused digit is filled terracotta. */
-  --same-bg: #b0613c;
+  --same-bg: var(--c-lava);
   --same-text: var(--c-bright);
   /* Wrong digits invert (bright square, crimson digit) so they never read as lava highlights. */
   --wrong-bg: var(--c-bright);
@@ -115,8 +118,9 @@
   --avatar-bg: var(--c-bright);
   --avatar-ring: var(--c-mud);
   --bar-bg: var(--c-mud);
-  --cell: var(--c-second-bright);
-  --cell-cross: var(--c-mud);
+  --cell: var(--c-mud);
+  /* The selected cell's row and column. */
+  --cell-cross: var(--c-forest-highlight);
   --cell-text: var(--c-crimson);
   --cell-user: var(--cell-text);
   --same-bg: var(--c-forest);
