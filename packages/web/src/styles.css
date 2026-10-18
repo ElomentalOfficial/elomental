@@ -88,8 +88,6 @@
   --glass-hub: rgba(38, 39, 33, 0.35);
   --modal-bg: var(--c-highlight);
   --modal-border: rgba(255, 255, 229, 0.12);
-  /* Lifts pop-up panels off the frosted glass behind them. */
-  --modal-shadow: 0 12px 36px rgba(20, 21, 17, 0.35);
   --primary-bg: var(--accent);
   --primary-text: var(--on-accent);
   /* Colours taken from the Figma icon exports (eraser shade follows the accent). */
@@ -150,7 +148,6 @@
   --glass-hub: rgba(255, 255, 229, 0.55);
   --modal-bg: var(--c-bright);
   --modal-border: rgba(121, 67, 65, 0.18);
-  --modal-shadow: 0 12px 36px rgba(121, 67, 65, 0.16);
   --primary-bg: var(--accent);
   --primary-text: var(--c-bright);
   --separator: #e8e8cc;
@@ -1531,7 +1528,6 @@ html.standalone .backdrop {
   /* A hairline edge so the panel never melts into the blurred page behind it. */
   border: 1px solid var(--modal-border);
   background: var(--modal-bg);
-  box-shadow: var(--modal-shadow);
   color: var(--text);
   padding: 34px 24px 26px;
   animation: rise 0.22s ease;
@@ -1667,7 +1663,6 @@ html.standalone .backdrop {
   padding: 0;
   border: 0;
   background: none;
-  box-shadow: none; /* each card carries its own */
 }
 .casual-sheet {
   display: flex;
@@ -1680,7 +1675,6 @@ html.standalone .backdrop {
   border-radius: 12px;
   border: 1px solid var(--modal-border);
   background: var(--modal-bg);
-  box-shadow: var(--modal-shadow);
 }
 .casual-card {
   display: flex;
