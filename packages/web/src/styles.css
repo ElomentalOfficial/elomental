@@ -2912,15 +2912,16 @@ html.standalone .toast {
     justify-content: center;
   }
   .home-grid {
+    --gap: clamp(8px, 0.95vw, 14px);
     flex: none;
-    width: min(100%, 1240px, calc((100dvh - 2 * var(--pad-y)) * 1.83));
-    aspect-ratio: 1.83;
+    width: min(100%, 1240px, calc((100dvh - 2 * var(--pad-y)) * 2.36));
+    aspect-ratio: 2.36;
     padding-top: 0;
-    row-gap: clamp(8px, 0.9vw, 14px);
-    column-gap: clamp(12px, 1.5vw, 22px);
-    /* Figma: 262 / 209 / 134 wide, rows 93 / 99 / 137 tall. */
-    grid-template-columns: 1.95fr 1.56fr 1fr;
-    grid-template-rows: 0.93fr 1fr 1.38fr;
+    gap: var(--gap);
+    /* Figma Frame 116: the profile card 652 wide, two tile columns of 281,
+       three equal rows; twice the gap between the card and the tiles. */
+    grid-template-columns: minmax(0, 2.32fr) minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: repeat(3, minmax(0, 1fr));
     grid-template-areas:
       'profile store setup'
       'profile leader daily'
@@ -2940,7 +2941,15 @@ html.standalone .toast {
     zoom: var(--wide-zoom, 1);
   }
   .profile-card {
+    margin-right: var(--gap);
     padding: 28px 24px 24px;
+  }
+  /* The tiles are all the same size here: Store and Leaderboard stack their
+     icon over the label like the others, so the label fits. */
+  .area-store,
+  .area-leader {
+    flex-direction: column;
+    gap: 14px;
   }
   /* Daily is a near-square tile here: icon and label together, centred. */
   .area-daily {
