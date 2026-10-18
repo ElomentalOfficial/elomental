@@ -88,6 +88,8 @@
   --glass-hub: rgba(38, 39, 33, 0.35);
   --modal-bg: var(--c-highlight);
   --modal-border: rgba(255, 255, 229, 0.12);
+  /* Lifts pop-up panels off the frosted glass behind them. */
+  --modal-shadow: 0 12px 36px rgba(20, 21, 17, 0.35);
   --primary-bg: var(--accent);
   --primary-text: var(--on-accent);
   /* Colours taken from the Figma icon exports (eraser shade follows the accent). */
@@ -148,6 +150,7 @@
   --glass-hub: rgba(255, 255, 229, 0.55);
   --modal-bg: var(--c-bright);
   --modal-border: rgba(121, 67, 65, 0.18);
+  --modal-shadow: 0 12px 36px rgba(121, 67, 65, 0.16);
   --primary-bg: var(--accent);
   --primary-text: var(--c-bright);
   --separator: #e8e8cc;
@@ -249,15 +252,19 @@ html.standalone.welcome-active #status-tint {
  * by the home indicator from the page background, outside anything we can
  * cover. Both switch to the backdrop's own edge colours (the backdrop fades
  * into exactly these), so the dimmed page runs edge to edge.
- * Colours = the page colour under the backdrop's 20% (top) / 55% (bottom) shade.
+ * Colours = the page colour under the backdrop's frost.
  */
 html {
-  --scrim-top: #222319;
-  --scrim-bottom: #1c1d18;
+  /* Frosted glass: a smoky Highlight2 over the softly blurred page. */
+  --frost: rgba(64, 65, 60, 0.45);
+  --scrim-top: #323330;
+  --scrim-bottom: #323330;
 }
 html[data-theme='light'] {
-  --scrim-top: #d0d0bb;
-  --scrim-bottom: #7e7e70;
+  /* Frosted glass: milky Bright over the softly blurred page. */
+  --frost: rgba(255, 255, 229, 0.55);
+  --scrim-top: #ffffe5;
+  --scrim-bottom: #ffffe5;
 }
 html.modal-open,
 html.modal-open body {
@@ -1491,10 +1498,11 @@ html.standalone .screen.scrollable {
   position: absolute;
   inset: 0;
   z-index: 10;
-  /* Heavy blur smears the page behind into a soft colour field; the gradient deepens it toward the bottom. */
-  background: linear-gradient(180deg, rgba(20, 21, 17, 0.2), rgba(20, 21, 17, 0.55));
-  -webkit-backdrop-filter: blur(24px) saturate(1.4);
-  backdrop-filter: blur(24px) saturate(1.4);
+  /* Frosted glass: a light blur keeps the shapes behind readable, and the
+     theme's frost tint (above) frosts them over. */
+  background: var(--frost);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  backdrop-filter: blur(14px) saturate(1.2);
   /* Auto margins on the panel centre it, and a panel taller than the screen
      scrolls instead of being cut off at the top (the backdrop is .scrollable). */
   display: flex;
@@ -1513,17 +1521,6 @@ html.standalone .backdrop {
   padding-top: calc(var(--status-clear) + 8px);
   padding-bottom: calc(max(env(safe-area-inset-bottom), 12px) + 8px);
 }
-/* Home-screen app: the very edges fade into the solid colours iOS paints
-   around them (html.modal-open), so there's no seam at either end. */
-html.standalone .backdrop {
-  background: linear-gradient(
-    180deg,
-    var(--scrim-top) 0,
-    rgba(20, 21, 17, 0.2) calc(var(--status-clear) + 24px),
-    rgba(20, 21, 17, 0.55) calc(100% - 90px),
-    var(--scrim-bottom) 100%
-  );
-}
 /* Narrower than the page so its edges never line up with the tiles behind it. */
 .modal {
   position: relative;
@@ -1533,6 +1530,7 @@ html.standalone .backdrop {
   /* A hairline edge so the panel never melts into the blurred page behind it. */
   border: 1px solid var(--modal-border);
   background: var(--modal-bg);
+  box-shadow: var(--modal-shadow);
   color: var(--text);
   padding: 34px 24px 26px;
   animation: rise 0.22s ease;
@@ -1668,6 +1666,7 @@ html.standalone .backdrop {
   padding: 0;
   border: 0;
   background: none;
+  box-shadow: none; /* each card carries its own */
 }
 .casual-sheet {
   display: flex;
@@ -1680,6 +1679,7 @@ html.standalone .backdrop {
   border-radius: 12px;
   border: 1px solid var(--modal-border);
   background: var(--modal-bg);
+  box-shadow: var(--modal-shadow);
 }
 .casual-card {
   display: flex;
@@ -2977,6 +2977,10 @@ html.standalone .toast {
   .screen.setup,
   .screen.loading {
     zoom: var(--wide-zoom, 1);
+  }
+  /* Pop-ups grow as one piece (scale.ts), so the type scale keeps its steps. */
+  .backdrop > .modal {
+    zoom: var(--modal-zoom, 1);
   }
 
   /* On the root so overlays outside the game (the hint card) can line up with it. */

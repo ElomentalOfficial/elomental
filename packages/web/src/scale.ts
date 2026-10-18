@@ -18,6 +18,10 @@ export function installUiScale(): void {
     // Wide Home: tile contents grow with the window (1 at 1180×760, up to 1.6).
     const wideZoom = Math.min(1.6, Math.max(1, Math.min(innerWidth / 1180, innerHeight / 760) * 1.15));
     document.documentElement.style.setProperty('--wide-zoom', wideZoom.toFixed(3));
+    // Wide pop-ups: grow with the window's height (1.3 at 735px tall, up to 1.6),
+    // so the tallest one (Casual) still fits on screen.
+    const modalZoom = Math.min(1.6, Math.max(1, innerHeight / 565));
+    document.documentElement.style.setProperty('--modal-zoom', modalZoom.toFixed(3));
   };
   addEventListener('resize', update);
   wide.addEventListener('change', update);
