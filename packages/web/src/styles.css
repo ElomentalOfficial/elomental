@@ -344,6 +344,23 @@ button:focus-visible,
 [tabindex='-1']:focus {
   outline: none;
 }
+/* "Skip to board": hidden until it has keyboard focus. */
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  z-index: 30;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  background: var(--primary-bg);
+  color: var(--primary-text);
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+  transform: translate(-50%, -200%);
+}
+.skip-link:focus {
+  transform: translate(-50%, 0);
+}
 /* Read by screen readers, not shown. */
 .sr-only {
   position: absolute;
@@ -2316,22 +2333,33 @@ html.standalone .toast {
   aspect-ratio: 1;
   container-type: inline-size;
 }
+/*
+ * The board is one 9x9 grid in reading order (rows are ARIA rows, game.ts).
+ * Figma rule: 4px between 3x3 boxes, 2px between squares, so the boxes read at
+ * a glance. A zero-width spacer track after every third row and column makes
+ * the box gap 2px + 0 + 2px.
+ */
 .board {
+  --tracks: repeat(3, minmax(0, 1fr)) 0 repeat(3, minmax(0, 1fr)) 0 repeat(3, minmax(0, 1fr));
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template: repeat(3, minmax(0, 1fr)) / repeat(3, minmax(0, 1fr));
-  /* Figma rule: 4px between 3×3 boxes, 2px between squares, so the boxes read at a glance. */
-  gap: 4px;
+  grid-template-columns: var(--tracks);
+  grid-template-rows: var(--tracks);
+  gap: 2px;
   touch-action: none;
 }
-.box {
+.board-row {
   display: grid;
-  grid-template: repeat(3, minmax(0, 1fr)) / repeat(3, minmax(0, 1fr));
-  gap: 2px;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+}
+/* The 3x3 box outline at 3:1 (game.ts places one frame per box). */
+.box-frame {
   border-radius: 3px;
   outline: 1px solid var(--grid-line);
   outline-offset: 1px;
+  pointer-events: none;
 }
 .cell {
   position: relative;
@@ -2374,13 +2402,25 @@ html.standalone .toast {
   background: var(--wrong-bg);
   color: var(--wrong-text);
 }
+/* A slash in the corner: "wrong" as a shape, so it never depends on the fill colour. */
+.cell.wrong::before {
+  content: '';
+  position: absolute;
+  top: 8%;
+  right: 8%;
+  width: 26%;
+  height: 26%;
+  background: linear-gradient(to top right, transparent calc(50% - 1px), currentColor calc(50% - 1px), currentColor calc(50% + 1px), transparent calc(50% + 1px));
+}
 .cell.hinted {
   animation: hinted 0.9s ease;
 }
+/* A hint flashes the accent with a ring: the ring tells it apart from a mistake or a highlight without colour. */
 @keyframes hinted {
   30% {
     background: var(--accent);
     color: var(--on-accent);
+    box-shadow: inset 0 0 0 3px var(--on-accent);
   }
 }
 /* A wrong digit shakes, holds in the mistake colour, then fades back to the

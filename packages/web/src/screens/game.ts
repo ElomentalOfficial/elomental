@@ -300,17 +300,35 @@ function gameScreen(game: SavedGame): Screen {
   );
 
   // --- Board ---------------------------------------------------------------
+  // An ARIA grid of 9 rows of 9 cells, in reading order. The 3x3 boxes are drawn by
+  // CSS: the board grid has a zero-width spacer track after every third row and
+  // column (styles.css .board), and nine frames outline the boxes.
   const cells: HTMLElement[] = [];
   const board = h('div', { class: 'board', attrs: { role: 'grid', 'aria-label': copy.game.a11y.board } });
-  for (let b = 0; b < 9; b++) {
-    const box = h('div', { class: 'box' });
-    for (const c of BOXES[b]) {
-      const cell = h('div', { class: 'cell', attrs: { 'data-cell': String(c), role: 'gridcell' } });
+  const line = (i: number) => String(i + Math.floor(i / 3) + 1);
+  for (let r = 0; r < 9; r++) {
+    const row = h('div', { class: 'board-row', attrs: { role: 'row' } });
+    row.style.gridRow = line(r);
+    for (let col = 0; col < 9; col++) {
+      const c = r * 9 + col;
+      const cell = h('div', { class: 'cell', attrs: { 'data-cell': String(c), role: 'gridcell', tabindex: '-1' } });
+      cell.style.gridColumn = line(col);
       cells[c] = cell;
-      box.append(cell);
+      row.append(cell);
     }
-    board.append(box);
+    board.append(row);
   }
+  for (let b = 0; b < 9; b++) {
+    const frame = h('div', { class: 'box-frame', attrs: { 'aria-hidden': 'true' } });
+    frame.style.gridArea = `${4 * Math.floor(b / 3) + 1} / ${4 * (b % 3) + 1} / span 3 / span 3`;
+    board.append(frame);
+  }
+  // Game events for screen readers: polite, one at a time, never the clock.
+  const live = h('div', { class: 'sr-only', attrs: { 'aria-live': 'polite' } });
+  const announce = (text: string) => {
+    live.textContent = '';
+    requestAnimationFrame(() => (live.textContent = text));
+  };
   const pauseCover = h(
     'button',
     { class: 'pause-cover', onclick: () => setPaused(false) },
@@ -359,10 +377,19 @@ function gameScreen(game: SavedGame): Screen {
     h('span', { text: 'TAL' }),
   );
 
+  // Keyboard: the first Tab stop jumps straight to the board (shown only while focused).
+  const skipLink = h('button', {
+    class: 'skip-link',
+    text: copy.game.a11y.skipToBoard,
+    onclick: () => cells[selected >= 0 ? selected : 40].focus(),
+  });
+
   const el = h(
     'div',
     { class: `screen game mode-${config.mode}` },
     hiddenHeading(typeLabel),
+    skipLink,
+    live,
     brand,
     h('div', { class: 'topbar' }, leftButton, timer, pauseButton),
     h('div', { class: 'separator', html: ICONS.separator }),
@@ -427,6 +454,8 @@ function gameScreen(game: SavedGame): Screen {
       });
       game.mistakes++;
       navigator.vibrate?.(40);
+      // The last mistake ends the game; the result dialog says so.
+      if (game.mistakes < MAX_MISTAKES) announce(copy.game.a11y.wrongNumber(MAX_MISTAKES - game.mistakes));
       render();
       replay(cells[cell], 'fading');
       replay(status, 'strike');
@@ -461,10 +490,17 @@ function gameScreen(game: SavedGame): Screen {
    * those nine squares outward from the one just filled.
    */
   function celebrateUnits(cell: number) {
-    const units = [ROWS[ROW_OF[cell]], COLS[COL_OF[cell]], BOXES[BOX_OF[cell]]];
+    const a11y = copy.game.a11y;
+    const units: [number[], string][] = [
+      [ROWS[ROW_OF[cell]], a11y.row(ROW_OF[cell] + 1)],
+      [COLS[COL_OF[cell]], a11y.column(COL_OF[cell] + 1)],
+      [BOXES[BOX_OF[cell]], a11y.box(BOX_OF[cell] + 1)],
+    ];
     const swept = new Map<number, number>();
-    for (const unit of units) {
+    const done: string[] = [];
+    for (const [unit, name] of units) {
       if (!unit.every((c) => game.values[c] === solution[c])) continue;
+      done.push(name);
       for (const c of unit) {
         const distance = Math.abs(ROW_OF[c] - ROW_OF[cell]) + Math.abs(COL_OF[c] - COL_OF[cell]);
         swept.set(c, Math.min(swept.get(c) ?? Infinity, distance));
@@ -475,6 +511,7 @@ function gameScreen(game: SavedGame): Screen {
       replay(cells[c], 'sweep');
     }
     if (swept.size) navigator.vibrate?.(12);
+    if (done.length) announce(a11y.unitsComplete(done));
   }
 
   function input(digit: number) {
@@ -545,6 +582,7 @@ function gameScreen(game: SavedGame): Screen {
       place(next.cell, next.digit);
       cells[next.cell].classList.add('hinted');
       setTimeout(() => cells[next.cell].classList.remove('hinted'), 900);
+      announce(copy.game.a11y.hintPlaced(next.digit, ROW_OF[next.cell] + 1, COL_OF[next.cell] + 1));
     } else render();
     if (ranked) toast(copy.game.hintEloCut(Math.round(HINT_ELO_PENALTY * 100 * game.hints)));
   }
@@ -575,6 +613,8 @@ function gameScreen(game: SavedGame): Screen {
     selected = cell;
     focusDigit = game.values[cell];
     render();
+    // Keyboard focus follows the selection while it's on the board (roving tabindex).
+    if (board.contains(document.activeElement) && document.activeElement !== cells[cell]) cells[cell].focus({ preventScroll: true });
   }
 
   /**
@@ -607,6 +647,7 @@ function gameScreen(game: SavedGame): Screen {
     if (ranked) leftButton.textContent = paused ? copy.common.home : copy.game.concede;
     pauseButton.innerHTML = paused ? ICONS.play : ICONS.pause;
     pauseButton.setAttribute('aria-label', paused ? copy.game.a11y.resume : copy.game.a11y.pause);
+    if (!restoring) announce(paused ? copy.game.a11y.pausedNow : copy.game.a11y.resumedNow);
     tick();
   }
 
@@ -624,19 +665,34 @@ function gameScreen(game: SavedGame): Screen {
       cell.classList.toggle('selected', c === selected);
       cell.classList.toggle('cross', cross);
       cell.classList.toggle('same', focusDigit > 0 && value === focusDigit && !flash);
+      // One cell is in the Tab order: the selected one (or the centre), and arrows move it.
+      cell.tabIndex = c === (selected >= 0 ? selected : 40) ? 0 : -1;
+      cell.setAttribute('aria-selected', String(c === selected));
 
-      const key = value ? `v${value}` : game.notes[c] ? `n${game.notes[c]}` : '';
+      const wrong = !given[c] && value > 0 && value !== solution[c];
+      const key = value ? `v${value}${wrong ? 'w' : ''}` : game.notes[c] ? `n${game.notes[c]}` : '';
       if (cell.dataset.k === key) continue;
       const wasEmpty = !cell.dataset.k?.startsWith('v') && !flash;
       cell.dataset.k = key;
+      const a11y = copy.game.a11y;
       cell.setAttribute(
         'aria-label',
-        copy.game.a11y.cell(
+        a11y.cell(
           ROW_OF[c] + 1,
           COL_OF[c] + 1,
-          value ? String(value) : game.notes[c] ? copy.game.a11y.cellNotes(digitsIn(game.notes[c])) : copy.game.a11y.cellEmpty,
+          BOX_OF[c] + 1,
+          !value
+            ? game.notes[c]
+              ? a11y.cellNotes(digitsIn(game.notes[c]))
+              : a11y.cellEmpty
+            : given[c]
+              ? a11y.cellGiven(value)
+              : wrong
+                ? a11y.cellWrong(value)
+                : a11y.cellYours(value),
         ),
       );
+      if (given[c]) cell.setAttribute('aria-readonly', 'true');
       if (value) {
         cell.textContent = String(value);
         // A freshly placed digit pops in (not on first paint or a resumed game).
@@ -645,7 +701,7 @@ function gameScreen(game: SavedGame): Screen {
         cell.replaceChildren(
           h(
             'div',
-            { class: 'notes' },
+            { class: 'notes', attrs: { 'aria-hidden': 'true' } },
             ...Array.from({ length: 9 }, (_, i) => h('span', { text: game.notes[c] & (1 << (i + 1)) ? String(i + 1) : '' })),
           ),
         );
@@ -914,6 +970,12 @@ function gameScreen(game: SavedGame): Screen {
   // whole gesture ours; pointer events still fire.
   board.addEventListener('touchstart', (event) => event.preventDefault(), { passive: false });
 
+  // Keyboard: tabbing onto the board (or the skip link) selects the focused cell.
+  board.addEventListener('focusin', (event) => {
+    const target = cellFrom(event.target);
+    if (target && Number(target.dataset.cell) !== selected) select(Number(target.dataset.cell));
+  });
+
   board.addEventListener('pointerdown', (event) => {
     const target = cellFrom(event.target);
     if (!target) return;
@@ -1025,8 +1087,9 @@ function gameScreen(game: SavedGame): Screen {
     else if (/^[1-9]$/.test(event.key)) input(Number(event.key));
     else if (event.key === 'Backspace' || event.key === 'Delete' || event.key === '0') input(0);
     else if (event.key === 'n' || event.key === 'N') {
-      // The Notes button shows the mode, so no toast is needed.
+      // The Notes button shows the mode, so no toast is needed; screen readers hear it.
       notesMode = !notesMode;
+      announce(copy.game.a11y.notesMode(notesMode));
       render();
     } else if ((event.ctrlKey || event.metaKey) && event.key === 'z') undo();
     else if (event.key.startsWith('Arrow') && selected < 0) select(40); // first arrow press starts in the centre
