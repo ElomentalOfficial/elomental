@@ -97,7 +97,8 @@ export function applyA11y(): void {
   root.toggleAttribute('data-large-text', p.textSize > 100);
   root.dataset.contrast = highContrast(p) ? 'high' : 'standard';
   root.toggleAttribute('data-colour-blind', p.colourBlind);
-  root.toggleAttribute('data-reduce-motion', p.motion === 'reduce');
+  // The player's choice or the system's: styles.css reads only this attribute.
+  root.toggleAttribute('data-reduce-motion', reducedMotion());
   root.toggleAttribute('data-hide-timer', !p.showTimer);
 }
 

@@ -227,7 +227,7 @@ Commits on `accessibility`: `fe2de2f` tokens & contrast · `038b440` dialogs & k
 | --- | --- | --- |
 | C1 | Fixed | Keypad, Notes, Undo act on `click` too (a tap still counts once); Playwright presses Enter/Space on them |
 | C2 | Fixed | Board is 9 `row`s × 9 `gridcell`s in reading order, boxes drawn by CSS (pixel-identical); roving `tabindex`, `aria-selected`, givens `aria-readonly`; "Skip to board" link |
-| C3 | Fixed (D1) | Text size 100/125/150/200% scales every type token; Home turns into one column, game status/actions wrap, every screen scrolls; zoom stays blocked by decision |
+| C3 | Fixed (D1) | Text size 100/125/150/200% scales every type token; every screen reflows and scrolls on phone, tablet and desktop (re-checked 2026-10-19, below); zoom stays blocked by decision |
 | C4 | Fixed | `openModal` = labelled `dialog` + `aria-modal`, focus in, Tab trapped, Esc closes, page behind `inert`, focus returns |
 | M1 | Fixed | Polite live region: wrong number + mistakes left, completed row/column/box, hint placed, paused/resumed, notes on/off |
 | M2 | Fixed | "Row 5, column 7, box 6: 1, wrong" / "7, given" / "8, your number" / "empty, notes 1 4 9" |
@@ -291,6 +291,35 @@ This is the designed behaviour, verified in Chromium's accessibility tree by the
 - Accessibility preferences sync to the account like Theme (`settings.a11y`, merged key by key; migration `20261018194646_settings_a11y`, applied 2026-10-18).
 - Toast timing (m5) and the over-par timer colour (m6) are unchanged.
 - High contrast covers the board, controls and text; the decorative waves and the home tiles keep their palette colours.
+
+### Text size and settings re-check (2026-10-19)
+
+The first pass of C3 only checked phones for clipped buttons, and missed real breakage at 125–200%. On desktop and tablet, Home kept its fixed-ratio grid, so the tiles ran over the profile card. Window zoom and text size also multiplied each other, so 200% landed near 2.6×. Page titles ran into Back, option rows ran out of their cards, and the Casual pop-up's friend cards ran off screen.
+
+Fixed:
+
+- Wide Home at large text: the profile card on the left, the tiles stacked beside it at their natural height, and the page scrolls.
+- The window zooms (`--wide-zoom`, `--modal-zoom`) divide by the text size instead of stacking on top of it.
+- Page headers put Back on its own row and the title under it at full width. One-word titles (ACCESSIBILITY, KEYBOARD) are sized to their box with `cqi`, so they never overflow.
+- Option rows, the Clash difficulty buttons and the Casual friend cards wrap or stack. Pop-ups and the tutorial card get wider, and the tutorial card scrolls if it is taller than the screen.
+- The tutorial scrolls each control into view before spotlighting it.
+- The calendar, stat chips, the game's Home button and the shortcuts list keep their text inside.
+
+The settings re-check found one real bug: with Reduce motion on, from the system or the app, a wrong number vanished at once. The global "no animation" rule cut its fade to 0.01 ms. Now the wrong number shows for its moment, then goes. `data-reduce-motion` is the only switch, set for either source, so the in-app choice and the system setting behave the same.
+
+New tests:
+
+- `e2e/layout.spec.ts` covers 5 screen sizes × 4 text sizes. It visits Home, the Casual, Clash and Square code pop-ups, Daily, Setup, Accessibility, the statement, the game, shortcuts, pause and every tutorial step. Every check must pass: no text outside its box or off screen, no overlapping siblings, no sideways scroll.
+- `e2e/settings.spec.ts` checks each of the 12 choices where the player meets it:
+  - Text size scales the type.
+  - High contrast outlines the cells, and System follows the device.
+  - Reduce motion follows the device and keeps the wrong-number cue.
+  - Colour-blind bars appear on same numbers.
+  - The timer hides.
+  - Each highlight turns on and off.
+  - Wrong numbers fade or stay.
+  - Casual can go past three mistakes.
+  - Vibration and Sounds fire only when on.
 
 ### Needs a human test with real assistive technology
 

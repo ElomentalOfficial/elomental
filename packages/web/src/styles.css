@@ -639,14 +639,12 @@ h2 {
     opacity: 0;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  /* No peel: the ribbon simply fades, then Home comes in. */
-  .welcome.flipping .welcome-art .ribbon {
-    visibility: visible;
-  }
-  .welcome.flipping .welcome-art {
-    animation: tagline-out 0.3s ease forwards;
-  }
+/* Reduce motion: no peel, the ribbon simply fades, then Home comes in. */
+html[data-reduce-motion] .welcome.flipping .welcome-art .ribbon {
+  visibility: visible;
+}
+html[data-reduce-motion] .welcome.flipping .welcome-art {
+  animation: tagline-out 0.3s ease forwards;
 }
 
 /* ---------- Home (Figma "carousel" frame) ---------- */
@@ -2547,11 +2545,6 @@ html.standalone .toast {
     color: transparent;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .cell.wrong.fading {
-    animation: wrong-fade 1.4s steps(1, end) forwards;
-  }
-}
 /* A digit placed by the player pops in. */
 .cell.pop {
   animation: pop-in 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -2756,10 +2749,8 @@ html.standalone .toast {
 .key[data-digit='1'], .key[data-digit='2'], .key[data-digit='3'] { --ny: -1; }
 .key[data-digit='4'], .key[data-digit='5'], .key[data-digit='6'] { --ny: 0; }
 .key[data-digit='7'], .key[data-digit='8'], .key[data-digit='9'] { --ny: 1; }
-@media (prefers-reduced-motion: reduce) {
-  .key[data-digit] span {
-    transition: none;
-  }
+html[data-reduce-motion] .key[data-digit] span {
+  transition: none;
 }
 .hint-count {
   min-width: 22px;
@@ -3034,6 +3025,17 @@ html.standalone .toast {
   color: var(--text);
   box-shadow: 0 12px 34px rgba(0, 0, 0, 0.3);
 }
+/* Large text: wider, and never taller than the screen (it scrolls instead). */
+html[data-large-text] .coach-card {
+  width: min(520px, calc(100vw - 2 * var(--gutter)));
+  max-height: calc(100dvh - 24px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}
+html[data-large-text] .coach-actions {
+  flex-wrap: wrap;
+}
 .coach-card.enter {
   animation: rise 0.25s ease;
 }
@@ -3075,15 +3077,6 @@ html.standalone .toast {
   color: var(--muted);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-delay: 0ms !important;
-    transition-duration: 0.01ms !important;
-  }
-}
 
 /* ---------- Accessibility preferences (a11y.ts) ---------- */
 /* Accessibility page (screens/accessibility.ts): one card per group, one block per choice. */
@@ -3171,13 +3164,20 @@ kbd {
   text-align: center;
 }
 
-/* Reduce motion, chosen in the app: the same as the system setting. */
+/*
+ * Reduce motion (Setup > Accessibility, or the system's setting: a11y.ts sets
+ * the attribute for either). Movement stops; what an animation *tells* the
+ * player stays: a wrong number still shows for its moment, then goes.
+ */
 html[data-reduce-motion] *,
 html[data-reduce-motion] *::before,
 html[data-reduce-motion] *::after {
   animation-duration: 0.01ms !important;
   animation-delay: 0ms !important;
   transition-duration: 0.01ms !important;
+}
+html[data-reduce-motion] .cell.wrong.fading {
+  animation: wrong-fade 1.4s steps(1, end) forwards !important;
 }
 
 /* Hide timer: the clock keeps counting, it just isn't shown. */
@@ -3316,6 +3316,151 @@ html[data-large-text] .puzzle-type {
   white-space: normal;
   overflow: visible;
 }
+html[data-large-text] .bar-btn {
+  height: auto;
+  min-height: 40px;
+  padding-block: 2px;
+  line-height: 1.15;
+}
+/*
+ * Titles that are one long word (ACCESSIBILITY, KEYBOARD, LEADERBOARD) can't
+ * wrap, so they grow only as far as their row has room for: cqi is a share
+ * of the box they sit in.
+ */
+html[data-large-text] :is(.subbar, .modal, .casual-card, .home-grid > .tile, .calendar) {
+  container-type: inline-size;
+}
+/* Page headers: Back on its own row, the title under it with the full width. */
+html[data-large-text] .subbar {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  row-gap: var(--space-2);
+}
+html[data-large-text] .subbar > :is(h1, h2, div) {
+  flex: 1 0 100%;
+  min-width: 0;
+  text-align: left;
+}
+html[data-large-text] .subbar h1 {
+  font-size: min(var(--fs-title), 9.5cqi);
+}
+html[data-large-text] .subbar > .icon-btn-spacer {
+  display: none;
+}
+html[data-large-text] .modal h2 {
+  font-size: min(var(--fs-title), 12.5cqi);
+}
+html[data-large-text] .casual-head h2 {
+  font-size: min(var(--fs-title), 8.5cqi);
+}
+html[data-large-text] .home-grid > .tile .tile-label {
+  min-width: 0;
+  font-size: min(var(--fs-label), 10.5cqi);
+}
+/* Rows of options wrap: each keeps its label whole, a long one takes a row of its own. */
+html[data-large-text] .segmented:is(.cols-3, .cols-4) {
+  display: flex;
+  flex-wrap: wrap;
+}
+html[data-large-text] .segmented:is(.cols-3, .cols-4) > .segment {
+  flex: 1 1 auto;
+  padding-inline: 0.6em;
+}
+html[data-large-text] .profile-stats {
+  font-size: var(--fs-caption);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9em), 1fr));
+}
+/* A stat that has a row to itself reads across: icon, number, name. */
+html[data-large-text] .stat-chip {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  column-gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+}
+html[data-large-text] .month-head {
+  flex-wrap: wrap;
+  column-gap: var(--space-3);
+}
+html[data-large-text] .month-count {
+  white-space: nowrap;
+}
+/* Daily: the seven columns always fit; the numbers grow only as far as a day has room. */
+html[data-large-text] .calendar {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+html[data-large-text] .day-num {
+  font-size: min(var(--fs-small), 6cqi);
+}
+html[data-large-text] .day.today .day-num {
+  font-size: min(var(--fs-body), 6.5cqi);
+}
+html[data-large-text] .weekday {
+  font-size: min(var(--fs-caption), 5cqi);
+}
+/* Pop-ups get wider (up to the screen) so the larger words have room. */
+html[data-large-text] .modal {
+  max-width: min(520px, calc(100vw - 2 * var(--gutter)));
+}
+html[data-large-text] .modal.casual-modal {
+  max-width: min(560px, calc(100vw - 2 * var(--gutter)));
+}
+/* Clash and Square code stack, each a full-width row: icon, then its name and line. */
+html[data-large-text] .friend-card {
+  grid-template-columns: 1fr;
+}
+html[data-large-text] .friend-option {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: var(--space-4);
+  align-items: center;
+  text-align: left;
+}
+html[data-large-text] .friend-icon {
+  grid-row: span 2;
+  margin-bottom: 0;
+}
+html[data-large-text] .friend-option strong {
+  white-space: normal;
+}
+/* Clash: the difficulty buttons wrap, Share and Play stack, the code's six boxes keep their numbers inside. */
+html[data-large-text] .clash-picker {
+  display: flex;
+  flex-wrap: wrap;
+}
+html[data-large-text] .clash-picker .btn {
+  flex: 1 1 auto;
+  padding-inline: 0.6em;
+}
+html[data-large-text] .clash-actions {
+  grid-template-columns: 1fr;
+}
+html[data-large-text] :is(.code-box, .clash-code span) {
+  font-size: min(var(--fs-title), 9cqi);
+}
+html[data-large-text] .log-row {
+  grid-template-columns: 1fr auto;
+}
+html[data-large-text] .log-times {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+html[data-large-text] .clash-row {
+  font-size: min(var(--fs-label), 8cqi);
+}
+/* Keyboard shortcuts: the keys, then what they do underneath. */
+html[data-large-text] .shortcut {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+html[data-large-text] .shortcut dd {
+  text-align: left;
+}
+html[data-large-text] .shortcut-list {
+  gap: var(--space-4);
+}
 
 /* ---------- Wide layouts (tablet landscape, desktop) ----------
  *
@@ -3409,6 +3554,32 @@ html[data-large-text] .puzzle-type {
   .setup-notch::before,
   .setup-notch::after {
     --r: calc(var(--radius) * var(--wide-zoom, 1));
+  }
+  /*
+   * Large text, wide: the fixed-ratio grid would squash the bigger words, so
+   * the profile card keeps the left column and the tiles stack beside it, each
+   * as tall as its label needs; the page scrolls when they outgrow the window.
+   */
+  html[data-large-text] .screen.home {
+    justify-content: flex-start;
+  }
+  html[data-large-text] .home-grid {
+    width: min(100%, 1100px);
+    aspect-ratio: auto;
+    margin-block: auto;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+    grid-template-rows: none;
+    grid-auto-rows: minmax(76px, auto);
+    grid-template-areas: 'profile daily' 'profile store' 'profile leader' 'profile casual' 'profile ranked' 'profile setup';
+  }
+  html[data-large-text] .home-grid > .tile {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 14px 20px;
+  }
+  html[data-large-text] .profile-card {
+    justify-content: center;
+    gap: var(--space-5);
   }
   /* The other pages keep their phone column, a little larger. */
   .screen.daily,

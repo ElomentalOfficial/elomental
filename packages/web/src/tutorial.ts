@@ -56,7 +56,8 @@ export function runTutorial(steps: TutorialStep[]): Promise<void> {
     // The layer swallows touches so the game can't be played underneath, but never
     // on the buttons: on iOS, cancelling touchstart also cancels the tap's click,
     // which is what froze Next and Skip.
-    const onButton = (event: Event) => !!(event.target as HTMLElement | null)?.closest?.('button');
+    // The card itself is let through too, so a card taller than the screen (large text) can scroll.
+    const onButton = (event: Event) => !!(event.target as HTMLElement | null)?.closest?.('button, .coach-card');
     layer.addEventListener(
       'touchstart',
       (event) => {
@@ -84,6 +85,9 @@ export function runTutorial(steps: TutorialStep[]): Promise<void> {
 
     const show = () => {
       const step = steps[index];
+      // With large text the game scrolls: bring the control into view before measuring it.
+      const box = step.target.getBoundingClientRect().width ? step.target : (step.target.firstElementChild as HTMLElement | null);
+      box?.scrollIntoView({ block: 'nearest' });
       const r = areaOf(step.target);
       const pad = 6;
       Object.assign(spotlight.style, {
