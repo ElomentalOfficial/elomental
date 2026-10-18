@@ -7,11 +7,11 @@ import { applyTheme } from './theme.ts';
 import { mount } from './ui.ts';
 import { installStandaloneFixes } from './viewport.ts';
 import { installUiScale } from './scale.ts';
-import { applyWaves } from './waves.ts';
+import { applyGrain } from './grain.ts';
 
 applyTheme();
 installA11y();
-applyWaves();
+applyGrain();
 installUiScale();
 installZoomGuards();
 installStandaloneFixes();
