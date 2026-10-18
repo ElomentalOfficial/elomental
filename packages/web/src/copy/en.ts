@@ -211,7 +211,7 @@ export const tutorial = {
   pick: { title: 'Pick a cell', text: 'Tap an empty cell to select it. Its row and column light up. Tap a filled cell to highlight every matching number.' },
   fill: { title: 'Fill it in', text: 'Tap a number to place it in the selected cell. A wrong number fades away and costs a mistake (the skulls at the top). Three mistakes and the square is lost.' },
   notesButton: { title: 'Take notes', text: 'Tap Notes, then numbers, to pencil small notes into the cell. The keys shrink to show it. Tap Notes again to go back.' },
-  notesWheel: { title: 'Notes wheel', text: 'Or long-press a cell for the notes wheel: slide toward a number and lift to pencil it in or out. Faster: swipe from the cell toward the number. Lift without choosing to cancel.' },
+  notesWheel: { title: 'Notes wheel', text: 'Or hold an empty cell, slide onto a number and let go to add or remove that note. Dragging toward the number opens the wheel right away.' },
   erase: { title: 'Erase', text: 'Clears the selected cell: its number or its notes.' },
   undo: { title: 'Undo', text: 'Takes back your last move. Mistakes still count.' },
   hints: {
