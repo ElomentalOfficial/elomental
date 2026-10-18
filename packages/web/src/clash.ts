@@ -1,5 +1,6 @@
 import type { Difficulty } from '@elomental/engine';
 import { readJson, writeJson } from './storage.ts';
+import { formatSeconds } from './ui.ts';
 
 /**
  * Clash: race a friend on the same square.
@@ -143,7 +144,6 @@ export function compare(mine: ClashResult, theirs: ClashResult): -1 | 0 | 1 {
   return diff > 0 ? 1 : diff < 0 ? -1 : 0;
 }
 
-export const formatSeconds = (s: number): string => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
 export async function share(code: string, result?: ClashResult): Promise<'shared' | 'copied' | 'failed'> {
   const url = shareLink(code, result);

@@ -2,11 +2,10 @@ import { difficultyForRating, type Difficulty } from '@elomental/engine';
 import { ICONS } from '../icons.ts';
 import { enableTilt, turnstileIn, turnstileOut } from '../motion.ts';
 import { loadProfile, rankTitle, rankedTarget } from '../profile.ts';
-import { h, mount, navigatingBack, openModal, toast, type Screen } from '../ui.ts';
+import { formatSeconds, h, mount, navigatingBack, openModal, toast, type Screen } from '../ui.ts';
 import {
   CODE_LENGTH,
   difficultyOf,
-  formatSeconds,
   getClash,
   isValidCode,
   listClashes,

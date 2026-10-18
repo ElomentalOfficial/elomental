@@ -11,7 +11,7 @@ import {
   type ReviewView,
 } from '../backend.ts';
 import { ICONS } from '../icons.ts';
-import { goBack, h, openModal, toast, type Screen } from '../ui.ts';
+import { formatSeconds, goBack, h, openModal, toast, type Screen } from '../ui.ts';
 import { setupScreen } from './setup.ts';
 
 type Item = ReviewPlayer | ReviewDecision;
@@ -410,7 +410,7 @@ function logRow(entry: ReviewDecision, named: boolean): HTMLElement {
 function gameRow(game: ReviewGame, markOpen: boolean): HTMLElement {
   const facts = [when(game.at)];
   if (game.rating) facts.push(`puzzle rated ${game.rating}`);
-  if (game.seconds) facts.push(`solved in ${minutes(game.seconds)}`);
+  if (game.seconds) facts.push(`solved in ${formatSeconds(game.seconds)}`);
   return h(
     'div',
     { class: 'review-game' },
@@ -446,4 +446,3 @@ function decisionText(action: ModerationAction, days: number | null): string {
 const day = (iso: string) => new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short' });
 const when = (iso: string) =>
   new Date(iso).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-const minutes = (seconds: number) => `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;

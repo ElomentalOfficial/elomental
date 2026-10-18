@@ -3,11 +3,10 @@ import {
   MISTAKE_PENALTY_S,
   adjustedSeconds,
   compare,
-  formatSeconds,
   share,
   type ClashResult,
 } from './clash.ts';
-import { h, toast } from './ui.ts';
+import { formatSeconds, h, toast } from './ui.ts';
 
 /** Headline for a finished (or half-finished) clash, from my side. */
 export function clashVerdict(mine: ClashResult, theirs?: ClashResult | null): { title: string; tone: '' | 'good' } {

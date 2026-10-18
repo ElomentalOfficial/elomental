@@ -30,7 +30,7 @@ import { RIBBON_BOX, RIBBON_PATH } from '../ribbon.ts';
 import { notesWheelOn } from '../settings.ts';
 import { readJson, removeKey, writeJson } from '../storage.ts';
 import { explainHint, type Marks } from '../explain.ts';
-import { formatSeconds, getClash, saveClash, type ClashResult } from '../clash.ts';
+import { getClash, saveClash, type ClashResult } from '../clash.ts';
 import { clashTable, clashVerdict, shareButton } from '../clashView.ts';
 import {
   GameRefused,
@@ -49,7 +49,7 @@ import {
 import { signUpForm } from '../accountForm.ts';
 import { runHintCoach } from '../hintCoach.ts';
 import { runTutorial, tutorialDone, type TutorialStep } from '../tutorial.ts';
-import { formatTime, goBack, h, mount, openModal, toast, type Screen } from '../ui.ts';
+import { formatSeconds, formatTime, goBack, h, mount, openModal, toast, type Screen } from '../ui.ts';
 import { dailyScreen } from './daily.ts';
 import { homeScreen } from './home.ts';
 
