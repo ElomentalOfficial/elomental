@@ -16,6 +16,8 @@ const EASE_IN = 'cubic-bezier(0.7, 0, 1, 0.5)';
  * scaling it keeps the swing looking exactly as it does on a phone.
  */
 function perspectiveFor(stage: HTMLElement): string {
+  // Wide screens turn each tile on its own edge (hingeOrigin), so a tile-sized depth fits.
+  if (wideLayout()) return 'perspective(1200px)';
   return `perspective(${Math.max(900, Math.round(stage.getBoundingClientRect().width * 2.56))}px)`;
 }
 
@@ -27,16 +29,30 @@ function inReadingOrder(items: HTMLElement[]): { el: HTMLElement; rect: DOMRect 
     .sort((a, b) => Math.round(a.rect.top - b.rect.top) || a.rect.left - b.rect.left);
 }
 
-/** Pivot every tile on the same vertical hinge: the left edge of `stage`. */
+/** The wide home grid (same query as styles.css and scale.ts). */
+const wideLayout = () => matchMedia('(min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4)').matches;
+
+/**
+ * Phones: pivot every tile on the same vertical hinge, the left edge of
+ * `stage`. Wide screens: each tile on its own left edge. On the shared hinge the
+ * far tiles of a wide grid swing out so far they grow over their neighbours.
+ */
 function hingeOrigin(stage: HTMLElement, rect: DOMRect): string {
-  return `${stage.getBoundingClientRect().left - rect.left}px 50%`;
+  return wideLayout() ? '0 50%' : `${stage.getBoundingClientRect().left - rect.left}px 50%`;
 }
+
+/**
+ * The angle a tile turns to when it leaves (and comes back from). Phones swing
+ * toward the viewer. Wide screens fold away into the screen, so a turning tile
+ * only ever gets smaller and stays inside its own box.
+ */
+const awayAngle = () => (wideLayout() ? 82 : -82);
 
 /**
  * Tiles swing in on the left hinge, one after another. Forward (arriving
  * fresh) they come from behind the screen, top-left first. Backward
- * (returning from a mode) they come back from the viewer's side, bottom-right
- * first: the exact reverse of how they left.
+ * (returning from a mode) they come back the way they left (awayAngle),
+ * bottom-right first: the exact reverse of how they left.
  */
 export function turnstileIn(stage: HTMLElement, items: HTMLElement[], backward = false): void {
   if (reducedMotion()) return;
@@ -47,7 +63,7 @@ export function turnstileIn(stage: HTMLElement, items: HTMLElement[], backward =
     el.style.transformOrigin = hingeOrigin(stage, rect);
     el.animate(
       [
-        { transform: `${perspective} rotateY(${backward ? -82 : 78}deg)`, opacity: 0 },
+        { transform: `${perspective} rotateY(${backward ? awayAngle() : 78}deg)`, opacity: 0 },
         { transform: `${perspective} rotateY(0deg)`, opacity: 1 },
       ],
       { duration: backward ? 440 : 520, delay: 30 + i * (backward ? 45 : 55), easing: EASE_OUT, fill: 'backwards' },
@@ -55,7 +71,7 @@ export function turnstileIn(stage: HTMLElement, items: HTMLElement[], backward =
   });
 }
 
-/** Tiles swing out toward the viewer; `last` (the tapped tile) goes after the rest. */
+/** Tiles swing out (awayAngle); `last` (the tapped tile) goes after the rest. */
 export function turnstileOut(stage: HTMLElement, items: HTMLElement[], last?: HTMLElement): Promise<void> {
   if (reducedMotion()) return Promise.resolve();
   const order = inReadingOrder(items.filter((el) => el !== last));
@@ -67,7 +83,7 @@ export function turnstileOut(stage: HTMLElement, items: HTMLElement[], last?: HT
     return el.animate(
       [
         { transform: `${perspective} rotateY(0deg)`, opacity: 1 },
-        { transform: `${perspective} rotateY(-82deg)`, opacity: 0 },
+        { transform: `${perspective} rotateY(${awayAngle()}deg)`, opacity: 0 },
       ],
       { duration: isLast ? 300 : 230, delay: i * 35 + (isLast ? 70 : 0), easing: EASE_IN, fill: 'forwards' },
     );
