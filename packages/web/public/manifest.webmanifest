@@ -1,7 +1,7 @@
 {
   "name": "Elomental",
   "short_name": "Elomental",
-  "description": "Competitive Sudoku",
+  "description": "Competitive sudoku: Casual, Daily Square, Ranked Elo and Clash.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
