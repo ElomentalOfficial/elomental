@@ -42,9 +42,11 @@ Migrations are in `migrations/` (already applied to the project).
 
 Done (2026-10-17):
 
-1. **Authentication → URL Configuration**
-   - Site URL: `https://barsmin.github.io/elomental/`
-   - Redirect URLs: `https://barsmin.github.io/elomental/**` and `http://localhost:5173/**`
+1. **Authentication → URL Configuration** (moved to the custom domain on 2026-10-19)
+   - Site URL: `https://elomental.online/`
+   - Redirect URLs: `https://elomental.online/**`, `https://www.elomental.online/**`,
+     `https://barsmin.github.io/elomental/**` (old address, for links sent before the move)
+     and `http://localhost:5173/**`
 2. **Authentication → Sign In / Providers → Allow anonymous sign-ins: ON.**
    Every guest gets a hidden account on first launch, so their games are
    settled on the server from the start. Signing up with an email later keeps
