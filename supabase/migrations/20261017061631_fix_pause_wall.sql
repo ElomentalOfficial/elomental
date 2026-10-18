@@ -1,0 +1,4 @@
+-- Applied to the database as a follow-up fix to ranked_pause (finish_game's
+-- clock minus paused time). The fixed finish_game is already the one in
+-- 20261017061526_ranked_pause.sql, so there is nothing to run here; this file
+-- keeps the repo's migration history in step with the database's.

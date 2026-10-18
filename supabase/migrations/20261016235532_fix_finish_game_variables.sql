@@ -1,0 +1,4 @@
+-- Applied to the database as a follow-up fix to core_schema (finish_game's
+-- variable declarations). The fixed finish_game is already the one in
+-- 20261016235433_core_schema.sql, so there is nothing to run here; this file
+-- keeps the repo's migration history in step with the database's.
