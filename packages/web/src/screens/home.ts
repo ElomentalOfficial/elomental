@@ -128,7 +128,7 @@ function openCasual(leave: (go: () => void) => void) {
       h('span', { text: copy.common.difficulty[difficulty] }),
     ),
   );
-  const playButton = h('button', { class: 'btn btn-play', onclick: () => play() });
+  const playButton = h('button', { class: 'btn btn-primary', onclick: () => play() });
   const choose = (difficulty: Difficulty) => {
     pick = difficulty;
     for (const segment of segments) {

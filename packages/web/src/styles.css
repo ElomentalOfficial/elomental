@@ -1791,10 +1791,6 @@ html.standalone .backdrop {
 .pips i.on {
   opacity: 1;
 }
-.btn-play {
-  background: var(--c-forest);
-  color: var(--c-bright);
-}
 /* Clash and Square code: two cards side by side, the same gap as between the cards. */
 .friend-card {
   display: grid;
