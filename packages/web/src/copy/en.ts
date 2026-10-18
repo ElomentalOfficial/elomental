@@ -129,7 +129,7 @@ export const game = {
   pausesLeft: (n: number) => `${plural(n, 'pause')} left`,
   noPausesLeft: 'No pauses left in this game.',
   label: {
-    clash: (code: string, beat?: string) => `Clash · ${code}${beat ? ` · beat ${beat}` : ''}`,
+    clash: (beat?: string) => `Clash${beat ? ` · beat ${beat}` : ''}`,
     casual: (difficulty: string) => `Casual · ${capitalize(difficulty)}`,
   },
   squareCode: (code: string) => `#${code}`,

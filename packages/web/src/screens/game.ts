@@ -292,10 +292,11 @@ function gameScreen(game: SavedGame): Screen {
       squareChip,
       h('span', {
         class: 'puzzle-type',
-        // Only Casual shows its difficulty; Daily and Ranked keep it hidden. Clash shows
-        // its code and, when the friend's result came in a link, the time to beat.
+        // Only Casual shows its difficulty; Daily and Ranked keep it hidden. Clash shows,
+        // when the friend's result came in a link, the time to beat. Its code stays off
+        // the label: the Square code chip beside it is the one code to copy.
         text: clash
-          ? copy.game.label.clash(clash.code, clash.theirs?.solved ? formatSeconds(clash.theirs.seconds) : undefined)
+          ? copy.game.label.clash(clash.theirs?.solved ? formatSeconds(clash.theirs.seconds) : undefined)
           : config.mode === 'casual'
             ? copy.game.label.casual(config.difficulty)
             : MODE_LABEL[config.mode],
