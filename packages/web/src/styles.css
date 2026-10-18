@@ -2978,8 +2978,6 @@ html.standalone .toast {
   .game .notes-toggle { grid-area: 9 / 5 / 10 / 9; }
   .game .actions-row > :nth-child(1) { grid-area: 10 / 3 / 11 / 6; }
   .game .actions-row > :nth-child(2) { grid-area: 10 / 6 / 11 / 9; }
-  /* Without the Notes button, Erase takes the whole row. */
-  .game:not(:has(.notes-toggle)) .key-erase { grid-area: 9 / 3 / 10 / 9; }
   /* Keypad digits in Federo, as in the Figma desktop frame. */
   .game .key {
     height: auto;

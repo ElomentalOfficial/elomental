@@ -341,11 +341,10 @@ function gameScreen(game: SavedGame): Screen {
     html: `${ICONS.hint}<span>${copy.game.hint}</span>`,
   });
   const undoButton = h('button', { class: 'action', html: `${ICONS.undo}<span>${copy.game.undo}</span>` });
-  // With the notes wheel turned off in Setup, notes come from a Notes mode toggle instead.
+  // The Notes toggle is always there. The notes wheel (long-press a cell) comes on top of it,
+  // unless it's turned off in Setup.
   const useWheel = notesWheelOn();
-  const notesButton = useWheel
-    ? null
-    : h('button', { class: 'action notes-toggle', html: `${ICONS.pencil}<span>${copy.game.notes}</span>`, attrs: { 'aria-pressed': 'false' } });
+  const notesButton = h('button', { class: 'action notes-toggle', html: `${ICONS.pencil}<span>${copy.game.notes}</span>`, attrs: { 'aria-pressed': 'false' } });
 
   // The splash ribbon hanging over the controls; only the wide layouts show it (styles.css).
   // The whole outline is stretched to the hanging length, so its tears and torn
@@ -663,8 +662,8 @@ function gameScreen(game: SavedGame): Screen {
       keys[d].classList.toggle('done', placed === 9);
     }
     el.classList.toggle('notes-mode', notesMode);
-    notesButton?.classList.toggle('on', notesMode);
-    notesButton?.setAttribute('aria-pressed', String(notesMode));
+    notesButton.classList.toggle('on', notesMode);
+    notesButton.setAttribute('aria-pressed', String(notesMode));
     renderHintButton();
     rendered = true;
   }
@@ -989,7 +988,7 @@ function gameScreen(game: SavedGame): Screen {
     input(Number(key.dataset.digit));
   });
   hintButton.addEventListener('click', () => void hint());
-  notesButton?.addEventListener('pointerdown', (event) => {
+  notesButton.addEventListener('pointerdown', (event) => {
     event.preventDefault();
     if (finished || paused) return;
     notesMode = !notesMode;
@@ -1018,8 +1017,8 @@ function gameScreen(game: SavedGame): Screen {
     else if (/^[1-9]$/.test(event.key)) input(Number(event.key));
     else if (event.key === 'Backspace' || event.key === 'Delete' || event.key === '0') input(0);
     else if (event.key === 'n' || event.key === 'N') {
+      // The Notes button shows the mode, so no toast is needed.
       notesMode = !notesMode;
-      if (!notesButton) toast(notesMode ? copy.game.notesModeOn : copy.game.notesModeOff);
       render();
     } else if ((event.ctrlKey || event.metaKey) && event.key === 'z') undo();
     else if (event.key.startsWith('Arrow') && selected < 0) select(40); // first arrow press starts in the centre
@@ -1065,17 +1064,13 @@ function gameScreen(game: SavedGame): Screen {
         ...copy.tutorial.fill,
         gesture: 'tap',
       },
-      notesButton
-        ? {
-            target: notesButton,
-            ...copy.tutorial.notesButton,
-            gesture: 'tap',
-          }
-        : {
-            target: board,
-            ...copy.tutorial.notesWheel,
-            gesture: 'hold-slide',
-          },
+      {
+        target: notesButton,
+        ...copy.tutorial.notesButton,
+        gesture: 'tap',
+      },
+      // The wheel only when it's on in Setup.
+      ...(useWheel ? [{ target: board, ...copy.tutorial.notesWheel, gesture: 'hold-slide' as const }] : []),
       {
         target: pad.querySelector<HTMLElement>('.key-erase')!,
         ...copy.tutorial.erase,
