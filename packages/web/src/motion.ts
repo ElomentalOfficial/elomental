@@ -74,6 +74,12 @@ export function turnstileIn(stage: HTMLElement, items: HTMLElement[], backward =
 /** Tiles swing out (awayAngle); `last` (the tapped tile) goes after the rest. */
 export function turnstileOut(stage: HTMLElement, items: HTMLElement[], last?: HTMLElement): Promise<void> {
   if (reducedMotion()) return Promise.resolve();
+  // The tapped tile is still easing back from its press tilt. Settle it first:
+  // moving the hinge under a tilted tile makes it jump sideways onto its neighbour.
+  for (const el of items) {
+    el.style.transition = 'none';
+    el.style.transform = '';
+  }
   const order = inReadingOrder(items.filter((el) => el !== last));
   if (last) order.push({ el: last, rect: last.getBoundingClientRect() });
   const perspective = perspectiveFor(stage);
