@@ -2177,9 +2177,6 @@ html.standalone .toast {
   background: var(--wrong-bg);
   color: var(--wrong-text);
 }
-.cell.noting {
-  box-shadow: inset 0 0 0 2px var(--accent);
-}
 .cell.hinted {
   animation: hinted 0.9s ease;
 }

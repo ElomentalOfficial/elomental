@@ -898,15 +898,14 @@ function gameScreen(game: SavedGame): Screen {
   const cellFrom = (target: EventTarget | null) => (target as HTMLElement | null)?.closest<HTMLElement>('[data-cell]');
 
   function openWheel(cell: number, x: number, y: number) {
+    // No extra cue on the cell or the keypad: the open wheel already shows it's notes.
     endPressFeedback();
-    cells[cell].classList.add('noting');
     wheel = openNotesWheel({
       x,
       y,
       notes: game.notes[cell],
       onToggle: (digit) => toggleNote(cell, digit),
       onClose: () => {
-        cells[cell].classList.remove('noting');
         wheel = null;
       },
     });
