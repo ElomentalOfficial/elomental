@@ -1,9 +1,10 @@
 import type { GenerateOptions, GeneratedPuzzle } from '@elomental/engine';
 
 /**
- * PROTOTYPE ONLY: puzzles (and their solutions) are generated in the browser.
- * In the real app the server picks from the pre-generated puzzle pool and
- * the solution never reaches the client in ranked play.
+ * Puzzles are generated (and shared squares checked) on the device, in a
+ * worker. Signed in, the server picks the seed; Ranked wins are then checked
+ * by the audit-solve Edge Function. That the solution can be worked out on
+ * the device is a known gap (supabase/README.md, "Not covered yet").
  */
 
 type Reply = { id: number; puzzle: GeneratedPuzzle } | { id: number; error: string };

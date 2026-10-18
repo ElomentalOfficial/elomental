@@ -6,12 +6,13 @@ import { formatSeconds } from './ui.ts';
  * Clash: race a friend on the same square.
  *
  * The 6-character code *is* the puzzle: it seeds the generator, so everyone
- * who enters it gets the same grid, and it encodes the difficulty. Results
- * travel inside the share link (no server yet), e.g.
- *   …/elomental/#clash=K7P2QX.6z.1.0.1   (code . seconds(base36) . mistakes . hints . solved)
+ * who enters it gets the same grid, and it encodes the difficulty.
  *
- * PROTOTYPE: a result in a link can be edited by hand. Real head-to-head
- * records belong in Supabase.
+ * Signed-in players' results are settled on the server (start_game /
+ * finish_game, read back with get_clash and my_clashes). A result also
+ * travels in the share link, so a friend sees the time to beat at once, e.g.
+ *   …/elomental/#clash=K7P2QX.6z.1.0.1   (code . seconds(base36) . mistakes . hints . solved)
+ * A result that came only in a link could have been edited by hand.
  */
 
 /** No 0/O, 1/I/L: codes are typed from a friend's message. */

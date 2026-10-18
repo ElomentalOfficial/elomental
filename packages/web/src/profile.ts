@@ -3,9 +3,11 @@ import { cachedAccount } from './backend.ts';
 import { readJson, writeJson } from './storage.ts';
 
 /**
- * PROTOTYPE ONLY: progress, Elo and rewards live in localStorage so the game
- * can be felt end to end. In the real app every number here is computed
- * and stored by Supabase, never trusted from the browser.
+ * Player progress. With an account (guests get an anonymous one), every
+ * number comes from the server, which settles each game (finish_game).
+ * Without one (offline, or anonymous sign-ins turned off), a local guest
+ * profile lives in localStorage and recordResult applies the same rules as
+ * the server; the formulas below mirror the private.* functions there.
  */
 
 /** `clash` plays like Casual (no Elo) on a puzzle shared by code with a friend. */
