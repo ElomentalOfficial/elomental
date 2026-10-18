@@ -134,10 +134,14 @@ function syncSettings(raw: unknown): void {
   const saved = cleanSettings(raw);
   applySettings(saved);
   const local = localSettings();
-  const missing = (Object.keys(local) as (keyof Settings)[]).filter((k) => !(k in saved));
-  if (missing.length) {
-    void supabase.rpc('save_settings', { p_settings: Object.fromEntries(missing.map((k) => [k, local[k]])) }).then(() => undefined);
+  const fill: Partial<Settings> = {};
+  for (const k of Object.keys(local) as (keyof Settings)[]) {
+    if (k !== 'a11y' && !(k in saved)) Object.assign(fill, { [k]: local[k] });
   }
+  // Accessibility choices merge key by key: send only the ones the account hasn't saved.
+  const a11yMissing = Object.fromEntries(Object.entries(local.a11y).filter(([k]) => !(k in (saved.a11y ?? {}))));
+  if (Object.keys(a11yMissing).length) fill.a11y = a11yMissing;
+  if (Object.keys(fill).length) void supabase.rpc('save_settings', { p_settings: fill }).then(() => undefined);
 }
 
 // --- Player name ---------------------------------------------------------------------

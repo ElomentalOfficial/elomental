@@ -481,7 +481,6 @@ export const statement = {
     'Pinch zoom is off on phones so the board stays still while you play. Use Text size instead.',
     'The notes wheel needs a long press or a drag. With a keyboard or screen reader, use Notes (N) or Shift with a number.',
     'Ranked, Daily and Clash are timed races: you can hide the clock, not stop it, and pauses are limited.',
-    'Accessibility settings stay on this device for now.',
     'Tested with automated checks and keyboard only so far; testing with VoiceOver, TalkBack and NVDA is under way.',
   ] as const,
   feedbackTitle: 'Tell us',
@@ -524,7 +523,7 @@ export const setup = {
   tutorialQueued: 'The tutorial plays at the start of your next game.',
   a11y: {
     title: 'Accessibility',
-    intro: 'Make the game easier to see, hear and play. These stay on this device.',
+    intro: 'Make the game easier to see, hear and play. Your choices follow your account to every device.',
     textSize: 'Text size',
     textSizeHelp: 'Larger text for labels, buttons and notes.',
     percent: (n: number) => `${n}%`,

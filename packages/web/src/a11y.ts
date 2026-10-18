@@ -2,8 +2,9 @@ import { readJson, writeJson } from './storage.ts';
 
 /**
  * Accessibility preferences (Setup > Accessibility). They live on the device
- * and on the account with the other settings (settings.ts), and default to
- * the system where the system has an opinion (reduced motion, more contrast).
+ * and on the account with the other settings (settings.ts; save_settings
+ * merges them key by key), and default to the system where the system has an
+ * opinion (reduced motion, more contrast).
  * docs/ACCESSIBILITY_AUDIT.md explains each one.
  */
 export interface A11yPrefs {

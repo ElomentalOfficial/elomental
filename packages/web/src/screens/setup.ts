@@ -1,4 +1,4 @@
-import { TEXT_SIZES, a11yPrefs, storeA11y, type A11yPrefs } from '../a11y.ts';
+import { TEXT_SIZES, a11yPrefs, onA11yChange, type A11yPrefs } from '../a11y.ts';
 import { signUpForm } from '../accountForm.ts';
 import { openShortcuts } from '../shortcuts.ts';
 import {
@@ -147,7 +147,8 @@ function choice<K extends keyof A11yPrefs>(key: K, label: string, help: string |
       text,
       attrs: { role: 'radio' },
       onclick: () => {
-        storeA11y({ [key]: value } as Partial<A11yPrefs>);
+        // On this device at once, and on the account so other devices follow.
+        saveSettings({ a11y: { [key]: value } as Partial<A11yPrefs> });
         sync();
       },
     }),
@@ -161,6 +162,11 @@ function choice<K extends keyof A11yPrefs>(key: K, label: string, help: string |
     });
   };
   sync();
+  // Choices saved on another device arrive with the account refresh.
+  const stop = onA11yChange(() => {
+    if (!buttons[0].isConnected) return void stop();
+    sync();
+  });
   const id = `a11y-${key}`;
   return h(
     'div',

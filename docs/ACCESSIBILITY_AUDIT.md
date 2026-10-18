@@ -288,7 +288,7 @@ This is the designed behaviour, verified in Chromium's accessibility tree by the
 
 - Pinch zoom stays blocked on phones (D1); Text size is the supported way to enlarge text.
 - The notes wheel is pointer-only; keyboard and screen reader players use Notes mode or Shift+number.
-- Accessibility preferences are stored on the device only. Syncing them to the account needs the `save_settings` database function to accept an `a11y` key (a migration), which hasn't been applied.
+- Accessibility preferences sync to the account like Theme (`settings.a11y`, merged key by key) once migration `20261018120000_settings_a11y.sql` is applied; until then they stay on the device.
 - Toast timing (m5) and the over-par timer colour (m6) are unchanged.
 - High contrast covers the board, controls and text; the decorative waves and the home tiles keep their palette colours.
 
