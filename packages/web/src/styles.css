@@ -7,7 +7,7 @@
   --c-second-bright: #e8e8ce;
   --c-mud: #dadbb9;
   --c-rock: #b3b5a0;
-  --c-lava: #b1613c;
+  --c-lava: #a85b37; /* was #b1613c; Bright on it reaches 4.91:1 (WCAG AA) */
   --c-lava-highlight: #413226;
   --c-forest: #636945;
   --c-forest-highlight: #c9d09d;
@@ -21,12 +21,14 @@
    * notes, keypad and bar on desktop) and the logo wordmark are tied to their
    * geometry instead.
    */
-  --fs-caption: 12px; /* uppercase micro labels, badges, ids */
-  --fs-small: 14px; /* help text, errors, toasts, segments, chips */
-  --fs-body: 16px; /* paragraphs, list rows, inputs */
-  --fs-label: 20px; /* buttons, tile labels, card titles, stat numbers */
-  --fs-title: 24px; /* screen and sheet titles, names, Home/Concede */
-  --fs-display: 30px; /* timer, keypad numbers, big codes */
+  /* Each step is multiplied by --text-scale (Setup > Accessibility > Text size, a11y.ts). */
+  --text-scale: 1;
+  --fs-caption: calc(12px * var(--text-scale)); /* uppercase micro labels, badges, ids */
+  --fs-small: calc(14px * var(--text-scale)); /* help text, errors, toasts, segments, chips */
+  --fs-body: calc(16px * var(--text-scale)); /* paragraphs, list rows, inputs */
+  --fs-label: calc(20px * var(--text-scale)); /* buttons, tile labels, card titles, stat numbers */
+  --fs-title: calc(24px * var(--text-scale)); /* screen and sheet titles, names, Home/Concede */
+  --fs-display: calc(30px * var(--text-scale)); /* timer, keypad numbers, big codes */
   --gutter: 12px;
   --radius: 6px;
 }
@@ -38,7 +40,7 @@
   --bg: var(--c-bg);
   --text: var(--c-bright);
   /* One accent per theme: Lava in dark, Crimson in light. Text on the Figma
-     Lava (#B1613C) is Bright, which reads clearly on it. */
+     Lava is Bright, which reads clearly on it. */
   --accent: var(--c-lava);
   --on-accent: var(--c-bright);
   --muted: rgba(255, 255, 229, 0.62);
@@ -59,7 +61,8 @@
   --cell-cross: var(--c-lava-highlight);
   --cell-text: var(--c-bright);
   /* Correct player digits look exactly like the givens; only mistakes stand out. */
-  --cell-user: var(--cell-text);
+  /* The player's own numbers: Forest highlight, a lighter weight than the givens (styles .cell.filled). */
+  --cell-user: var(--c-forest-highlight);
   /* Figma: every square holding the focused digit is filled terracotta. */
   --same-bg: var(--c-lava);
   --same-text: var(--c-bright);
@@ -67,6 +70,13 @@
   --wrong-bg: var(--c-bright);
   --wrong-text: var(--c-crimson);
   --select: var(--c-second-bright);
+  /* A second ring inside the selection, for fills the selection colour is too close to. */
+  --select-inner: transparent;
+  /* Keyboard focus: one colour on every surface (9.9:1 on modals, 12:1 on the page). */
+  --focus: var(--c-second-bright);
+  /* Field edges and the 3x3 box outline: 3:1 against what they sit on. */
+  --field-border: #85867c;
+  --grid-line: #77786e;
   --key-bg: var(--c-second-bright);
   --key-text: var(--c-bg);
   --erase-bg: var(--key-bg);
@@ -93,7 +103,6 @@
   /* Colours taken from the Figma icon exports (eraser shade follows the accent). */
   --separator: #40413c;
   --mistake-on: var(--c-bright);
-  --mistake-off: #40413c;
   --eraser-shade: rgba(38, 39, 33, 0.45);
 }
 
@@ -105,8 +114,8 @@
      frame). Forest marks what's on: same-number highlights, Notes on, Casual. */
   --accent: var(--c-crimson);
   --on-accent: var(--c-bright);
-  /* 0.6 was ~3.2:1 on the page; 0.8 clears 4.5:1 for small secondary text. */
-  --muted: rgba(121, 67, 65, 0.8);
+  /* 0.92 keeps small secondary text at 4.5:1 or more on Mud too (4.70:1), 6.3:1 on the page. */
+  --muted: rgba(121, 67, 65, 0.92);
   --line: var(--c-second-bright);
   --surface: var(--c-second-bright);
   --surface-2: var(--c-mud);
@@ -122,12 +131,18 @@
   /* The selected cell's row and column. */
   --cell-cross: var(--c-forest-highlight);
   --cell-text: var(--c-crimson);
-  --cell-user: var(--cell-text);
+  /* The player's own numbers: Forest, a lighter weight than the givens. */
+  --cell-user: var(--c-forest);
   --same-bg: var(--c-forest);
   --same-text: var(--c-bright);
   --wrong-bg: var(--accent);
   --wrong-text: var(--on-accent);
   --select: var(--c-crimson);
+  /* Bright inside the Crimson ring keeps the selection visible on a Forest same-number fill. */
+  --select-inner: var(--c-bright);
+  --focus: var(--c-crimson);
+  --field-border: #8c8d76;
+  --grid-line: #8c8d76;
   --key-bg: var(--c-crimson);
   --key-text: var(--c-bright);
   --erase-bg: var(--key-bg);
@@ -152,7 +167,6 @@
   --primary-text: var(--c-bright);
   --separator: #e8e8cc;
   --mistake-on: var(--c-crimson);
-  --mistake-off: var(--c-mud);
   --eraser-shade: rgba(255, 255, 229, 0.55);
 }
 
@@ -322,9 +336,44 @@ button {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
-button:focus-visible {
-  outline: 2px solid var(--accent);
+button:focus-visible,
+[href]:focus-visible,
+[tabindex]:not([tabindex='-1']):focus-visible {
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
+}
+/* Headings get focus only so a screen reader starts there (ui.ts holdFocus): no ring. */
+[tabindex='-1']:focus {
+  outline: none;
+}
+/* "Skip to board": hidden until it has keyboard focus. */
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  z-index: 30;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  background: var(--primary-bg);
+  color: var(--primary-text);
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+  transform: translate(-50%, -200%);
+}
+.skip-link:focus {
+  transform: translate(-50%, 0);
+}
+/* Read by screen readers, not shown. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 svg {
   display: block;
@@ -778,7 +827,7 @@ h2 {
   font-size: var(--fs-caption);
   font-weight: 700;
   text-transform: uppercase;
-  opacity: 0.7;
+  color: var(--muted);
 }
 .stat-icon {
   width: 16px;
@@ -1158,8 +1207,9 @@ html.standalone .screen.scrollable {
 .result .signup .text-field {
   --field-bg: var(--modal-bg);
 }
-.signup-head h3 {
+.signup-head h2 {
   font-size: var(--fs-body);
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
@@ -1237,7 +1287,7 @@ html.standalone .screen.scrollable {
   color: var(--text);
   font: var(--fs-body) var(--serif);
   outline: none;
-  box-shadow: inset 0 0 0 1.5px transparent;
+  box-shadow: inset 0 0 0 1px var(--field-border);
   transition: box-shadow 0.15s ease;
   -webkit-user-select: text;
   user-select: text;
@@ -1301,6 +1351,12 @@ html.standalone .screen.scrollable {
   grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
+.segmented.cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.segmented.cols-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
 .segment {
   display: flex;
   align-items: center;
@@ -1316,6 +1372,7 @@ html.standalone .screen.scrollable {
 .segment.on {
   background: var(--primary-bg);
   color: var(--primary-text);
+  box-shadow: inset 0 0 0 2px var(--select);
 }
 .segment-icon {
   width: 20px;
@@ -1410,8 +1467,16 @@ html.standalone .screen.scrollable {
 }
 /* Missed days stay quiet: just a dimmed number. */
 .day.missed {
+  position: relative;
   color: var(--muted);
-  opacity: 0.5;
+}
+.day.missed::after {
+  content: '';
+  position: absolute;
+  inset: 22% 22%;
+  background: linear-gradient(to top right, transparent calc(50% - 0.75px), currentColor calc(50% - 0.75px), currentColor calc(50% + 0.75px), transparent calc(50% + 0.75px));
+  opacity: 0.6;
+  pointer-events: none;
 }
 .day.today {
   background: transparent;
@@ -1773,7 +1838,7 @@ html.standalone .backdrop {
 .difficulty.on {
   background: var(--surface-2);
   color: var(--text);
-  box-shadow: inset 0 0 0 1px var(--modal-border);
+  box-shadow: inset 0 0 0 1.5px var(--select);
 }
 /* One to three filled squares: how hard it is. */
 .pips {
@@ -2217,8 +2282,13 @@ html.standalone .toast {
 .skull {
   width: 19px;
   height: 18px;
-  color: var(--mistake-off);
+  color: var(--muted);
   transition: color 0.2s ease, transform 0.2s ease;
+}
+.skull:not(.used) svg * {
+  fill: transparent;
+  stroke: currentColor;
+  stroke-width: 1.2px;
 }
 .skull.used {
   color: var(--mistake-on);
@@ -2247,6 +2317,9 @@ html.standalone .toast {
   font-size: 0.86em;
   letter-spacing: 0.04em;
   color: var(--muted);
+  /* A 24px+ tap target around the small text, without moving it. */
+  padding: 8px 0;
+  margin: -8px 0;
 }
 .square-code[hidden] {
   display: none;
@@ -2269,19 +2342,33 @@ html.standalone .toast {
   aspect-ratio: 1;
   container-type: inline-size;
 }
+/*
+ * The board is one 9x9 grid in reading order (rows are ARIA rows, game.ts).
+ * Figma rule: 4px between 3x3 boxes, 2px between squares, so the boxes read at
+ * a glance. A zero-width spacer track after every third row and column makes
+ * the box gap 2px + 0 + 2px.
+ */
 .board {
+  --tracks: repeat(3, minmax(0, 1fr)) 0 repeat(3, minmax(0, 1fr)) 0 repeat(3, minmax(0, 1fr));
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template: repeat(3, minmax(0, 1fr)) / repeat(3, minmax(0, 1fr));
-  /* Figma rule: 4px between 3×3 boxes, 2px between squares, so the boxes read at a glance. */
-  gap: 4px;
+  grid-template-columns: var(--tracks);
+  grid-template-rows: var(--tracks);
+  gap: 2px;
   touch-action: none;
 }
-.box {
+.board-row {
   display: grid;
-  grid-template: repeat(3, minmax(0, 1fr)) / repeat(3, minmax(0, 1fr));
-  gap: 2px;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+}
+/* The 3x3 box outline at 3:1 (game.ts places one frame per box). */
+.box-frame {
+  border-radius: 3px;
+  outline: 1px solid var(--grid-line);
+  outline-offset: 1px;
+  pointer-events: none;
 }
 .cell {
   position: relative;
@@ -2305,10 +2392,12 @@ html.standalone .toast {
   background: var(--cell-cross);
 }
 .cell.selected {
-  box-shadow: inset 0 0 0 2px var(--select);
+  box-shadow: inset 0 0 0 2px var(--select), inset 0 0 0 4px var(--select-inner);
 }
+/* The player's own numbers: their own colour and a lighter weight than the givens. */
 .cell.filled {
   color: var(--cell-user);
+  font-weight: 500;
 }
 /* Figma: every square holding the focused digit, given or entered, is filled.
    Comes after .filled so the player's own digits light up too. */
@@ -2322,13 +2411,25 @@ html.standalone .toast {
   background: var(--wrong-bg);
   color: var(--wrong-text);
 }
+/* A slash in the corner: "wrong" as a shape, so it never depends on the fill colour. */
+.cell.wrong::before {
+  content: '';
+  position: absolute;
+  top: 8%;
+  right: 8%;
+  width: 26%;
+  height: 26%;
+  background: linear-gradient(to top right, transparent calc(50% - 1px), currentColor calc(50% - 1px), currentColor calc(50% + 1px), transparent calc(50% + 1px));
+}
 .cell.hinted {
   animation: hinted 0.9s ease;
 }
+/* A hint flashes the accent with a ring: the ring tells it apart from a mistake or a highlight without colour. */
 @keyframes hinted {
   30% {
     background: var(--accent);
     color: var(--on-accent);
+    box-shadow: inset 0 0 0 3px var(--on-accent);
   }
 }
 /* A wrong digit shakes, holds in the mistake colour, then fades back to the
@@ -2394,7 +2495,7 @@ html.standalone .toast {
   grid-template: repeat(3, minmax(0, 1fr)) / repeat(3, minmax(0, 1fr));
   place-items: center;
   padding: 6% 10%;
-  font-size: 2.3cqi;
+  font-size: clamp(9px, calc(2.3cqi * var(--text-scale)), 3cqi);
   font-weight: 700;
   color: var(--cell-text);
 }
@@ -2470,9 +2571,22 @@ html.standalone .toast {
 }
 /* All nine placed: the key settles back and fades. */
 .key.done {
-  opacity: 0.3;
+  position: relative;
+  opacity: 0.55;
   transform: scale(0.94);
   transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+/* A small check in the corner: "all nine placed" as a shape, not only fading. */
+.key.done::after {
+  content: '';
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 9px;
+  height: 5px;
+  border-left: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
 }
 .key-erase {
   display: grid;
@@ -2773,7 +2887,7 @@ html.standalone .toast {
   margin: -13px 0 0 -13px;
   border-radius: 50%;
   background: rgba(255, 255, 229, 0.85);
-  box-shadow: 0 0 0 6px rgba(177, 97, 60, 0.45);
+  box-shadow: 0 0 0 6px rgba(168, 91, 55, 0.45);
   pointer-events: none;
 }
 .coach-finger.tap {
@@ -2789,22 +2903,22 @@ html.standalone .toast {
   }
   40% {
     transform: scale(0.7);
-    box-shadow: 0 0 0 14px rgba(177, 97, 60, 0);
+    box-shadow: 0 0 0 14px rgba(168, 91, 55, 0);
   }
 }
 @keyframes coach-hold {
   0% {
     transform: none;
-    box-shadow: 0 0 0 0 rgba(177, 97, 60, 0.5);
+    box-shadow: 0 0 0 0 rgba(168, 91, 55, 0.5);
   }
   40% {
     transform: scale(0.85);
-    box-shadow: 0 0 0 16px rgba(177, 97, 60, 0.35);
+    box-shadow: 0 0 0 16px rgba(168, 91, 55, 0.35);
   }
   75%,
   90% {
     transform: translate(46px, -8px) scale(0.85);
-    box-shadow: 0 0 0 4px rgba(177, 97, 60, 0.35);
+    box-shadow: 0 0 0 4px rgba(168, 91, 55, 0.35);
   }
   100% {
     transform: none;
@@ -2872,6 +2986,236 @@ html.standalone .toast {
     animation-delay: 0ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ---------- Accessibility preferences (a11y.ts) ---------- */
+/* Setup > Accessibility: one block per choice. */
+.a11y-setting {
+  gap: 18px;
+}
+.a11y-choice {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.a11y-choice h3,
+.a11y-group {
+  font-size: var(--fs-body);
+  font-weight: 700;
+}
+.a11y-choice p,
+.a11y-group-help {
+  margin-top: -4px;
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.a11y-group-help {
+  margin-top: -14px;
+}
+.a11y-choice .segment {
+  height: auto;
+  min-height: 44px;
+  padding: 6px 4px;
+  text-align: center;
+}
+
+/* Accessibility statement (screens/statement.ts). */
+.statement-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-left: 1.2em;
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+  line-height: 1.4;
+}
+.statement-link {
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+}
+
+/* Keyboard shortcuts panel. */
+.shortcut-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+}
+.shortcut {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.shortcut dt {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.shortcut dd {
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+  text-align: right;
+}
+kbd {
+  min-width: 28px;
+  padding: 3px 7px;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px var(--field-border);
+  background: var(--surface-2);
+  font-family: var(--font);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Reduce motion, chosen in the app: the same as the system setting. */
+html[data-reduce-motion] *,
+html[data-reduce-motion] *::before,
+html[data-reduce-motion] *::after {
+  animation-duration: 0.01ms !important;
+  animation-delay: 0ms !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Hide timer: the clock keeps counting, it just isn't shown. */
+html[data-hide-timer] .timer {
+  visibility: hidden;
+}
+
+/* Colour-blind friendly: same-number cells get a bar under the number. */
+html[data-colour-blind] .cell.same::after {
+  content: '';
+  position: absolute;
+  left: 30%;
+  right: 30%;
+  bottom: 12%;
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
+}
+/* The row/column/box highlight gets a hairline edge. */
+html[data-colour-blind] .cell.cross {
+  box-shadow: inset 0 0 0 1px var(--grid-line);
+}
+
+/*
+ * High contrast: no translucent text, every cell outlined, highlights drawn
+ * as outlines as well as fills, wider selection and focus rings.
+ */
+:root[data-contrast='high'][data-theme] {
+  --muted: var(--text);
+  --modal-border: var(--field-border);
+}
+:root[data-contrast='high'][data-theme='dark'] {
+  --grid-line: #9a9b8f;
+  --field-border: #9a9b8f;
+  --chip-bg: rgba(255, 255, 229, 0.08);
+}
+:root[data-contrast='high'][data-theme='light'] {
+  --grid-line: #6b6c58;
+  --field-border: #6b6c58;
+}
+html[data-contrast='high'] .cell {
+  box-shadow: inset 0 0 0 1px var(--grid-line);
+}
+html[data-contrast='high'] .cell.cross {
+  box-shadow: inset 0 0 0 2px var(--select);
+}
+html[data-contrast='high'] .cell.selected {
+  box-shadow: inset 0 0 0 3px var(--select), inset 0 0 0 5px var(--select-inner);
+}
+html[data-contrast='high'] .box-frame {
+  outline-width: 2px;
+}
+html[data-contrast='high'] :is(button, [href], [tabindex]:not([tabindex='-1'])):focus-visible {
+  outline-width: 3px;
+}
+html[data-contrast='high'] .skull:not(.used) svg * {
+  stroke-width: 1.6px;
+}
+
+/*
+ * Large text (125% and up): screens that can outgrow the phone scroll, and
+ * rows of buttons wrap instead of squeezing their labels.
+ */
+html[data-large-text] .screen {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  scrollbar-width: none;
+}
+html[data-large-text] .screen :is(button, a) {
+  touch-action: pan-y;
+}
+html[data-large-text] .screen::-webkit-scrollbar {
+  display: none;
+}
+/* Home becomes one column in reading order: every tile gets a full row, Setup its own tile. */
+html[data-large-text] .home-grid {
+  flex: none;
+  grid-template-columns: 1fr;
+  grid-template-rows: none;
+  grid-template-areas: 'profile' 'daily' 'store' 'leader' 'casual' 'ranked' 'setup';
+  grid-auto-rows: minmax(76px, auto);
+}
+html[data-large-text] .home-grid > .tile {
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 18px;
+  padding: 14px 20px;
+  text-align: left;
+}
+html[data-large-text] .area-setup {
+  display: flex;
+  grid-area: setup;
+}
+html[data-large-text] .setup-notch {
+  display: none;
+}
+html[data-large-text] .profile-stats {
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+html[data-large-text] .tile-label {
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+html[data-large-text] .game .board-wrap,
+html[data-large-text] .game .controls {
+  flex: none;
+}
+html[data-large-text] .actions-row {
+  grid-auto-flow: row;
+  grid-template-columns: 1fr;
+}
+html[data-large-text] .action {
+  height: auto;
+  min-height: var(--action-h);
+}
+/* The keypad numbers stay inside their keys. */
+html[data-large-text] .key {
+  font-size: min(var(--fs-display), calc(var(--key-h) * 0.62));
+}
+html[data-large-text] .topbar {
+  height: auto;
+  min-height: 40px;
+}
+/* The mistakes, square code and puzzle type wrap onto lines of their own instead of being cut off. */
+html[data-large-text] .status {
+  height: auto;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+html[data-large-text] .puzzle-info {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+html[data-large-text] .puzzle-type {
+  white-space: normal;
+  overflow: visible;
 }
 
 /* ---------- Wide layouts (tablet landscape, desktop) ----------

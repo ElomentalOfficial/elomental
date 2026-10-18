@@ -30,6 +30,8 @@ export function pick<T>(lines: readonly T[], key: string): T {
 
 export const common = {
   appName: 'Elomental',
+  /** The browser tab and window title for a screen. */
+  pageTitle: (screen: string) => `${screen} · Elomental`,
   tagline: 'Competitive sudoku',
   ok: 'OK',
   close: 'Close',
@@ -62,7 +64,7 @@ export const common = {
 // --- Welcome ---------------------------------------------------------------
 
 export const welcome = {
-  a11y: 'Elomental. Tap to continue.',
+  a11y: 'Elomental. Continue.',
 };
 
 // --- Home ------------------------------------------------------------------
@@ -153,13 +155,29 @@ export const game = {
   a11y: {
     pause: 'Pause',
     resume: 'Resume',
-    mistakes: 'Mistakes',
+    mistakes: (used: number, max: number) => `${used} of ${max} mistakes`,
     board: 'Sudoku board',
     erase: 'Erase',
     hint: (left: number) => `Hint, ${left} left`,
-    cell: (row: number, column: number, content: string) => `Row ${row}, column ${column}: ${content}`,
-    cellNotes: (numbers: number[]) => `notes ${numbers.join(' ')}`,
+    cell: (row: number, column: number, box: number, content: string) => `Row ${row}, column ${column}, box ${box}: ${content}`,
+    cellGiven: (n: number) => `${n}, given`,
+    cellYours: (n: number) => `${n}, your number`,
+    cellWrong: (n: number) => `${n}, wrong`,
+    cellNotes: (numbers: number[]) => `empty, notes ${numbers.join(' ')}`,
     cellEmpty: 'empty',
+    skipToBoard: 'Skip to board',
+    // Spoken game events (a polite live region; never the clock).
+    wrongNumber: (left: number) => `Wrong number. ${plural(left, 'mistake')} left.`,
+    wrongNumberNoLimit: 'Wrong number.',
+    mistakesNoLimit: (used: number) => plural(used, 'mistake'),
+    unitsComplete: (units: string[]) => `${capitalize(listOf(units))} complete.`,
+    row: (n: number) => `row ${n}`,
+    column: (n: number) => `column ${n}`,
+    box: (n: number) => `box ${n}`,
+    hintPlaced: (n: number, row: number, column: number) => `Hint: ${n} in row ${row}, column ${column}.`,
+    pausedNow: 'Game paused.',
+    resumedNow: 'Game resumed.',
+    notesMode: (on: boolean) => (on ? 'Notes on.' : 'Notes off.'),
     squareCode: (code: string) => `Copy square code ${code.split('').join(' ')}`,
     wheelNote: (n: number, set: boolean) => `Note ${n}${set ? ', set' : ''}`,
   },
@@ -446,6 +464,51 @@ export const refusals = {
 
 // --- Setup -----------------------------------------------------------------
 
+/** Setup > Accessibility > Accessibility statement (screens/statement.ts). */
+export const statement = {
+  title: 'Accessibility',
+  intro: 'Elomental is made to be played by everyone: by touch, mouse, keyboard or screen reader. We aim for WCAG 2.2 level AA.',
+  supportedTitle: 'What works',
+  supported: [
+    'The whole game plays from the keyboard: arrows, numbers, Shift with a number for notes. Press ? in a game for every shortcut.',
+    'Screen readers hear each cell (row, column, box, number, given or yours), mistakes left, completed lines and hints.',
+    'Text size up to 200%, a high-contrast mode, and a colour-blind friendly mode that marks every state with a shape.',
+    'Reduce motion, hide the timer, choose the highlights, keep wrong numbers on the board, turn off vibration, turn on sounds.',
+    'Casual can drop the three-mistake limit, so you can practise without losing the square.',
+  ] as const,
+  limitsTitle: 'Known limits',
+  limits: [
+    'Pinch zoom is off on phones so the board stays still while you play. Use Text size instead.',
+    'The notes wheel needs a long press or a drag. With a keyboard or screen reader, use Notes (N) or Shift with a number.',
+    'Ranked, Daily and Clash are timed races: you can hide the clock, not stop it, and pauses are limited.',
+    'Tested with automated checks and keyboard only so far; testing with VoiceOver, TalkBack and NVDA is under way.',
+  ] as const,
+  feedbackTitle: 'Tell us',
+  feedback: 'Something hard to see, hear or use? Open an issue and tell us what happened and on which device.',
+  feedbackLink: 'Open an issue on GitHub',
+  feedbackUrl: 'https://github.com/barsmin/elomental/issues',
+  reviewed: 'Last reviewed October 2026.',
+};
+
+/** The keyboard shortcuts panel ("?" in a game). */
+export const shortcuts = {
+  title: 'Keyboard shortcuts',
+  intro: 'Play the whole game from the keyboard.',
+  keys: [
+    [['←', '↑', '→', '↓'], 'Move around the board'],
+    [['1–9'], 'Place a number'],
+    [['Shift', '1–9'], 'Add or remove a note'],
+    [['N'], 'Notes on or off'],
+    [['Backspace'], 'Erase the cell'],
+    [['Ctrl', 'Z'], 'Undo'],
+    [['H'], 'Hint'],
+    [['P'], 'Pause or resume'],
+    [['Tab'], 'Move between controls'],
+    [['Esc'], 'Close a pop-up'],
+    [['?'], 'Show these shortcuts'],
+  ] as [string[], string][],
+};
+
 export const setup = {
   title: 'Setup',
   theme: 'Theme',
@@ -458,6 +521,43 @@ export const setup = {
   tutorialHelp: 'How to fill cells, take notes, erase and undo.',
   tutorialReplay: 'Show again next game',
   tutorialQueued: 'The tutorial plays at the start of your next game.',
+  a11y: {
+    title: 'Accessibility',
+    intro: 'Make the game easier to see, hear and play. Your choices follow your account to every device.',
+    textSize: 'Text size',
+    textSizeHelp: 'Larger text for labels, buttons and notes.',
+    percent: (n: number) => `${n}%`,
+    contrast: 'Contrast',
+    contrastHelp: 'High contrast outlines every cell and makes highlights stronger.',
+    system: 'System',
+    standard: 'Standard',
+    high: 'High',
+    colourBlind: 'Colour-blind friendly',
+    colourBlindHelp: 'Adds marks to highlighted and wrong cells, so no state relies on colour.',
+    motion: 'Reduce motion',
+    motionHelp: 'Cuts page turns, ripples and pops. System follows your device.',
+    reduce: 'Reduce',
+    timer: 'Timer',
+    timerHelp: 'Hide the clock while you play. Your time still counts and shows at the end.',
+    show: 'Show',
+    hide: 'Hide',
+    highlights: 'Highlights',
+    highlightsHelp: 'What lights up around the selected cell.',
+    lines: 'Row and column',
+    box: '3×3 box',
+    same: 'Same numbers',
+    wrong: 'Wrong numbers',
+    wrongHelp: 'How long a wrong number stays on the board.',
+    briefly: 'Briefly',
+    untilNextMove: 'Until next move',
+    mistakeLimit: 'Mistake limit in Casual',
+    mistakeLimitHelp: 'Off lets a Casual game go on after three mistakes. Ranked, Daily and Clash keep the limit.',
+    haptics: 'Vibration',
+    sounds: 'Sounds',
+    soundsHelp: 'Soft tones for a placed number, a mistake and a completed line.',
+    shortcuts: 'Keyboard shortcuts',
+    statement: 'Accessibility statement',
+  },
   review: 'Review',
   reviewHelp: 'Players flagged for copying answers in Ranked.',
   openReview: 'Open review',

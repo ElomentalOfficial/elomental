@@ -42,7 +42,7 @@ export function signUpForm(options: {
     }
   };
   const heading = (title: string, text: string) =>
-    h('div', { class: 'signup-head' }, h('h3', { text: title }), h('p', { text }));
+    h('div', { class: 'signup-head' }, h('h2', { text: title }), h('p', { text }));
 
   function paint() {
     error.textContent = '';

@@ -1,3 +1,4 @@
+import { haptic } from './a11y.ts';
 import { ICONS } from './icons.ts';
 import { h } from './ui.ts';
 import * as copy from './copy/en.ts';
@@ -93,7 +94,7 @@ export function openNotesWheel(options: {
   // Transparent layer that only exists while the finger is down; any other touch closes it.
   const layer = h('div', { class: 'wheel-layer' }, wheel);
   document.body.append(layer);
-  navigator.vibrate?.(8);
+  haptic(8);
   layer.addEventListener('touchstart', (event) => event.preventDefault(), { passive: false });
   layer.addEventListener('pointerdown', (event) => {
     event.preventDefault();
@@ -129,7 +130,7 @@ export function openNotesWheel(options: {
     if (!hovered) return;
     digits[hovered].classList.add('hover');
     segs[hovered - 1].classList.add('hover');
-    navigator.vibrate?.(5);
+    haptic(5);
   }
 
   function release(x: number, y: number) {

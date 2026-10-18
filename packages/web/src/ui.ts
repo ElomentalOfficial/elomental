@@ -1,3 +1,4 @@
+import { reducedMotion } from './a11y.ts';
 import { ICONS } from './icons.ts';
 import * as copy from './copy/en.ts';
 
@@ -29,6 +30,8 @@ export function h<K extends keyof HTMLElementTagNameMap>(
 
 export interface Screen {
   el: HTMLElement;
+  /** The page title's first part ("Daily Square" → "Daily Square · Elomental"); Home leaves it out. */
+  title?: string;
   destroy?(): void;
 }
 
@@ -39,7 +42,84 @@ export function mount(screen: Screen): void {
   closeAllModals();
   current = screen;
   document.getElementById('app')!.replaceChildren(screen.el);
+  document.title = screen.title ? copy.common.pageTitle(screen.title) : copy.common.appName;
   if (screen.el.classList.contains('scrollable')) watchEdges(screen.el);
+}
+
+/** A visually hidden heading: screen readers can jump to it, the design doesn't show it. */
+export const hiddenHeading = (text: string): HTMLHeadingElement => h('h1', { class: 'sr-only', text });
+
+const FOCUSABLE = 'button:not([disabled]), [href], input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+const visible = (el: HTMLElement) => el.offsetParent !== null || getComputedStyle(el).position === 'fixed';
+
+/** Everything that holds keyboard focus right now, innermost last. */
+const holds: HTMLElement[] = [];
+
+/**
+ * Keeps keyboard focus inside `box` (a pop-up, the tutorial card) until the
+ * returned function is called: the rest of the app becomes inert, Tab wraps
+ * inside the box, Esc calls `onEscape`, and focus then goes back to where it
+ * was. `initial` is focused first (default: the box's heading, so a screen
+ * reader reads the title, then the first control).
+ */
+export function holdFocus(box: HTMLElement, options: { onEscape?: () => void; initial?: HTMLElement | null } = {}): () => void {
+  const before = document.activeElement as HTMLElement | null;
+  // Everything else on the page: the app and any layer under this one. Toasts stay
+  // live (an inert status message is never announced).
+  const layers = [document.getElementById('app'), ...document.querySelectorAll<HTMLElement>('body > .backdrop, body > .coach-layer, body > .hint-layer')]
+    .filter((el): el is HTMLElement => !!el && !el.contains(box));
+  const wasInert = layers.map((el) => el.inert);
+  for (const el of layers) el.inert = true;
+  holds.push(box);
+
+  const onKey = (event: KeyboardEvent) => {
+    if (holds[holds.length - 1] !== box) return;
+    if (event.key === 'Escape' && options.onEscape) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      options.onEscape();
+    } else if (event.key === 'Tab') {
+      const items = [...box.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(visible);
+      if (!items.length) return event.preventDefault();
+      const first = items[0];
+      const last = items[items.length - 1];
+      const inside = box.contains(document.activeElement);
+      if (event.shiftKey && (document.activeElement === first || !inside)) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (document.activeElement === last || !inside)) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+  };
+  document.addEventListener('keydown', onKey, true);
+
+  const heading = box.querySelector<HTMLElement>('h1, h2, h3');
+  const target = options.initial ?? heading ?? box.querySelector<HTMLElement>(FOCUSABLE);
+  if (target) {
+    if (target === heading) target.tabIndex = -1;
+    requestAnimationFrame(() => target.focus({ preventScroll: true }));
+  }
+
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    document.removeEventListener('keydown', onKey, true);
+    layers.forEach((el, i) => (el.inert = wasInert[i]));
+    holds.splice(holds.indexOf(box), 1);
+    if (before?.isConnected && !before.closest('[inert]')) before.focus({ preventScroll: true });
+  };
+}
+
+let labelIds = 0;
+/** Points `dialog`'s accessible name at its first heading (giving the heading an id). */
+export function labelByHeading(dialog: HTMLElement): void {
+  const heading = dialog.querySelector<HTMLElement>('h1, h2, h3');
+  if (!heading) return;
+  heading.id ||= `dialog-title-${++labelIds}`;
+  dialog.setAttribute('aria-labelledby', heading.id);
 }
 
 /**
@@ -69,7 +149,7 @@ export const navigatingBack = (): boolean => document.documentElement.dataset.na
 export async function goBack(next: () => Screen): Promise<void> {
   const leaving = current?.el;
   closeAllModals();
-  if (leaving && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+  if (leaving && !reducedMotion()) {
     leaving.style.transformOrigin = '0 50%';
     await leaving
       .animate(
@@ -92,21 +172,31 @@ export async function goBack(next: () => Screen): Promise<void> {
 
 const openModals = new Set<() => void>();
 
+/**
+ * A pop-up: a modal dialog named by its heading. Focus moves into it and stays
+ * there, Esc closes it (when it can be dismissed), and focus returns to what
+ * opened it.
+ */
 export function openModal(content: HTMLElement, options: { dismissible?: boolean; class?: string } = {}): () => void {
-  const panel = h('div', { class: `modal ${options.class ?? ''}` }, content);
+  const panel = h('div', { class: `modal ${options.class ?? ''}`, attrs: { role: 'dialog', 'aria-modal': 'true' } }, content);
   const backdrop = h('div', { class: 'backdrop scrollable' }, panel);
+  const dismissible = options.dismissible !== false;
+  let release = () => {};
   const close = () => {
     openModals.delete(close);
     backdrop.remove();
+    release();
     syncScrimEdges();
   };
-  if (options.dismissible !== false) {
+  if (dismissible) {
     backdrop.addEventListener('click', (event) => {
       if (event.target === backdrop) close();
     });
   }
   openModals.add(close);
   document.body.append(backdrop);
+  labelByHeading(panel);
+  release = holdFocus(panel, { onEscape: dismissible ? close : undefined });
   syncScrimEdges();
   return close;
 }

@@ -373,7 +373,7 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
   clear.hidden = true;
   more.hidden = true;
   void load();
-  return { el, destroy: () => clearTimeout(searchTimer) };
+  return { el, title: copy.review.title, destroy: () => clearTimeout(searchTimer) };
 }
 
 const EMPTY: Record<ReviewView, string> = copy.review.empty;

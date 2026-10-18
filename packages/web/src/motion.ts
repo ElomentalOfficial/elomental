@@ -4,7 +4,8 @@
  * press tilts the tile toward the finger.
  */
 
-const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+import { reducedMotion } from './a11y.ts';
+
 const PERSPECTIVE = 'perspective(900px)';
 const EASE_OUT = 'cubic-bezier(0.1, 0.9, 0.2, 1)';
 const EASE_IN = 'cubic-bezier(0.7, 0, 1, 0.5)';

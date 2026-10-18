@@ -1,5 +1,5 @@
 import { readJson, removeKey, writeJson } from './storage.ts';
-import { h } from './ui.ts';
+import { h, holdFocus, labelByHeading } from './ui.ts';
 import * as copy from './copy/en.ts';
 
 /**
@@ -45,12 +45,11 @@ export function runTutorial(steps: TutorialStep[]): Promise<void> {
     const text = h('p');
     const next = h('button', { class: 'btn btn-primary coach-next' });
     const skip = h('button', { class: 'coach-skip', text: copy.tutorial.skip });
+    // Focus stays on Next while the steps change; the live text announces each step.
     const card = h(
       'div',
-      { class: 'coach-card', attrs: { role: 'dialog', 'aria-live': 'polite' } },
-      counter,
-      title,
-      text,
+      { class: 'coach-card', attrs: { role: 'dialog', 'aria-modal': 'true' } },
+      h('div', { attrs: { 'aria-live': 'polite' } }, counter, title, text),
       h('div', { class: 'coach-actions' }, skip, next),
     );
     const layer = h('div', { class: 'coach-layer' }, spotlight, finger, card);
@@ -71,8 +70,12 @@ export function runTutorial(steps: TutorialStep[]): Promise<void> {
     document.body.append(layer);
     // The screen edges iOS paints itself (status bar, home indicator) dim with the page.
     document.documentElement.classList.add('coach-open');
+    // Keyboard and screen reader: focus on Next, Tab stays in the card, Esc skips.
+    labelByHeading(card);
+    const release = holdFocus(card, { onEscape: () => skipAll(), initial: next });
 
     const finish = () => {
+      release();
       layer.classList.add('closing');
       document.documentElement.classList.remove('coach-open');
       setTimeout(() => layer.remove(), 200);

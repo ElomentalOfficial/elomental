@@ -104,5 +104,5 @@ export function dailyScreen(): Screen {
       h('div', { class: 'daily-actions' }, action, h('p', { class: 'reset-note', text: copy.daily.nextIn(hours, minutes) })),
     ),
   );
-  return { el };
+  return { el, title: copy.daily.title };
 }
