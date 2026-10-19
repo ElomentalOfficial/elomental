@@ -2084,15 +2084,11 @@ html[data-reduce-motion] :is(.calendar-turn, .curl) {
   position: relative;
   color: var(--muted);
 }
-/* ...and scribbled out by hand: a pen zig-zagging down the diagonal, drawn as a mask
-   in the day's own colour. */
 .day.missed::after {
   content: '';
   position: absolute;
-  inset: 14%;
-  background: currentColor;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M29 4L12 38L47 21L30 56L65 39L48 74L83 57L66 92' fill='none' stroke='%23000' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M29 4L12 38L47 21L30 56L65 39L48 74L83 57L66 92' fill='none' stroke='%23000' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  inset: 22% 22%;
+  background: linear-gradient(to top right, transparent calc(50% - 0.75px), currentColor calc(50% - 0.75px), currentColor calc(50% + 0.75px), transparent calc(50% + 0.75px));
   opacity: 0.6;
   pointer-events: none;
 }
