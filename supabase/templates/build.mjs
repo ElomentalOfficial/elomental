@@ -16,7 +16,13 @@ const sans = "Montserrat, 'Segoe UI', Arial, sans-serif";
 
 export const SUBJECT = '{{ .Token }} is your Elomental code';
 
-const layout = ({ title, lead, codeNote, button, after }) => `<!doctype html>
+// The button opens the app on elomental.online with a one-time token (verified by
+// signInFromEmailLink in packages/web/src/backend/signIn.ts), not the auth server's
+// own link: the link's domain matches the site's, and mail scanners that pre-open
+// links can't use it up. `r` carries the redirect the app asked for (its hand-off id).
+const link = (type) => `{{ .SiteURL }}?token_hash={{ .TokenHash }}&amp;type=${type}&amp;r={{ .RedirectTo }}`;
+
+const layout = ({ title, lead, codeNote, button, after, type }) => `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -49,7 +55,7 @@ const layout = ({ title, lead, codeNote, button, after }) => `<!doctype html>
       <p class="muted" style="margin:0 0 28px;font-family:${serif};font-size:14px;line-height:1.5;text-align:center;color:${C.hi2};">${codeNote}</p>
       <p class="muted" style="margin:0 0 12px;font-family:${serif};font-size:16px;line-height:1.5;color:${C.hi2};">Or on this device:</p>
       <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td style="border-radius:8px;">
-        <a class="btn" href="{{ .ConfirmationURL }}" style="display:inline-block;padding:13px 28px;border-radius:8px;background:${C.crimson};color:${C.bright};font-family:${serif};font-size:17px;text-decoration:none;">${button}</a>
+        <a class="btn" href="${link(type)}" style="display:inline-block;padding:13px 28px;border-radius:8px;background:${C.crimson};color:${C.bright};font-family:${serif};font-size:17px;text-decoration:none;">${button}</a>
       </td></tr></table>
       <p class="muted" style="margin:28px 0 0;font-family:${serif};font-size:16px;line-height:1.5;color:${C.hi2};">${after}</p>
     </td></tr>
@@ -72,6 +78,7 @@ export const TEMPLATES = {
     lead: 'Type this code in Elomental, on any phone, tablet or computer:',
     codeNote,
     button: 'Sign in',
+    type: 'email',
     after: 'Good solving,<br>Barsmin, Elomental',
   }),
   'confirm-signup': layout({
@@ -79,6 +86,7 @@ export const TEMPLATES = {
     lead: 'Type this code in Elomental to finish signing up:',
     codeNote,
     button: 'Confirm email',
+    type: 'email',
     after: `${keeps}<br><br>Good solving,<br>Barsmin, Elomental`,
   }),
   'change-email': layout({
@@ -86,6 +94,7 @@ export const TEMPLATES = {
     lead: 'Type this code in Elomental to add {{ .NewEmail }} to your account:',
     codeNote,
     button: 'Confirm email',
+    type: 'email_change',
     after: `${keeps}<br><br>Good solving,<br>Barsmin, Elomental`,
   }),
 };

@@ -1,6 +1,18 @@
-import { approveHandoff, cachedAccount, matchCode, registered, takeHandoffFromUrl } from './backend.ts';
-import { h, openModal } from './ui.ts';
+import { approveHandoff, cachedAccount, matchCode, registered, signInFromEmailLink, takeHandoffFromUrl } from './backend.ts';
+import { h, openModal, toast } from './ui.ts';
 import * as copy from './copy/en.ts';
+
+function showExpired(): void {
+  const close = openModal(
+    h(
+      'div',
+      { class: 'sheet handoff' },
+      h('h2', { text: copy.handoff.expiredTitle }),
+      h('p', { text: copy.handoff.expiredText }),
+      h('button', { class: 'btn btn-primary', text: copy.common.ok, onclick: () => close() }),
+    ),
+  );
+}
 
 /**
  * The page a sign-in link opened in another browser (on iPhone: Safari, not
@@ -8,23 +20,18 @@ import * as copy from './copy/en.ts';
  * confirm before signing the app in too, showing the code the app shows.
  */
 export async function handleHandoffLink(): Promise<void> {
+  // The email's button: its token signs this browser in first.
+  const link = await signInFromEmailLink();
   const id = takeHandoffFromUrl();
-  if (!id) return;
-  // The link's session lands from the URL a moment after load.
-  for (let i = 0; i < 40 && !registered(); i++) await new Promise((resolve) => setTimeout(resolve, 250));
-
-  if (!registered()) {
-    const close = openModal(
-      h(
-        'div',
-        { class: 'sheet handoff' },
-        h('h2', { text: copy.handoff.expiredTitle }),
-        h('p', { text: copy.handoff.expiredText }),
-        h('button', { class: 'btn btn-primary', text: copy.common.ok, onclick: () => close() }),
-      ),
-    );
+  if (link.error) return showExpired();
+  if (!id) {
+    if (link.used) toast(link.kind === 'email' ? copy.account.signedIn : copy.account.signedUp);
     return;
   }
+  // An older email's link: its session lands from the URL a moment after load.
+  for (let i = 0; i < 40 && !registered(); i++) await new Promise((resolve) => setTimeout(resolve, 250));
+
+  if (!registered()) return showExpired();
 
   const code = matchCode(id);
   const email = cachedAccount()?.email || copy.handoff.yourAccount;

@@ -1,5 +1,5 @@
 import { readJson, removeKey, writeJson } from '../storage.ts';
-import { cachedAccount, refreshAccount, registered } from './account.ts';
+import { cachedAccount, refreshAccount, registered, startGuestAccount } from './account.ts';
 import { SUPABASE_KEY, SUPABASE_URL, supabase } from './client.ts';
 import * as copy from '../copy/en.ts';
 
@@ -37,6 +37,37 @@ export async function sendSignInEmail(
 
 /** Which email a typed code came in: a guest attaching an email, or a sign-in. */
 export type CodeKind = 'email_change' | 'email';
+
+/**
+ * The button in the email opens elomental.online itself (not the auth
+ * server), with a one-time token in the query: the sender's and the link's
+ * domain match, and mail scanners that pre-open links don't use it up,
+ * because only this page's script spends it. `r` is the redirect the app
+ * asked for, which carries a hand-off id (supabase/templates/build.mjs).
+ * Read once, then cleared from the address bar (a hand-off id stays for
+ * takeHandoffFromUrl). `used` when the page came from such a link; `error` says why it failed.
+ */
+export async function signInFromEmailLink(): Promise<{ used: boolean; error: string | null; kind: CodeKind }> {
+  const params = new URLSearchParams(location.search);
+  const tokenHash = params.get('token_hash');
+  const kind: CodeKind = params.get('type') === 'email_change' ? 'email_change' : 'email';
+  if (!tokenHash) return { used: false, error: null, kind };
+  const redirect = params.get('r');
+  // Escaped by the template, the id is inside `r`; unescaped, it arrives as its own parameter.
+  const handoff = params.get('handoff') ?? (redirect ? new URL(redirect, location.href).searchParams.get('handoff') : null);
+  for (const key of ['token_hash', 'type', 'r']) params.delete(key);
+  if (handoff) params.set('handoff', handoff);
+  const query = params.toString();
+  history.replaceState(null, '', `${location.pathname}${query ? `?${query}` : ''}${location.hash}`);
+  const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: kind });
+  if (error) {
+    // This browser has no account now: start the guest one it skipped at launch.
+    if (!(await supabase.auth.getSession()).data.session) await startGuestAccount();
+    return { used: true, error: copy.handoff.expiredText, kind };
+  }
+  await refreshAccount();
+  return { used: true, error: null, kind };
+}
 
 /**
  * The code printed in the same email as the link, typed into the app: works

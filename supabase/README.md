@@ -90,6 +90,14 @@ packages/web/src/backend/signIn.ts). The **Magic link**, **Confirm signup** and
 **Change email address** templates (Authentication → Emails → Templates) must
 show `{{ .Token }}`; without it the app asks for a code the email doesn't have.
 
+**Branded templates:** `node supabase/templates/build.mjs` writes
+`magic-link.html`, `confirm-signup.html` and `change-email.html` (subject for all
+three: `{{ .Token }} is your Elomental code`). Their button opens
+`{{ .SiteURL }}?token_hash=…&type=…&r={{ .RedirectTo }}`, so the link stays on
+elomental.online and mail scanners that pre-open links can't use the token up;
+the app verifies it on load (`signInFromEmailLink`). Paste them into the
+dashboard only once an app version with `signInFromEmailLink` is live.
+
 ## Reviewing flagged players
 
 Ranked wins typed in from a solver are left unrated and flagged (Edge

@@ -100,7 +100,10 @@ export function initBackend(): void {
 }
 
 /** Anonymous account for a guest; quietly stays a local guest if that's off or offline. */
-async function startGuestAccount(): Promise<void> {
+export async function startGuestAccount(): Promise<void> {
+  // Opened from an email link: that link signs this browser in (signIn.ts), and a
+  // guest account starting at the same time could land after it and replace it.
+  if (new URLSearchParams(location.search).has('token_hash')) return;
   const { error } = await supabase.auth.signInAnonymously();
   if (error) console.info('Playing as a local guest:', error.message);
 }
