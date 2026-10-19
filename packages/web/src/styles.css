@@ -1921,6 +1921,17 @@ html.standalone .backdrop {
 .sheet-icon.clash .brush-art {
   transform: scale(1.75);
 }
+/* Square code's megaphone: a neutral badge (its cone is Lava, the accent badge's own
+   colour), the art spilling over it like the fist bump. */
+.sheet-icon.square {
+  width: 64px;
+  height: 64px;
+  padding: 11px;
+  background: var(--surface-2);
+}
+.sheet-icon.square .brush-art {
+  transform: scale(1.75);
+}
 /* The light theme's Clash art is outlined in Crimson, the badge's own colour there: the
    dark-ink version reads on it in both themes. */
 :root[data-theme='light'] .sheet-icon.clash .ic-light {

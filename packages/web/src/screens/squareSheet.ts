@@ -80,7 +80,7 @@ export function openSquareCode(leave: (go: () => void) => void) {
       'div',
       { class: 'sheet square-sheet' },
       closeButton(() => close()),
-      h('span', { class: 'sheet-icon clash', html: ICONS.hash }),
+      h('span', { class: 'sheet-icon square', html: ICONS.square }),
       h('h2', { text: copy.squareCode.title }),
       h('p', { text: copy.squareCode.intro }),
       h(

@@ -153,7 +153,7 @@ export function casualScreen(): Screen {
           'div',
           { class: 'friend-card' },
           friend(ICONS.clash, say.clash, say.clashInfo, () => openClash(now)),
-          friend(ICONS.hash, say.squareCode, say.squareCodeInfo, () => openSquareCode(now)),
+          friend(ICONS.square, say.squareCode, say.squareCodeInfo, () => openSquareCode(now)),
         ),
       ),
     ),
