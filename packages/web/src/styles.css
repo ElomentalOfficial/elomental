@@ -3701,12 +3701,12 @@ html[data-large-text] .shortcut-list {
   }
   /* The wide tiles have room to spare: every icon at about 1.5x its phone size. */
   .area-store .tile-icon {
-    width: 96px;
-    height: 86px;
+    width: 86px;
+    height: 77px;
   }
   .area-setup .tile-icon {
-    width: 84px;
-    height: 84px;
+    width: 74px;
+    height: 74px;
   }
   .area-daily .tile-icon {
     width: 64px;
