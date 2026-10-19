@@ -912,7 +912,7 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   height: 34px;
 }
 /* A faint Art Deco frame inside every Home tile and the profile card, each tile its
-   own design (art/frames/*-bright|crimson.svg, built by icons/build_frames.py), worn
+   own design (art/frames/*-bright|crimson.png: built by icons/build_frames.py, baked to PNG at 3x by icons/raster-frames.mjs, since Firefox draws a filtered SVG border-image in broken low-res slices), worn
    with grain so the lines break here and there. Drawn with border-image, which works
    in every browser (Firefox too): the corners keep their shape at any tile size and the
    edge lines stretch between them. The SVG carries its ink (Bright, or Crimson where a
@@ -948,20 +948,20 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   z-index: -1;
   box-sizing: border-box;
   border: var(--corner) solid transparent;
-  border-image: var(--frame-ink) 40 / var(--corner) stretch;
+  border-image: var(--frame-ink) 120 / var(--corner) stretch;
   opacity: 0.065;
   pointer-events: none;
 }
 /* Each frame in both inks; the theme picks one (light: Crimson, except on the coloured
    mode tiles, whose text stays Bright). */
-.profile-card { --frame-b: url('./art/frames/profile-bright.svg'); --frame-c: url('./art/frames/profile-crimson.svg'); --frame-corner: 44px; }
-.area-store { --frame-b: url('./art/frames/store-bright.svg'); --frame-c: url('./art/frames/store-crimson.svg'); }
+.profile-card { --frame-b: url('./art/frames/profile-bright.png'); --frame-c: url('./art/frames/profile-crimson.png'); --frame-corner: 44px; }
+.area-store { --frame-b: url('./art/frames/store-bright.png'); --frame-c: url('./art/frames/store-crimson.png'); }
 .area-setup,
-.tile-setup { --frame-b: url('./art/frames/setup-bright.svg'); --frame-c: url('./art/frames/setup-crimson.svg'); --frame-corner: 24px; }
-.area-leader { --frame-b: url('./art/frames/leader-bright.svg'); --frame-c: url('./art/frames/leader-crimson.svg'); }
-.area-daily { --frame-b: url('./art/frames/daily-bright.svg'); --frame-c: var(--frame-b); }
-.area-casual { --frame-b: url('./art/frames/casual-bright.svg'); --frame-c: var(--frame-b); --frame-corner: 34px; }
-.area-ranked { --frame-b: url('./art/frames/ranked-bright.svg'); --frame-c: var(--frame-b); --frame-corner: 34px; }
+.tile-setup { --frame-b: url('./art/frames/setup-bright.png'); --frame-c: url('./art/frames/setup-crimson.png'); --frame-corner: 24px; }
+.area-leader { --frame-b: url('./art/frames/leader-bright.png'); --frame-c: url('./art/frames/leader-crimson.png'); }
+.area-daily { --frame-b: url('./art/frames/daily-bright.png'); --frame-c: var(--frame-b); }
+.area-casual { --frame-b: url('./art/frames/casual-bright.png'); --frame-c: var(--frame-b); --frame-corner: 34px; }
+.area-ranked { --frame-b: url('./art/frames/ranked-bright.png'); --frame-c: var(--frame-b); --frame-corner: 34px; }
 /* The wide-screen tiles are about twice the size: their frame corners grow too. */
 @media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
   .home-grid {
@@ -984,8 +984,8 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
 .review-log {
   position: relative;
   isolation: isolate;
-  --frame-b: url('./art/frames/panel-bright.svg');
-  --frame-c: url('./art/frames/panel-crimson.svg');
+  --frame-b: url('./art/frames/panel-bright.png');
+  --frame-c: url('./art/frames/panel-crimson.png');
 }
 .setting::after,
 .month-card::after,
@@ -1002,7 +1002,7 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   z-index: -1;
   box-sizing: border-box;
   border: 16px solid transparent;
-  border-image: var(--frame-ink) 40 / 16px stretch;
+  border-image: var(--frame-ink) 120 / 16px stretch;
   opacity: 0.045;
   pointer-events: none;
 }
@@ -2039,8 +2039,29 @@ html:not([data-large-text]) .casual-feather {
 .casual-feather .brush-art {
   object-fit: contain;
 }
-/* Short screens, and wide ones (whose pages are zoomed up): the feather beside the tagline. */
-@media (max-height: 720px), (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+/* Wide screens (whose pages are zoomed up): the feather above the tagline, taking the
+   room the cards leave (up to a large feather), so a tall window gets a big feather
+   instead of empty space and a short one a small feather instead of an overlap. */
+@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+  /* The feather's own box gives it headroom here, so the page's can go. */
+  html:not([data-large-text]) .casual-body {
+    padding-top: var(--space-2);
+  }
+  html:not([data-large-text]) .casual-body > .casual-head {
+    flex: 1 1 auto;
+  }
+  html:not([data-large-text]) .casual-feather {
+    flex: 1 1 0;
+    width: 220px;
+    height: auto;
+    max-height: 190px;
+  }
+  html:not([data-large-text]) .casual-feather-art {
+    inset: 16px 0 18px;
+  }
+}
+/* Short screens: the feather beside the tagline. */
+@media (max-height: 720px) {
   html:not([data-large-text]) .casual-body > .casual-head {
     flex-direction: row;
     justify-content: center;
