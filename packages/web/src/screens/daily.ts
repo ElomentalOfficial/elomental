@@ -157,5 +157,33 @@ export function dailyScreen(): Screen {
       h('div', { class: 'daily-actions' }, action, h('p', { class: 'reset-note', text: copy.daily.nextIn(hours, minutes) })),
     ),
   );
-  return { el, title: copy.daily.title };
+  const stopFit = fitWithoutScrolling(el, calendar, Math.ceil((firstWeekday + days) / 7));
+  return { el, title: copy.daily.title, destroy: stopFit };
+}
+
+/**
+ * One mode, one action: the Daily page never scrolls. When the screen is too short for
+ * everything at full size, the month's days turn from squares into shorter tiles, just
+ * enough to fit (down to 24px); only then does the calendar drawing above give up some
+ * of its height. Not with large text, which may scroll. Runs again on every resize.
+ */
+function fitWithoutScrolling(page: HTMLElement, calendar: HTMLElement, weeks: number): () => void {
+  const body = page.querySelector<HTMLElement>('.sub-body')!;
+  const art = page.querySelector<HTMLElement>('.daily-art')!;
+  const fit = () => {
+    calendar.classList.remove('fitted');
+    calendar.style.removeProperty('--day-h');
+    art.style.minHeight = '';
+    if (!page.isConnected || document.documentElement.hasAttribute('data-large-text')) return;
+    let over = body.scrollHeight - body.clientHeight;
+    if (over <= 0) return;
+    const square = calendar.querySelector<HTMLElement>('.day')!.offsetHeight;
+    calendar.style.setProperty('--day-h', `${Math.max(24, Math.floor(square - over / weeks))}px`);
+    calendar.classList.add('fitted');
+    over = body.scrollHeight - body.clientHeight;
+    if (over > 0) art.style.minHeight = `${Math.max(64, art.offsetHeight - over)}px`;
+  };
+  const watch = new ResizeObserver(() => fit());
+  watch.observe(body);
+  return () => watch.disconnect();
 }

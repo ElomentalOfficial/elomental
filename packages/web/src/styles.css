@@ -1712,12 +1712,41 @@ html:not([data-large-text]) .daily-body > * {
   flex-shrink: 0;
 }
 /* It grows into the height the cards leave free and, like the feather, never shrinks
-   below a size worth seeing: on the shortest screens the page scrolls a little instead. */
+   below a size worth seeing: on short screens the month's days get shorter instead
+   (fitWithoutScrolling, daily.ts), so the page never scrolls. */
 html:not([data-large-text]) .daily-art {
   flex: 1 1 0;
   height: auto;
-  min-height: 104px;
+  min-height: 132px;
   max-height: 270px;
+}
+/* Short screens (most phones with the browser bars showing): tighter spacing and a
+   slimmer reward card, so the calendar drawing keeps its height and the page still fits. */
+@media (max-height: 780px) {
+  html:not([data-large-text]) .screen.daily .sub-body {
+    padding-bottom: var(--space-2);
+  }
+  html:not([data-large-text]) .daily-body {
+    gap: var(--space-2);
+    padding-bottom: 0;
+  }
+  html:not([data-large-text]) .month-card {
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+  html:not([data-large-text]) .reward-card {
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+  }
+  html:not([data-large-text]) .avatar-reward {
+    width: 40px;
+    height: 40px;
+    padding: 10px;
+  }
+  html:not([data-large-text]) .daily-actions {
+    gap: var(--space-1);
+    padding-top: var(--space-1);
+  }
 }
 /* Wide landscape screens: as on Casual, the page widens into two columns, the calendar
    on the left as tall as the cards, the cards unchanged on the right. */
@@ -1764,7 +1793,7 @@ html:not([data-large-text]) .daily-art {
 .calendar-fall {
   transform-origin: 6% 36.5%;
 }
-/* The breeze: the whole page tips only a little from the rings, and the torn part curls
+/* The breeze, every 5s: the whole page flips up a little from the rings, and the torn part curls
    up from the bottom. It is six strips of one image (icons.ts), each bent to its own
    total angle (6 to 75deg at the gust's peak, shaded a little as it turns) about its top edge and moved up by
    exactly how much the strips above it shortened, so their edges stay joined and the
@@ -1775,10 +1804,10 @@ html:not([data-large-text]) .daily-art {
 .calendar-turn {
   /* the binder rings */
   transform-origin: 47.4% 24.2%;
-  animation: calendar-breeze 6s ease-in-out 1s infinite;
+  animation: calendar-breeze 5s ease-in-out 1s infinite;
 }
 .curl {
-  animation: 6s ease-in-out 1s infinite;
+  animation: 5s ease-in-out 1s infinite;
 }
 @keyframes calendar-breeze {
   0%,
@@ -1787,16 +1816,16 @@ html:not([data-large-text]) .daily-art {
     transform: perspective(1400px) rotate(-6deg) rotateX(0deg) rotate(6deg);
   }
   78% {
-    transform: perspective(1400px) rotate(-6deg) rotateX(4deg) rotate(6deg);
+    transform: perspective(1400px) rotate(-6deg) rotateX(12deg) rotate(6deg);
   }
   84% {
-    transform: perspective(1400px) rotate(-6deg) rotateX(1.6deg) rotate(6deg);
+    transform: perspective(1400px) rotate(-6deg) rotateX(4.8deg) rotate(6deg);
   }
   89% {
-    transform: perspective(1400px) rotate(-6deg) rotateX(2.6deg) rotate(6deg);
+    transform: perspective(1400px) rotate(-6deg) rotateX(7.8deg) rotate(6deg);
   }
   95% {
-    transform: perspective(1400px) rotate(-6deg) rotateX(0.4deg) rotate(6deg);
+    transform: perspective(1400px) rotate(-6deg) rotateX(1.2deg) rotate(6deg);
   }
 }
 .curl-1 {
@@ -2032,6 +2061,11 @@ html[data-reduce-motion] :is(.calendar-turn, .curl) {
   background: var(--surface-2);
   display: grid;
   place-items: center;
+}
+/* Short screens: tiles shorter than wide, just enough for the page to fit (daily.ts). */
+.calendar.fitted .day {
+  aspect-ratio: auto;
+  height: var(--day-h);
 }
 .day-num {
   font-size: var(--fs-small);
