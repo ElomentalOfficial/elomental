@@ -55,6 +55,12 @@ Done (2026-10-17):
    sign-ins before launch.
 3. **Email provider → Secure email change: OFF.** A guest account has no old
    email to confirm.
+4. **Attack Protection → Captcha: Cloudflare Turnstile** (widget "Elomental" in
+   Cloudflare, hostnames elomental.online and localhost). The site key is in
+   packages/web/src/backend/client.ts; the secret key lives only in Supabase.
+   The app sends a token with the guest sign-up and the sign-in email
+   (backend/captcha.ts). Turn it on only after an app version with the site
+   key is live, or new guests and sign-in emails are refused.
 
 How sign-up works with the default emails (link only): a guest enters an
 email, and Supabase sends a confirmation link. Tapping it confirms the email on

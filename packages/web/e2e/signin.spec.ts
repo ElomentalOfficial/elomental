@@ -12,6 +12,7 @@ const HANDOFF = '0b6c1f2e-4a5d-4e8f-9a1b-2c3d4e5f6a7b';
 async function openFromEmail(page: Page, verify: { status: number; json: object }, redirect = 'https://elomental.online/') {
   const calls: string[] = [];
   const sent: { verify?: Record<string, unknown> } = {};
+  await page.route(/challenges\.cloudflare\.com/, (route) => route.abort());
   await page.route(/supabase\.co/, (route) => {
     const url = route.request().url();
     calls.push(url.replace(/^.*supabase\.co/, ''));

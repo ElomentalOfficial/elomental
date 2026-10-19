@@ -78,7 +78,7 @@ for (const device of DEVICES) {
       test.skip(info.project.name === 'light', 'layout is the same in both themes');
       test.setTimeout(90_000);
       await page.setViewportSize({ width: device.width, height: device.height });
-      await page.route(/supabase\.co/, (route) => route.abort());
+      await page.route(/supabase\.co|challenges\.cloudflare\.com/, (route) => route.abort());
       await page.addInitScript((textSize) => {
         if (sessionStorage.getItem('layout-ready')) return;
         sessionStorage.setItem('layout-ready', '1');
@@ -147,7 +147,7 @@ for (const device of DEVICES) {
     test(`${device.name}, text ${size}%: the first-game tutorial fits`, async ({ page }, info) => {
       test.skip(info.project.name === 'light', 'layout is the same in both themes');
       await page.setViewportSize({ width: device.width, height: device.height });
-      await page.route(/supabase\.co/, (route) => route.abort());
+      await page.route(/supabase\.co|challenges\.cloudflare\.com/, (route) => route.abort());
       await page.addInitScript((textSize) => {
         if (sessionStorage.getItem('layout-ready')) return;
         sessionStorage.setItem('layout-ready', '1');

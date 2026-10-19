@@ -3,8 +3,8 @@ import { defineConfig, devices } from '@playwright/test';
 /**
  * Accessibility tests in a real browser (npm run test:a11y): axe-core on every
  * main screen in both themes, plus keyboard-only and screen-reader checks.
- * The app's backend calls are blocked in the tests (e2e/fixtures.ts), so test
- * runs never create guest accounts.
+ * The app's backend and captcha calls are blocked in the tests (e2e/fixtures.ts),
+ * so test runs never create guest accounts.
  */
 const PORT = 5179;
 

@@ -2,12 +2,12 @@ import AxeBuilder from '@axe-core/playwright';
 import { test as base, expect, type Page } from '@playwright/test';
 
 /**
- * Every test starts as a fresh guest with the backend blocked (no account is
- * ever created), the theme of its project, and the tutorial already seen.
+ * Every test starts as a fresh guest with the backend and the captcha blocked
+ * (no account is ever created), the theme of its project, and the tutorial already seen.
  */
 export const test = base.extend<{ app: Page }>({
   app: async ({ page }, use, info) => {
-    await page.route(/supabase\.co/, (route) => route.abort());
+    await page.route(/supabase\.co|challenges\.cloudflare\.com/, (route) => route.abort());
     const theme = info.project.name === 'light' ? 'light' : 'dark';
     await page.addInitScript((t) => {
       if (sessionStorage.getItem('a11y-test-ready')) return;
