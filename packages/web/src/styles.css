@@ -764,7 +764,7 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   color: var(--c-bright);
 }
 .area-casual .tile-icon {
-  width: 38px;
+  width: 50px;
   height: 40px;
 }
 /* Setup's own tile: wide screens only (phones keep it in the profile card's notch). */
@@ -1866,7 +1866,7 @@ html.standalone .backdrop {
   width: 52px;
   height: 52px;
   flex: none;
-  padding: 13px;
+  padding: 9px; /* the feather is wider than tall, so it gets more of the circle */
   border-radius: 50%;
   background: var(--c-forest);
   color: var(--c-bright);
