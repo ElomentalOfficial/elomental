@@ -64,7 +64,7 @@ export function signUpForm(options: {
     if (step === 'email') {
       const input = field({ type: 'email', inputmode: 'email', autocomplete: 'email', placeholder: copy.account.emailPlaceholder, 'aria-label': copy.account.emailLabel });
       input.value = email;
-      const send = h('button', { class: 'btn btn-primary', text: copy.account.sendLink });
+      const send = h('button', { class: 'btn btn-primary', text: copy.account.sendCode });
       send.addEventListener('click', () =>
         run(send, async () => {
           email = input.value.trim();
