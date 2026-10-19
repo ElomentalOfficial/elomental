@@ -10,36 +10,59 @@ const WEEKDAYS = copy.daily.weekdays;
 
 /**
  * The page's calendar, like the Casual feather: its front page lifts in a breeze now and
- * then (CSS), and a tap or click tears it off along its zig-zag perforation: it rips from
- * the right, hangs a moment by its left corner, then drops away, showing the next day's
- * page; the stub stays on the rings. Then today's page settles back in place. Purely
- * decorative: no role, not in the tab order, still when motion is off.
+ * then (CSS), and taps tear it off along its zig-zag perforation. The first two taps or
+ * clicks only rip it further from the right, and it stays hanging by its left corner;
+ * the third tears it free and it drops away, showing the next day's page, while the stub
+ * stays on the rings. Then today's page settles back in place. Purely decorative: no
+ * role, not in the tab order, still when motion is off.
  */
 function tearOffCalendar(): HTMLElement {
   const el = h('span', { class: 'daily-art', html: ICONS.dailyLive, attrs: { 'aria-hidden': 'true' } });
   const page = el.querySelector<HTMLElement>('.calendar-fall')!;
-  let tearing = false;
+  // how far it hangs after each of the first taps; it pivots on the tear's left end
+  // (styles.css sets the origin)
+  const HANGING = ['none', 'translate(0.4%, 1%) rotate(5.5deg)', 'translate(0.9%, 2.2%) rotate(10deg)'];
+  let taps = 0;
+  let falling = false;
   el.addEventListener('pointerdown', () => {
-    if (reducedMotion() || tearing) return;
-    tearing = true;
-    // pivots on the tear's left end until that lets go too (styles.css sets the origin)
+    if (reducedMotion() || falling) return;
+    const from = HANGING[taps];
+    taps++;
+    page.getAnimations().forEach((a) => a.cancel());
+    if (taps < 3) {
+      // a jerk past the new tear, then it sags back and stays there
+      const to = HANGING[taps];
+      page.animate(
+        [
+          { transform: from },
+          { transform: `${to} rotate(2.5deg)`, offset: 0.35 },
+          { transform: `${to} rotate(-0.8deg)`, offset: 0.7 },
+          { transform: to },
+        ],
+        { duration: 420, easing: 'ease-out', fill: 'forwards' },
+      );
+      return;
+    }
+    falling = true;
     const rip = page.animate(
       [
-        { transform: 'none', opacity: 1, easing: 'cubic-bezier(0.3, 0, 0.4, 1)' },
-        { transform: 'rotate(6deg)', offset: 0.1 },
-        { transform: 'translate(0.5%, 1.5%) rotate(9deg)', offset: 0.2 },
-        { transform: 'translate(1.5%, 3.5%) rotate(11deg)', offset: 0.3, easing: 'cubic-bezier(0.5, 0, 0.9, 0.6)' },
-        { transform: 'translate(8%, 60%) rotate(20deg)', opacity: 1, offset: 0.62 },
+        { transform: from, opacity: 1, easing: 'cubic-bezier(0.3, 0, 0.4, 1)' },
+        { transform: 'translate(1.5%, 3.5%) rotate(12deg)', offset: 0.14, easing: 'cubic-bezier(0.5, 0, 0.9, 0.6)' },
+        { transform: 'translate(8%, 60%) rotate(20deg)', opacity: 1, offset: 0.55 },
         { transform: 'translate(14%, 130%) rotate(30deg)', opacity: 0 },
       ],
-      { duration: 1500 },
+      { duration: 1200 },
     );
+    const done = () => {
+      taps = 0;
+      falling = false;
+    };
     void rip.finished.then(
       () => {
         page.animate([{ opacity: 0, transform: 'translateY(-4%)' }, { opacity: 1, transform: 'none' }], { duration: 380, delay: 700, easing: 'ease-out', fill: 'backwards' })
-          .finished.then(() => (tearing = false), () => (tearing = false));
+          .finished.then(done, done);
       },
-      () => (tearing = false),
+      done,
     );
   });
   return el;
