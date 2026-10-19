@@ -1,6 +1,7 @@
 /**
- * App icons. The game and home icons come from the Figma exports in /assets;
- * the small utility icons below them (back, lock, play, ...) are our own until
+ * App icons. Most Home tile icons are brush-style art baked to PNGs (art/, `brush`);
+ * the game icons and Play Ranked come from the Figma exports in /assets; the
+ * small utility icons below them (back, lock, play, ...) are our own until
  * Figma has versions of them. Cut-outs use `fill-rule="evenodd"` so they show
  * whatever is behind the icon, which keeps them right in both themes.
  */
@@ -11,6 +12,8 @@ import feather from './art/feather.png';
 import cogDark from './art/cog-dark.png';
 import cogLight from './art/cog-light.png';
 import calendar from './art/calendar.png';
+import walletDark from './art/wallet-dark.png';
+import walletLight from './art/wallet-light.png';
 
 const stroke = (body: string, width = 1.8) =>
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
@@ -22,8 +25,6 @@ const figma = (viewBox: string, body: string) =>
 /** Faceted Figma icons keep their own colours (several shades per icon). */
 const art = (viewBox: string, body: string, cls = '') =>
   `<svg${cls ? ` class="${cls}"` : ''} viewBox="${viewBox}" aria-hidden="true">${body}</svg>`;
-/** A light-theme and a dark-theme export; CSS shows the one for the current theme. */
-const themed = (viewBox: string, light: string, dark: string) => art(viewBox, light, 'ic-light') + art(viewBox, dark, 'ic-dark');
 /**
  * Brush-style art (art/*.png): PNGs baked at ~3x their largest size from the SVG sources,
  * because iOS Safari renders the grain/stipple SVG filters at 1x and they come out blurry.
@@ -34,14 +35,11 @@ const figmaStroke = (body: string) =>
   `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
 
 export const ICONS = {
-  // Home icons: assets/store_*.svg (_white = light theme); the Setup cog and leaderboard cup live in art/.
+  // Home icons: brush-style art baked to PNGs in art/ (see `brush`).
   /** Brush-style cog, one image per theme; the axle hole is see-through. */
   setup: brush(cogLight, 'ic-light') + brush(cogDark, 'ic-dark'),
-  store: themed(
-    '0 0 54 45',
-    '<path d="M54 14.8701L27 44.2178L0 14.8701H15.6523L6.65234 7.23926L12.7178 0H41.6738L54 14.8701ZM15.6523 14.8701L27 28.1738L38.3477 14.8701H15.6523Z" fill="#794341"/><path d="M38.3478 14.8696L27 44.2176L54 14.8696H38.3478Z" fill="#624948"/><path d="M27 44.2176V28.174L38.3478 14.8696L27 44.2176Z" fill="#947373"/><path d="M41.6739 0L38.3478 14.8696H54L41.6739 0Z" fill="#865D59"/><path d="M26.9392 28.24L15.6062 14.8633L38.3521 14.8676L26.9392 28.24Z" fill="#C4A6A0"/>',
-    '<path d="M54 14.8701L27 44.2178L0 14.8701H15.6523L6.65234 7.23926L12.7178 0H41.6738L54 14.8701ZM15.6523 14.8701L27 28.1738L38.3477 14.8701H15.6523Z" fill="#DFD5C2"/><path d="M38.3478 14.8696L27 44.2176L54 14.8696H38.3478Z" fill="#C3BC9F"/><path d="M27 44.2176V28.174L38.3478 14.8696L27 44.2176Z" fill="#E6E4CC"/><path d="M41.6739 0L38.3478 14.8696H54L41.6739 0Z" fill="#B8A486"/><path d="M26.9392 28.24L15.6062 14.8633L38.3521 14.8676L26.9392 28.24Z" fill="#FFFFEB"/>',
-  ),
+  /** Brush-style wallet with a bill tucked in and coins on its corner, one image per theme. */
+  store: brush(walletLight, 'ic-light') + brush(walletDark, 'ic-dark'),
   /**
    * Leaderboard: a long arm reaching in from the tile edge, raising a cup. Brush-icon
    * style in palette colours only, one image per theme. `brush-arm` covers the box
