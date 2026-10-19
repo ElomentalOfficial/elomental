@@ -1761,43 +1761,228 @@ html:not([data-large-text]) .daily-art {
   aspect-ratio: 274 / 300;
 }
 .calendar-live .brush-art,
-.calendar-turn {
+.calendar-turn,
+.calendar-fall,
+.curl {
   position: absolute;
   inset: 0;
 }
+/* Torn off (daily.ts), the page swings on the left end of its zig-zag tear before it drops. */
+.calendar-fall {
+  transform-origin: 6% 36.5%;
+}
+/* The breeze: the whole page tips only a little from the rings, and the torn part curls
+   up from the bottom. It is six strips of one image (icons.ts), each bent to its own
+   total angle (6 to 75deg at the gust's peak, shaded a little as it turns) about its top edge and moved up by
+   exactly how much the strips above it shortened, so their edges stay joined and the
+   bends add up like paper. (Nesting them, or one shared 3D space, didn't work: nested,
+   the bends barely add up; in 3D, browsers painted the strips flat behind the page
+   below.) The clips overlap a hair so no seam shows. calendar-curl-* come from a short
+   script: keep their stops in step with calendar-breeze. */
 .calendar-turn {
   /* the binder rings */
   transform-origin: 47.4% 24.2%;
   animation: calendar-breeze 6s ease-in-out 1s infinite;
 }
-/* Torn off (daily.ts), the page swings on the left end of its zig-zag tear before it drops. */
-.calendar-turn .calendar-fall {
-  transform-origin: 6% 36.5%;
+.curl {
+  animation: 6s ease-in-out 1s infinite;
 }
-/* A gust lifts the page off the one below, it flutters and settles back down. */
 @keyframes calendar-breeze {
   0%,
   70%,
   100% {
-    transform: perspective(500px) rotate(-6deg) rotateX(0deg) rotate(6deg);
+    transform: perspective(1400px) rotate(-6deg) rotateX(0deg) rotate(6deg);
   }
   78% {
-    transform: perspective(500px) rotate(-6deg) rotateX(40deg) rotate(6deg);
+    transform: perspective(1400px) rotate(-6deg) rotateX(4deg) rotate(6deg);
   }
   84% {
-    transform: perspective(500px) rotate(-6deg) rotateX(16deg) rotate(6deg);
+    transform: perspective(1400px) rotate(-6deg) rotateX(1.6deg) rotate(6deg);
   }
   89% {
-    transform: perspective(500px) rotate(-6deg) rotateX(26deg) rotate(6deg);
+    transform: perspective(1400px) rotate(-6deg) rotateX(2.6deg) rotate(6deg);
   }
   95% {
-    transform: perspective(500px) rotate(-6deg) rotateX(4deg) rotate(6deg);
+    transform: perspective(1400px) rotate(-6deg) rotateX(0.4deg) rotate(6deg);
   }
 }
-html[data-reduce-motion] .calendar-turn {
-  animation: none;
+.curl-1 {
+  transform-origin: 50% 34%;
+  clip-path: inset(0 0 54% 0);
+  animation-name: calendar-curl-1;
 }
-.month-card {
+.curl-2 {
+  transform-origin: 50% 46%;
+  clip-path: inset(45.5% 0 43% 0);
+  animation-name: calendar-curl-2;
+}
+.curl-3 {
+  transform-origin: 50% 57%;
+  clip-path: inset(56.5% 0 33% 0);
+  animation-name: calendar-curl-3;
+}
+.curl-4 {
+  transform-origin: 50% 67%;
+  clip-path: inset(66.5% 0 24% 0);
+  animation-name: calendar-curl-4;
+}
+.curl-5 {
+  transform-origin: 50% 76%;
+  clip-path: inset(75.5% 0 15% 0);
+  animation-name: calendar-curl-5;
+}
+.curl-6 {
+  transform-origin: 50% 85%;
+  clip-path: inset(84.5% 0 0 0);
+  animation-name: calendar-curl-6;
+}
+@keyframes calendar-curl-1 {
+  0%,
+  70%,
+  100% {
+    transform: perspective(1400px) translateY(0.00%) rotateX(0.0deg);
+    filter: brightness(1.000);
+  }
+  78% {
+    transform: perspective(1400px) translateY(0.00%) rotateX(6.0deg);
+    filter: brightness(0.989);
+  }
+  84% {
+    transform: perspective(1400px) translateY(0.00%) rotateX(2.4deg);
+    filter: brightness(0.996);
+  }
+  89% {
+    transform: perspective(1400px) translateY(0.00%) rotateX(3.9deg);
+    filter: brightness(0.993);
+  }
+  95% {
+    transform: perspective(1400px) translateY(0.00%) rotateX(0.6deg);
+    filter: brightness(0.999);
+  }
+}
+@keyframes calendar-curl-2 {
+  0%,
+  70%,
+  100% {
+    transform: perspective(1400px) translateY(0.00%) rotateX(0.0deg);
+    filter: brightness(1.000);
+  }
+  78% {
+    transform: perspective(1400px) translateY(-0.07%) rotateX(15.0deg);
+    filter: brightness(0.973);
+  }
+  84% {
+    transform: perspective(1400px) translateY(-0.01%) rotateX(6.0deg);
+    filter: brightness(0.989);
+  }
+  89% {
+    transform: perspective(1400px) translateY(-0.03%) rotateX(9.8deg);
+    filter: brightness(0.983);
+  }
+  95% {
+    transform: perspective(1400px) translateY(-0.00%) rotateX(1.5deg);
+    filter: brightness(0.997);
+  }
+}
+@keyframes calendar-curl-3 {
+  0%,
+  70%,
+  100% {
+    transform: perspective(1400px) translateY(0.00%) rotateX(0.0deg);
+    filter: brightness(1.000);
+  }
+  78% {
+    transform: perspective(1400px) translateY(-0.44%) rotateX(27.0deg);
+    filter: brightness(0.952);
+  }
+  84% {
+    transform: perspective(1400px) translateY(-0.07%) rotateX(10.8deg);
+    filter: brightness(0.981);
+  }
+  89% {
+    transform: perspective(1400px) translateY(-0.19%) rotateX(17.6deg);
+    filter: brightness(0.969);
+  }
+  95% {
+    transform: perspective(1400px) translateY(-0.00%) rotateX(2.7deg);
+    filter: brightness(0.995);
+  }
+}
+@keyframes calendar-curl-4 {
+  0%,
+  70%,
+  100% {
+    transform: perspective(1400px) translateY(0.00%) rotateX(0.0deg);
+    filter: brightness(1.000);
+  }
+  78% {
+    transform: perspective(1400px) translateY(-1.53%) rotateX(42.0deg);
+    filter: brightness(0.925);
+  }
+  84% {
+    transform: perspective(1400px) translateY(-0.25%) rotateX(16.8deg);
+    filter: brightness(0.970);
+  }
+  89% {
+    transform: perspective(1400px) translateY(-0.65%) rotateX(27.3deg);
+    filter: brightness(0.951);
+  }
+  95% {
+    transform: perspective(1400px) translateY(-0.02%) rotateX(4.2deg);
+    filter: brightness(0.993);
+  }
+}
+@keyframes calendar-curl-5 {
+  0%,
+  70%,
+  100% {
+    transform: perspective(1400px) translateY(0.00%) rotateX(0.0deg);
+    filter: brightness(1.000);
+  }
+  78% {
+    transform: perspective(1400px) translateY(-3.84%) rotateX(58.0deg);
+    filter: brightness(0.897);
+  }
+  84% {
+    transform: perspective(1400px) translateY(-0.63%) rotateX(23.2deg);
+    filter: brightness(0.959);
+  }
+  89% {
+    transform: perspective(1400px) translateY(-1.65%) rotateX(37.7deg);
+    filter: brightness(0.933);
+  }
+  95% {
+    transform: perspective(1400px) translateY(-0.04%) rotateX(5.8deg);
+    filter: brightness(0.990);
+  }
+}
+@keyframes calendar-curl-6 {
+  0%,
+  70%,
+  100% {
+    transform: perspective(1400px) translateY(0.00%) rotateX(0.0deg);
+    filter: brightness(1.000);
+  }
+  78% {
+    transform: perspective(1400px) translateY(-8.07%) rotateX(75.0deg);
+    filter: brightness(0.867);
+  }
+  84% {
+    transform: perspective(1400px) translateY(-1.36%) rotateX(30.0deg);
+    filter: brightness(0.947);
+  }
+  89% {
+    transform: perspective(1400px) translateY(-3.53%) rotateX(48.8deg);
+    filter: brightness(0.913);
+  }
+  95% {
+    transform: perspective(1400px) translateY(-0.09%) rotateX(7.5deg);
+    filter: brightness(0.987);
+  }
+}
+html[data-reduce-motion] :is(.calendar-turn, .curl) {
+  animation: none;
+}.month-card {
   display: flex;
   flex-direction: column;
   gap: 12px;

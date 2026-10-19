@@ -79,13 +79,17 @@ export const ICONS = {
    * day's page right under the front one, the front page in two parts split along a
    * zig-zag tear (the stub at the rings, the rest) and the rings on top. The front page
    * lifts in a breeze now and then (`.calendar-live` in styles.css) and is torn off and
-   * falls when tapped (tearOffCalendar in daily.ts).
+   * falls when tapped (tearOffCalendar in daily.ts). The torn part is six strips of
+   * the same image, each bending a little more than the one above, so the page curls
+   * up from the bottom like paper.
    */
   dailyLive:
     '<span class="calendar-live">' +
     brush(calendarBack) +
     brush(calendarUnder) +
-    `<span class="calendar-turn">${brush(calendarStub)}${brush(calendarFall, 'calendar-fall')}</span>` +
+    `<span class="calendar-turn">${brush(calendarStub)}<span class="calendar-fall">` +
+    [1, 2, 3, 4, 5, 6].map((n) => brush(calendarFall, `curl curl-${n}`)).join('') +
+    '</span></span>' +
     brush(calendarRings) +
     '</span>',
   /** Brush-style feather with a Lava shaft, drawn for the Forest tile and badge. */
