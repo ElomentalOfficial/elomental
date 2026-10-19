@@ -83,9 +83,12 @@ Signing in to an *existing* account from the installed iPhone app uses the
 
 Requests last 10 minutes and work once.
 
-Now that custom SMTP is on, you could also add a typed code (`{{ .Token }}`) to the
-**Magic link or OTP** and **Change email address** templates, as a fallback
-to the hand-off.
+**Typed code (2026-10-19):** every sign-in email also carries a code
+(`{{ .Token }}`) that can be typed into the app on any device, for when the
+link won't open or opens somewhere else (`verifyEmailCode` in
+packages/web/src/backend/signIn.ts). The **Magic link**, **Confirm signup** and
+**Change email address** templates (Authentication → Emails → Templates) must
+show `{{ .Token }}`; without it the app asks for a code the email doesn't have.
 
 ## Reviewing flagged players
 

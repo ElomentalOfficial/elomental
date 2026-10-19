@@ -1,9 +1,9 @@
-import { sendSignInEmail, waitForEmailConfirmation, waitForHandoff } from './backend.ts';
+import { sendSignInEmail, verifyEmailCode, waitForEmailConfirmation, waitForHandoff, type CodeKind } from './backend.ts';
 import { h, toast } from './ui.ts';
 import * as copy from './copy/en.ts';
 
 /**
- * Passwordless sign-up / sign-in: an email, then the link from the email.
+ * Passwordless sign-up / sign-in: an email, then the link or the code from the email.
  * A guest account gets the email attached on the server when the link is
  * tapped (even if it opens in Safari, not the home-screen app), and this form
  * notices and continues by itself.
@@ -73,6 +73,7 @@ export function signUpForm(options: {
           if (!fail(result.error)) return;
           switched = !!result.switched;
           handoffCode = result.handoffCode ?? null;
+          kind = result.kind;
           step = 'code';
           paint();
         }),
@@ -82,7 +83,7 @@ export function signUpForm(options: {
       return;
     }
 
-    // Link only: the app waits here and continues by itself once the link is tapped.
+    // The app waits here and continues by itself once the link is tapped, or the code typed.
     const waitingFor = ++attempt;
     const back = h('button', {
       class: 'link-btn',
@@ -94,20 +95,45 @@ export function signUpForm(options: {
       },
     });
     const cancelled = () => attempt !== waitingFor || !box.isConnected;
+    const finish = () => {
+      attempt++; // stops the other way of waiting
+      toast(kind === 'email' ? copy.account.signedIn : copy.account.signedUp);
+      options.onDone?.();
+    };
+
+    // The code from the same email: for when the link won't open, or opens on another device.
+    const codeId = `signup-code-${waitingFor}`;
+    const codeInput = field({ id: codeId, type: 'text', inputmode: 'numeric', autocomplete: 'one-time-code', maxlength: '10', pattern: '[0-9]*' });
+    const useCode = h('button', { class: 'btn btn-primary', text: copy.account.useCode });
+    const submitCode = () =>
+      run(useCode, async () => {
+        const reason = await verifyEmailCode(email, codeInput.value, kind);
+        if (attempt !== waitingFor) return;
+        if (fail(reason)) finish();
+      });
+    useCode.addEventListener('click', submitCode);
+    codeInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') submitCode();
+    });
+    const codeEntry = [h('label', { class: 'field-label', text: copy.account.codeLabel, attrs: { for: codeId } }), codeInput, useCode];
+
     if (handoffCode) {
       // Signing in to an existing account: the link's page asks to confirm this code.
       box.replaceChildren(
         heading(copy.account.checkEmail, copy.account.linkSentConfirm(email)),
         h('div', { class: 'match-code', attrs: { 'aria-label': copy.account.a11yMatchCode(handoffCode) } }, h('small', { text: copy.account.yourCode }), h('strong', { text: handoffCode })),
         h('p', { class: 'waiting', text: copy.account.waitingConfirm }),
+        ...codeEntry,
         ...(switched ? [h('p', { class: 'note', text: copy.account.switchWarning })] : []),
         error,
         back,
       );
     } else {
       box.replaceChildren(
-        heading(copy.account.checkEmail, copy.account.linkSent(email)),
+        heading(copy.account.checkEmail, kind === 'email' ? copy.account.signInSent(email) : copy.account.linkSent(email)),
         h('p', { class: 'waiting', text: copy.account.waitingLink }),
+        ...codeEntry,
+        ...(switched ? [h('p', { class: 'note', text: copy.account.switchWarning })] : []),
         error,
         back,
       );
@@ -115,16 +141,14 @@ export function signUpForm(options: {
     const wait = handoffCode ? waitForHandoff(cancelled) : waitForEmailConfirmation(email, cancelled);
     void wait.then((done) => {
       if (attempt !== waitingFor) return;
-      if (!done) {
-        if (box.isConnected) fail(copy.account.linkExpired);
-        return;
-      }
-      toast(handoffCode ? copy.account.signedIn : copy.account.signedUp);
-      options.onDone?.();
+      if (done) finish();
+      // Otherwise the link's request ran out, but the typed code still works.
+      else if (box.isConnected) fail(copy.account.linkExpiredUseCode);
     });
   }
   let attempt = 0;
   let handoffCode: string | null = null;
+  let kind: CodeKind = 'email';
 
   paint();
   return box;

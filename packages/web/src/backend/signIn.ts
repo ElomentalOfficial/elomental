@@ -13,12 +13,12 @@ import * as copy from '../copy/en.ts';
  */
 export async function sendSignInEmail(
   email: string,
-): Promise<{ error: string | null; switched?: boolean; handoffCode?: string }> {
+): Promise<{ error: string | null; switched?: boolean; handoffCode?: string; kind: CodeKind }> {
   const redirect = `${location.origin}${location.pathname}`;
   if (cachedAccount()?.anonymous) {
     const { error } = await supabase.auth.updateUser({ email }, { emailRedirectTo: redirect });
-    if (!error) return { error: null };
-    if (!/already|registered|exists/i.test(error.message)) return { error: friendlyAuthError(error.message) };
+    if (!error) return { error: null, kind: 'email_change' };
+    if (!/already|registered|exists/i.test(error.message)) return { error: friendlyAuthError(error.message), kind: 'email_change' };
   }
   // Signing in to an account: the link may open in another browser (on iPhone,
   // Safari instead of the installed app), so it carries a hand-off request.
@@ -31,7 +31,26 @@ export async function sendSignInEmail(
     error: error ? friendlyAuthError(error.message) : null,
     switched: !!cachedAccount()?.anonymous,
     handoffCode: handoff ? matchCode(handoff.id) : undefined,
+    kind: 'email',
   };
+}
+
+/** Which email a typed code came in: a guest attaching an email, or a sign-in. */
+export type CodeKind = 'email_change' | 'email';
+
+/**
+ * The code printed in the same email as the link, typed into the app: works
+ * on any device, for when the link won't open or opens somewhere else.
+ * Null when signed in, otherwise why not.
+ */
+export async function verifyEmailCode(email: string, code: string, kind: CodeKind): Promise<string | null> {
+  const token = code.replace(/\D/g, '');
+  if (token.length < 6) return copy.account.errors.badCode;
+  const { error } = await supabase.auth.verifyOtp({ email, token, type: kind });
+  if (error) return friendlyAuthError(error.message);
+  removeKey(HANDOFF_KEY);
+  await refreshAccount();
+  return null;
 }
 
 function friendlyAuthError(message: string): string {
