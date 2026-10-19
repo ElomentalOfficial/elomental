@@ -80,7 +80,7 @@ export function homeScreen(): Screen {
   const casual = tile('casual', ICONS.casual, copy.home.tiles.casual, (el) => openCasual((go) => leave(el, go)));
   const ranked = tile('ranked', ICONS.ranked, copy.home.tiles.ranked, (el) => openRanked((go) => leave(el, go)));
   // Wide screens give Setup a tile of its own (Figma desktop home); phones keep it in the notch.
-  const setupWide = tile('setup', ICONS.setup, copy.home.tiles.setup, (el) => leave(el, () => mount(setupScreen())));
+  const setupWide = tile('setup', ICONS.setupWide,copy.home.tiles.setup, (el) => leave(el, () => mount(setupScreen())));
 
   const tiles = [profileCard, daily, store, leader, casual, ranked, setupWide];
   const grid = h('div', { class: 'home-grid' }, ...tiles);

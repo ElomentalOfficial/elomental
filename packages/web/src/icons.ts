@@ -8,6 +8,8 @@
 import handCupDark from './art/hand-cup-dark.svg?raw';
 import handCupLight from './art/hand-cup-light.svg?raw';
 import feather from './art/feather.svg?raw';
+import cogDark from './art/cog-dark.svg?raw';
+import cogLight from './art/cog-light.svg?raw';
 
 const stroke = (body: string, width = 1.8) =>
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
@@ -23,16 +25,23 @@ const art = (viewBox: string, body: string, cls = '') =>
 const themed = (viewBox: string, light: string, dark: string) => art(viewBox, light, 'ic-light') + art(viewBox, dark, 'ic-dark');
 /** A whole brush-art file from art/, tagged for its theme; it scales to fill its box from the right. */
 const armIcon = (svg: string, cls: string) => svg.replace('<svg ', `<svg class="${cls}" preserveAspectRatio="xMaxYMid slice" `);
+/** A light and a dark brush-art file from art/; CSS shows the one for the current theme. */
+const themeArt = (light: string, dark: string) => light.replace('<svg ', '<svg class="ic-light" ') + dark.replace('<svg ', '<svg class="ic-dark" ');
+/** Renames an art file's id prefix (ids and their url(#...) references), for a second copy on one page. */
+const reId = (svg: string, from: string, to: string) => svg.replaceAll(`id="${from}`, `id="${to}`).replaceAll(`url(#${from}`, `url(#${to}`);
 const figmaStroke = (body: string) =>
   `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
 
 export const ICONS = {
-  // Home icons: assets/setup_*.svg, store_*.svg (_white = light theme); the leaderboard cup lives in art/.
-  setup: themed(
-    '0 0 42 42',
-    '<path d="M12.6 9L5.88 5.4375L0 14.5312L6.16 19.0312V22.2187L0 27L5.88 36.1875L12.6 33.1875L14.7467 34.5L15.8667 42H26.04L27.0667 34.5L29.4 33.1875L36.2133 36.1875L41.72 27L35.6533 22.7812V19.875L42 15.1875L36.2133 6.09375L29.4 9.5625L27.0667 7.875L26.04 0H15.8667L14.7467 7.875L12.6 9Z" fill="#794341"/><path d="M23.1143 23.8633L29.4016 33.1862L27.0689 34.4959L22.403 24.3367L23.1143 23.8633Z" fill="#5E3433"/><path d="M24.2563 22.038L35.647 22.7649V19.9414L24.3529 21.0002L24.2563 22.038Z" fill="#5E3433"/><path d="M23.2938 18.6546L29.3989 9.5634L27.0666 7.87793L22.3996 18.0145L23.2938 18.6546Z" fill="#D8B3B1"/><path d="M19.3733 17.9618L14.7609 7.87402L12.6011 9.00109L18.1785 18.8332L19.3733 17.9618Z" fill="#D8B3B1"/><path d="M17.3048 21.418L6.16132 22.216V19.0312L17.4607 20.1094L17.3048 21.418Z" fill="#5E3433"/><path d="M18.5631 23.894L12.6028 33.1878L14.7491 34.4976L19.5274 24.4593L18.5631 23.894Z" fill="#5E3433"/><path d="M23.8235 23.1174L39 31.588L41.8235 26.9998L35.6471 22.7645L24.1765 22.0586L23.8235 23.1174Z" fill="#A36866"/><path d="M24 19.765L39 10.5885L36.1765 6.17676L29.4706 9.5297L23.2941 18.7062L24 19.765Z" fill="#A36866"/><path d="M21 17.6471V0H15.8824L14.8235 7.94118L19.4118 18L21 17.6471Z" fill="#A36866"/><path d="M17.7429 19.4679L3.12308 9.69678L0.000793457 14.5326L6.17646 19.0587L17.4706 20.1175L17.7429 19.4679Z" fill="#A36866"/><path d="M17.7277 22.8785L3.03708 31.745L0 27.0002L6.16171 22.2193L17.3059 21.4238L17.7277 22.8785Z" fill="#A36866"/><path d="M21 24.7058V41.9999H15.8823L14.7467 34.5004L19.5279 24.4653L21 24.7058Z" fill="#A36866"/><circle cx="20.8235" cy="21.1764" r="3.52941" fill="#DADBB9"/>',
-    '<path d="M12.6 9L5.88 5.4375L0 14.5312L6.16 19.0312V22.2187L0 27L5.88 36.1875L12.6 33.1875L14.7467 34.5L15.8667 42H26.04L27.0667 34.5L29.4 33.1875L36.2133 36.1875L41.72 27L35.6533 22.7812V19.875L42 15.1875L36.2133 6.09375L29.4 9.5625L27.0667 7.875L26.04 0H15.8667L14.7467 7.875L12.6 9Z" fill="#E8E8CC"/><path d="M23.1143 23.8633L29.4016 33.1862L27.0689 34.4959L22.403 24.3367L23.1143 23.8633Z" fill="#D2D2B7"/><path d="M24.2563 22.038L35.647 22.7649V19.9414L24.3529 21.0002L24.2563 22.038Z" fill="#DADAC0"/><path d="M23.2938 18.6546L29.3989 9.5634L27.0666 7.87793L22.3996 18.0145L23.2938 18.6546Z" fill="#FFFFED"/><path d="M19.3733 17.9618L14.7609 7.87402L12.6011 9.00109L18.1785 18.8332L19.3733 17.9618Z" fill="#FFFFED"/><path d="M17.3048 21.418L6.16132 22.216V19.0312L17.4607 20.1094L17.3048 21.418Z" fill="#DADAC0"/><path d="M18.5631 23.894L12.6028 33.1878L14.7491 34.4976L19.5274 24.4593L18.5631 23.894Z" fill="#D2D2B7"/><path d="M23.8235 23.1174L39 31.588L41.8235 26.9998L35.6471 22.7645L24.1765 22.0586L23.8235 23.1174Z" fill="#F8F8DB"/><path d="M24 19.765L39 10.5885L36.1765 6.17676L29.4706 9.5297L23.2941 18.7062L24 19.765Z" fill="#F8F8DB"/><path d="M21 17.6471V0H15.8824L14.8235 7.94118L19.4118 18L21 17.6471Z" fill="#F8F8DB"/><path d="M17.7429 19.4679L3.12308 9.69678L0.000793457 14.5326L6.17646 19.0587L17.4706 20.1175L17.7429 19.4679Z" fill="#F8F8DB"/><path d="M17.7277 22.8785L3.03708 31.745L0 27.0002L6.16171 22.2193L17.3059 21.4238L17.7277 22.8785Z" fill="#F8F8DB"/><path d="M21 24.7058V41.9999H15.8823L14.7467 34.5004L19.5279 24.4653L21 24.7058Z" fill="#F8F8DB"/><circle cx="20.8235" cy="21.1764" r="3.52941" fill="#6F716A"/>',
-  ),
+  // Home icons: assets/store_*.svg (_white = light theme); the Setup cog and leaderboard cup live in art/.
+  /** Brush-style cog (art/cog-*.svg), one file per theme; the axle hole is a real cut-out. */
+  setup: themeArt(cogLight, cogDark),
+  /**
+   * The same cog for the wide-screen Setup tile. The notch copy stays in the page
+   * (hidden) there, and filters/clips found by id inside a hidden copy don't render,
+   * so this one gets its own ids.
+   */
+  setupWide: themeArt(reId(cogLight, 'cgl-', 'cglw-'), reId(cogDark, 'cgd-', 'cgdw-')),
   store: themed(
     '0 0 54 45',
     '<path d="M54 14.8701L27 44.2178L0 14.8701H15.6523L6.65234 7.23926L12.7178 0H41.6738L54 14.8701ZM15.6523 14.8701L27 28.1738L38.3477 14.8701H15.6523Z" fill="#794341"/><path d="M38.3478 14.8696L27 44.2176L54 14.8696H38.3478Z" fill="#624948"/><path d="M27 44.2176V28.174L38.3478 14.8696L27 44.2176Z" fill="#947373"/><path d="M41.6739 0L38.3478 14.8696H54L41.6739 0Z" fill="#865D59"/><path d="M26.9392 28.24L15.6062 14.8633L38.3521 14.8676L26.9392 28.24Z" fill="#C4A6A0"/>',
