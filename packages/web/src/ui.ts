@@ -172,6 +172,20 @@ export async function goBack(next: () => Screen): Promise<void> {
   const leaving = current?.el;
   closeAllModals();
   if (leaving && !reducedMotion()) {
+    // The game's banner (wide layouts) rolls up out of sight first, so it doesn't swing with the page.
+    const banner = leaving.querySelector<HTMLElement>('.brand-banner');
+    const rollUp = !!banner && banner.offsetParent !== null;
+    if (rollUp) {
+      await banner!
+        .animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-101%)' }], {
+          duration: 110,
+          easing: 'cubic-bezier(0.5, 0, 0.9, 0.6)',
+          fill: 'forwards',
+        })
+        .finished.catch(() => undefined);
+      // Parked above the top edge, the page turn would tilt it back into view.
+      banner!.style.visibility = 'hidden';
+    }
     leaving.style.transformOrigin = '0 50%';
     await leaving
       .animate(
@@ -179,7 +193,7 @@ export async function goBack(next: () => Screen): Promise<void> {
           { transform: 'perspective(1200px) rotateY(0deg)', opacity: 1 },
           { transform: 'perspective(1200px) rotateY(55deg)', opacity: 0 },
         ],
-        { duration: 240, easing: 'cubic-bezier(0.7, 0, 1, 0.5)', fill: 'forwards' },
+        { duration: rollUp ? 200 : 240, easing: 'cubic-bezier(0.7, 0, 1, 0.5)', fill: 'forwards' },
       )
       .finished.catch(() => undefined);
   }
