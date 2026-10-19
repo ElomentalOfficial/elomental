@@ -33,26 +33,36 @@ export const ICONS = {
     '<path d="M54 14.8701L27 44.2178L0 14.8701H15.6523L6.65234 7.23926L12.7178 0H41.6738L54 14.8701ZM15.6523 14.8701L27 28.1738L38.3477 14.8701H15.6523Z" fill="#DFD5C2"/><path d="M38.3478 14.8696L27 44.2176L54 14.8696H38.3478Z" fill="#C3BC9F"/><path d="M27 44.2176V28.174L38.3478 14.8696L27 44.2176Z" fill="#E6E4CC"/><path d="M41.6739 0L38.3478 14.8696H54L41.6739 0Z" fill="#B8A486"/><path d="M26.9392 28.24L15.6062 14.8633L38.3521 14.8676L26.9392 28.24Z" fill="#FFFFEB"/>',
   ),
   /**
-   * Leaderboard: a hand-drawn podium with the cup on top. Outlines in the tile's
-   * text colour; the fills in Lava (dark) or Forest (light), set by CSS
+   * Leaderboard: a brush-drawn podium with the cup on top, like a marker sketch:
+   * chunky strokes, colour blocks printed a little off their outlines, and a
+   * filter that roughens and speckles every edge (#pd-rough). Outlines in the
+   * tile's text colour; the blocks Lava (dark) or Forest (light), set by CSS
    * (.ic-podium .pd-fill); the 3 is cut out in the tile colour.
    */
   leaderboard: art(
-    '0 0 64 56',
-    '<g class="pd-fill"><path d="M10.5 35 24 34.6 24 51 10.8 51Z"/><path d="M24 26.3 42 26 41.6 51 24.3 51Z"/><path d="M26 9.6H39.4C39.4 15.4 36.6 19.4 32.6 19.6 28.6 19.6 26 15.6 26 9.6Z"/></g>' +
+    '2 0 96 92',
+    '<defs><filter id="pd-rough" x="-5%" y="-5%" width="110%" height="110%">' +
+      '<feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="4" result="warp"/>' +
+      '<feDisplacementMap in="SourceGraphic" in2="warp" scale="2.4" xChannelSelector="R" yChannelSelector="G" result="wobble"/>' +
+      '<feTurbulence type="fractalNoise" baseFrequency="0.4" numOctaves="2" seed="9" result="grain"/>' +
+      '<feDisplacementMap in="wobble" in2="grain" scale="1.6" xChannelSelector="R" yChannelSelector="G"/>' +
+      '</filter></defs>' +
+      '<g filter="url(#pd-rough)">' +
+      '<g class="pd-fill"><path d="M18.5 55.5 39.5 54.5 38.5 80 19.5 80.5Z"/><path d="M38.5 43 64.5 42 63.5 80 39.5 81Z"/><path d="M40.5 15.5H63.5C63.5 26.5 58 32.5 52 32.5 46 32.5 40.5 26.5 40.5 15.5Z"/></g>' +
       '<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">' +
-      '<path stroke-width="2.8" d="M9.5 36.2 23 35.8M9.5 36.2 9.8 52M23 27.3 41.2 27 41 52M23 27.3 23.2 52"/>' +
-      '<path stroke-width="3.2" d="M3 52.2C20 51.6 40 52.6 61 52"/>' +
-      '<path stroke-width="1.4" d="M14 55H22M44 55H52"/>' +
-      '<path stroke-width="2.3" d="M13.5 40.8C14.5 39 19 39 18.8 41.6 18.6 43.5 14 46 13.6 48L19.4 47.8"/>' +
-      '<path stroke-width="2.6" d="M30.2 35.6 32.6 33.2 32.8 45"/>' +
-      '<path stroke-width="2.6" d="M25.2 9H38.8C38.8 14.8 36 19 32 19.2 28 19.2 25.2 15 25.2 9ZM25.4 11C21.2 10.6 21 16.2 26.4 16M38.6 11C42.8 10.6 43 16.2 37.6 16M32 23.6 32.1 19.4"/>' +
-      '<path stroke-width="2.2" d="M32 1.8V4.6M25 3.6 26.8 5.8M39 3.6 37.2 5.8"/>' +
-      '<path stroke-width="1.9" d="M52.5 13H56.5M54.5 11V15M56.5 6.5H58.5M57.5 5.5V7.5"/>' +
-      '<path stroke-width="1.8" d="M3.5 21C6 16 10 14.5 12 15.5 13.5 16.5 12 19 10.5 18 9 17 11 13 16 12"/>' +
+      '<path stroke-width="5" d="M15 59.5 36.5 57.5M15.5 59.5 16.5 82M35.5 46.5 63 45M35.5 46.5 36.5 82M63 45 62.5 64"/>' +
+      '<path stroke-width="5.6" d="M6 83C30 81.6 60 84.2 94 82.4"/>' +
+      '<path stroke-width="3" d="M22 89.5H33M66 90H79"/>' +
+      '<path stroke-width="4.2" d="M21.5 66.5C23 62.5 31 62.5 30.5 67.5 30 71.5 22 75 21.5 78L31 77.5"/>' +
+      '<path stroke-width="4.8" d="M44.5 57.5 49.5 52.5 50 71"/>' +
+      '<path stroke-width="4.6" d="M38 17.5H60.5C60.5 28 55 34 49 34 43 34 38 28 38 17.5ZM38.5 21C29.5 18.5 28 29.5 39.5 29.5M60 21C69 18.5 70.5 29.5 59 29.5M49.5 39 49.7 33.5"/>' +
+      '<path stroke-width="3.8" d="M49.5 3.5V9.5M37.5 6.5 41 11.5M61.5 6.5 58 11.5"/>' +
+      '<path stroke-width="3" d="M5 38C9 30 15 25.5 20 25.5 24 25.5 24 31.5 20 31.5 16.5 31.5 17 24.5 24 21.5 27 20 31 19 34 18.5"/>' +
+      '<path stroke-width="3.4" d="M80 31H88M84 27V35M85.5 16.5H90.5M88 14V19"/>' +
       '</g>' +
-      '<g fill="currentColor"><path d="M28.4 23.6 35.8 23.4 36 27 28.2 27.2Z"/><path d="M41 40.2 55 39.8 55.2 52 41 52Z"/><circle cx="49" cy="19" r="0.8"/><circle cx="17" cy="25" r="0.7"/><circle cx="6" cy="47" r="0.7"/><circle cx="58.5" cy="46" r="0.7"/></g>' +
-      '<path class="pd-cut" fill="none" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" d="M45.5 43.2C47 42 50.5 42 50.2 44 50 45.5 48.5 45.8 47.5 45.9 49 45.9 50.8 46.5 50.4 48.3 50 50 46.8 50.4 45.3 49.3"/>',
+      '<g fill="currentColor"><path d="M43.5 38.5 56 38 56.5 45.5 43 46Z"/><path d="M61.5 64.5 83 63 84 82.5 61.5 82.5Z"/><circle cx="31" cy="41" r="1.6"/><circle cx="79" cy="41.5" r="1.6"/><circle cx="10.5" cy="76.5" r="1.5"/><circle cx="12.5" cy="70.5" r="1.3"/><circle cx="90.5" cy="75.5" r="1.5"/><circle cx="88" cy="70" r="1.3"/></g>' +
+      '<path class="pd-cut" fill="none" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" d="M66.5 69.5C68.5 67.5 74.5 67.5 74.5 70.5 74.5 73 71.5 73.5 70 73.7 72.5 73.7 75.5 74.7 75 77.5 74.5 80.3 69 80.7 66.5 79"/>' +
+      '</g>',
     'ic-podium',
   ),
   /** Crossed swords (assets/clash.svg), faceted to match the Figma set. */
