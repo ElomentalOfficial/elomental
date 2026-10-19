@@ -1917,6 +1917,10 @@ html.standalone .backdrop {
   padding: 11px;
   background: var(--accent);
 }
+/* The fist bump spills over its badge, as it does in the Casual circle. */
+.sheet-icon.clash .brush-art {
+  transform: scale(1.75);
+}
 /* The light theme's Clash art is outlined in Crimson, the badge's own colour there: the
    dark-ink version reads on it in both themes. */
 :root[data-theme='light'] .sheet-icon.clash .ic-light {
@@ -2351,9 +2355,11 @@ html[data-reduce-motion] .casual-feather-shadow {
   background: var(--surface-2);
   color: var(--text);
 }
-/* Brush art (the Clash fist bump) is wide and short: grow it into the circle's padding. */
+/* Brush art in a round badge spills over the circle, like the Home icons break out of
+   their tiles: the circle stays a backdrop, the art sits on top of it. Any brush icon in
+   these badges does this (Clash now; Square code and later ones too). */
 .friend-icon .brush-art {
-  transform: scale(1.45);
+  transform: scale(2.1);
 }
 .friend-option strong {
   font-family: var(--serif);
