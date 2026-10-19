@@ -129,6 +129,35 @@ function stat(value: string, label: string, icon?: string): HTMLElement {
   );
 }
 
+/**
+ * The Ranked pop-up's sword: every tap or click heats the blade a step, from steel to
+ * glowing like molten metal (its hot layer fades in, the flame swells, a glow spreads),
+ * and it cools back down once the taps stop. Purely decorative, like the Casual feather:
+ * no role, not in the tab order. `--heat` (0 to 1) drives it all in styles.css.
+ */
+function heatingSword(badge: HTMLElement): HTMLElement {
+  const sword = () => badge.querySelector<HTMLElement>('.sword-live');
+  let heat = 0;
+  let lastTap = 0;
+  let lastFrame = 0;
+  let frame = 0;
+  const paint = () => sword()?.style.setProperty('--heat', heat.toFixed(3));
+  const cool = (now: number) => {
+    // a short hold after each tap, then about four seconds from white-hot back to steel
+    if (now - lastTap > 600) heat = Math.max(0, heat - ((now - lastFrame) / 1000) * 0.25);
+    lastFrame = now;
+    paint();
+    frame = heat > 0 && badge.isConnected ? requestAnimationFrame(cool) : 0;
+  };
+  badge.addEventListener('pointerdown', () => {
+    heat = Math.min(1, heat + 0.17);
+    lastTap = lastFrame = performance.now();
+    paint();
+    if (!frame) frame = requestAnimationFrame(cool);
+  });
+  return badge;
+}
+
 function openRanked(leave: (go: () => void) => void) {
   const saved = loadSavedGame();
   if (saved?.config.mode === 'ranked') return leave(() => resumeGame(saved));
@@ -139,7 +168,7 @@ function openRanked(leave: (go: () => void) => void) {
       'div',
       { class: 'sheet' },
       closeButton(() => close()),
-      h('span', { class: 'sheet-icon ranked', html: ICONS.rankedLive }),
+      heatingSword(h('span', { class: 'sheet-icon ranked', html: ICONS.rankedLive, attrs: { 'aria-hidden': 'true' } })),
       h('h2', { text: copy.home.ranked.title }),
       h('p', { class: 'ranked-copy', text: copy.home.ranked.text }),
       h('button', {

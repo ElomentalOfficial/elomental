@@ -1986,6 +1986,26 @@ html.standalone .backdrop {
 html[data-reduce-motion] .sword-live .sword-flame {
   animation: none;
 }
+/* Tapping the sword heats it (heatingSword, home.ts sets --heat from 0 to 1): the
+   molten-blade layer fades in, the flame swells and a fiery glow spreads round it. */
+.sheet-icon.ranked {
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.sword-live {
+  --heat: 0;
+  filter: drop-shadow(0 0 calc(var(--heat) * 16px) var(--c-lava));
+}
+.sword-live .sword-heat {
+  opacity: var(--heat);
+}
+.sword-live .sword-flame {
+  scale: calc(1 + var(--heat) * 0.3);
+}
+html[data-reduce-motion] .sword-live .sword-flame {
+  scale: none;
+}
 .ranked-copy {
   line-height: 1.4;
 }
