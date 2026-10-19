@@ -68,7 +68,7 @@
   --tile-text: var(--c-bright);
   /* Home tiles: a crisp drop under each. */
   --tile-shadow: color-mix(in srgb, var(--c-bg), black 22%);
-  --feather-shadow: rgba(0, 0, 0, 0.55);
+  --feather-shadow: rgba(0, 0, 0, 0.32);
   /* Dark home: the profile card is a dark Highlight surface with light text (Figma update). */
   --profile-bg: var(--c-highlight-2);
   --profile-text: var(--c-bright);
@@ -142,7 +142,7 @@
   --tile: var(--c-mud);
   --tile-text: var(--c-crimson);
   --tile-shadow: color-mix(in srgb, var(--c-rock) 45%, transparent);
-  --feather-shadow: color-mix(in srgb, var(--c-rock) 85%, transparent);  --profile-bg: var(--c-second-bright);
+  --feather-shadow: color-mix(in srgb, var(--c-rock) 55%, transparent);  --profile-bg: var(--c-second-bright);
   --profile-text: var(--c-crimson);
   --chip-bg: rgba(38, 39, 33, 0.07);
   --avatar-bg: var(--c-bright);
@@ -2058,7 +2058,7 @@ html.standalone .backdrop {
   }
   50% {
     transform: scaleX(0.76);
-    opacity: 0.55;
+    opacity: 0.6;
   }
 }
 /* Still, not sped up, for anyone who turned motion off. */
