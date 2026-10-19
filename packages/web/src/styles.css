@@ -2098,9 +2098,12 @@ html[data-reduce-motion] .sword-live .sword-flame {
    short phones. Clash and Square code open as pop-ups over it. */
 /*
  * Casual fits the screen, like Home: every option in view, no scrolling. The body is
- * held to the page's height and only the feather gives way (it shrinks, down to a
- * small mark); short phones also lay the head and friend cards out in rows. At Text
- * size 125% and up the words need the room, so there the page scrolls instead.
+ * held to the page's height and the feather takes whatever room the cards leave, on
+ * every screen: from a small mark on a short phone up to a large feather on a tall one,
+ * so there is never a big empty gap above it. (One rule for all sizes: the earlier
+ * per-size layouts each left a gap somewhere.) Short phones also tighten the cards and
+ * lay the friend options out in rows. At Text size 125% and up the words need the room,
+ * so there the page scrolls instead and the feather keeps its own size.
  */
 .casual-body {
   flex: 1 0 auto;
@@ -2113,60 +2116,86 @@ html[data-reduce-motion] .sword-live .sword-flame {
   padding-top: clamp(16px, 5dvh, 40px);
   padding-bottom: var(--space-2);
 }
-html:not([data-large-text]) .casual-body {
-  flex: 1 1 auto;
-  min-height: 0;
-}
-html:not([data-large-text]) .casual-body > * {
-  flex-shrink: 0;
-}
-html:not([data-large-text]) .casual-body > .casual-head {
-  flex-shrink: 1;
-  /* Never below a small feather plus the tagline, so nothing slides under the cards. */
-  min-height: calc(var(--fs-label) * 1.25 + var(--space-2) + 44px);
-}
-html:not([data-large-text]) .casual-feather {
-  flex: 0 1 auto;
-  min-height: 44px;
-}
 /* The art scales to whatever height the feather is given. */
 .casual-feather .brush-art {
   object-fit: contain;
 }
-/* Wide screens (whose pages are zoomed up): the feather above the tagline, taking the
-   room the cards leave (up to a large feather), so a tall window gets a big feather
-   instead of empty space and a short one a small feather instead of an overlap. */
-@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
-  /* The feather's own box gives it headroom here, so the page's can go. */
-  html:not([data-large-text]) .casual-body {
-    padding-top: var(--space-2);
-  }
-  html:not([data-large-text]) .casual-body > .casual-head {
-    flex: 1 1 auto;
-  }
-  html:not([data-large-text]) .casual-feather {
-    flex: 1 1 0;
-    width: 220px;
-    height: auto;
-    max-height: 190px;
-  }
-  html:not([data-large-text]) .casual-feather-art {
-    inset: 16px 0 18px;
-  }
+html:not([data-large-text]) .casual-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  /* if it ever runs taller than the screen, it starts at the top and scrolls, never cut at both ends */
+  justify-content: safe center;
+  /* the feather's box has its own headroom (below), so the page's can be small */
+  padding-top: var(--space-2);
 }
-/* Short screens: the feather beside the tagline. */
-@media (max-height: 720px) {
+html:not([data-large-text]) .casual-body > * {
+  flex-shrink: 0;
+}
+/* The head (feather and tagline) grows into all the free height, and the feather in it. */
+html:not([data-large-text]) .casual-body > .casual-head {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+html:not([data-large-text]) .casual-feather {
+  flex: 1 1 0;
+  width: min(100%, 260px);
+  height: auto;
+  min-height: 56px;
+  max-height: 220px;
+}
+/* Headroom inside the feather's box for its drift-in and tap swings. */
+html:not([data-large-text]) .casual-feather-art {
+  inset: 14px 0 18px;
+}
+/* The shortest phones (640px and less, portrait): no room for a feather above the
+   tagline, so it sits beside it at a fixed medium size instead of shrinking to a speck. */
+@media (max-height: 640px) and (max-aspect-ratio: 5/4) {
   html:not([data-large-text]) .casual-body > .casual-head {
+    flex: 0 0 auto;
     flex-direction: row;
     justify-content: center;
     gap: var(--space-3);
-    min-height: 0;
     text-align: left;
   }
   html:not([data-large-text]) .casual-feather {
+    flex: none;
     width: 76px;
     height: 58px;
-    flex: none;
+    min-height: 0;
+  }
+  html:not([data-large-text]) .casual-feather-art {
+    inset: 3px 0 10px;
+  }
+  html:not([data-large-text]) .casual-feather-shadow {
+    height: 8px;
+  }
+}
+/* Wide landscape screens (laptops, desktops, tablets on their side): the page is zoomed
+   up, so a single column of cards would use all the height and squeeze the feather to a
+   speck. The page widens into two columns instead: the feather and tagline on the left,
+   as tall as the cards, the cards unchanged on the right. */
+@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+  html:not([data-large-text]) .screen.casual {
+    max-width: calc(820px * var(--text-scale, 1));
+  }
+  html:not([data-large-text]) .casual-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
+    grid-auto-rows: auto;
+    align-content: center;
+    column-gap: var(--space-6);
+    row-gap: var(--space-4);
+  }
+  html:not([data-large-text]) .casual-body > .casual-head {
+    grid-column: 1;
+    grid-row: 1 / span 4;
+    justify-content: center;
+  }
+  html:not([data-large-text]) .casual-body > :not(.casual-head) {
+    grid-column: 2;
+  }
+  html:not([data-large-text]) .casual-feather {
+    max-height: 300px;
   }
 }
 @media (max-height: 720px) {
