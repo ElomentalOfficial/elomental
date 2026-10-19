@@ -8,6 +8,7 @@ import { mount } from './ui.ts';
 import { installStandaloneFixes } from './viewport.ts';
 import { installUiScale } from './scale.ts';
 import { applyGrain } from './grain.ts';
+import { installAddToHome } from './install.ts';
 
 applyTheme();
 installA11y();
@@ -16,6 +17,7 @@ installUiScale();
 installZoomGuards();
 installWheelScroll();
 installStandaloneFixes();
+installAddToHome();
 initBackend();
 
 mount(welcomeScreen());

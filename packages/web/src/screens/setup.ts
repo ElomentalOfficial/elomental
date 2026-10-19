@@ -11,6 +11,7 @@ import {
   signOut,
 } from '../backend.ts';
 import { ICONS } from '../icons.ts';
+import { addToHome, canAddToHome } from '../install.ts';
 import { notesWheelOn } from '../settings.ts';
 import { getTheme, type Theme } from '../theme.ts';
 import { deviceInfo } from '../viewport.ts';
@@ -108,6 +109,7 @@ export function setupScreen(): Screen {
       h('div', { class: 'segmented', attrs: { role: 'radiogroup', 'aria-label': copy.setup.notesWheel } }, ...wheelButtons),
     ),
     accessibilityLink(),
+    addToHomeRow(),
     h(
       'section',
       { class: 'setting' },
@@ -134,6 +136,18 @@ function accessibilityLink(): HTMLElement {
     { class: 'setting' },
     h('div', {}, h('h2', { text: t.title }), h('p', { text: t.summary })),
     h('button', { class: 'btn', text: t.open, onclick: () => mount(accessibilityScreen()) }),
+  );
+}
+
+/** Phones and tablets in the browser: how to put Elomental on the Home Screen (install.ts). */
+function addToHomeRow(): HTMLElement | null {
+  if (!canAddToHome()) return null;
+  const t = copy.install;
+  return h(
+    'section',
+    { class: 'setting' },
+    h('div', {}, h('h2', { text: t.title }), h('p', { text: t.help })),
+    h('button', { class: 'btn', text: t.open, onclick: () => void addToHome() }),
   );
 }
 

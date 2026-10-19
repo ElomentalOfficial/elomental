@@ -509,6 +509,22 @@ export const shortcuts = {
   ] as [string[], string][],
 };
 
+/** Add to Home Screen: the Setup row, the note on Home and the steps pop-up (install.ts). */
+export const install = {
+  title: 'Add to Home Screen',
+  help: 'Open Elomental from your Home Screen, full screen like an app.',
+  open: 'Add to Home Screen',
+  why: 'One tap from your Home Screen, full screen, no browser bars.',
+  stepsIos: ['Tap Share in your browser’s toolbar.', 'Scroll down and tap Add to Home Screen.', 'Tap Add.'],
+  stepsAndroid: ['Open your browser’s menu.', 'Tap Add to Home screen or Install app.', 'Tap Add or Install.'],
+  done: 'Got it',
+  added: 'Added. Elomental is on your Home Screen.',
+  note: 'Play from your Home Screen',
+  how: 'How',
+  howLabel: 'How to add Elomental to your Home Screen',
+  closeNote: 'Close this note',
+};
+
 export const setup = {
   title: 'Setup',
   theme: 'Theme',

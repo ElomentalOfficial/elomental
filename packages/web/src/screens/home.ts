@@ -1,5 +1,6 @@
 import { difficultyForRating, type Difficulty } from '@elomental/engine';
 import { ICONS } from '../icons.ts';
+import { addToHomeNote } from '../install.ts';
 import { enableTilt, turnstileIn, turnstileOut } from '../motion.ts';
 import { loadProfile, rankTitle, rankedTarget } from '../profile.ts';
 import { closeButton, formatTime, h, hiddenHeading, mount, navigatingBack, openModal, toast, type Screen } from '../ui.ts';
@@ -81,9 +82,13 @@ export function homeScreen(): Screen {
   // Wide screens give Setup a tile of its own (Figma desktop home); phones keep it in the notch.
   const setupWide = tile('setup', ICONS.setup, copy.home.tiles.setup, (el) => leave(el, () => mount(setupScreen())));
 
-  const animated = [profileCard, daily, store, leader, casual, ranked, setupWide];
-  const grid = h('div', { class: 'home-grid' }, ...animated);
-  const el = h('div', { class: 'screen home' }, hiddenHeading(copy.common.appName), grid);
+  const tiles = [profileCard, daily, store, leader, casual, ranked, setupWide];
+  const grid = h('div', { class: 'home-grid' }, ...tiles);
+  // A few visits after the first game, on phones in the browser: Add to Home Screen (install.ts).
+  const note = addToHomeNote();
+  // The note turns in and out with the tiles, last in reading order.
+  const animated = note ? [...tiles, note] : tiles;
+  const el = h('div', { class: 'screen home' }, hiddenHeading(copy.common.appName), grid, note);
 
   // Runs right after mount, before the new screen is ever painted, so tiles never
   // flash in place. (A requestAnimationFrame is too late when Home is mounted from
