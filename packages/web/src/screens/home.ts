@@ -85,9 +85,14 @@ export function homeScreen(): Screen {
   const grid = h('div', { class: 'home-grid' }, ...animated);
   const el = h('div', { class: 'screen home' }, hiddenHeading(copy.common.appName), grid);
 
-  // Runs before the first paint of the new screen, so tiles never flash in place.
+  // Runs right after mount, before the new screen is ever painted, so tiles never
+  // flash in place. (A requestAnimationFrame is too late when Home is mounted from
+  // an animation's end, as goBack does: that frame is painted first.)
   const backward = navigatingBack();
-  requestAnimationFrame(() => turnstileIn(grid, animated, backward));
+  queueMicrotask(() => {
+    if (el.isConnected) turnstileIn(grid, animated, backward);
+    else requestAnimationFrame(() => turnstileIn(grid, animated, backward));
+  });
   setTimeout(() => handleClashLink((go) => leave(casual, go)), 420);
   setTimeout(() => void handleHandoffLink(), 420);
 

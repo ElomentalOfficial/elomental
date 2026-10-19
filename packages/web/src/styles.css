@@ -3811,6 +3811,21 @@ html[data-large-text] .shortcut-list {
     /* letter-spacing trails each line; this re-centres it. */
     text-indent: 0.45em;
   }
+  /* The page turns in without it; then it drops from the top edge (it rolls back up on leaving, ui.ts goBack). */
+  .game .brand-banner {
+    animation: banner-drop 0.2s cubic-bezier(0.1, 0.9, 0.2, 1) 0.36s both;
+  }
+  @keyframes banner-drop {
+    from {
+      transform: translateY(-101%);
+      /* Parked above the edge, the turning page would tilt it into view. */
+      visibility: hidden;
+    }
+    to {
+      transform: translateY(0);
+      visibility: visible;
+    }
+  }
   .game .brand-ribbon {
     position: absolute;
     inset: 0;

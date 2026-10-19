@@ -177,14 +177,13 @@ export async function goBack(next: () => Screen): Promise<void> {
     const rollUp = !!banner && banner.offsetParent !== null;
     if (rollUp) {
       await banner!
-        .animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-101%)' }], {
+        // Hidden at the end: parked above the top edge, the page turn would tilt it back into view.
+        .animate([{ transform: 'translateY(0)', visibility: 'visible' }, { transform: 'translateY(-101%)', visibility: 'hidden' }], {
           duration: 110,
           easing: 'cubic-bezier(0.5, 0, 0.9, 0.6)',
           fill: 'forwards',
         })
         .finished.catch(() => undefined);
-      // Parked above the top edge, the page turn would tilt it back into view.
-      banner!.style.visibility = 'hidden';
     }
     leaving.style.transformOrigin = '0 50%';
     await leaving
