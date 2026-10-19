@@ -79,7 +79,7 @@ export const TEMPLATES = {
     codeNote,
     button: 'Sign in',
     type: 'email',
-    after: 'Good solving,<br>Barsmin, Elomental',
+    after: 'Good solving,<br>Elomental team',
   }),
   'confirm-signup': layout({
     title: 'Confirm your email',
@@ -87,7 +87,7 @@ export const TEMPLATES = {
     codeNote,
     button: 'Confirm email',
     type: 'email',
-    after: `${keeps}<br><br>Good solving,<br>Barsmin, Elomental`,
+    after: `${keeps}<br><br>Good solving,<br>Elomental team`,
   }),
   'change-email': layout({
     title: 'Confirm your email',
@@ -95,7 +95,7 @@ export const TEMPLATES = {
     codeNote,
     button: 'Confirm email',
     type: 'email_change',
-    after: `${keeps}<br><br>Good solving,<br>Barsmin, Elomental`,
+    after: `${keeps}<br><br>Good solving,<br>Elomental team`,
   }),
 };
 
