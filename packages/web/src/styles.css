@@ -912,11 +912,12 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   height: 34px;
 }
 /* A faint Art Deco frame inside every Home tile and the profile card, each tile its
-   own design (art/frames/*.svg, built by icons/build_frames.py), worn with grain so the
-   lines break here and there. Drawn in the tile's text colour through a mask-box-image: the corners keep their shape at any tile size
-   and the edge lines stretch between them. It sits under the tile's content (the tile
-   isolates, the frame is at z-index -1). Browsers without mask-box-image (Firefox)
-   simply show no frame. */
+   own design (art/frames/*-bright|crimson.svg, built by icons/build_frames.py), worn
+   with grain so the lines break here and there. Drawn with border-image, which works
+   in every browser (Firefox too): the corners keep their shape at any tile size and the
+   edge lines stretch between them. The SVG carries its ink (Bright, or Crimson where a
+   tile's text is Crimson); the layer's opacity makes it faint. It sits under the tile's
+   content (the tile isolates, the frame is at z-index -1). */
 .home-grid > .tile,
 .tile-setup,
 .profile-card {
@@ -937,29 +938,30 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   opacity: 0.16;
   pointer-events: none;
 }
-@supports (-webkit-mask-box-image: none) {
-  .home-grid > .tile::after,
-  .tile-setup::after,
-  .profile-card::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    border-radius: inherit;
-    background: currentColor;
-    opacity: 0.065;
-    -webkit-mask-box-image: var(--frame) 40 / calc(var(--frame-corner, 30px) * var(--frame-zoom, 1)) stretch;
-    pointer-events: none;
-  }
-  .profile-card { --frame: url('./art/frames/profile.svg'); --frame-corner: 44px; }
-  .area-store { --frame: url('./art/frames/store.svg'); }
-  .area-setup,
-  .tile-setup { --frame: url('./art/frames/setup.svg'); --frame-corner: 24px; }
-  .area-leader { --frame: url('./art/frames/leader.svg'); }
-  .area-daily { --frame: url('./art/frames/daily.svg'); }
-  .area-casual { --frame: url('./art/frames/casual.svg'); --frame-corner: 34px; }
-  .area-ranked { --frame: url('./art/frames/ranked.svg'); --frame-corner: 34px; }
+.home-grid > .tile::after,
+.tile-setup::after,
+.profile-card::after {
+  --corner: calc(var(--frame-corner, 30px) * var(--frame-zoom, 1));
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  box-sizing: border-box;
+  border: var(--corner) solid transparent;
+  border-image: var(--frame-ink) 40 / var(--corner) stretch;
+  opacity: 0.065;
+  pointer-events: none;
 }
+/* Each frame in both inks; the theme picks one (light: Crimson, except on the coloured
+   mode tiles, whose text stays Bright). */
+.profile-card { --frame-b: url('./art/frames/profile-bright.svg'); --frame-c: url('./art/frames/profile-crimson.svg'); --frame-corner: 44px; }
+.area-store { --frame-b: url('./art/frames/store-bright.svg'); --frame-c: url('./art/frames/store-crimson.svg'); }
+.area-setup,
+.tile-setup { --frame-b: url('./art/frames/setup-bright.svg'); --frame-c: url('./art/frames/setup-crimson.svg'); --frame-corner: 24px; }
+.area-leader { --frame-b: url('./art/frames/leader-bright.svg'); --frame-c: url('./art/frames/leader-crimson.svg'); }
+.area-daily { --frame-b: url('./art/frames/daily-bright.svg'); --frame-c: var(--frame-b); }
+.area-casual { --frame-b: url('./art/frames/casual-bright.svg'); --frame-c: var(--frame-b); --frame-corner: 34px; }
+.area-ranked { --frame-b: url('./art/frames/ranked-bright.svg'); --frame-c: var(--frame-b); --frame-corner: 34px; }
 /* The wide-screen tiles are about twice the size: their frame corners grow too. */
 @media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
   .home-grid {
@@ -968,8 +970,8 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
 }
 /*
  * Every other panel in the app (page cards, pop-ups) gets the plainest frame of the same
- * family (art/frames/panel.svg: one worn line with a small step in each corner), fainter
- * than Home's, so the pages feel related without competing with their content.
+ * family (panel-*.svg: one worn line with a small step in each corner), fainter than
+ * Home's, so the pages feel related without competing with their content.
  */
 .setting,
 .month-card,
@@ -982,29 +984,36 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
 .review-log {
   position: relative;
   isolation: isolate;
+  --frame-b: url('./art/frames/panel-bright.svg');
+  --frame-c: url('./art/frames/panel-crimson.svg');
 }
-@supports (-webkit-mask-box-image: none) {
-  .setting::after,
-  .month-card::after,
-  .reward-card::after,
-  .casual-card::after,
-  .friend-option::after,
-  .resume-card::after,
-  .modal::after,
-  .review-row::after,
-  .review-log::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    border-radius: inherit;
-    background: currentColor;
-    opacity: 0.045;
-    -webkit-mask-box-image: url('./art/frames/panel.svg') 40 / 16px stretch;
-    pointer-events: none;
-  }
+.setting::after,
+.month-card::after,
+.reward-card::after,
+.casual-card::after,
+.friend-option::after,
+.resume-card::after,
+.modal::after,
+.review-row::after,
+.review-log::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  box-sizing: border-box;
+  border: 16px solid transparent;
+  border-image: var(--frame-ink) 40 / 16px stretch;
+  opacity: 0.045;
+  pointer-events: none;
 }
-.tile-setup .tile-label {
+/* Which ink: Bright on the dark theme, Crimson on the light one (set on the elements, so
+   each picks up its own pair of files). */
+:is(.home-grid > .tile, .tile-setup, .profile-card, .setting, .month-card, .reward-card, .casual-card, .friend-option, .resume-card, .modal, .review-row, .review-log) {
+  --frame-ink: var(--frame-b);
+}
+:root[data-theme='light'] :is(.home-grid > .tile, .tile-setup, .profile-card, .setting, .month-card, .reward-card, .casual-card, .friend-option, .resume-card, .modal, .review-row, .review-log) {
+  --frame-ink: var(--frame-c);
+}.tile-setup .tile-label {
   font-size: var(--fs-label);
   line-height: 1;
 }
