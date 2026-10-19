@@ -191,7 +191,7 @@ const pathOf = (points: Point[]) =>
  * The lines as an SVG document shaped like the screen (`aspect` = width /
  * height). White strokes: the CSS mask only uses their shape.
  */
-export function grainSvg(aspect: number): string {
+export function grainSvg(aspect: number, stroke = '#fff'): string {
   const W = Math.round(aspect >= 1 ? LONG : LONG * aspect);
   const H = Math.round(aspect >= 1 ? LONG / aspect : LONG);
   const nx = Math.floor(W / STEP) + 1;
@@ -218,7 +218,7 @@ export function grainSvg(aspect: number): string {
   return (
     // Explicit size: without it browsers rasterise data-URL SVGs at a default size and crop them.
     `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">` +
-    `<g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round">` +
+    `<g fill="none" stroke="${stroke}" stroke-linecap="round" stroke-linejoin="round">` +
     groups.map((g, i) => (g.length ? `<path stroke-width="${widths[i]}" d="${g.join('')}"/>` : '')).join('') +
     `</g></svg>`
   );
@@ -228,10 +228,35 @@ export function grainSvg(aspect: number): string {
 const SHAPES = [0.45, 0.6, 0.8, 1, 1.3, 1.6, 2];
 const cache = new Map<number, string>();
 
+const shapeFor = (aspect: number) =>
+  SHAPES.reduce((best, s) => (Math.abs(Math.log(s / aspect)) < Math.abs(Math.log(best / aspect)) ? s : best));
+const svgUrl = (svg: string) => `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+
 function grainUrl(aspect: number): string {
-  const shape = SHAPES.reduce((best, s) => (Math.abs(Math.log(s / aspect)) < Math.abs(Math.log(best / aspect)) ? s : best));
-  if (!cache.has(shape)) cache.set(shape, `url("data:image/svg+xml,${encodeURIComponent(grainSvg(shape))}")`);
+  const shape = shapeFor(aspect);
+  if (!cache.has(shape)) cache.set(shape, svgUrl(grainSvg(shape)));
   return cache.get(shape)!;
+}
+
+/** The page's own background lines: --grain-color for each theme, baked into the strokes. */
+const LINE_COLOURS = { dark: 'rgba(232,232,206,0.045)', light: 'rgba(121,67,65,0.1)' } as const;
+
+/**
+ * The same lines painted on the page itself (html), under the app. In the home-screen
+ * app on iOS the app's layers can stop short of the bottom of the screen, leaving a strip
+ * where only the page shows; with the lines on the page too, that strip matches the rest.
+ * Placed exactly where #app::before's mask puts them (the same box, `cover`, centred).
+ */
+function paintPageLines(aspect: number): void {
+  const root = document.documentElement;
+  const shape = shapeFor(aspect);
+  const screenH = parseFloat(getComputedStyle(root).getPropertyValue('--screen-h')) || innerHeight;
+  const boxW = innerWidth, boxH = screenH + 120;                    // the layer: 60px past top and bottom
+  const w = Math.max(boxW, boxH * shape), h = w / shape;            // cover
+  root.style.setProperty('--page-lines-size', `${w}px ${h}px`);
+  root.style.setProperty('--page-lines-pos', `${(boxW - w) / 2}px ${-60 + (boxH - h) / 2}px`);
+  for (const theme of ['dark', 'light'] as const)
+    root.style.setProperty(`--page-lines-${theme}`, svgUrl(grainSvg(shape, LINE_COLOURS[theme])));
 }
 
 /**
@@ -241,7 +266,11 @@ function grainUrl(aspect: number): string {
  */
 export function applyGrain(): void {
   // The layer runs 60px past the top and bottom of the screen (styles.css).
-  const apply = () => document.documentElement.style.setProperty('--grain', grainUrl(innerWidth / (innerHeight + 120)));
+  const apply = () => {
+    const aspect = innerWidth / (innerHeight + 120);
+    document.documentElement.style.setProperty('--grain', grainUrl(aspect));
+    if (document.documentElement.classList.contains('standalone')) paintPageLines(aspect);
+  };
   if ('requestIdleCallback' in window) requestIdleCallback(apply, { timeout: 800 });
   else setTimeout(apply, 50);
   let timer = 0;

@@ -251,6 +251,17 @@ html[data-theme='light'],
 html[data-theme='light'] body {
   background: #ffffe5;
 }
+/* Home-screen app: the background lines on the page itself too (grain.ts), so a strip
+   the app's layers don't reach at the bottom still has them. */
+html.standalone {
+  background-image: var(--page-lines-dark, none);
+  background-size: var(--page-lines-size, cover);
+  background-position: var(--page-lines-pos, 0 0);
+  background-repeat: no-repeat;
+}
+html.standalone[data-theme='light'] {
+  background-image: var(--page-lines-light, none);
+}
 /*
  * The strip iOS 26 samples to tint its status-bar fade: a real element (iOS
  * ignores pseudo-elements), fixed, full width, opaque, deeper than 10px, in
@@ -1146,7 +1157,7 @@ html.standalone .screen.scrollable {
 }
 .screen.scrollable.fade-bottom,
 .sub-body.fade-bottom {
-  --fade-b: 56px;
+  --fade-b: 28px;
 }
 .field-hint {
   font-size: var(--fs-small) !important;
