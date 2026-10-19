@@ -10,6 +10,7 @@ import handCupLight from './art/hand-cup-light.png';
 import feather from './art/feather.png';
 import cogDark from './art/cog-dark.png';
 import cogLight from './art/cog-light.png';
+import calendar from './art/calendar.png';
 
 const stroke = (body: string, width = 1.8) =>
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
@@ -54,10 +55,8 @@ export const ICONS = {
       '<path d="M13.2 29.2L44 4L16 32Z" fill="#FAF4DD"/><path d="M16 32L44 4L18.8 34.8Z" fill="#C3BC9F"/><path d="M10 25.2L22.8 38L20 40.8L7.2 28Z" fill="#A69B84"/><path d="M12.6 32.6L15.4 35.4L9.4 41.4L6.6 38.6Z" fill="#8C826D"/><path d="M6 38.5L9.5 42L6 45.5L2.5 42Z" fill="#C3BC9F"/>',
   ),
   // Mode-tile icons sit on fixed-colour tiles, so one export serves both themes.
-  daily: art(
-    '0 0 48 48',
-    '<path d="M6.05037 0L0 6.0504V41.9495L6.05037 47.9999H41.9493L47.9996 41.9495V6.0504L41.9493 0H6.05037Z" fill="#E8D3CC"/><path d="M9.68064 5.84863L6.05042 9.47888V38.5208L9.68064 42.1511H38.7224L42.3527 38.5208V9.47888L38.7224 5.84863H9.68064Z" fill="#DBC5BC"/><path d="M41.9493 48L38.7224 42.1512L42.3526 38.521L47.9997 41.9496L41.9493 48Z" fill="#B5AEA0"/><path d="M41.9493 47.9996L38.7224 42.1509H9.68064L6.05042 47.9996H41.9493Z" fill="#B5AEA0"/><path d="M47.9997 41.9494L42.3527 38.5208V9.47886L47.9997 6.05029V41.9494Z" fill="#CABBB6"/><path d="M6.05037 48L9.6806 42.1512L6.05037 38.521L0 41.9496L6.05037 48Z" fill="#CABBB6"/><path d="M0 6.0504L6.05037 9.47897L9.6806 5.84872L6.05037 0L0 6.0504Z" fill="#FFECEB"/><path d="M9.68064 5.84872L6.05042 0H41.9493L38.7224 5.84872H9.68064Z" fill="#FFECEB"/><path d="M24.6048 25.2103L21.3779 26.4204V11.6978H24.6048V25.2103Z" fill="#A25856"/><path d="M35.2938 34.2856L24.6048 25.21L21.3779 26.42L33.277 36.3024L35.2938 34.2856Z" fill="#794341"/>',
-  ),
+  /** Brush-style calendar: the days crossed off, today ticked; drawn for the Crimson tile. */
+  daily: brush(calendar),
   /** Brush-style feather with a Lava shaft, drawn for the Forest tile and badge. */
   casual: brush(feather),
   ranked: art(

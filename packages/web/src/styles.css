@@ -732,8 +732,8 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
 }
 /* Icon boxes use the exported Figma sizes. */
 .area-daily .tile-icon {
-  width: 40px;
-  height: 40px;
+  width: 46px;
+  height: 50px;
 }
 /* The leaderboard arm reaches in from the tile's left edge (out past the padding);
    the tile clips it to its rounded corner. */
@@ -3672,10 +3672,13 @@ html[data-large-text] .shortcut-list {
     width: 72px;
     height: 60px;
   }
-  .area-setup .tile-icon,
-  .area-daily .tile-icon {
+  .area-setup .tile-icon {
     width: 60px;
     height: 60px;
+  }
+  .area-daily .tile-icon {
+    width: 64px;
+    height: 70px;
   }
   .area-casual .tile-icon {
     width: 92px;
