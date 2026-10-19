@@ -18,8 +18,12 @@ import sword from './art/sword.png';
 import swordFlame from './art/sword-flame.png';
 import swordBody from './art/sword-body.png';
 import swordHeat from './art/sword-heat.png';
-import clashDark from './art/clash-dark.png';
-import clashLight from './art/clash-light.png';
+import clashLeftDark from './art/clash-dark-left.png';
+import clashLeftLight from './art/clash-light-left.png';
+import clashRightDark from './art/clash-dark-right.png';
+import clashRightLight from './art/clash-light-right.png';
+import clashBurstDark from './art/clash-dark-burst.png';
+import clashBurstLight from './art/clash-light-burst.png';
 import megaphoneDark from './art/megaphone-dark.png';
 import megaphoneLight from './art/megaphone-light.png';
 
@@ -51,8 +55,17 @@ export const ICONS = {
    * anchored right, so a narrow tile trims the arm, never the cup.
    */
   leaderboard: brush(handCupLight, 'ic-light brush-arm') + brush(handCupDark, 'ic-dark brush-arm'),
-  /** Clash: a fist bump, two brush-outlined fists meeting with impact lines (icons/build_clash.py), one image per theme. */
-  clash: brush(clashLight, 'ic-light') + brush(clashDark, 'ic-dark'),
+  /**
+   * Clash: a fist bump, two brush-outlined fists meeting with impact lines
+   * (icons/build_clash.py). Three layers per theme (each fist, the impact lines) so
+   * the bump can play every few seconds (`.clash-live` in styles.css).
+   */
+  clash:
+    '<span class="clash-live">' +
+    brush(clashLeftLight, 'ic-light clash-left') + brush(clashLeftDark, 'ic-dark clash-left') +
+    brush(clashRightLight, 'ic-light clash-right') + brush(clashRightDark, 'ic-dark clash-right') +
+    brush(clashBurstLight, 'ic-light clash-burst') + brush(clashBurstDark, 'ic-dark clash-burst') +
+    '</span>',
   // Mode-tile icons sit on fixed-colour tiles, so one export serves both themes.
   /** Brush-style calendar: the days crossed off, today ticked; drawn for the Crimson tile. */
   daily: brush(calendar),

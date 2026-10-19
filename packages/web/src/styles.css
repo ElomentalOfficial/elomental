@@ -1933,7 +1933,7 @@ html.standalone .backdrop {
   background: var(--accent);
 }
 /* The fist bump spills over its badge, as it does in the Casual circle. */
-.sheet-icon.clash .brush-art {
+.sheet-icon.clash > .clash-live {
   transform: scale(1.75);
 }
 /* Square code's megaphone: a neutral badge (its cone is Lava, the accent badge's own
@@ -2468,8 +2468,102 @@ html[data-reduce-motion] .casual-feather-shadow {
 /* Brush art in a round badge spills over the circle, like the Home icons break out of
    their tiles: the circle stays a backdrop, the art sits on top of it. Any brush icon in
    these badges does this (Clash now; Square code and later ones too). */
-.friend-icon .brush-art {
+.friend-icon > :is(.brush-art, .clash-live) {
   transform: scale(2.1);
+}
+/*
+ * The Clash fist bump plays every 4 seconds (ICONS.clash: each fist and the impact lines
+ * are their own layer): the fists draw back, snap together and squash a little on the
+ * hit (narrower and taller, from their knuckles), bounce and settle; the impact lines
+ * burst out and wiggle as they settle. Still for Reduce motion.
+ */
+.clash-live {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.clash-live .brush-art {
+  position: absolute;
+  inset: 0;
+}
+.clash-live .clash-left {
+  transform-origin: 47% 52%;
+  animation: clash-left 4s ease-in-out infinite;
+}
+.clash-live .clash-right {
+  transform-origin: 53% 52%;
+  animation: clash-right 4s ease-in-out infinite;
+}
+.clash-live .clash-burst {
+  transform-origin: 50% 50%;
+  animation: clash-burst 4s ease-out infinite;
+}
+@keyframes clash-left {
+  0%,
+  62% {
+    transform: none;
+  }
+  74% {
+    transform: translateX(-7%) rotate(-3deg);
+  }
+  80% {
+    transform: translateX(1.5%) scale(0.9, 1.08);
+  }
+  86% {
+    transform: translateX(-1%) scale(1.03, 0.98);
+  }
+  92%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes clash-right {
+  0%,
+  62% {
+    transform: none;
+  }
+  74% {
+    transform: translateX(7%) rotate(3deg);
+  }
+  80% {
+    transform: translateX(-1.5%) scale(0.9, 1.08);
+  }
+  86% {
+    transform: translateX(1%) scale(1.03, 0.98);
+  }
+  92%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes clash-burst {
+  0%,
+  76% {
+    transform: none;
+    opacity: 0.55;
+  }
+  80% {
+    transform: scale(1.32) rotate(-5deg);
+    opacity: 1;
+  }
+  85% {
+    transform: scale(0.94) rotate(4deg);
+  }
+  90% {
+    transform: scale(1.06) rotate(-2deg);
+  }
+  95% {
+    transform: scale(1) rotate(1deg);
+  }
+  100% {
+    transform: none;
+    opacity: 0.55;
+  }
+}
+html[data-reduce-motion] .clash-live .brush-art {
+  animation: none;
+  opacity: 1;
 }
 .friend-option strong {
   font-family: var(--serif);
