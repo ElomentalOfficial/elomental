@@ -3652,10 +3652,13 @@ html[data-large-text] .shortcut-list {
     flex-direction: column;
     gap: 14px;
   }
+  /* The arm still runs in from the tile's left edge (out past the padding, which
+     isn't zoomed); the box ends 25px right of centre so the cup sits over the label. */
   .area-leader .tile-icon {
     flex: none;
-    width: 104px;
-    margin-left: 0;
+    align-self: flex-start;
+    width: calc(50% + 25px + 10px / var(--wide-zoom, 1));
+    margin-left: calc(-10px / var(--wide-zoom, 1));
   }
   .area-leader .tile-label {
     flex: none;
