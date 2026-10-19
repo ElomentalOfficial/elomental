@@ -1711,20 +1711,13 @@ html:not([data-large-text]) .daily-body {
 html:not([data-large-text]) .daily-body > * {
   flex-shrink: 0;
 }
-/* It takes only the height the cards leave free, so the page still fits without
-   scrolling; on screens too short for a calendar worth seeing (the smallest phones) it
-   steps aside. */
+/* It grows into the height the cards leave free and, like the feather, never shrinks
+   below a size worth seeing: on the shortest screens the page scrolls a little instead. */
 html:not([data-large-text]) .daily-art {
   flex: 1 1 0;
   height: auto;
-  min-height: 0;
+  min-height: 104px;
   max-height: 270px;
-  container-type: size;
-}
-@container (max-height: 96px) {
-  .daily-art > .calendar-live {
-    display: none;
-  }
 }
 /* Wide landscape screens: as on Casual, the page widens into two columns, the calendar
    on the left as tall as the cards, the cards unchanged on the right. */
