@@ -398,9 +398,12 @@ button:focus-visible,
   font-family: var(--serif);
   font-size: var(--fs-body);
   transform: translate(-50%, -200%);
+  /* Parked above the top edge, but a page turn tilts it into view: keep it unseen too. */
+  opacity: 0;
 }
 .skip-link:focus {
   transform: translate(-50%, 0);
+  opacity: 1;
 }
 /* Read by screen readers, not shown. */
 .sr-only {
