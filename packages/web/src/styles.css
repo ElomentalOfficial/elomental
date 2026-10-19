@@ -1699,9 +1699,6 @@ html.standalone .screen.scrollable {
   justify-content: center;
   align-items: flex-end;
   height: 150px;
-  cursor: pointer;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
 }
 html:not([data-large-text]) .daily-body {
   flex: 1 1 auto;
@@ -1781,6 +1778,10 @@ html:not([data-large-text]) .daily-art {
   display: block;
   height: 85%;
   aspect-ratio: 274 / 300;
+  /* Tap it to tear the page (daily.ts): only the drawing, not the empty row beside it. */
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .calendar-live .brush-art,
 .calendar-turn,

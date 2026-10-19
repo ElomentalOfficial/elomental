@@ -81,7 +81,8 @@ function tearOffCalendar(): HTMLElement {
   breeze(el);
   let taps = 0;
   let falling = false;
-  el.addEventListener('pointerdown', () => {
+  // only the drawing takes taps, not the empty row around it (like the feather's own box)
+  el.querySelector('.calendar-live')!.addEventListener('pointerdown', () => {
     if (reducedMotion() || falling) return;
     const from = HANGING[taps];
     taps++;
