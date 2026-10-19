@@ -1,5 +1,6 @@
 import { readJson, removeKey, writeJson } from '../storage.ts';
 import { cachedAccount, refreshAccount, registered, startGuestAccount } from './account.ts';
+import { captchaToken } from './captcha.ts';
 import { SUPABASE_KEY, SUPABASE_URL, supabase } from './client.ts';
 import * as copy from '../copy/en.ts';
 
@@ -25,7 +26,7 @@ export async function sendSignInEmail(
   const handoff = await startHandoff(email);
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { shouldCreateUser: true, emailRedirectTo: handoff ? `${redirect}?handoff=${handoff.id}` : redirect },
+    options: { shouldCreateUser: true, captchaToken: await captchaToken(), emailRedirectTo: handoff ? `${redirect}?handoff=${handoff.id}` : redirect },
   });
   return {
     error: error ? friendlyAuthError(error.message) : null,

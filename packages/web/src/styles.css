@@ -1535,6 +1535,14 @@ html.standalone .screen.scrollable {
     opacity: 0.45;
   }
 }
+/* Turnstile (backend/captcha.ts): empty unless it needs a tick, then a box above everything. */
+.captcha {
+  position: fixed;
+  left: 50%;
+  bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 1000;
+}
 /* The two-digit code both the app and the link's page show for a sign-in hand-off. */
 .match-code {
   display: flex;

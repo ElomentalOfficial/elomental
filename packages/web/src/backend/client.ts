@@ -7,6 +7,12 @@ import { createClient } from '@supabase/supabase-js';
 export const SUPABASE_URL = 'https://xekeiwaxxsmvalezgtyj.supabase.co';
 export const SUPABASE_KEY = 'sb_publishable_n7EsqEfzlcUCn6GI7YFdxw_Y74WqUwT';
 
+/**
+ * Cloudflare Turnstile site key (public; its secret lives only in Supabase,
+ * Authentication → Attack Protection). Empty: no captcha is asked for (captcha.ts).
+ */
+export const TURNSTILE_SITE_KEY = '';
+
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: {
     persistSession: true,

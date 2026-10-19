@@ -1,6 +1,7 @@
 import type { Session } from '@supabase/supabase-js';
 import { applySettings, cleanSettings, localSettings, type Settings } from '../settings.ts';
 import { readJson, removeKey, writeJson } from '../storage.ts';
+import { captchaToken } from './captcha.ts';
 import { supabase } from './client.ts';
 import * as copy from '../copy/en.ts';
 
@@ -104,7 +105,7 @@ export async function startGuestAccount(): Promise<void> {
   // Opened from an email link: that link signs this browser in (signIn.ts), and a
   // guest account starting at the same time could land after it and replace it.
   if (new URLSearchParams(location.search).has('token_hash')) return;
-  const { error } = await supabase.auth.signInAnonymously();
+  const { error } = await supabase.auth.signInAnonymously({ options: { captchaToken: await captchaToken() } });
   if (error) console.info('Playing as a local guest:', error.message);
 }
 
