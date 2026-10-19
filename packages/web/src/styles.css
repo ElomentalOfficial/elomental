@@ -68,7 +68,7 @@
   --tile-text: var(--c-bright);
   /* Home tiles: a crisp drop under each, and a brushed glint along the top. */
   --tile-shadow: color-mix(in srgb, var(--c-bg), black 22%);
-  --tile-glint: color-mix(in srgb, var(--c-bright) 22%, transparent);
+  --tile-glint: color-mix(in srgb, var(--c-bright) 13%, transparent);
   /* Dark home: the profile card is a dark Highlight surface with light text (Figma update). */
   --profile-bg: var(--c-highlight-2);
   --profile-text: var(--c-bright);
@@ -142,7 +142,7 @@
   --tile: var(--c-mud);
   --tile-text: var(--c-crimson);
   --tile-shadow: color-mix(in srgb, var(--c-rock) 45%, transparent);
-  --tile-glint: color-mix(in srgb, var(--c-bright) 80%, transparent);
+  --tile-glint: color-mix(in srgb, var(--c-bright) 42%, transparent);
   --profile-bg: var(--c-second-bright);
   --profile-text: var(--c-crimson);
   --chip-bg: rgba(38, 39, 33, 0.07);
@@ -710,6 +710,16 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
 .tile,
 .profile-card {
   box-shadow: 0 2px 0 var(--tile-shadow);
+}
+/* The coloured mode tiles cast a deeper shade of their own colour, not grey. */
+.area-casual {
+  --tile-shadow: color-mix(in srgb, var(--c-forest), black 30%);
+}
+.area-daily {
+  --tile-shadow: color-mix(in srgb, var(--c-crimson), black 30%);
+}
+.area-ranked {
+  --tile-shadow: color-mix(in srgb, var(--c-lava), black 30%);
 }
 /* A thin brushed glint right on the top edge (between the corner curves): one hand-drawn stroke that swells and
    thins (the mask), not a ruled line. */
