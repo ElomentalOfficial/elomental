@@ -2472,10 +2472,11 @@ html[data-reduce-motion] .casual-feather-shadow {
   transform: scale(2.1);
 }
 /*
- * The Clash fist bump plays every 4 seconds (ICONS.clash: each fist and the impact lines
- * are their own layer): the fists draw back, snap together and squash a little on the
- * hit (narrower and taller, from their knuckles), bounce and settle; the impact lines
- * burst out and wiggle as they settle. Still for Reduce motion.
+ * The Clash fist bump plays every 5 seconds (ICONS.clash: each fist and the impact lines
+ * are their own layer): the fists draw back, then snap together until their knuckles
+ * meet (a little past touching, so no gap shows) and stay pressed a moment, squashing
+ * from the knuckles (narrower and taller); then they bounce apart and settle. The impact
+ * lines burst out on the hit and wiggle as they settle. Still for Reduce motion.
  */
 .clash-live {
   position: relative;
@@ -2487,59 +2488,68 @@ html[data-reduce-motion] .casual-feather-shadow {
   position: absolute;
   inset: 0;
 }
+/* Origins at the knuckle fronts, so the squash never pulls the fists apart. */
 .clash-live .clash-left {
-  transform-origin: 47% 52%;
-  animation: clash-left 4s ease-in-out infinite;
+  transform-origin: 48% 52%;
+  animation: clash-left 5s ease-in-out infinite;
 }
 .clash-live .clash-right {
-  transform-origin: 53% 52%;
-  animation: clash-right 4s ease-in-out infinite;
+  transform-origin: 52% 52%;
+  animation: clash-right 5s ease-in-out infinite;
 }
 .clash-live .clash-burst {
   transform-origin: 50% 50%;
-  animation: clash-burst 4s ease-out infinite;
+  animation: clash-burst 5s ease-out infinite;
 }
 @keyframes clash-left {
   0%,
-  62% {
+  66% {
     transform: none;
   }
-  74% {
+  75% {
     transform: translateX(-7%) rotate(-3deg);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.6);
   }
-  80% {
-    transform: translateX(1.5%) scale(0.9, 1.08);
+  79% {
+    transform: translateX(3.2%) scale(0.9, 1.08);
   }
-  86% {
-    transform: translateX(-1%) scale(1.03, 0.98);
+  83% {
+    transform: translateX(3.2%) scale(0.94, 1.04);
   }
-  92%,
+  88% {
+    transform: translateX(-1%) scale(1.02, 0.99);
+  }
+  94%,
   100% {
     transform: none;
   }
 }
 @keyframes clash-right {
   0%,
-  62% {
+  66% {
     transform: none;
   }
-  74% {
+  75% {
     transform: translateX(7%) rotate(3deg);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.6);
   }
-  80% {
-    transform: translateX(-1.5%) scale(0.9, 1.08);
+  79% {
+    transform: translateX(-3.2%) scale(0.9, 1.08);
   }
-  86% {
-    transform: translateX(1%) scale(1.03, 0.98);
+  83% {
+    transform: translateX(-3.2%) scale(0.94, 1.04);
   }
-  92%,
+  88% {
+    transform: translateX(1%) scale(1.02, 0.99);
+  }
+  94%,
   100% {
     transform: none;
   }
 }
 @keyframes clash-burst {
   0%,
-  76% {
+  77% {
     transform: none;
     opacity: 0.55;
   }
