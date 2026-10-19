@@ -5,6 +5,9 @@
  * whatever is behind the icon, which keeps them right in both themes.
  */
 
+import handCupDark from './art/hand-cup-dark.svg?raw';
+import handCupLight from './art/hand-cup-light.svg?raw';
+
 const stroke = (body: string, width = 1.8) =>
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
 const fill = (d: string) => `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="${d}"/></svg>`;
@@ -17,11 +20,13 @@ const art = (viewBox: string, body: string, cls = '') =>
   `<svg${cls ? ` class="${cls}"` : ''} viewBox="${viewBox}" aria-hidden="true">${body}</svg>`;
 /** A light-theme and a dark-theme export; CSS shows the one for the current theme. */
 const themed = (viewBox: string, light: string, dark: string) => art(viewBox, light, 'ic-light') + art(viewBox, dark, 'ic-dark');
+/** A whole brush-art file from art/, tagged for its theme; it scales to fill its box from the right. */
+const armIcon = (svg: string, cls: string) => svg.replace('<svg ', `<svg class="${cls}" preserveAspectRatio="xMaxYMid slice" `);
 const figmaStroke = (body: string) =>
   `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
 
 export const ICONS = {
-  // Home icons: assets/setup_*.svg, store_*.svg (_white = light theme); the podium is drawn here.
+  // Home icons: assets/setup_*.svg, store_*.svg (_white = light theme); the leaderboard cup lives in art/.
   setup: themed(
     '0 0 42 42',
     '<path d="M12.6 9L5.88 5.4375L0 14.5312L6.16 19.0312V22.2187L0 27L5.88 36.1875L12.6 33.1875L14.7467 34.5L15.8667 42H26.04L27.0667 34.5L29.4 33.1875L36.2133 36.1875L41.72 27L35.6533 22.7812V19.875L42 15.1875L36.2133 6.09375L29.4 9.5625L27.0667 7.875L26.04 0H15.8667L14.7467 7.875L12.6 9Z" fill="#794341"/><path d="M23.1143 23.8633L29.4016 33.1862L27.0689 34.4959L22.403 24.3367L23.1143 23.8633Z" fill="#5E3433"/><path d="M24.2563 22.038L35.647 22.7649V19.9414L24.3529 21.0002L24.2563 22.038Z" fill="#5E3433"/><path d="M23.2938 18.6546L29.3989 9.5634L27.0666 7.87793L22.3996 18.0145L23.2938 18.6546Z" fill="#D8B3B1"/><path d="M19.3733 17.9618L14.7609 7.87402L12.6011 9.00109L18.1785 18.8332L19.3733 17.9618Z" fill="#D8B3B1"/><path d="M17.3048 21.418L6.16132 22.216V19.0312L17.4607 20.1094L17.3048 21.418Z" fill="#5E3433"/><path d="M18.5631 23.894L12.6028 33.1878L14.7491 34.4976L19.5274 24.4593L18.5631 23.894Z" fill="#5E3433"/><path d="M23.8235 23.1174L39 31.588L41.8235 26.9998L35.6471 22.7645L24.1765 22.0586L23.8235 23.1174Z" fill="#A36866"/><path d="M24 19.765L39 10.5885L36.1765 6.17676L29.4706 9.5297L23.2941 18.7062L24 19.765Z" fill="#A36866"/><path d="M21 17.6471V0H15.8824L14.8235 7.94118L19.4118 18L21 17.6471Z" fill="#A36866"/><path d="M17.7429 19.4679L3.12308 9.69678L0.000793457 14.5326L6.17646 19.0587L17.4706 20.1175L17.7429 19.4679Z" fill="#A36866"/><path d="M17.7277 22.8785L3.03708 31.745L0 27.0002L6.16171 22.2193L17.3059 21.4238L17.7277 22.8785Z" fill="#A36866"/><path d="M21 24.7058V41.9999H15.8823L14.7467 34.5004L19.5279 24.4653L21 24.7058Z" fill="#A36866"/><circle cx="20.8235" cy="21.1764" r="3.52941" fill="#DADBB9"/>',
@@ -33,35 +38,12 @@ export const ICONS = {
     '<path d="M54 14.8701L27 44.2178L0 14.8701H15.6523L6.65234 7.23926L12.7178 0H41.6738L54 14.8701ZM15.6523 14.8701L27 28.1738L38.3477 14.8701H15.6523Z" fill="#DFD5C2"/><path d="M38.3478 14.8696L27 44.2176L54 14.8696H38.3478Z" fill="#C3BC9F"/><path d="M27 44.2176V28.174L38.3478 14.8696L27 44.2176Z" fill="#E6E4CC"/><path d="M41.6739 0L38.3478 14.8696H54L41.6739 0Z" fill="#B8A486"/><path d="M26.9392 28.24L15.6062 14.8633L38.3521 14.8676L26.9392 28.24Z" fill="#FFFFEB"/>',
   ),
   /**
-   * Leaderboard: a brush-drawn podium with the cup on top, like a marker sketch:
-   * chunky strokes and a filter that roughens every edge (#pd-rough). Drawn in
-   * the tile's text colour; the 3 is cut out in the tile colour (.pd-cut).
+   * Leaderboard: a long arm reaching in from the tile edge, raising a cup. Brush-icon
+   * style in palette colours only, one file per theme (art/hand-cup-*.svg); each
+   * file's ids carry its own prefix (lbd-, lbl-) so the two can sit on the page together.
+   * On a narrow tile the box shrinks and `xMaxYMid slice` trims the arm, never the cup.
    */
-  leaderboard: art(
-    '2 0 96 92',
-    '<defs><filter id="pd-rough" x="-5%" y="-5%" width="110%" height="110%">' +
-      '<feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="2" seed="4" result="warp"/>' +
-      '<feDisplacementMap in="SourceGraphic" in2="warp" scale="2.4" xChannelSelector="R" yChannelSelector="G" result="wobble"/>' +
-      '<feTurbulence type="fractalNoise" baseFrequency="0.4" numOctaves="2" seed="9" result="grain"/>' +
-      '<feDisplacementMap in="wobble" in2="grain" scale="1.6" xChannelSelector="R" yChannelSelector="G"/>' +
-      '</filter></defs>' +
-      '<g filter="url(#pd-rough)">' +
-      '<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">' +
-      '<path stroke-width="5" d="M15 59.5 36.5 57.5M15.5 59.5 16.5 82M35.5 46.5 63 45M35.5 46.5 36.5 82M63 45 62.5 64"/>' +
-      '<path stroke-width="5.6" d="M6 83C30 81.6 60 84.2 94 82.4"/>' +
-      '<path stroke-width="3" d="M22 89.5H33M66 90H79"/>' +
-      '<path stroke-width="4.2" d="M21.5 66.5C23 62.5 31 62.5 30.5 67.5 30 71.5 22 75 21.5 78L31 77.5"/>' +
-      '<path stroke-width="4.8" d="M44.5 57.5 49.5 52.5 50 71"/>' +
-      '<path stroke-width="4.6" d="M38 17.5H60.5C60.5 28 55 34 49 34 43 34 38 28 38 17.5ZM38.5 21C29.5 18.5 28 29.5 39.5 29.5M60 21C69 18.5 70.5 29.5 59 29.5M49.5 39 49.7 33.5"/>' +
-      '<path stroke-width="3.8" d="M49.5 3.5V9.5M37.5 6.5 41 11.5M61.5 6.5 58 11.5"/>' +
-      '<path stroke-width="3" d="M5 38C9 30 15 25.5 20 25.5 24 25.5 24 31.5 20 31.5 16.5 31.5 17 24.5 24 21.5 27 20 31 19 34 18.5"/>' +
-      '<path stroke-width="3.4" d="M80 31H88M84 27V35M85.5 16.5H90.5M88 14V19"/>' +
-      '</g>' +
-      '<g fill="currentColor"><path d="M43.5 38.5 56 38 56.5 45.5 43 46Z"/><path d="M61.5 64.5 83 63 84 82.5 61.5 82.5Z"/><circle cx="31" cy="41" r="1.6"/><circle cx="79" cy="41.5" r="1.6"/><circle cx="10.5" cy="76.5" r="1.5"/><circle cx="12.5" cy="70.5" r="1.3"/><circle cx="90.5" cy="75.5" r="1.5"/><circle cx="88" cy="70" r="1.3"/></g>' +
-      '<path class="pd-cut" fill="none" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" d="M66.5 69.5C68.5 67.5 74.5 67.5 74.5 70.5 74.5 73 71.5 73.5 70 73.7 72.5 73.7 75.5 74.7 75 77.5 74.5 80.3 69 80.7 66.5 79"/>' +
-      '</g>',
-    'ic-podium',
-  ),
+  leaderboard: armIcon(handCupLight, 'ic-light') + armIcon(handCupDark, 'ic-dark'),
   /** Crossed swords (assets/clash.svg), faceted to match the Figma set. */
   clash: art(
     '0 0 48 48',

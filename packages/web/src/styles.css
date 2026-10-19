@@ -720,13 +720,13 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   width: 40px;
   height: 40px;
 }
+/* The leaderboard arm reaches in from the tile's left edge (out past the padding);
+   the tile clips it to its rounded corner. */
 .area-leader .tile-icon {
-  width: 60px;
+  flex: 0 1 104px;
+  min-width: 56px;
   height: 58px;
-}
-/* The brush-drawn podium (icons.ts): the 3 cut out in the tile colour. */
-.ic-podium .pd-cut {
-  stroke: var(--tile);
+  margin-left: -10px;
 }
 .area-daily .tile-label {
   font-size: var(--fs-label);
@@ -745,7 +745,12 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
 }
 .area-leader {
   grid-area: leader;
-  flex-direction: row-reverse;
+  /* clip, not hidden: hidden would let the grid shrink this row and squeeze Daily */
+  overflow: clip;
+  gap: var(--space-3);
+}
+.area-leader .tile-label {
+  flex: 1;
 }
 .area-casual {
   grid-area: casual;
@@ -3646,6 +3651,14 @@ html[data-large-text] .shortcut-list {
   .area-leader {
     flex-direction: column;
     gap: 14px;
+  }
+  .area-leader .tile-icon {
+    flex: none;
+    width: 104px;
+    margin-left: 0;
+  }
+  .area-leader .tile-label {
+    flex: none;
   }
   /* Daily is a near-square tile here: icon and label together, centred. */
   .area-daily {
