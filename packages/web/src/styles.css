@@ -1714,8 +1714,8 @@ html:not([data-large-text]) .daily-body > * {
 html:not([data-large-text]) .daily-art {
   flex: 1 1 0;
   height: auto;
-  min-height: 132px;
-  max-height: 270px;
+  min-height: 200px;
+  max-height: 290px;
 }
 /* Short screens (most phones with the browser bars showing): tighter spacing and a
    slimmer reward card, so the calendar drawing keeps its height and the page still fits. */
@@ -1913,7 +1913,12 @@ html:not([data-large-text]) .daily-art {
 .day.missed::after {
   content: '';
   position: absolute;
-  inset: 22% 22%;
+  /* a square in the middle, so the line stays at 45deg even in the flatter tiles of short screens */
+  top: 50%;
+  left: 50%;
+  height: 56%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
   background: linear-gradient(to top right, transparent calc(50% - 0.75px), currentColor calc(50% - 0.75px), currentColor calc(50% + 0.75px), transparent calc(50% + 0.75px));
   opacity: 0.6;
   pointer-events: none;
