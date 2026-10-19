@@ -2020,6 +2020,12 @@ html.standalone .backdrop {
 /* A page (screens/casual.ts): the tagline, a card for playing alone, then playing
    with a friend. Like Daily, one block centred under the header; it scrolls on
    short phones. Clash and Square code open as pop-ups over it. */
+/*
+ * Casual fits the screen, like Home: every option in view, no scrolling. The body is
+ * held to the page's height and only the feather gives way (it shrinks, down to a
+ * small mark); short phones also lay the head and friend cards out in rows. At Text
+ * size 125% and up the words need the room, so there the page scrolls instead.
+ */
 .casual-body {
   flex: 1 0 auto;
   display: flex;
@@ -2027,9 +2033,91 @@ html.standalone .backdrop {
   justify-content: center;
   gap: var(--space-4);
   /* Room above the feather for its drift-in and tap swings: the scrolling body clips
-     anything that rises past its top edge, and on short phones the feather sits there. */
-  padding-top: 40px;
+     anything that rises past its top edge. */
+  padding-top: clamp(16px, 5dvh, 40px);
   padding-bottom: var(--space-2);
+}
+html:not([data-large-text]) .casual-body {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+html:not([data-large-text]) .casual-body > * {
+  flex-shrink: 0;
+}
+html:not([data-large-text]) .casual-body > .casual-head {
+  flex-shrink: 1;
+  /* Never below a small feather plus the tagline, so nothing slides under the cards. */
+  min-height: calc(var(--fs-label) * 1.25 + var(--space-2) + 44px);
+}
+html:not([data-large-text]) .casual-feather {
+  flex: 0 1 auto;
+  min-height: 44px;
+}
+/* The art scales to whatever height the feather is given. */
+.casual-feather .brush-art {
+  object-fit: contain;
+}
+/* Short screens, and wide ones (whose pages are zoomed up): the feather beside the tagline. */
+@media (max-height: 720px), (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+  html:not([data-large-text]) .casual-body > .casual-head {
+    flex-direction: row;
+    justify-content: center;
+    gap: var(--space-3);
+    min-height: 0;
+    text-align: left;
+  }
+  html:not([data-large-text]) .casual-feather {
+    width: 76px;
+    height: 58px;
+    flex: none;
+  }
+}
+@media (max-height: 720px) {
+  html:not([data-large-text]) .casual-body {
+    gap: var(--space-3);
+  }
+  html:not([data-large-text]) .casual-card {
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+  html:not([data-large-text]) .difficulty {
+    padding: 8px 0 7px;
+  }
+  /* Clash and Square code as rows: icon, then name and line. */
+  html:not([data-large-text]) .friend-option {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: var(--space-3);
+    align-items: center;
+    padding: var(--space-3);
+    text-align: left;
+  }
+  html:not([data-large-text]) .friend-icon {
+    grid-row: span 2;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 0;
+    padding: 10px;
+  }
+  html:not([data-large-text]) .friend-option strong {
+    font-size: var(--fs-body);
+    white-space: normal;
+  }
+}
+/* Short and narrow (small phones): the two rows stack, full width, so their words stay on one line. */
+@media (max-height: 720px) and (max-width: 360px) {
+  html:not([data-large-text]) .friend-card {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+  html:not([data-large-text]) .friend-option {
+    padding: var(--space-2) var(--space-3);
+  }
+  html:not([data-large-text]) .friend-icon {
+    width: 34px;
+    height: 34px;
+    padding: 8px;
+  }
 }
 .casual-friends {
   display: flex;
