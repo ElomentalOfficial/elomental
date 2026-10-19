@@ -12,6 +12,11 @@ import feather from './art/feather.png';
 import cogDark from './art/cog-dark.png';
 import cogLight from './art/cog-light.png';
 import calendar from './art/calendar.png';
+import calendarBack from './art/calendar-back.png';
+import calendarUnder from './art/calendar-under.png';
+import calendarFront from './art/calendar-front.png';
+import calendarPageBack from './art/calendar-pageback.png';
+import calendarRings from './art/calendar-rings.png';
 import walletDark from './art/wallet-dark.png';
 import walletLight from './art/wallet-light.png';
 import sword from './art/sword.png';
@@ -69,6 +74,20 @@ export const ICONS = {
   // Mode-tile icons sit on fixed-colour tiles, so one export serves both themes.
   /** Brush-style calendar: the days crossed off, today ticked; drawn for the Crimson tile. */
   daily: brush(calendar),
+  /**
+   * The same calendar in layers, for the Daily Square page: the page behind, the next
+   * day's page right under the front one, the front page
+   * (its blank back turned round behind it) and the rings on top. The front page lifts
+   * in a breeze now and then (`.calendar-live` in styles.css) and flips right over the
+   * rings when tapped (flippingCalendar in daily.ts).
+   */
+  dailyLive:
+    '<span class="calendar-live">' +
+    brush(calendarBack) +
+    brush(calendarUnder) +
+    `<span class="calendar-turn">${brush(calendarFront, 'calendar-front')}${brush(calendarPageBack, 'calendar-pageback')}</span>` +
+    brush(calendarRings) +
+    '</span>',
   /** Brush-style feather with a Lava shaft, drawn for the Forest tile and badge. */
   casual: brush(feather),
   /** Brush-style sword wrapped in one flame, drawn for the Lava tile and the Ranked pop-up badge. */

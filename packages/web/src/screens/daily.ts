@@ -1,3 +1,4 @@
+import { reducedMotion } from '../a11y.ts';
 import { ICONS } from '../icons.ts';
 import { dailyKey, dateKey, loadProfile, nextResetIn } from '../profile.ts';
 import { goBack, h, subPage, toast, type Screen } from '../ui.ts';
@@ -6,6 +7,46 @@ import { homeScreen } from './home.ts';
 import * as copy from '../copy/en.ts';
 
 const WEEKDAYS = copy.daily.weekdays;
+
+/**
+ * The page's calendar, like the Casual feather: its front page lifts in a breeze now and
+ * then (CSS), and a tap or click flips it right over the rings to the next day's page;
+ * then the turned page fades and settles back in place. Purely decorative: no role, not in the tab order, still when motion is off.
+ */
+function flippingCalendar(): HTMLElement {
+  const el = h('span', { class: 'daily-art', html: ICONS.dailyLive, attrs: { 'aria-hidden': 'true' } });
+  const turn = el.querySelector<HTMLElement>('.calendar-turn')!;
+  // the page's two sides (the turning box itself can't fade: that would flatten its 3D)
+  const sides = [...turn.children] as HTMLElement[];
+  let flipping = false;
+  // The hinge is the binder rings, tilted with the drawing (-6deg), so the page turns about them.
+  const at = (deg: number) => `perspective(420px) rotate(-6deg) rotateX(${deg}deg) rotate(6deg)`;
+  el.addEventListener('pointerdown', () => {
+    if (reducedMotion() || flipping) return;
+    flipping = true;
+    const flip = turn.animate(
+      [
+        { transform: at(0), easing: 'cubic-bezier(0.45, 0, 0.25, 1)' },
+        { transform: at(180), offset: 0.5 },
+        { transform: at(180), offset: 1 },
+      ],
+      { duration: 1300 },
+    );
+    // once it lies over the top, the turned page fades and the next one fades in below
+    for (const side of sides) {
+      side.animate([{ opacity: 1 }, { opacity: 1, offset: 0.6 }, { opacity: 0, offset: 0.8 }, { opacity: 0 }], { duration: 1300 });
+    }
+    void flip.finished.then(
+      () => {
+        // (the front side only: the back keeps its own turned-round transform, out of sight)
+        sides[0].animate([{ opacity: 0, translate: '0 -3%' }, { opacity: 1, translate: '0 0' }], { duration: 320, easing: 'ease-out' });
+        flipping = false;
+      },
+      () => (flipping = false),
+    );
+  });
+  return el;
+}
 
 export function dailyScreen(): Screen {
   const profile = loadProfile();
@@ -70,6 +111,7 @@ export function dailyScreen(): Screen {
     h(
       'div',
       { class: 'daily-body' },
+      flippingCalendar(),
       h(
         'section',
         { class: 'month-card' },

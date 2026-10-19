@@ -1690,6 +1690,118 @@ html.standalone .screen.scrollable {
   gap: 14px;
   padding-bottom: 8px;
 }
+/* The calendar above the month card (flippingCalendar, daily.ts), like the Casual
+   feather: it grows into the free height, its front page lifts in a breeze every few
+   seconds and a tap flips it over the rings. The drawing fills the lower 68% of the
+   box: the top is room for the page lying flipped over the rings. */
+.daily-art {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 150px;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+html:not([data-large-text]) .daily-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  justify-content: safe center;
+}
+html:not([data-large-text]) .daily-body > * {
+  flex-shrink: 0;
+}
+/* It takes only the height the cards leave free, so the page still fits without
+   scrolling; on screens too short for a calendar worth seeing (the smallest phones) it
+   steps aside. */
+html:not([data-large-text]) .daily-art {
+  flex: 1 1 0;
+  height: auto;
+  min-height: 0;
+  max-height: 270px;
+  container-type: size;
+}
+@container (max-height: 96px) {
+  .daily-art > .calendar-live {
+    display: none;
+  }
+}
+/* Wide landscape screens: as on Casual, the page widens into two columns, the calendar
+   on the left as tall as the cards, the cards unchanged on the right. */
+@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+  html:not([data-large-text]) .screen.daily {
+    max-width: calc(820px * var(--text-scale, 1));
+  }
+  html:not([data-large-text]) .daily-body {
+    display: grid;
+    /* the cards keep their one-column width: any wider and the month grows past the screen */
+    grid-template-columns: minmax(0, 1fr) minmax(0, 410px);
+    grid-auto-rows: auto;
+    align-content: safe center;
+    column-gap: var(--space-6);
+    row-gap: 14px;
+  }
+  html:not([data-large-text]) .daily-art {
+    grid-column: 1;
+    grid-row: 1 / span 3;
+    align-self: center;
+    height: min(100%, 340px);
+    max-height: none;
+  }
+  html:not([data-large-text]) .daily-body > :not(.daily-art) {
+    grid-column: 2;
+  }
+}
+/* The layers share the drawing's frame, so the box keeps its shape: the hinge below
+   is a spot on the drawing. */
+.calendar-live {
+  position: relative;
+  display: block;
+  height: 68%;
+  aspect-ratio: 274 / 300;
+}
+.calendar-live .brush-art,
+.calendar-turn {
+  position: absolute;
+  inset: 0;
+}
+.calendar-turn {
+  transform-style: preserve-3d;
+  /* the binder rings */
+  transform-origin: 47.4% 24.2%;
+  animation: calendar-breeze 6s ease-in-out 1s infinite;
+}
+.calendar-turn .brush-art {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+/* The page's blank back, turned round behind it (drawn mirrored, so it reads right once flipped). */
+.calendar-turn .calendar-pageback {
+  transform: rotateY(180deg);
+}
+/* A gust lifts the page off the one below, it flutters and settles back down. */
+@keyframes calendar-breeze {
+  0%,
+  70%,
+  100% {
+    transform: perspective(500px) rotate(-6deg) rotateX(0deg) rotate(6deg);
+  }
+  78% {
+    transform: perspective(500px) rotate(-6deg) rotateX(40deg) rotate(6deg);
+  }
+  84% {
+    transform: perspective(500px) rotate(-6deg) rotateX(16deg) rotate(6deg);
+  }
+  89% {
+    transform: perspective(500px) rotate(-6deg) rotateX(26deg) rotate(6deg);
+  }
+  95% {
+    transform: perspective(500px) rotate(-6deg) rotateX(4deg) rotate(6deg);
+  }
+}
+html[data-reduce-motion] .calendar-turn {
+  animation: none;
+}
 .month-card {
   display: flex;
   flex-direction: column;
