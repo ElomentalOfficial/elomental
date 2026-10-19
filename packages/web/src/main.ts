@@ -1,4 +1,5 @@
 import './styles.css';
+import './frames.css';
 import { initBackend } from './backend.ts';
 import { installWheelScroll, installZoomGuards } from './gestures.ts';
 import { welcomeScreen } from './screens/welcome.ts';
