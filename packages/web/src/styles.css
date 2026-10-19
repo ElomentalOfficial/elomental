@@ -307,10 +307,12 @@ html {
   --scrim-bottom: #323330;
 }
 html[data-theme='light'] {
-  /* Frosted glass: milky Bright over the softly blurred page. */
-  --frost: rgba(255, 255, 229, 0.55);
-  --scrim-top: #ffffe5;
-  --scrim-bottom: #ffffe5;
+  /* Frosted glass: a smoky Rock over the softly blurred page, a step darker than the
+     page (the dark theme's frost is a step lighter), so the pop-up stands forward. */
+  --frost: rgba(179, 181, 160, 0.45);
+  /* Bright under that frost */
+  --scrim-top: #dddec6;
+  --scrim-bottom: #dddec6;
 }
 html.modal-open,
 html.modal-open body {
