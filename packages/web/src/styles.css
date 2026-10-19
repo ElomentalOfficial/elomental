@@ -122,7 +122,9 @@
   --primary-text: var(--on-accent);
   /* Colours taken from the Figma icon exports (eraser shade follows the accent). */
   --separator: #40413c;
-  --mistake-on: var(--c-bright);
+  /* Mistake skulls: filled; an unused one in Highlight2, a used one in Lava. */
+  --mistake-off: var(--c-highlight-2);
+  --mistake-on: var(--c-lava);
   --eraser-shade: rgba(38, 39, 33, 0.45);
 }
 
@@ -187,7 +189,8 @@
   --primary-bg: var(--accent);
   --primary-text: var(--c-bright);
   --separator: #e8e8cc;
-  --mistake-on: var(--c-crimson);
+  --mistake-off: var(--c-mud);
+  --mistake-on: var(--c-lava);
   --eraser-shade: rgba(255, 255, 229, 0.55);
 }
 
@@ -2741,13 +2744,8 @@ html.standalone .toast {
 .skull {
   width: 19px;
   height: 18px;
-  color: var(--muted);
+  color: var(--mistake-off);
   transition: color 0.2s ease, transform 0.2s ease;
-}
-.skull:not(.used) svg * {
-  fill: transparent;
-  stroke: currentColor;
-  stroke-width: 1.2px;
 }
 .skull.used {
   color: var(--mistake-on);
@@ -3597,8 +3595,9 @@ html[data-contrast='high'] .box-frame {
 html[data-contrast='high'] :is(button, [href], [tabindex]:not([tabindex='-1'])):focus-visible {
   outline-width: 3px;
 }
-html[data-contrast='high'] .skull:not(.used) svg * {
-  stroke-width: 1.6px;
+/* High contrast: the empty mistake slots show clearly too. */
+html[data-contrast='high'] .skull:not(.used) {
+  color: var(--muted);
 }
 
 /*

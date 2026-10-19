@@ -62,7 +62,7 @@ export const PAIRS: Pair[] = [
   ['UI: focus outline vs page', '--focus', '--bg', 3],
   ['UI: focus outline vs modal', '--focus', '--modal-bg', 3],
   ['UI: mistake used vs page', '--mistake-on', '--bg', 3],
-  ['UI: mistake unused (outline) vs page', '--muted', '--bg', 3],
+  ['UI: mistake unused vs page', '--mistake-off', '--bg', 3],
   ['UI: keypad key vs page', '--key-bg', '--bg', 3],
   ['UI: text field border vs modal', '--field-border', '--modal-bg', 3],
   ['UI: selected segment ring vs track', '--select', '--chip-bg', 3, '--modal-bg'],
@@ -81,6 +81,7 @@ export const ACCEPTED: Record<string, string> = {
   'UI: same-number fill vs cell': 'supplementary; the number itself is the cue',
   'UI: action button vs page': 'buttons are identified by their text label',
   'UI: modal border': 'decorative hairline',
+  'UI: mistake unused vs page': 'an empty slot: used skulls (Lava, 3:1 and scaled up) carry the count, the row label says it, and High contrast fills the slots in --muted',
   'UI: selection ring vs same-number fill': 'light theme: the inner ring (--select-inner) carries it there',
 };
 
