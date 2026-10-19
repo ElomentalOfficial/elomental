@@ -51,9 +51,15 @@ export async function addToHome(): Promise<void> {
   showSteps();
 }
 
-function showSteps(): void {
+/** The Share/menu steps for this phone, as a numbered list. */
+function stepsList(): HTMLElement {
   const t = copy.install;
   const steps = ios() ? t.stepsIos : t.stepsAndroid;
+  return h('ol', { class: 'install-steps' }, ...steps.map((step, i) => h('li', {}, h('span', { class: 'install-step-num', text: String(i + 1) }), h('span', { text: step }))));
+}
+
+function showSteps(): void {
+  const t = copy.install;
   let close = () => {};
   const content = h(
     'div',
@@ -62,7 +68,7 @@ function showSteps(): void {
     h('span', { class: 'install-icon', html: ICONS.phone }),
     h('h2', { text: t.title }),
     h('p', { text: t.why }),
-    h('ol', { class: 'install-steps' }, ...steps.map((step, i) => h('li', {}, h('span', { class: 'install-step-num', text: String(i + 1) }), h('span', { text: step })))),
+    stepsList(),
     h('button', { class: 'btn', text: t.done, onclick: () => close() }),
   );
   close = openModal(content);
@@ -86,26 +92,57 @@ export function countNoteVisit(): void {
 export function addToHomeNote(): HTMLElement | null {
   const seen = noteVisits();
   if (seen === NOTE_DONE || seen >= NOTE_VISITS || !canAddToHome() || !tutorialDone()) return null;
-  const t = copy.install;
   const done = () => {
     writeJson(NOTE_KEY, NOTE_DONE);
     note.remove();
   };
-  const note = h(
+  const note = noteRow(
+    () => {
+      done();
+      void addToHome();
+    },
+    done,
+  );
+  return note;
+}
+
+/** One quiet row: phone icon, the line, How, and ✕. */
+function noteRow(onHow: () => void, onClose: () => void): HTMLElement {
+  const t = copy.install;
+  return h(
     'div',
     { class: 'install-note', attrs: { role: 'note' } },
     h('span', { class: 'install-note-icon', html: ICONS.phone }),
     h('span', { class: 'install-note-text', text: t.note }),
-    h('button', {
-      class: 'install-note-how',
-      text: t.how,
-      attrs: { 'aria-label': t.howLabel },
-      onclick: () => {
-        done();
-        void addToHome();
-      },
-    }),
-    h('button', { class: 'install-note-close', html: ICONS.close, attrs: { 'aria-label': t.closeNote }, onclick: done }),
+    h('button', { class: 'install-note-how', text: t.how, attrs: { 'aria-label': t.howLabel }, onclick: onHow }),
+    h('button', { class: 'install-note-close', html: ICONS.close, attrs: { 'aria-label': t.closeNote }, onclick: onClose }),
   );
-  return note;
+}
+
+/*
+ * The same note in the result pop-up, for phones where Home has no room for it: after
+ * the first solved square (any mode), then every 5th solve (6th, 11th, …), until
+ * Elomental runs from the home screen. ✕ hides it for this result only.
+ */
+const SOLVES_KEY = 'elomental:install-solves';
+const SOLVES_EVERY = 5;
+
+export function addToHomeResultNote(won: boolean): HTMLElement | null {
+  if (!won || !canAddToHome()) return null;
+  const solves = (readJson<number>(SOLVES_KEY) ?? 0) + 1;
+  writeJson(SOLVES_KEY, solves);
+  if ((solves - 1) % SOLVES_EVERY !== 0) return null;
+  const box = h('div', { class: 'install-result' });
+  const row = noteRow(
+    () => {
+      // A pop-up never opens another: Android's own prompt, or the steps right here.
+      if (deferred) return void addToHome().then(() => box.remove());
+      const title = h('p', { class: 'install-result-title', text: copy.install.why, attrs: { tabindex: '-1' } });
+      row.replaceWith(title, stepsList());
+      title.focus(); // the How button is gone: keep focus in the pop-up, on what replaced it
+    },
+    () => box.remove(),
+  );
+  box.append(row);
+  return box;
 }

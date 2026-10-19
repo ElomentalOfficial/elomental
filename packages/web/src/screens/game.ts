@@ -51,6 +51,7 @@ import {
   type ServerStart,
 } from '../backend.ts';
 import { signUpForm } from '../accountForm.ts';
+import { addToHomeResultNote } from '../install.ts';
 import { runHintCoach } from '../hintCoach.ts';
 import { runTutorial, tutorialDone, type TutorialStep } from '../tutorial.ts';
 import { formatSeconds, formatTime, goBack, h, hiddenHeading, mount, openModal, toast, type Screen } from '../ui.ts';
@@ -865,6 +866,7 @@ function gameScreen(game: SavedGame): Screen {
         }),
         clashTable(code, mine, theirs),
         rewards.childElementCount ? rewards : null,
+        addToHomeResultNote(mine.solved),
         signupPrompt(),
         h(
           'div',
@@ -951,6 +953,7 @@ function gameScreen(game: SavedGame): Screen {
         h('h2', { class: won ? 'good' : '', text: titles[reason] }),
         h('div', { class: 'stats' }, ...rows),
         rewards.childElementCount ? rewards : null,
+        addToHomeResultNote(won),
         signupPrompt(),
         h('div', { class: 'actions' }, again, h('button', { class: 'btn', text: copy.common.home, onclick: () => void goBack(homeScreen) })),
       ),
