@@ -753,6 +753,8 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
 }
 .area-store {
   grid-area: store;
+  /* Label on the left, the wallet on the right (wide screens stack them instead). */
+  flex-direction: row-reverse;
 }
 .area-store .tile-icon {
   width: 64px;
