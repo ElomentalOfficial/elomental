@@ -67,7 +67,7 @@
   --tile: var(--c-highlight);
   --tile-text: var(--c-bright);
   /* Home tiles: a crisp drop under each, and a brushed glint along the top. */
-  --tile-shadow: color-mix(in srgb, var(--c-bg), black 45%);
+  --tile-shadow: color-mix(in srgb, var(--c-bg), black 22%);
   --tile-glint: color-mix(in srgb, var(--c-bright) 22%, transparent);
   /* Dark home: the profile card is a dark Highlight surface with light text (Figma update). */
   --profile-bg: var(--c-highlight-2);
@@ -141,7 +141,7 @@
   --surface-2: var(--c-mud);
   --tile: var(--c-mud);
   --tile-text: var(--c-crimson);
-  --tile-shadow: color-mix(in srgb, var(--c-rock) 75%, transparent);
+  --tile-shadow: color-mix(in srgb, var(--c-rock) 45%, transparent);
   --tile-glint: color-mix(in srgb, var(--c-bright) 80%, transparent);
   --profile-bg: var(--c-second-bright);
   --profile-text: var(--c-crimson);
@@ -706,21 +706,21 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
 .tile:active {
   filter: brightness(1.08);
 }
-/* Each Home tile (and the profile card) sits on a small, sharp drop: no blur. */
+/* Each Home tile (and the profile card) sits on a small, sharp, subtle drop: no blur. */
 .tile,
 .profile-card {
-  box-shadow: 0 3px 0 var(--tile-shadow);
+  box-shadow: 0 2px 0 var(--tile-shadow);
 }
-/* A thin brushed glint along the top edge: one hand-drawn stroke that swells and
+/* A thin brushed glint right on the top edge (between the corner curves): one hand-drawn stroke that swells and
    thins (the mask), not a ruled line. */
 .tile::before,
 .profile-card::before {
   content: '';
   position: absolute;
-  top: 3px;
-  left: 14px;
-  right: 14px;
-  height: 3px;
+  top: 0;
+  left: var(--radius);
+  right: var(--radius);
+  height: 2.5px;
   background: var(--tile-glint);
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 4' preserveAspectRatio='none'%3E%3Cpath d='M1 2.3C28 .4 58 1.3 92 1.6S150 .3 199 1.9C152 2.7 122 3.2 92 2.4S34 3.9 1 2.3Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 4' preserveAspectRatio='none'%3E%3Cpath d='M1 2.3C28 .4 58 1.3 92 1.6S150 .3 199 1.9C152 2.7 122 3.2 92 2.4S34 3.9 1 2.3Z'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
