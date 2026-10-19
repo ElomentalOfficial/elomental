@@ -139,7 +139,7 @@ function openRanked(leave: (go: () => void) => void) {
       'div',
       { class: 'sheet' },
       closeButton(() => close()),
-      h('span', { class: 'sheet-icon ranked', html: ICONS.ranked }),
+      h('span', { class: 'sheet-icon ranked', html: ICONS.rankedLive }),
       h('h2', { text: copy.home.ranked.title }),
       h('p', { class: 'ranked-copy', text: copy.home.ranked.text }),
       h('button', {

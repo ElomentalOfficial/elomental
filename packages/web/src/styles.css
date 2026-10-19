@@ -1946,6 +1946,46 @@ html.standalone .backdrop {
   padding: 14px;
   background: var(--c-lava);
 }
+/* The Ranked pop-up's sword spills over its badge like the other badge art, and its
+   flame flickers: the fire is its own layer behind the sword (ICONS.rankedLive). It
+   breathes around the blade's middle, never swaying off it. Still for Reduce motion. */
+.sheet-icon.ranked .sword-live {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scale(1.6);
+}
+.sword-live .brush-art {
+  position: absolute;
+  inset: 0;
+}
+.sword-live .sword-flame {
+  transform-origin: 62% 45%;
+  animation: flame-flicker 1.8s ease-in-out infinite;
+}
+@keyframes flame-flicker {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  22% {
+    transform: scale(1.035, 1.05) rotate(-1.2deg);
+    filter: brightness(1.08);
+  }
+  48% {
+    transform: scale(0.985, 1.02) rotate(0.8deg);
+    filter: brightness(0.96);
+  }
+  74% {
+    transform: scale(1.04, 0.99) rotate(-0.6deg);
+    filter: brightness(1.1);
+  }
+}
+html[data-reduce-motion] .sword-live .sword-flame {
+  animation: none;
+}
 .ranked-copy {
   line-height: 1.4;
 }
