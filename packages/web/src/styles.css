@@ -781,8 +781,8 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   color: var(--c-bright);
 }
 .area-casual .tile-icon {
-  width: 64px;
-  height: 44px;
+  width: 70px;
+  height: 45px;
 }
 /* Setup's own tile: wide screens only (phones keep it in the profile card's notch). */
 .area-setup {
@@ -3683,7 +3683,7 @@ html[data-large-text] .shortcut-list {
     height: 70px;
   }
   .area-casual .tile-icon {
-    width: 92px;
+    width: 100px;
     height: 64px;
   }
   .area-ranked .tile-icon {
