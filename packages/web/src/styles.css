@@ -142,6 +142,7 @@
   --tile: var(--c-mud);
   --tile-text: var(--c-crimson);
   --tile-shadow: color-mix(in srgb, var(--c-rock) 45%, transparent);
+  --frame-ink: 0.13;
   --tile-glint: color-mix(in srgb, var(--c-bright) 42%, transparent);
   --profile-bg: var(--c-second-bright);
   --profile-text: var(--c-crimson);
@@ -911,8 +912,8 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   height: 34px;
 }
 /* A faint Art Deco frame inside every Home tile and the profile card, each tile its
-   own design (art/frames/*.svg, built by icons/build_frames.py). Drawn in the tile's
-   text colour through a mask-box-image: the corners keep their shape at any tile size
+   own design (art/frames/*.svg, built by icons/build_frames.py). Drawn in dark ink
+   through a mask-box-image: the corners keep their shape at any tile size
    and the edge lines stretch between them. It sits under the tile's content (the tile
    isolates, the frame is at z-index -1). Browsers without mask-box-image (Firefox)
    simply show no frame. */
@@ -930,8 +931,9 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
     inset: 0;
     z-index: -1;
     border-radius: inherit;
-    background: currentColor;
-    opacity: 0.09;
+    /* Dark ink: the frame reads as engraved into the tile, a deeper shade of its colour. */
+    background: #000;
+    opacity: var(--frame-ink, 0.22);
     -webkit-mask-box-image: var(--frame) 40 / calc(var(--frame-corner, 30px) * var(--frame-zoom, 1)) stretch;
     pointer-events: none;
   }
