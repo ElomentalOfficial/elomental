@@ -79,15 +79,12 @@ login and key live only in Supabase and Brevo.
   verified in Brevo or Resend): mail "from" a Gmail address sent by a third
   party is more likely to land in spam.
 
-Signing in to an *existing* account from the installed iPhone app uses the
-`handoff` Edge Function (functions/handoff, migration signin_handoffs):
-1. The app starts a request (an id plus a secret it keeps) and the email link
-   carries the id.
-2. The page the link opens (Safari) asks "Sign in the app?" and shows a
-   two-digit code that matches the one in the app.
-3. Once confirmed, the app collects a one-time sign-in token with its secret.
-
-Requests last 10 minutes and work once.
+**Unused since 2026-10-19:** the `handoff` Edge Function (functions/handoff,
+migration signin_handoffs). It let the installed iPhone app sign in when the
+email's link opened in Safari, after the player matched a two-digit code on
+both screens. The typed code (below, which iPhone autofills from Mail) replaced
+it, and the app no longer calls it. The function and its table are kept until
+someone decides to remove them (that deletes the table's rows).
 
 **Typed code (2026-10-19):** every sign-in email also carries a code
 (`{{ .Token }}`) that can be typed into the app on any device, for when the

@@ -4,7 +4,7 @@ import { addToHomeNote } from '../install.ts';
 import { enableTilt, turnstileIn, turnstileOut } from '../motion.ts';
 import { loadProfile, rankTitle, rankedTarget } from '../profile.ts';
 import { closeButton, h, hiddenHeading, mount, navigatingBack, openModal, toast, type Screen } from '../ui.ts';
-import { handleHandoffLink } from '../handoff.ts';
+import { handleEmailLink } from '../emailLink.ts';
 import { onAccountChange, refreshAccount, signedIn } from '../backend.ts';
 import { casualScreen } from './casual.ts';
 import { handleClashLink } from './clashSheet.ts';
@@ -98,7 +98,7 @@ export function homeScreen(): Screen {
     else requestAnimationFrame(() => turnstileIn(grid, animated, backward));
   });
   setTimeout(() => handleClashLink((go) => leave(casual, go)), 420);
-  setTimeout(() => void handleHandoffLink(), 420);
+  setTimeout(() => void handleEmailLink(), 420);
 
   return { el, destroy: stopProfile };
 }

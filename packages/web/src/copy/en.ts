@@ -391,14 +391,10 @@ export const account = {
   enterEmail: 'Enter your email address.',
   useDifferentEmail: 'Use a different email',
   checkEmail: 'Check your email',
-  linkSentConfirm: (email: string) => `We sent a link and a code to ${email}. Tap the link and confirm on the page that opens, or type the code below.`,
   signInSent: (email: string) => `We sent a link and a code to ${email}. Tap the link, or type the code below.`,
   linkSent: (email: string) => `We sent a link and a code to ${email}. Tap the link, or type the code below. This screen continues by itself.`,
-  yourCode: 'Matching code',
   codeLabel: 'Code from the email',
   useCode: 'Use code',
-  linkExpiredUseCode: 'The link’s request expired. Type the code from the email instead.',
-  waitingConfirm: 'Waiting for you to confirm…',
   waitingLink: 'Waiting for the link…',
   switchWarning: 'That email already has an account. Signing in switches to it; this guest’s progress won’t move over.',
   signedIn: 'Signed in.',
@@ -424,27 +420,12 @@ export const account = {
     badCode: 'That code is wrong or expired.',
     badEmail: 'Check the email address.',
   },
-  a11yMatchCode: (code: string) => `Matching code ${code}`,
 };
 
-/** The page a sign-in link opens in another browser (handoff.ts). */
-export const handoff = {
+/** The page the button in a sign-in email opens (emailLink.ts). */
+export const emailLink = {
   expiredTitle: 'Link expired',
-  expiredText: 'This sign-in link has expired or was already used. Ask for a new one in the app.',
-  yourAccount: 'your account',
-  title: 'Sign in the app?',
-  text: (email: string) => `The Elomental app asked to sign in as ${email}. Only confirm if you just did that and it shows this code:`,
-  code: 'Matching code',
-  confirm: 'Yes, sign in the app',
-  deny: 'No, that wasn’t me',
-  doneTitle: 'Done',
-  doneText: 'Go back to the Elomental app. It signs in by itself in a few seconds.',
-  errors: {
-    expiredLink: 'The sign-in link has expired. Ask for a new one in the app.',
-    wrongAccount: 'This request was made for a different email.',
-    expiredRequest: 'This request has expired. Ask for a new link in the app.',
-    offline: 'No connection. Try again.',
-  },
+  expiredText: 'This sign-in link has expired or was already used. Ask for a new one in Setup.',
 };
 
 // --- Server refusals (start_game, finish_game) -----------------------------

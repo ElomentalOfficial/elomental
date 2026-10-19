@@ -6,6 +6,7 @@ import { expect, test } from './fixtures.ts';
  * (supabase/templates/build.mjs). The auth server is faked: nothing is sent.
  */
 
+/** A hand-off id, as in sign-in emails sent before the hand-off was removed. */
 const HANDOFF = '0b6c1f2e-4a5d-4e8f-9a1b-2c3d4e5f6a7b';
 
 /** Opens the app as an email's button would, with the auth server answering `verify`. */
@@ -38,7 +39,7 @@ test('an expired email link says so, clears the address bar, and only then start
   if (guest >= 0) expect(guest).toBeGreaterThan(verify);
 });
 
-test('the token is sent as a token hash of the right type, also with a hand-off in the redirect', async ({ page }) => {
+test('the token is sent as a token hash of the right type, and an old hand-off id is cleared too', async ({ page }) => {
   const { sent } = await openFromEmail(page, { status: 403, json: { code: 403, msg: 'Token has expired or is invalid' } }, `https://elomental.online/?handoff=${HANDOFF}`);
   await expect(page.getByRole('heading', { name: 'Link expired' })).toBeVisible();
   expect(sent.verify).toMatchObject({ token_hash: 'hash123', type: 'email' });

@@ -19,7 +19,7 @@ export const SUBJECT = '{{ .Token }} is your Elomental code';
 // The button opens the app on elomental.online with a one-time token (verified by
 // signInFromEmailLink in packages/web/src/backend/signIn.ts), not the auth server's
 // own link: the link's domain matches the site's, and mail scanners that pre-open
-// links can't use it up. `r` carries the redirect the app asked for (its hand-off id).
+// links can't use it up. `r` carries the redirect the app asked for.
 const link = (type) => `{{ .SiteURL }}?token_hash={{ .TokenHash }}&amp;type=${type}&amp;r={{ .RedirectTo }}`;
 
 const layout = ({ title, lead, codeNote, button, after, type }) => `<!doctype html>
