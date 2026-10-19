@@ -724,13 +724,7 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   width: 60px;
   height: 58px;
 }
-/* The hand-drawn podium (icons.ts): Lava on dark, Forest on light; the 3 cut out in the tile colour. */
-.ic-podium .pd-fill {
-  fill: var(--c-lava);
-}
-:root[data-theme='light'] .ic-podium .pd-fill {
-  fill: var(--c-forest);
-}
+/* The brush-drawn podium (icons.ts): the 3 cut out in the tile colour. */
 .ic-podium .pd-cut {
   stroke: var(--tile);
 }

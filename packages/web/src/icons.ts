@@ -34,10 +34,8 @@ export const ICONS = {
   ),
   /**
    * Leaderboard: a brush-drawn podium with the cup on top, like a marker sketch:
-   * chunky strokes, colour blocks printed a little off their outlines, and a
-   * filter that roughens and speckles every edge (#pd-rough). Outlines in the
-   * tile's text colour; the blocks Lava (dark) or Forest (light), set by CSS
-   * (.ic-podium .pd-fill); the 3 is cut out in the tile colour.
+   * chunky strokes and a filter that roughens every edge (#pd-rough). Drawn in
+   * the tile's text colour; the 3 is cut out in the tile colour (.pd-cut).
    */
   leaderboard: art(
     '2 0 96 92',
@@ -48,7 +46,6 @@ export const ICONS = {
       '<feDisplacementMap in="wobble" in2="grain" scale="1.6" xChannelSelector="R" yChannelSelector="G"/>' +
       '</filter></defs>' +
       '<g filter="url(#pd-rough)">' +
-      '<g class="pd-fill"><path d="M18.5 55.5 39.5 54.5 38.5 80 19.5 80.5Z"/><path d="M38.5 43 64.5 42 63.5 80 39.5 81Z"/><path d="M40.5 15.5H63.5C63.5 26.5 58 32.5 52 32.5 46 32.5 40.5 26.5 40.5 15.5Z"/></g>' +
       '<g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">' +
       '<path stroke-width="5" d="M15 59.5 36.5 57.5M15.5 59.5 16.5 82M35.5 46.5 63 45M35.5 46.5 36.5 82M63 45 62.5 64"/>' +
       '<path stroke-width="5.6" d="M6 83C30 81.6 60 84.2 94 82.4"/>' +
