@@ -13,12 +13,12 @@ const CURL_TOPS = [34, 46, 57, 67, 76, 85];
 /** How far each strip is bent, in total, at the strongest gust: more and more towards the bottom. */
 const CURL_MAX = [6, 15, 27, 42, 58, 75];
 /** How far the whole page tips up from the rings at the strongest gust. */
-const LIFT_MAX = 12;
+const LIFT_MAX = 18;
 const rand = (lo: number, hi: number) => lo + Math.random() * (hi - lo);
 
 /**
- * The breeze: gusts at random times (every 2.5 to 7.5s), each with its own strength, length
- * and flutter, so it never repeats like a loop. Light stirs are common, strong lifts rare.
+ * The breeze: gusts at random times (every 4 to 6s), each with its own strength, length and
+ * flutter, so it never repeats like a loop. Most are a clear lift and curl, some stronger.
  * Each gust tips the page from the rings and curls its strips; every strip is moved up by
  * how much the ones above it shortened, so the page stays in one piece (styles.css).
  */
@@ -29,7 +29,7 @@ function breeze(art: HTMLElement): void {
   const gust = () => {
     if (!art.isConnected) return;
     if (!reducedMotion() && !document.hidden) {
-      const strength = Math.random() < 0.7 ? rand(0.3, 0.7) : rand(0.75, 1);
+      const strength = Math.random() < 0.75 ? rand(0.75, 1) : rand(1, 1.2);
       // the gust's shape over time: a lift, then a few flutters that die away
       const shape = [{ offset: 0, f: 0 }];
       const rise = rand(0.18, 0.32);
@@ -59,7 +59,7 @@ function breeze(art: HTMLElement): void {
         );
       });
     }
-    setTimeout(gust, rand(2500, 7500));
+    setTimeout(gust, rand(4000, 6000));
   };
   setTimeout(gust, rand(800, 2200));
 }
