@@ -755,8 +755,8 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   grid-area: store;
 }
 .area-store .tile-icon {
-  width: 48px;
-  height: 40px;
+  width: 64px;
+  height: 57px;
 }
 .area-leader {
   grid-area: leader;
@@ -3669,8 +3669,8 @@ html[data-large-text] .shortcut-list {
   }
   /* The wide tiles have room to spare: every icon at about 1.5x its phone size. */
   .area-store .tile-icon {
-    width: 72px;
-    height: 60px;
+    width: 96px;
+    height: 86px;
   }
   .area-setup .tile-icon {
     width: 60px;
