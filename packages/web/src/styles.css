@@ -721,8 +721,18 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   height: 40px;
 }
 .area-leader .tile-icon {
-  width: 54px;
-  height: 35px;
+  width: 58px;
+  height: 51px;
+}
+/* The hand-drawn podium (icons.ts): Lava on dark, Forest on light; the 3 cut out in the tile colour. */
+.ic-podium .pd-fill {
+  fill: var(--c-lava);
+}
+:root[data-theme='light'] .ic-podium .pd-fill {
+  fill: var(--c-forest);
+}
+.ic-podium .pd-cut {
+  stroke: var(--tile);
 }
 .area-daily .tile-label {
   font-size: var(--fs-label);
