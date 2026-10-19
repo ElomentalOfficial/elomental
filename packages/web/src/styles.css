@@ -3557,30 +3557,49 @@ html[data-large-text] .shortcut-list {
     --r: calc(var(--radius) * var(--wide-zoom, 1));
   }
   /*
-   * Large text, wide: the fixed-ratio grid would squash the bigger words, so
-   * the profile card keeps the left column and the tiles stack beside it, each
-   * as tall as its label needs; the page scrolls when they outgrow the window.
+   * Large text, wide: the same tile grid as at 100%, only the words grow. A row
+   * grows taller if its words need it (the page then scrolls), and the phone's
+   * one-column large-text rules are undone here.
    */
   html[data-large-text] .screen.home {
     justify-content: flex-start;
   }
   html[data-large-text] .home-grid {
-    width: min(100%, 1100px);
-    aspect-ratio: auto;
     margin-block: auto;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
-    grid-template-rows: none;
-    grid-auto-rows: minmax(76px, auto);
-    grid-template-areas: 'profile daily' 'profile store' 'profile leader' 'profile casual' 'profile ranked' 'profile setup';
+    grid-template-columns: minmax(0, 2.32fr) minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: repeat(3, minmax(min-content, 1fr));
+    grid-auto-rows: auto;
+    grid-template-areas:
+      'profile store setup'
+      'profile leader daily'
+      'profile casual ranked';
   }
   html[data-large-text] .home-grid > .tile {
-    flex-direction: row;
-    justify-content: flex-start;
-    padding: 14px 20px;
-  }
-  html[data-large-text] .profile-card {
+    flex-direction: column;
     justify-content: center;
-    gap: var(--space-5);
+    gap: 14px;
+    padding: 10px;
+    text-align: center;
+  }
+  html[data-large-text] .home-grid > .tile .tile-label {
+    font-size: min(var(--fs-label), 13cqi);
+  }
+  html[data-large-text] :is(.home-grid .tile-icon, .profile-card .avatar) {
+    zoom: var(--wide-icon-zoom, 1);
+  }
+  html[data-large-text] .profile-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  html[data-large-text] .stat-chip {
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 4px;
+    min-width: 0;
+    container-type: inline-size;
+  }
+  /* STARDUST is one word: it grows only as far as its chip has room for. */
+  html[data-large-text] .stat-chip span:last-child {
+    font-size: min(var(--fs-caption), 13cqi);
   }
   /* The other pages keep their phone column, a little larger. */
   .screen.daily,
