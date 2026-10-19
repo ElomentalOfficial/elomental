@@ -1917,6 +1917,14 @@ html.standalone .backdrop {
   padding: 11px;
   background: var(--accent);
 }
+/* The light theme's Clash art is outlined in Crimson, the badge's own colour there: the
+   dark-ink version reads on it in both themes. */
+:root[data-theme='light'] .sheet-icon.clash .ic-light {
+  display: none;
+}
+:root[data-theme='light'] .sheet-icon.clash .ic-dark {
+  display: block;
+}
 .sheet-icon.ranked {
   width: 110px;
   height: 110px;
@@ -2342,6 +2350,10 @@ html[data-reduce-motion] .casual-feather-shadow {
   border-radius: 50%;
   background: var(--surface-2);
   color: var(--text);
+}
+/* Brush art (the Clash fist bump) is wide and short: grow it into the circle's padding. */
+.friend-icon .brush-art {
+  transform: scale(1.45);
 }
 .friend-option strong {
   font-family: var(--serif);
