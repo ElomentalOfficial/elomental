@@ -423,6 +423,21 @@ svg {
   width: 100%;
   height: 100%;
 }
+/* Brush-style icons (icons.ts `brush`): baked PNGs, fitted like the SVG icons. */
+.brush-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
+}
+/* The leaderboard arm fills its box from the right; a narrow box trims the arm, not the cup. */
+.brush-arm {
+  object-fit: cover;
+  object-position: right center;
+}
 /* Icons exported per theme (icons.ts `themed`). */
 :root[data-theme='light'] .ic-dark,
 :root[data-theme='dark'] .ic-light {
