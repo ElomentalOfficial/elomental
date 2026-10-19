@@ -963,6 +963,44 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
     --frame-zoom: 1.6;
   }
 }
+/*
+ * Every other panel in the app (page cards, pop-ups) gets the plainest frame of the same
+ * family (art/frames/panel.svg: one worn line with a small step in each corner), fainter
+ * than Home's, so the pages feel related without competing with their content.
+ */
+.setting,
+.month-card,
+.reward-card,
+.casual-card,
+.friend-option,
+.resume-card,
+.modal,
+.review-row,
+.review-log {
+  position: relative;
+  isolation: isolate;
+}
+@supports (-webkit-mask-box-image: none) {
+  .setting::after,
+  .month-card::after,
+  .reward-card::after,
+  .casual-card::after,
+  .friend-option::after,
+  .resume-card::after,
+  .modal::after,
+  .review-row::after,
+  .review-log::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: currentColor;
+    opacity: 0.045;
+    -webkit-mask-box-image: url('./art/frames/panel.svg') 40 / 16px stretch;
+    pointer-events: none;
+  }
+}
 .tile-setup .tile-label {
   font-size: var(--fs-label);
   line-height: 1;
