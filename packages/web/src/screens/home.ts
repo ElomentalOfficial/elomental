@@ -1,6 +1,6 @@
 import { difficultyForRating } from '@elomental/engine';
 import { ICONS } from '../icons.ts';
-import { addToHomeNote } from '../install.ts';
+import { addToHomeNote, countNoteVisit } from '../install.ts';
 import { enableTilt, turnstileIn, turnstileOut } from '../motion.ts';
 import { loadProfile, rankTitle, rankedTarget } from '../profile.ts';
 import { closeButton, h, hiddenHeading, mount, navigatingBack, openModal, toast, type Screen } from '../ui.ts';
@@ -89,13 +89,29 @@ export function homeScreen(): Screen {
   const animated = note ? [...tiles, note] : tiles;
   const el = h('div', { class: 'screen home' }, hiddenHeading(copy.common.appName), grid, note);
 
+  /** Home fits the screen without scrolling, so on a short one (browser bars) the note
+      would squeeze the tiles until the profile's stats spill out: there it stays away. */
+  const fitNote = () => {
+    if (!note) return;
+    const card = profileCard.getBoundingClientRect();
+    const stats = profileCard.querySelector('.profile-stats')!.getBoundingClientRect();
+    if (stats.bottom > card.bottom + 1) {
+      note.remove();
+      animated.pop();
+    } else countNoteVisit();
+  };
+  const enter = () => {
+    fitNote();
+    turnstileIn(grid, animated, backward);
+  };
+
   // Runs right after mount, before the new screen is ever painted, so tiles never
   // flash in place. (A requestAnimationFrame is too late when Home is mounted from
   // an animation's end, as goBack does: that frame is painted first.)
   const backward = navigatingBack();
   queueMicrotask(() => {
-    if (el.isConnected) turnstileIn(grid, animated, backward);
-    else requestAnimationFrame(() => turnstileIn(grid, animated, backward));
+    if (el.isConnected) enter();
+    else requestAnimationFrame(enter);
   });
   setTimeout(() => handleClashLink((go) => leave(casual, go)), 420);
   setTimeout(() => void handleEmailLink(), 420);

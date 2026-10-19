@@ -76,10 +76,16 @@ const NOTE_KEY = 'elomental:install-note';
 const NOTE_DONE = -1;
 const NOTE_VISITS = 5;
 
+const noteVisits = () => readJson<number>(NOTE_KEY) ?? 0;
+
+/** Home keeps the note only where it fits (a short screen has no room for it); then it counts as a visit. */
+export function countNoteVisit(): void {
+  writeJson(NOTE_KEY, noteVisits() + 1);
+}
+
 export function addToHomeNote(): HTMLElement | null {
-  const seen = readJson<number>(NOTE_KEY) ?? 0;
+  const seen = noteVisits();
   if (seen === NOTE_DONE || seen >= NOTE_VISITS || !canAddToHome() || !tutorialDone()) return null;
-  writeJson(NOTE_KEY, seen + 1);
   const t = copy.install;
   const done = () => {
     writeJson(NOTE_KEY, NOTE_DONE);
