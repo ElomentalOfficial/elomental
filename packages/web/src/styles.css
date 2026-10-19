@@ -731,7 +731,16 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   transform: translateX(-50%);
   border-radius: 50%;
   background: color-mix(in srgb, var(--c-lava-highlight) 40%, transparent);
+  filter: blur(1.5px);
   pointer-events: none;
+}
+/* The cup is held up in the air: no shadow under it. */
+.area-leader .tile-icon::after {
+  display: none;
+}
+/* The wallet's shadow tucks up under it, not under the coins in front. */
+.area-store .tile-icon::after {
+  bottom: 2px;
 }
 /* On the dark grey tiles the shadow needs more ink to show at all. */
 :root[data-theme='dark'] :is(.area-store, .area-leader, .area-setup, .tile-setup) .tile-icon::after {
@@ -764,16 +773,7 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   min-width: 56px;
   height: 58px;
   margin-left: -10px;
-}
-/* Only the cup casts a shadow, not the arm. The art is right-anchored, so the cup's
-   foot sits a fixed distance from the box's right edge (0.44 × the box height). */
-.area-leader .tile-icon::after {
-  left: auto;
-  right: 10px;
-  width: 32px;
-  transform: none;
-}
-.area-daily .tile-label {
+}.area-daily .tile-label {
   font-size: var(--fs-label);
 }
 .area-store,
@@ -3729,9 +3729,8 @@ html[data-large-text] .shortcut-list {
     height: 84px;
     margin-left: calc(-10px / var(--wide-zoom, 1));
   }
-  .area-leader .tile-icon::after {
-    right: 14px;
-    width: 46px;
+  .area-store .tile-icon::after {
+    bottom: 4px;
   }
   .area-leader .tile-label {
     flex: none;
