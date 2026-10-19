@@ -714,6 +714,28 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   width: 36px;
   height: 36px;
   flex: none;
+  /* Its own stacking context, so the contact shadow sits behind the icon but on the tile. */
+  position: relative;
+  isolation: isolate;
+}
+/* A soft contact shadow under every Home icon, as if it rests on the tile. */
+.tile-icon::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  bottom: -4px;
+  width: 62%;
+  height: 16%;
+  max-height: 10px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--c-lava-highlight) 40%, transparent);
+  pointer-events: none;
+}
+/* On the dark grey tiles the shadow needs more ink to show at all. */
+:root[data-theme='dark'] :is(.area-store, .area-leader, .area-setup, .tile-setup) .tile-icon::after {
+  background: color-mix(in srgb, var(--c-bg) 85%, transparent);
 }
 /* Home buttons use the serif (Federo), like the rest of the app's labels. */
 .tile-label {
@@ -742,6 +764,14 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   min-width: 56px;
   height: 58px;
   margin-left: -10px;
+}
+/* Only the cup casts a shadow, not the arm. The art is right-anchored, so the cup's
+   foot sits a fixed distance from the box's right edge (0.44 × the box height). */
+.area-leader .tile-icon::after {
+  left: auto;
+  right: 10px;
+  width: 32px;
+  transform: none;
 }
 .area-daily .tile-label {
   font-size: var(--fs-label);
@@ -3698,6 +3728,10 @@ html[data-large-text] .shortcut-list {
     width: calc(50% + 36px + 10px / var(--wide-zoom, 1));
     height: 84px;
     margin-left: calc(-10px / var(--wide-zoom, 1));
+  }
+  .area-leader .tile-icon::after {
+    right: 14px;
+    width: 46px;
   }
   .area-leader .tile-label {
     flex: none;
