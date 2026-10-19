@@ -14,8 +14,8 @@ import cogLight from './art/cog-light.png';
 import calendar from './art/calendar.png';
 import calendarBack from './art/calendar-back.png';
 import calendarUnder from './art/calendar-under.png';
-import calendarFront from './art/calendar-front.png';
-import calendarPageBack from './art/calendar-pageback.png';
+import calendarStub from './art/calendar-stub.png';
+import calendarFall from './art/calendar-fall.png';
 import calendarRings from './art/calendar-rings.png';
 import walletDark from './art/wallet-dark.png';
 import walletLight from './art/wallet-light.png';
@@ -76,16 +76,16 @@ export const ICONS = {
   daily: brush(calendar),
   /**
    * The same calendar in layers, for the Daily Square page: the page behind, the next
-   * day's page right under the front one, the front page
-   * (its blank back turned round behind it) and the rings on top. The front page lifts
-   * in a breeze now and then (`.calendar-live` in styles.css) and flips right over the
-   * rings when tapped (flippingCalendar in daily.ts).
+   * day's page right under the front one, the front page in two parts split along a
+   * zig-zag tear (the stub at the rings, the rest) and the rings on top. The front page
+   * lifts in a breeze now and then (`.calendar-live` in styles.css) and is torn off and
+   * falls when tapped (tearOffCalendar in daily.ts).
    */
   dailyLive:
     '<span class="calendar-live">' +
     brush(calendarBack) +
     brush(calendarUnder) +
-    `<span class="calendar-turn">${brush(calendarFront, 'calendar-front')}${brush(calendarPageBack, 'calendar-pageback')}</span>` +
+    `<span class="calendar-turn">${brush(calendarStub)}${brush(calendarFall, 'calendar-fall')}</span>` +
     brush(calendarRings) +
     '</span>',
   /** Brush-style feather with a Lava shaft, drawn for the Forest tile and badge. */

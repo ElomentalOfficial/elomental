@@ -10,44 +10,40 @@ const WEEKDAYS = copy.daily.weekdays;
 
 /**
  * The page's calendar, like the Casual feather: its front page lifts in a breeze now and
- * then (CSS), and a tap or click flips it right over the rings to the next day's page;
- * then the turned page fades and settles back in place. Purely decorative: no role, not in the tab order, still when motion is off.
+ * then (CSS), and a tap or click tears it off along its zig-zag perforation: it rips from
+ * the right, hangs a moment by its left corner, then drops away, showing the next day's
+ * page; the stub stays on the rings. Then today's page settles back in place. Purely
+ * decorative: no role, not in the tab order, still when motion is off.
  */
-function flippingCalendar(): HTMLElement {
+function tearOffCalendar(): HTMLElement {
   const el = h('span', { class: 'daily-art', html: ICONS.dailyLive, attrs: { 'aria-hidden': 'true' } });
-  const turn = el.querySelector<HTMLElement>('.calendar-turn')!;
-  // the page's two sides (the turning box itself can't fade: that would flatten its 3D)
-  const sides = [...turn.children] as HTMLElement[];
-  let flipping = false;
-  // The hinge is the binder rings, tilted with the drawing (-6deg), so the page turns about them.
-  const at = (deg: number) => `perspective(420px) rotate(-6deg) rotateX(${deg}deg) rotate(6deg)`;
+  const page = el.querySelector<HTMLElement>('.calendar-fall')!;
+  let tearing = false;
   el.addEventListener('pointerdown', () => {
-    if (reducedMotion() || flipping) return;
-    flipping = true;
-    const flip = turn.animate(
+    if (reducedMotion() || tearing) return;
+    tearing = true;
+    // pivots on the tear's left end until that lets go too (styles.css sets the origin)
+    const rip = page.animate(
       [
-        { transform: at(0), easing: 'cubic-bezier(0.45, 0, 0.25, 1)' },
-        { transform: at(180), offset: 0.5 },
-        { transform: at(180), offset: 1 },
+        { transform: 'none', opacity: 1, easing: 'cubic-bezier(0.3, 0, 0.4, 1)' },
+        { transform: 'rotate(6deg)', offset: 0.1 },
+        { transform: 'translate(0.5%, 1.5%) rotate(9deg)', offset: 0.2 },
+        { transform: 'translate(1.5%, 3.5%) rotate(11deg)', offset: 0.3, easing: 'cubic-bezier(0.5, 0, 0.9, 0.6)' },
+        { transform: 'translate(8%, 60%) rotate(20deg)', opacity: 1, offset: 0.62 },
+        { transform: 'translate(14%, 130%) rotate(30deg)', opacity: 0 },
       ],
-      { duration: 1300 },
+      { duration: 1500 },
     );
-    // once it lies over the top, the turned page fades and the next one fades in below
-    for (const side of sides) {
-      side.animate([{ opacity: 1 }, { opacity: 1, offset: 0.6 }, { opacity: 0, offset: 0.8 }, { opacity: 0 }], { duration: 1300 });
-    }
-    void flip.finished.then(
+    void rip.finished.then(
       () => {
-        // (the front side only: the back keeps its own turned-round transform, out of sight)
-        sides[0].animate([{ opacity: 0, translate: '0 -3%' }, { opacity: 1, translate: '0 0' }], { duration: 320, easing: 'ease-out' });
-        flipping = false;
+        page.animate([{ opacity: 0, transform: 'translateY(-4%)' }, { opacity: 1, transform: 'none' }], { duration: 380, delay: 700, easing: 'ease-out', fill: 'backwards' })
+          .finished.then(() => (tearing = false), () => (tearing = false));
       },
-      () => (flipping = false),
+      () => (tearing = false),
     );
   });
   return el;
 }
-
 export function dailyScreen(): Screen {
   const profile = loadProfile();
   const today = dailyKey();
@@ -111,7 +107,7 @@ export function dailyScreen(): Screen {
     h(
       'div',
       { class: 'daily-body' },
-      flippingCalendar(),
+      tearOffCalendar(),
       h(
         'section',
         { class: 'month-card' },
