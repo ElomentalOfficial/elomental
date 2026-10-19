@@ -3667,12 +3667,31 @@ html[data-large-text] .shortcut-list {
     flex-direction: column;
     gap: 14px;
   }
+  /* The wide tiles have room to spare: every icon at about 1.5x its phone size. */
+  .area-store .tile-icon {
+    width: 72px;
+    height: 60px;
+  }
+  .area-setup .tile-icon,
+  .area-daily .tile-icon {
+    width: 60px;
+    height: 60px;
+  }
+  .area-casual .tile-icon {
+    width: 92px;
+    height: 64px;
+  }
+  .area-ranked .tile-icon {
+    width: 54px;
+    height: 66px;
+  }
   /* The arm still runs in from the tile's left edge (out past the padding, which
-     isn't zoomed); the box ends 25px right of centre so the cup sits over the label. */
+     isn't zoomed); the box ends 36px right of centre so the cup sits over the label. */
   .area-leader .tile-icon {
     flex: none;
     align-self: flex-start;
-    width: calc(50% + 25px + 10px / var(--wide-zoom, 1));
+    width: calc(50% + 36px + 10px / var(--wide-zoom, 1));
+    height: 84px;
     margin-left: calc(-10px / var(--wide-zoom, 1));
   }
   .area-leader .tile-label {
