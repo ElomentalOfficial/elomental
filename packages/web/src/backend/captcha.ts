@@ -16,6 +16,7 @@ interface Turnstile {
   render(container: HTMLElement, options: Record<string, unknown>): string;
   execute(id: string): void;
   reset(id: string): void;
+  remove(id: string): void;
 }
 declare global {
   interface Window {
@@ -31,6 +32,7 @@ let giveUp: ReturnType<typeof setTimeout> | undefined;
 let queue: Promise<unknown> = Promise.resolve();
 
 function loadScript(): Promise<Turnstile> {
+  if (window.turnstile) return Promise.resolve(window.turnstile);
   return new Promise((resolve, reject) => {
     const script = document.createElement('script');
     script.src = SCRIPT;
@@ -47,18 +49,28 @@ async function mountWidget(): Promise<string> {
   const box = document.createElement('div');
   box.className = 'captcha';
   document.body.append(box);
-  return turnstile.render(box, {
+  const id = turnstile.render(box, {
     sitekey: TURNSTILE_SITE_KEY,
     appearance: 'interaction-only',
     execution: 'execute',
     theme: document.documentElement.dataset.theme === 'light' ? 'light' : 'dark',
-    callback: (token: string) => answer?.(token),
+    callback: (token: string) => {
+      // Done with it: after a tick Turnstile keeps showing "Success!" over the
+      // page, so take it away. The next request renders a fresh one.
+      widget = null;
+      setTimeout(() => {
+        turnstile.remove(id);
+        box.remove();
+      }, 0);
+      answer?.(token);
+    },
     // The box is showing: wait for the player however long they take.
     'before-interactive-callback': () => clearTimeout(giveUp),
     // Turnstile retries by itself after most errors; the give-up timer covers the rest.
     'error-callback': () => true,
     'expired-callback': () => answer?.(undefined),
   });
+  return id;
 }
 
 /** A fresh one-time captcha token, or undefined when there's none to be had. */
