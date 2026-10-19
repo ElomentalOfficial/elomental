@@ -8,9 +8,65 @@ import * as copy from '../copy/en.ts';
 
 const WEEKDAYS = copy.daily.weekdays;
 
+/** Where each curl strip's top edge sits, in % of the drawing's height (styles.css `.curl-*`). */
+const CURL_TOPS = [34, 46, 57, 67, 76, 85];
+/** How far each strip is bent, in total, at the strongest gust: more and more towards the bottom. */
+const CURL_MAX = [6, 15, 27, 42, 58, 75];
+/** How far the whole page tips up from the rings at the strongest gust. */
+const LIFT_MAX = 12;
+const rand = (lo: number, hi: number) => lo + Math.random() * (hi - lo);
+
+/**
+ * The breeze: gusts at random times (every 2.5 to 7.5s), each with its own strength, length
+ * and flutter, so it never repeats like a loop. Light stirs are common, strong lifts rare.
+ * Each gust tips the page from the rings and curls its strips; every strip is moved up by
+ * how much the ones above it shortened, so the page stays in one piece (styles.css).
+ */
+function breeze(art: HTMLElement): void {
+  const turn = art.querySelector<HTMLElement>('.calendar-turn')!;
+  const strips = [...art.querySelectorAll<HTMLElement>('.curl')];
+  const lengths = CURL_TOPS.slice(1).map((top, i) => top - CURL_TOPS[i]);
+  const gust = () => {
+    if (!art.isConnected) return;
+    if (!reducedMotion() && !document.hidden) {
+      const strength = Math.random() < 0.7 ? rand(0.3, 0.7) : rand(0.75, 1);
+      // the gust's shape over time: a lift, then a few flutters that die away
+      const shape = [{ offset: 0, f: 0 }];
+      const rise = rand(0.18, 0.32);
+      shape.push({ offset: rise, f: 1 });
+      const flutters = Math.floor(rand(1, 4));
+      let high = 1;
+      for (let i = 0; i < flutters; i++) {
+        const low = high * rand(0.15, 0.5);
+        high *= rand(0.4, 0.8);
+        const step = (1 - rise) / (flutters * 2 + 1);
+        shape.push({ offset: rise + step * (i * 2 + 1), f: low }, { offset: rise + step * (i * 2 + 2), f: high });
+      }
+      shape.push({ offset: 1, f: 0 });
+      const options = { duration: rand(1100, 2200), easing: 'linear' };
+      const keyframe = (offset: number, transform: string, extra = {}) => ({ offset, transform, easing: 'ease-in-out', ...extra });
+      turn.animate(shape.map(({ offset, f }) => keyframe(offset, `perspective(1400px) rotate(-6deg) rotateX(${LIFT_MAX * strength * f}deg) rotate(6deg)`)), options);
+      strips.forEach((strip, k) => {
+        strip.animate(
+          shape.map(({ offset, f }) => {
+            const bend = (j: number) => (CURL_MAX[j] * strength * f * Math.PI) / 180;
+            let shift = 0;
+            for (let j = 0; j < k; j++) shift += lengths[j] * (Math.cos(bend(j)) - 1);
+            const angle = CURL_MAX[k] * strength * f;
+            return keyframe(offset, `perspective(1400px) translateY(${shift.toFixed(2)}%) rotateX(${angle.toFixed(1)}deg)`, { filter: `brightness(${(1 - (0.16 * angle) / 90).toFixed(3)})` });
+          }),
+          options,
+        );
+      });
+    }
+    setTimeout(gust, rand(2500, 7500));
+  };
+  setTimeout(gust, rand(800, 2200));
+}
+
 /**
  * The page's calendar, like the Casual feather: its front page lifts in a breeze now and
- * then (CSS), and taps tear it off along its zig-zag perforation. The first two taps or
+ * then (`breeze`), and taps tear it off along its zig-zag perforation. The first two taps or
  * clicks only rip it further from the right, and it stays hanging by its left corner;
  * the third tears it free and it drops away, showing the next day's page, while the stub
  * stays on the rings. Then today's page settles back in place. Purely decorative: no
@@ -22,6 +78,7 @@ function tearOffCalendar(): HTMLElement {
   // how far it hangs after each of the first taps; it pivots on the tear's left end
   // (styles.css sets the origin)
   const HANGING = ['none', 'translate(0.4%, 1%) rotate(5.5deg)', 'translate(0.9%, 2.2%) rotate(10deg)'];
+  breeze(el);
   let taps = 0;
   let falling = false;
   el.addEventListener('pointerdown', () => {
