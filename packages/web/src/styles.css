@@ -900,7 +900,8 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
 .tile-setup {
   width: 82px;
   height: 80px;
-  gap: 8px;
+  /* Tight: the cog's shadow and the label's line box already add space between them. */
+  gap: 2px;
   padding: 8px;
 }
 .tile-setup .tile-icon {
@@ -964,6 +965,7 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
 }
 .tile-setup .tile-label {
   font-size: var(--fs-label);
+  line-height: 1;
 }
 .profile-main {
   display: flex;
