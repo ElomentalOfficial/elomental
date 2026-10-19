@@ -5,13 +5,16 @@ test('Home has no axe violations', async ({ app }) => {
   await expect(app).toHaveTitle('Elomental');
 });
 
-test('the Casual pop-up is a dialog: focus moves in, stays in, Esc closes, focus returns', async ({ app }) => {
-  const tile = app.locator('.tile.area-casual');
-  await tile.focus();
+test('Casual is a page; Clash opens from it as a dialog that keeps focus and closes back to the page', async ({ app }) => {
+  await app.locator('.tile.area-casual').focus();
   await app.keyboard.press('Enter');
-  const dialog = app.getByRole('dialog', { name: 'Casual' });
-  await expect(dialog).toBeVisible();
+  await expect(app).toHaveTitle('Casual · Elomental');
   expect(await axe(app)).toEqual([]);
+  const clash = app.getByRole('button', { name: /^Clash a friend/ });
+  await clash.focus();
+  await app.keyboard.press('Enter');
+  const dialog = app.getByRole('dialog');
+  await expect(dialog).toBeVisible();
   // Tab around more times than there are controls: focus never leaves the dialog.
   for (let i = 0; i < 12; i++) {
     await app.keyboard.press('Tab');
@@ -19,7 +22,9 @@ test('the Casual pop-up is a dialog: focus moves in, stays in, Esc closes, focus
   }
   await app.keyboard.press('Escape');
   await expect(dialog).toBeHidden();
-  await expect(tile).toBeFocused();
+  await expect(clash).toBeFocused();
+  await app.getByRole('button', { name: 'Back' }).click();
+  await expect(app.locator('.tile.area-casual')).toBeVisible();
 });
 
 test('a game plays from the keyboard and speaks to screen readers', async ({ app }) => {

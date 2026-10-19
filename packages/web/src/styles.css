@@ -462,6 +462,7 @@ h2 {
 
 /* Sub-screens turnstile in from the left hinge, like a Windows Phone page. */
 .screen.daily,
+.screen.casual,
 .screen.setup,
 .screen.game,
 .screen.loading {
@@ -480,6 +481,7 @@ h2 {
    screen (ui.ts goBack): if the entry's name changed once it had played, the
    browser would play the new one too, and the page would swing in twice. */
 .screen.daily.from-back,
+.screen.casual.from-back,
 .screen.setup.from-back {
   animation-name: page-back-in;
 }
@@ -1950,24 +1952,27 @@ html.standalone .backdrop {
 }
 
 /* ---------- Casual ---------- */
-/* Two cards of equal weight: playing alone, and playing with a friend. */
-.modal.casual-modal {
-  max-width: min(360px, calc(100vw - 32px));
-  padding: 0;
-  border: 0;
-  background: none;
-}
-.casual-sheet {
+/* A page (screens/casual.ts): the tagline, a card for playing alone, then playing
+   with a friend. Like Daily, one block centred under the header; it scrolls on
+   short phones. Clash and Square code open as pop-ups over it. */
+.casual-body {
+  flex: 1 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  justify-content: center;
+  gap: var(--space-4);
+  padding-bottom: var(--space-2);
+}
+.casual-friends {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
 }
 .casual-card,
 .friend-option {
   position: relative;
   border-radius: 12px;
-  border: 1px solid var(--modal-border);
-  background: var(--modal-bg);
+  background: var(--surface);
 }
 .casual-card {
   display: flex;
@@ -1978,8 +1983,8 @@ html.standalone .backdrop {
 .casual-head {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding-right: 44px; /* clear of the close button */
+  gap: var(--space-3);
+  padding: 0 var(--space-1);
 }
 .casual-badge {
   width: 52px;
@@ -1990,13 +1995,9 @@ html.standalone .backdrop {
   background: var(--c-forest);
   color: var(--c-bright);
 }
-.casual-head h2 {
-  font-size: var(--fs-title);
-  text-transform: uppercase;
-}
 .casual-head p {
-  margin-top: 2px;
-  font-size: var(--fs-small);
+  font-family: var(--serif);
+  font-size: var(--fs-label);
   color: var(--muted);
 }
 .resume-card {
@@ -2034,6 +2035,9 @@ html.standalone .backdrop {
   border-radius: 50%;
   background: var(--primary-bg);
   color: var(--primary-text);
+}
+.casual-friends .casual-label {
+  padding: 0 var(--space-1);
 }
 .casual-label {
   margin-bottom: -6px;
@@ -3581,9 +3585,6 @@ html[data-large-text] .subbar > .icon-btn-spacer {
 html[data-large-text] .modal h2 {
   font-size: min(var(--fs-title), 12.5cqi);
 }
-html[data-large-text] .casual-head h2 {
-  font-size: min(var(--fs-title), 8.5cqi);
-}
 html[data-large-text] .home-grid > .tile .tile-label {
   min-width: 0;
   font-size: min(var(--fs-label), 10.5cqi);
@@ -3633,9 +3634,6 @@ html[data-large-text] .weekday {
 /* Pop-ups get wider (up to the screen) so the larger words have room. */
 html[data-large-text] .modal {
   max-width: min(520px, calc(100vw - 2 * var(--gutter)));
-}
-html[data-large-text] .modal.casual-modal {
-  max-width: min(560px, calc(100vw - 2 * var(--gutter)));
 }
 /* Clash and Square code stack, each a full-width row: icon, then its name and line. */
 html[data-large-text] .friend-card {
@@ -3873,6 +3871,7 @@ html[data-large-text] .shortcut-list {
   }
   /* The other pages keep their phone column, a little larger. */
   .screen.daily,
+  .screen.casual,
   .screen.setup,
   .screen.loading {
     zoom: var(--wide-zoom, 1);

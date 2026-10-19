@@ -49,11 +49,10 @@ export async function settled(page: Page) {
 export async function startCasualByKeyboard(page: Page) {
   await page.locator('.tile.area-casual').focus();
   await page.keyboard.press('Enter');
-  const dialog = page.getByRole('dialog', { name: 'Casual' });
-  await expect(dialog).toBeVisible();
-  await dialog.getByRole('radio', { name: 'Easy' }).focus();
+  await expect(page).toHaveTitle(/^Casual/);
+  await page.getByRole('radio', { name: 'Easy' }).focus();
   await page.keyboard.press('Enter');
-  await dialog.getByRole('button', { name: 'Play Easy' }).focus();
+  await page.getByRole('button', { name: 'Play Easy' }).focus();
   await page.keyboard.press('Enter');
   await expect(page.getByRole('grid', { name: 'Sudoku board' })).toBeVisible({ timeout: 20_000 });
 }

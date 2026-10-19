@@ -92,20 +92,19 @@ for (const device of DEVICES) {
       found.push(...(await problems(page, 'Home')));
 
       await page.locator('.tile.area-casual').click();
-      await expect(page.getByRole('dialog', { name: 'Casual' })).toBeVisible();
-      found.push(...(await problems(page, 'Casual pop-up')));
-      // The pop-ups for playing with a friend, opened from Casual.
+      await expect(page).toHaveTitle(/^Casual/);
+      found.push(...(await problems(page, 'Casual')));
+      // The pop-ups for playing with a friend, opened from the Casual page.
       for (const name of ['Clash a friend', 'Square code']) {
-        await page.getByRole('dialog', { name: 'Casual' }).getByRole('button', { name: new RegExp(`^${name}`) }).click();
+        await page.getByRole('button', { name: new RegExp(`^${name}`) }).click();
         await expect(page.getByRole('dialog')).toBeVisible();
         found.push(...(await problems(page, `${name} pop-up`)));
         await page.keyboard.press('Escape');
         await expect(page.getByRole('dialog')).toBeHidden();
-        await page.locator('.tile.area-casual').click();
-        await expect(page.getByRole('dialog', { name: 'Casual' })).toBeVisible();
       }
-      await page.keyboard.press('Escape');
-      await expect(page.getByRole('dialog')).toBeHidden();
+      await page.getByRole('button', { name: 'Back' }).click();
+      await expect(page.locator('.tile.area-casual')).toBeVisible();
+      await settled(page);
 
       await page.locator('.tile.area-daily').click();
       await expect(page).toHaveTitle(/Daily Square/);
@@ -130,9 +129,8 @@ for (const device of DEVICES) {
       }
 
       await page.locator('.tile.area-casual').click();
-      const casual = page.getByRole('dialog', { name: 'Casual' });
-      await expect(casual).toBeVisible();
-      await casual.getByRole('button', { name: /^Play / }).click();
+      await expect(page).toHaveTitle(/^Casual/);
+      await page.getByRole('button', { name: /^Play / }).click();
       await expect(page.getByRole('grid', { name: 'Sudoku board' })).toBeVisible({ timeout: 20_000 });
       found.push(...(await problems(page, 'Game')));
       await page.keyboard.press('?');
@@ -160,7 +158,8 @@ for (const device of DEVICES) {
       await expect(page.locator('.tile.area-casual')).toBeVisible();
       await settled(page);
       await page.locator('.tile.area-casual').click();
-      await page.getByRole('dialog', { name: 'Casual' }).getByRole('button', { name: /^Play / }).click();
+      await expect(page).toHaveTitle(/^Casual/);
+      await page.getByRole('button', { name: /^Play / }).click();
       const card = page.locator('.coach-card');
       await expect(card).toBeVisible({ timeout: 20_000 });
       const found: string[] = [];

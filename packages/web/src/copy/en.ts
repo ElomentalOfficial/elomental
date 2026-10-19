@@ -86,6 +86,7 @@ export const home = {
     resume: (difficulty: string) => `Resume ${capitalize(difficulty)}`,
     resumeInfo: (time: string, percent: number) => `${time} · ${percent}% done`,
     newGame: 'New game',
+    withFriend: 'With a friend',
     play: (difficulty: string) => `Play ${capitalize(difficulty)}`,
     clash: 'Clash a friend',
     clashInfo: 'Race to finish',
