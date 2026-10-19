@@ -910,6 +910,29 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   width: 34px;
   height: 34px;
 }
+/* A faint Art Deco line pattern behind every Home tile and the profile card, drawn
+   in the tile's own text colour (art/deco.svg as a mask, repeating). It sits under
+   the tile's content: the tile isolates, and the pattern goes at z-index -1. */
+.home-grid > .tile,
+.tile-setup,
+.profile-card {
+  isolation: isolate;
+  /* clip, not hidden: hidden would let the grid shrink the rows and squeeze Daily */
+  overflow: clip;
+}
+.home-grid > .tile::after,
+.tile-setup::after,
+.profile-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: currentColor;
+  opacity: var(--tile-pattern, 0.045);
+  -webkit-mask: url('./art/deco.svg') center / 120px 120px repeat;
+  mask: url('./art/deco.svg') center / 120px 120px repeat;
+  pointer-events: none;
+}
 .tile-setup .tile-label {
   font-size: var(--fs-label);
 }
