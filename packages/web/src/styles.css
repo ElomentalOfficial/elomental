@@ -910,28 +910,45 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   width: 34px;
   height: 34px;
 }
-/* A faint Art Deco line pattern behind every Home tile and the profile card, drawn
-   in the tile's own text colour (art/deco.svg as a mask, repeating). It sits under
-   the tile's content: the tile isolates, and the pattern goes at z-index -1. */
+/* A faint Art Deco frame inside every Home tile and the profile card, each tile its
+   own design (art/frames/*.svg, built by icons/build_frames.py). Drawn in the tile's
+   text colour through a mask-box-image: the corners keep their shape at any tile size
+   and the edge lines stretch between them. It sits under the tile's content (the tile
+   isolates, the frame is at z-index -1). Browsers without mask-box-image (Firefox)
+   simply show no frame. */
 .home-grid > .tile,
 .tile-setup,
 .profile-card {
   isolation: isolate;
-  /* clip, not hidden: hidden would let the grid shrink the rows and squeeze Daily */
-  overflow: clip;
 }
-.home-grid > .tile::after,
-.tile-setup::after,
-.profile-card::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: currentColor;
-  opacity: var(--tile-pattern, 0.045);
-  -webkit-mask: url('./art/deco.svg') center / 120px 120px repeat;
-  mask: url('./art/deco.svg') center / 120px 120px repeat;
-  pointer-events: none;
+@supports (-webkit-mask-box-image: none) {
+  .home-grid > .tile::after,
+  .tile-setup::after,
+  .profile-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: currentColor;
+    opacity: 0.09;
+    -webkit-mask-box-image: var(--frame) 40 / calc(var(--frame-corner, 30px) * var(--frame-zoom, 1)) stretch;
+    pointer-events: none;
+  }
+  .profile-card { --frame: url('./art/frames/profile.svg'); --frame-corner: 44px; }
+  .area-store { --frame: url('./art/frames/store.svg'); }
+  .area-setup,
+  .tile-setup { --frame: url('./art/frames/setup.svg'); --frame-corner: 24px; }
+  .area-leader { --frame: url('./art/frames/leader.svg'); }
+  .area-daily { --frame: url('./art/frames/daily.svg'); }
+  .area-casual { --frame: url('./art/frames/casual.svg'); --frame-corner: 34px; }
+  .area-ranked { --frame: url('./art/frames/ranked.svg'); --frame-corner: 34px; }
+}
+/* The wide-screen tiles are about twice the size: their frame corners grow too. */
+@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+  .home-grid {
+    --frame-zoom: 1.6;
+  }
 }
 .tile-setup .tile-label {
   font-size: var(--fs-label);
