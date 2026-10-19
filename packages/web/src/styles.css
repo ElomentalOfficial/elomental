@@ -1963,6 +1963,9 @@ html.standalone .backdrop {
   flex-direction: column;
   justify-content: center;
   gap: var(--space-4);
+  /* Room above the feather for its drift-in and tap swings: the scrolling body clips
+     anything that rises past its top edge, and on short phones the feather sits there. */
+  padding-top: 40px;
   padding-bottom: var(--space-2);
 }
 .casual-friends {
