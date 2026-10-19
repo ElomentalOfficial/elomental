@@ -22,6 +22,10 @@ export function installStandaloneFixes(): void {
     const gap = Math.round(screenHeight - fixedBottom);
     // Only a status-bar-sized shortfall is this bug; anything else is real system UI.
     root.style.setProperty('--standalone-gap', gap > 0 && gap <= 100 ? `${gap}px` : '0px');
+    // The page runs under the status bar and the home indicator, so the screen is
+    // the full height to cover. 100lvh comes up short here (the background lines
+    // stopped about a status bar above the bottom).
+    root.style.setProperty('--screen-h', `${screenHeight}px`);
   };
   measure();
   window.addEventListener('resize', measure);
@@ -36,6 +40,8 @@ export function deviceInfo(): string[] {
   document.body.append(probe);
   const cs = getComputedStyle(probe);
   const insets = [cs.paddingTop, cs.paddingRight, cs.paddingBottom, cs.paddingLeft].map((v) => parseFloat(v)).join(' / ');
+  probe.style.cssText = 'position:fixed;top:0;left:0;visibility:hidden;height:100lvh';
+  const lvh = Math.round(probe.getBoundingClientRect().height);
   probe.remove();
   const body = document.body.getBoundingClientRect();
   return [
@@ -45,6 +51,7 @@ export function deviceInfo(): string[] {
     `visual viewport: ${Math.round(visualViewport?.width ?? 0)}×${Math.round(visualViewport?.height ?? 0)}`,
     `body: top ${Math.round(body.top)}, bottom ${Math.round(body.bottom)}`,
     `gap: ${getComputedStyle(document.documentElement).getPropertyValue('--standalone-gap') || 'none'}`,
+    `100lvh: ${lvh}, screen-h: ${getComputedStyle(document.documentElement).getPropertyValue('--screen-h') || 'none'}`,
     `safe areas (t/r/b/l): ${insets}`,
   ];
 }

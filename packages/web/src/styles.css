@@ -345,7 +345,8 @@ html.standalone:not(.welcome-active) #status-tint {
   left: 0;
   width: 100%;
   top: -60px;
-  height: calc(100lvh + 120px + var(--standalone-gap, 0px));
+  /* Home-screen mode: the real screen height (viewport.ts), because iOS under-reports 100lvh there. */
+  height: calc(var(--screen-h, calc(100lvh + var(--standalone-gap, 0px))) + 120px);
   pointer-events: none;
   background: var(--grain-color);
   -webkit-mask: var(--grain) center / cover no-repeat;
