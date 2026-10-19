@@ -1,7 +1,7 @@
-import { TEXT_SIZES, a11yPrefs, onA11yChange, type A11yPrefs } from '../a11y.ts';
+import { DEFAULTS, TEXT_SIZES, a11yPrefs, onA11yChange, type A11yPrefs } from '../a11y.ts';
 import { saveSettings } from '../backend.ts';
 import { openShortcuts } from '../shortcuts.ts';
-import { goBack, h, mount, subPage, type Screen } from '../ui.ts';
+import { goBack, h, mount, openModal, subPage, toast, type Screen } from '../ui.ts';
 import { setupScreen } from './setup.ts';
 import { statementScreen } from './statement.ts';
 import * as copy from '../copy/en.ts';
@@ -44,6 +44,35 @@ function choice<K extends keyof A11yPrefs>(key: K, label: string, help: string |
     h('h3', { text: label, attrs: { id } }),
     help ? h('p', { text: help }) : null,
     h('div', { class: `segmented cols-${options.length}`, attrs: { role: 'radiogroup', 'aria-labelledby': id } }, ...buttons),
+  );
+}
+
+/**
+ * Asks first, then puts every accessibility choice back to its default, on this device
+ * and on the account. The choices on the page update themselves (they listen for changes).
+ */
+function confirmReset(): void {
+  const t = copy.setup.a11y;
+  const close = openModal(
+    h(
+      'div',
+      { class: 'confirm' },
+      h('p', { text: t.resetConfirm }),
+      h(
+        'div',
+        { class: 'actions' },
+        h('button', {
+          class: 'btn btn-primary',
+          text: t.resetYes,
+          onclick: () => {
+            close();
+            saveSettings({ a11y: { ...DEFAULTS } });
+            toast(t.resetDone);
+          },
+        }),
+        h('button', { class: 'btn', text: copy.common.cancel, onclick: () => close() }),
+      ),
+    ),
   );
 }
 
@@ -103,6 +132,18 @@ export function accessibilityScreen(): Screen {
         { class: 'setting choice-list' },
         h('button', { class: 'btn', text: t.shortcuts, onclick: () => openShortcuts() }),
         h('button', { class: 'btn', text: t.statement, onclick: () => mount(statementScreen()) }),
+      ),
+    ),
+    // Last, after everything it would undo: back to the defaults, after a check.
+    h(
+      'section',
+      { class: 'setting-group' },
+      h('h2', { text: t.resetGroup }),
+      h(
+        'div',
+        { class: 'setting choice-list' },
+        h('p', { class: 'field-hint', text: t.resetHelp }),
+        h('button', { class: 'btn', text: t.reset, onclick: () => confirmReset() }),
       ),
     ),
   );

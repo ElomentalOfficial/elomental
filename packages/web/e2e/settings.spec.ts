@@ -81,6 +81,34 @@ test('every choice on the Accessibility page is stored and shown as chosen', asy
   await expect(html).toHaveAttribute('data-reduce-motion', '');
   await expect(html).toHaveAttribute('data-hide-timer', '');
   expect(await html.evaluate((el) => getComputedStyle(el).getPropertyValue('--text-scale').trim())).toBe('1.5');
+
+  // Reset to defaults: asks first (Cancel keeps everything), then puts every choice back.
+  await app.getByRole('button', { name: 'Reset to defaults' }).click();
+  await app.getByRole('dialog').getByRole('button', { name: 'Cancel' }).click();
+  await expect(app.getByRole('dialog')).toBeHidden();
+  await expect(app.getByRole('radiogroup', { name: 'Text size' }).getByRole('radio', { name: '150%' })).toHaveAttribute('aria-checked', 'true');
+  await app.getByRole('button', { name: 'Reset to defaults' }).click();
+  await app.getByRole('dialog').getByRole('button', { name: 'Reset', exact: true }).click();
+  await expect(app.getByRole('status')).toHaveText('Accessibility settings are back to their defaults.');
+  expect(await app.evaluate(() => JSON.parse(localStorage.getItem('elomental:a11y')!))).toEqual({
+    textSize: 100,
+    contrast: 'system',
+    colourBlind: false,
+    motion: 'system',
+    showTimer: true,
+    highlightLines: true,
+    highlightBox: false,
+    highlightSame: true,
+    keepWrong: false,
+    casualMistakeLimit: true,
+    haptics: true,
+    sounds: false,
+  });
+  for (const [group, option] of [['Text size', '100%'], ['Contrast', 'System'], ['Sounds', 'Off'], ['Wrong numbers', 'Briefly']]) {
+    await expect(app.getByRole('radiogroup', { name: group }).getByRole('radio', { name: option })).toHaveAttribute('aria-checked', 'true');
+  }
+  await expect(html).not.toHaveAttribute('data-large-text', '');
+  await expect(html).not.toHaveAttribute('data-hide-timer', '');
 });
 
 test('Text size scales the type', async ({ app }) => {
