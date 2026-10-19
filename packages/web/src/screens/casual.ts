@@ -89,7 +89,12 @@ export function casualScreen(): Screen {
       h(
         'div',
         { class: 'casual-head' },
-        h('span', { class: 'casual-badge', html: ICONS.casual, attrs: { 'aria-hidden': 'true' } }),
+        h(
+          'span',
+          { class: 'casual-feather', attrs: { 'aria-hidden': 'true' } },
+          h('i', { class: 'casual-feather-shadow' }),
+          h('span', { class: 'casual-feather-art', html: ICONS.casual }),
+        ),
         h('p', { text: say.text }),
       ),
       resume,

@@ -68,6 +68,7 @@
   --tile-text: var(--c-bright);
   /* Home tiles: a crisp drop under each. */
   --tile-shadow: color-mix(in srgb, var(--c-bg), black 22%);
+  --feather-shadow: rgba(0, 0, 0, 0.55);
   /* Dark home: the profile card is a dark Highlight surface with light text (Figma update). */
   --profile-bg: var(--c-highlight-2);
   --profile-text: var(--c-bright);
@@ -140,7 +141,8 @@
   --surface-2: var(--c-mud);
   --tile: var(--c-mud);
   --tile-text: var(--c-crimson);
-  --tile-shadow: color-mix(in srgb, var(--c-rock) 45%, transparent);  --profile-bg: var(--c-second-bright);
+  --tile-shadow: color-mix(in srgb, var(--c-rock) 45%, transparent);
+  --feather-shadow: color-mix(in srgb, var(--c-rock) 85%, transparent);  --profile-bg: var(--c-second-bright);
   --profile-text: var(--c-crimson);
   --chip-bg: rgba(38, 39, 33, 0.07);
   --avatar-bg: var(--c-bright);
@@ -1980,20 +1982,89 @@ html.standalone .backdrop {
   gap: 14px;
   padding: 20px 18px 18px;
 }
+/* The feather stands free above the tagline. It drifts down into place when the page
+   opens, then floats gently; its shadow shrinks and fades as it lifts. */
 .casual-head {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
   padding: 0 var(--space-1);
+  text-align: center;
 }
-.casual-badge {
-  width: 52px;
-  height: 52px;
-  flex: none;
-  padding: 8px; /* the feather is wider than tall, so it gets more of the circle */
+.casual-feather {
+  position: relative;
+  display: block;
+  width: 116px;
+  height: 100px;
+}
+.casual-feather-art {
+  position: absolute;
+  inset: 0 0 18px;
+  animation:
+    feather-in 1.1s cubic-bezier(0.2, 0.7, 0.3, 1) both,
+    feather-float 4.2s ease-in-out 1.1s infinite;
+}
+.casual-feather-shadow {
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  bottom: 2px;
+  height: 11px;
   border-radius: 50%;
-  background: var(--c-forest);
-  color: var(--c-bright);
+  background: var(--feather-shadow);
+  filter: blur(1.5px);
+  animation:
+    feather-shadow-in 1.1s ease-out both,
+    feather-shadow-float 4.2s ease-in-out 1.1s infinite;
+}
+@keyframes feather-in {
+  from {
+    transform: translate(-16px, -44px) rotate(-16deg);
+    opacity: 0;
+  }
+  60% {
+    transform: translate(5px, 4px) rotate(5deg);
+    opacity: 1;
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes feather-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(-3deg);
+  }
+}
+@keyframes feather-shadow-in {
+  from {
+    transform: scaleX(0.3);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes feather-shadow-float {
+  0%,
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scaleX(0.76);
+    opacity: 0.55;
+  }
+}
+/* Still, not sped up, for anyone who turned motion off. */
+html[data-reduce-motion] .casual-feather-art,
+html[data-reduce-motion] .casual-feather-shadow {
+  animation: none !important;
 }
 .casual-head p {
   font-family: var(--serif);
