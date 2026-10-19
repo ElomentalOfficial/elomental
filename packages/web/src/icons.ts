@@ -1,6 +1,6 @@
 /**
- * App icons. Most Home tile icons are brush-style art baked to PNGs (art/, `brush`);
- * the game icons and Play Ranked come from the Figma exports in /assets; the
+ * App icons. The Home tile icons are brush-style art baked to PNGs (art/, `brush`);
+ * the game icons come from the Figma exports in /assets; the
  * small utility icons below them (back, lock, play, ...) are our own until
  * Figma has versions of them. Cut-outs use `fill-rule="evenodd"` so they show
  * whatever is behind the icon, which keeps them right in both themes.
@@ -14,6 +14,7 @@ import cogLight from './art/cog-light.png';
 import calendar from './art/calendar.png';
 import walletDark from './art/wallet-dark.png';
 import walletLight from './art/wallet-light.png';
+import sword from './art/sword.png';
 
 const stroke = (body: string, width = 1.8) =>
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
@@ -57,10 +58,8 @@ export const ICONS = {
   daily: brush(calendar),
   /** Brush-style feather with a Lava shaft, drawn for the Forest tile and badge. */
   casual: brush(feather),
-  ranked: art(
-    '0 0 44 54',
-    '<path d="M2.33653 24.1442L7.78842 13.2403L10.6442 16.6153L12.2019 10.125L22.3268 0L25.1826 11.423L33.7498 17.6538L39.9806 23.3653L43.8748 36.0864L34.0094 50.3652L22.3268 53.9998L10.125 50.8845L0 35.5672L2.33653 24.1442Z" fill="#EDE6D4"/><path d="M10.125 50.8846L18.173 40.7597L0 35.5674L10.125 50.8846Z" fill="#E3D9C6"/><path d="M10.1249 50.8847L18.1729 40.7598L34.0094 50.3655L22.3267 54.0001L10.1249 50.8847Z" fill="#D3C7B0"/><path d="M26.7402 33.4903L33.7498 17.6538L39.9806 23.3653L26.7402 33.4903Z" fill="#DDCEB6"/><path d="M18.173 25.7019L7.78845 13.2404L10.9038 16.0961L12.2019 10.125L18.173 25.7019Z" fill="#C3B6A2"/><path d="M18.173 25.4422L22.3268 0L25.1826 11.423L18.173 25.4422Z" fill="#E0D3BF"/><path d="M18.173 40.7596V25.4424L26.9999 33.4904L18.173 40.7596Z" fill="#B0613C"/><path d="M18.173 30.8943L26.9999 33.4904L18.173 25.4424V30.8943Z" fill="#C97751"/>',
-  ),
+  /** Brush-style sword wrapped in one flame, drawn for the Lava tile and the Ranked pop-up badge. */
+  ranked: brush(sword),
   mistake: figma(
     '0 0 19 18',
     '<path d="M15.6211 3.99512L17.4609 6.05957L18.3594 9.96484L16.0254 13.5107L14.9922 14.7227L13.332 14.9473V17.4609L12.793 18L11.0869 17.8203L10.459 15.082L9.56152 14.7227L9.91992 17.6406L6.86816 17.4609L5.83496 14.7227H5.02734L5.29688 17.1924H4.30957L3.77051 16.6982L3.14258 14.5439L1.30176 13.2871L0 10.5488V7.81055L1.70605 4.71289L5.16211 1.48145L5.65625 0.717773L9.91992 0L15.6211 3.99512ZM7.54199 10.458L6.68848 11.625V12.3887L7.31738 12.792L7.81055 12.3887L8.25977 12.6582L9.02246 12.3887V11.625L8.25977 10.458H7.54199ZM10.3242 4.39844L10.1006 5.07129L10.3242 5.9248L10.7285 6.23926L11.626 8.4834L10.4141 10.2783L10.3242 11.2217L11.1328 11.5801L11.8057 11.2217L12.8379 10.1885L13.9609 11.625L14.8584 11.5801L15.3076 10.8174L13.8711 8.34863L15.4414 5.9248L14.8584 5.07129L13.8711 5.65527L12.8379 6.64258C12.315 5.89561 11.2437 4.40369 11.1328 4.39844H10.3242ZM3.00781 5.65527L2.02051 7.27148L1.88574 8.61816L2.46973 10.1885L3.72656 11.2217H5.11719L6.375 9.875L6.86816 7.49609L6.15039 5.43066L4.71387 4.84766L3.00781 5.65527Z"/>',

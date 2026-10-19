@@ -793,8 +793,8 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   height: 34px;
 }
 .area-ranked .tile-icon {
-  width: 36px;
-  height: 44px;
+  width: 46px;
+  height: 64px;
 }
 .profile-card {
   grid-area: profile;
@@ -1768,7 +1768,7 @@ html.standalone .backdrop {
 .sheet-icon.ranked {
   width: 110px;
   height: 110px;
-  padding: 26px;
+  padding: 14px;
   background: var(--c-lava);
 }
 .ranked-copy {
@@ -3687,8 +3687,8 @@ html[data-large-text] .shortcut-list {
     height: 64px;
   }
   .area-ranked .tile-icon {
-    width: 54px;
-    height: 66px;
+    width: 66px;
+    height: 92px;
   }
   /* The arm still runs in from the tile's left edge (out past the padding, which
      isn't zoomed); the box ends 36px right of centre so the cup sits over the label. */
