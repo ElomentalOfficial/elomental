@@ -38,7 +38,7 @@ review done. Main moved only by fast-forward, after you said "Push it".
 | B10 | Live: `economy_pace`, and `ranked_length` for D5 |
 | B11 | Live: `ranked_integrity` and the `audit-solve` Edge Function (v3). Ranked only, your call |
 | B12 | Live (app only) |
-| Stage 4 | R1 to R9 and L35 committed on `full-review`, not pushed. R8 is a migration, not applied live |
+| Stage 4 | Live: R1 to R9 and L35; R8 is `finish_game_stages` |
 
 ### Stage 4 refactors
 
@@ -351,7 +351,6 @@ live only by you**. Full SQL drafts are in the specialist reports (sections name
 - Deleting the old `handoff` Edge Function in the dashboard (removed from the repo in B11).
 - After the first real Ranked wins: check `private.game_audits` shows the dealt puzzle matched,
   and that `audit-solve`'s CPU time is fine at targets 1466 and 1800.
-- R8: applying `finish_game_stages` to the live project, when you approve it.
 - Opening the WebP icons once in Firefox.
 
 ---
