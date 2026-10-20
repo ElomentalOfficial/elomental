@@ -114,9 +114,12 @@ export const home = {
     text: 'A square matched to your Elo. Solve it to climb.',
     /** Before you start: your rank, the square's length and what's at stake. */
     rank: (label: string, elo: number) => `${label} · ${elo} Elo`,
-    length: (minutes: number) => `About ${minutes} min. Faster wins more.`,
+    /** The length, and the slow cut at twice it. */
+    length: (minutes: number, slow: number) => `About ${minutes} min. Faster wins more; over ${slow} min wins less.`,
     stakes: (win: number, loss: number) =>
-      loss === 0 ? `Win about +${win}. No Elo lost below 500.` : `Win about +${win}, lose about −${loss} (3 mistakes or Concede).`,
+      loss === 0 ? `Win about +${win}. No Elo lost below 500.`
+      : win < 1 ? `Little Elo left to gain above 3000. Lose about −${loss}.`
+      : `Win about +${win}, lose about −${loss} (3 mistakes or Concede).`,
     pauses: '3 pauses of up to 5 minutes.',
     start: 'Start',
   },

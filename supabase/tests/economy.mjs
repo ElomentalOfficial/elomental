@@ -341,7 +341,8 @@ const lbPlayer = async (name, elo, extra = '') => {
 const ana = await lbPlayer('Anastasia', 2400, ", affinity = 'fire', country = 'RO'");
 const bob = await lbPlayer('Bogdan', 1800, ", affinity = 'water', country = 'RO'");
 const cata = await lbPlayer('Catalina', 1500, ", affinity = 'fire'");
-const ghost = await lbPlayer('Ghostly', 3000, ', lb_hidden = true');
+// (above every Elo the sections before reach)
+const ghost = await lbPlayer('Ghostly', 5000, ', lb_hidden = true');
 const dan = await lbPlayer('Daniela', 1200, ", affinity = 'fire', country = 'GB'");
 await db.exec(`select private.refresh_lb()`);
 await as(cata);
@@ -710,6 +711,45 @@ for (let i = 0; i < 3; i++) fullDrop = (await play(full, 'casual', 'medium')).dr
 check(fullDrop?.complete?.mythic === true && fullDrop.complete.epic === true, `M6 a drop says every Epic and Mythic part is owned (${JSON.stringify(fullDrop?.complete)})`);
 const partial = (await play(a, 'ranked', 'medium', { rating: 500 }));
 check(partial.drop === null || typeof partial.drop.complete?.mythic === 'boolean', 'M6 every drop says it');
+
+// --- 16. Ranked length (batch B10, decision D5): short squares at every level
+const targets = (await one(`select json_agg(private.ranked_target(e) order by e) j from unnest(array[100, 1190, 1200, 2000, 3000, 4800]) e`)).j;
+check(JSON.stringify(targets) === JSON.stringify([150, 1190, 1200, 1466, 1800, 1800]), `D5 the square follows Elo to 1200, then a third as fast, to 1800 at 3000 (${targets})`);
+const pars = (await one(`select json_agg(private.par_seconds(r) order by r) j from unnest(array[150, 400, 600, 1800]) r`)).j;
+check(JSON.stringify(pars) === JSON.stringify([600, 600, 780, 900]), `D5 par is 10 to 15 minutes (${pars})`);
+const hi = await newPlayer();
+await db.exec(`update public.profiles set elo = 2000, ranked_games = 50, affinity = 'earth' where id = '${hi}'`);
+const hiWin = await play(hi, 'ranked', 'hard', { rating: 1466 });
+const even = (await one(`select private.elo_delta(2000, 2000, true, 50) d`)).d;
+// (play() starts the game 1200 s back: 1.33x the 900 s par, so no speed bonus)
+check(hiWin.elo.bonus === 0 && hiWin.elo.after - hiWin.elo.before === even, `D5 a win is priced as an even match against your own Elo, not the square's 1466 (+${hiWin.elo.after - hiWin.elo.before}, even +${even})`);
+check(hiWin.influence?.amount === 3 + 2 + 1, `D5 Ranked influence goes by your Elo (${JSON.stringify(hiWin.influence)})`);
+// C2 wins: a square far easier than its target is discounted, a harder one earns no premium
+async function rankedAt(uid, target, audited) {
+  const { rows } = await db.query(`insert into public.games (user_id, mode, difficulty, seed, rating, target_rating, started_at, audit)
+    values ($1, 'ranked', 'hard', 's', $2, $2, now() - interval '1200 seconds', $3) returning id`,
+    [uid, target, JSON.stringify({ copied: false, solution: SOLVED, rating: audited })]);
+  await as(uid);
+  return (await db.query(`select public.finish_game($1, true, 0, 0, 1200, $2, $3) j`, [rows[0].id, audited, SOLVED])).rows[0].j;
+}
+const c2p = await newPlayer();
+const gain = (j) => j.elo.after - j.elo.before;
+const at2000 = async (r) => { await db.exec(`update public.profiles set elo = 2000, ranked_games = 50 where id = '${c2p}'`); return rankedAt(c2p, 1466, r); };
+const fair = await at2000(1466), cheap = await at2000(100), dear = await at2000(1828);
+check(gain(cheap) < gain(fair) / 2, `C2 a square far easier than its target is discounted (+${gain(cheap)} vs +${gain(fair)})`);
+check(gain(dear) === gain(fair), `C2 a harder square earns no premium (+${gain(dear)} vs +${gain(fair)})`);
+// par goes by the target: at target 300 (par 600 s), 280 s is +25% whatever rating is claimed
+const lowP = await newPlayer();
+await db.exec(`update public.profiles set elo = 300, ranked_games = 50 where id = '${lowP}'`);
+const { rows: lowG } = await db.query(`insert into public.games (user_id, mode, difficulty, seed, rating, target_rating, started_at, audit)
+  values ($1, 'ranked', 'medium', 's', 300, 300, now() - interval '280 seconds', $2) returning id`, [lowP, JSON.stringify({ copied: false, solution: SOLVED, rating: 650 })]);
+await as(lowP);
+const lowJ = (await db.query(`select public.finish_game($1, true, 0, 0, 280, 650, $2) j`, [lowG[0].id, SOLVED])).rows[0].j;
+check(lowJ.elo.bonus === 0.25, `C2 par goes by the target, not the claimed rating (bonus ${lowJ.elo.bonus})`);
+
+await db.exec(`update public.profiles set elo = 4000 where id = '${hi}'`);
+const top = await play(hi, 'ranked', 'hard', { rating: 1800 });
+check(top.elo.after - top.elo.before < even, `D5 above 3000 the gains fade (+${top.elo.after - top.elo.before})`);
 
 console.log(fails.length ? `\n${fails.length} FAILED` : '\nall checks passed');
 process.exit(fails.length ? 1 : 0);

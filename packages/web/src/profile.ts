@@ -37,12 +37,13 @@ export const PROTECTED_BELOW = 500;
 const DUST: Record<Difficulty | 'daily' | 'ranked', number> = { easy: 4, medium: 8, hard: 15, daily: 12, ranked: 20 };
 
 /**
- * Par solve time for a ranked puzzle, from its rating: about 6 minutes at 150,
- * 12 at 550, 19 at 1000, 34 at 2000, capped at an hour. The clock always counts
- * up; speed against par scales Elo gains. Mirrors private.par_seconds on the server.
+ * Par solve time for a ranked puzzle, from its rating: 10 minutes up to a 400 rating,
+ * rising to 15 at 730 and above (full review D5: a Ranked square takes 10–15 minutes).
+ * The clock always counts up; speed against par scales Elo gains. Mirrors
+ * private.par_seconds on the server.
  */
 export function parMs(rating: number): number {
-  return Math.min(Math.max(240 + Math.round(0.9 * rating), 360), 3600) * 1000;
+  return Math.min(Math.max(240 + Math.round(0.9 * rating), 600), 900) * 1000;
 }
 
 /**
@@ -116,17 +117,29 @@ export function puzzleProfile(mode: Mode, difficulty: Difficulty, dateKey?: stri
   return difficulty === 'easy' ? 'casualEasy' : difficulty === 'medium' ? 'casualMedium' : 'casualHard';
 }
 
-/** Lowest and highest rating a ranked puzzle aims for. */
+/** Lowest Elo a Ranked match is priced at, and the highest (Archmage): gains fade above it. */
 const MIN_TARGET = 150;
-const MAX_TARGET = 4800;
+const MAX_OPPONENT = 3000;
+/** Squares follow your Elo up to here, then climb a third as fast. */
+const KNEE = 1200;
 
 /**
- * The rating a ranked puzzle aims for: the player's own Elo, so every match is
- * an even one and the puzzles keep getting harder as long as the player keeps
- * winning. Mirrors start_game on the server (signed-in players get it from there).
+ * Who a Ranked game is priced against: an even match with your own Elo, held to 150..3000.
+ * Mirrors private.ranked_opponent.
+ */
+export function rankedOpponent(elo: number): number {
+  return Math.min(Math.max(Math.round(elo), MIN_TARGET), MAX_OPPONENT);
+}
+
+/**
+ * The rating a ranked puzzle aims for: your Elo up to 1200, then a third as fast, up to 1800
+ * at 3000 Elo, so every square stays about 10–15 minutes (full review D5; the engine's
+ * hardest technique tops out about there). Mirrors private.ranked_target on the server
+ * (signed-in players get it from start_game).
  */
 export function rankedTarget(elo: number): number {
-  return Math.min(Math.max(Math.round(elo), MIN_TARGET), MAX_TARGET);
+  const e = rankedOpponent(elo);
+  return e <= KNEE ? e : KNEE + Math.floor((e - KNEE) / 3);
 }
 
 /** K by Elo, straight lines between these points: big gains while learning, small at the top. */
@@ -246,6 +259,8 @@ export interface ResultInput {
   mode: Mode;
   difficulty: Difficulty;
   rating: number;
+  /** Ranked: the rating the square aimed for (par goes by it). */
+  target?: number;
   dateKey?: string;
   won: boolean;
   mistakes: number;
@@ -323,9 +338,14 @@ export function recordResult(input: ResultInput): Outcome {
 
   if (input.mode === 'ranked') {
     const before = profile.elo;
-    let delta = eloDelta(before, input.rating, input.won);
+    // priced as an even match against your own Elo, discounted for a square easier than its
+    // target (a harder one earns nothing extra); par goes by the target. Mirrors finish_game.
+    const target = input.target ?? rankedTarget(before);
+    // (a win's rating is clamped to target ± 350, as the server's audit is; a loss isn't discounted)
+    const discount = input.won ? Math.min(Math.max(input.rating, target - 350) - target + 100, 0) : 0;
+    let delta = eloDelta(before, rankedOpponent(before) + discount, input.won);
     const gained = input.won && delta > 0;
-    const bonus = gained ? speedBonus(input.elapsedMs, input.rating) : 0;
+    const bonus = gained ? speedBonus(input.elapsedMs, target) : 0;
     // Speed bonus first, then the hint cut, so hints can't be "earned back" by speed alone.
     const hintCut = gained ? Math.min(1, input.hints * HINT_ELO_PENALTY) : 0;
     delta = Math.round(delta * (1 + bonus) * (1 - hintCut));

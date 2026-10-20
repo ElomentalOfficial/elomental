@@ -77,6 +77,8 @@ export interface GameConfig {
   puzzle: string;
   solution: string;
   rating: number;
+  /** Ranked: the rating the square aimed for; par goes by it (missing in older saved games). */
+  target?: number;
   seed: string;
   dateKey?: string;
   /** Signed-in games: the server's game id; the server settles the result. */
@@ -235,6 +237,7 @@ export async function startGame(options: {
         puzzle: p.puzzle,
         solution: p.solution,
         rating: p.rating,
+        target: targetRating,
         seed: p.seed,
         dateKey: options.dateKey,
         clash: options.clash,
@@ -863,7 +866,7 @@ function gameScreen(game: SavedGame): Screen {
     }
     last = now;
     timer.textContent = formatTime(game.elapsedMs);
-    if (ranked) timer.classList.toggle('over-par', game.elapsedMs > parMs(config.rating));
+    if (ranked) timer.classList.toggle('over-par', game.elapsedMs > parMs(config.target ?? config.rating));
   }
   const clock = setInterval(tick, 250);
   const autosave = setInterval(save, 2000);
@@ -920,6 +923,7 @@ function gameScreen(game: SavedGame): Screen {
         mode: config.mode,
         difficulty: config.difficulty,
         rating: config.rating,
+        target: config.target,
         dateKey: config.dateKey,
         won,
         mistakes: game.mistakes,
@@ -1029,7 +1033,7 @@ function gameScreen(game: SavedGame): Screen {
       // solve, hints) are said there too, never applied in silence
       const sub = (text: string, cls = 'stat-sub') => eloRow.append(h('span', { class: cls, text }));
       if (!outcome.elo.unrated && outcome.elo.bonus > 0) sub(copy.result.speedBonus(Math.round(outcome.elo.bonus * 100)));
-      else if (!outcome.elo.unrated && outcome.elo.bonus < 0) sub(copy.result.slowCut(Math.round((2 * parMs(config.rating)) / 60_000)), 'stat-sub plain');
+      else if (!outcome.elo.unrated && outcome.elo.bonus < 0) sub(copy.result.slowCut(Math.round((2 * parMs(config.target ?? config.rating)) / 60_000)), 'stat-sub plain');
       if (!outcome.elo.unrated && outcome.elo.hintCut > 0) sub(copy.game.hintEloCut(Math.round(outcome.elo.hintCut * 100)), 'stat-sub plain');
       rows.push(eloRow);
       // how far the next rank is now (at the top there's no next); after a promotion, below it

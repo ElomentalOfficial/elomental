@@ -169,6 +169,13 @@ a 50% win rate. The leaderboard, the season ranking and faction ranks all sort b
 influence (`3 + rating/1000`) is inflated too.
 
 **Fix (M).**
+
+> **Update after D5 (`ranked_length`, batch B10):** Ranked Elo is now priced as an even match
+> against the player's own Elo (`private.ranked_opponent(p.elo)`), never on the square's rating.
+> When B11 rewrites `finish_game`, keep that pricing. The target and audited rating below now set
+> only par and the speed bonus (par moves only between ratings 400 and 733), so the givens check
+> still matters, but the risk is much smaller than the numbers above.
+
 ```sql
 -- 2026xxxx_sec2_ranked_rating.sql (draft): Ranked never takes a rating from the client.
 alter table public.games add column target_rating integer;   -- start_game ranked: = target

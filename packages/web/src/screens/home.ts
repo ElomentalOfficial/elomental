@@ -12,7 +12,7 @@ import { affinityDue } from '../backend/affinity.ts';
 import { affinityScreen } from './affinity.ts';
 import { addToHomeNote, countNoteVisit } from '../install.ts';
 import { enableTilt, turnstileIn, turnstileOut } from '../motion.ts';
-import { dailyKey, eloDelta, loadProfile, nextRank, parMs, rankTier, rankedTarget } from '../profile.ts';
+import { dailyKey, eloDelta, loadProfile, nextRank, parMs, rankTier, rankedOpponent, rankedTarget } from '../profile.ts';
 import { closeButton, h, hiddenHeading, mount, navigatingBack, openModal, toast, type Screen } from '../ui.ts';
 import { handleEmailLink } from '../emailLink.ts';
 import { onAccountChange, refreshAccount, signedIn } from '../backend.ts';
@@ -276,8 +276,8 @@ function openRanked(leave: (go: () => void) => void) {
   const r = copy.home.ranked;
   const facts = [
     r.rank(rankTier(profile.elo).label, profile.elo),
-    r.length(Math.round(parMs(target) / 60_000)),
-    r.stakes(eloDelta(profile.elo, target, true), -eloDelta(profile.elo, target, false)),
+    r.length(Math.round(parMs(target) / 60_000), Math.round((2 * parMs(target)) / 60_000)),
+    r.stakes(eloDelta(profile.elo, rankedOpponent(profile.elo), true), -eloDelta(profile.elo, rankedOpponent(profile.elo), false)),
     r.pauses,
   ];
   const close = openModal(

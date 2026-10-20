@@ -31,6 +31,13 @@ it replaces the material-based design in §2, §3.2–3.3, §4.2–4.3, §9–11
 - **Stardust sinks, all a look or a convenience:** bring an avatar to life once (6000 Stardust
   and a Spirit); name plates Bronze, Silver, Gold, Elomentalist (1000/2500/6000/12000, in order);
   fill in a missed Daily this month (300, up to 3 a month); Call a Spirit.
+- **Ranked (D5, `ranked_length`):** a square takes about 10–15 minutes at every level. Its rating
+  follows your Elo up to 1200, then climbs a third as fast, to 1800 at 3000 Elo (the engine's
+  hardest technique tops out around there). Elo is priced as an even match against your own Elo,
+  held to 150..3000, so gains fade above 3000 (a square easier than its target is discounted;
+  a harder one earns nothing extra). Par is 10 to 15 minutes, by the target; the slow cut is at 2× par.
+  Simulated: a regular reaches Elementalist around day 39; Archmage means "solves the hardest
+  square". Re-fit par to real solve times once there are about 200 real Ranked wins.
 - **Daily month:** 20 days solved or filled in earns that month's dated badge (`daily_month`).
 - **Affinities (§13):** chosen after 3 solves, switchable once in a season's first 7 days.
   A member counts once they have 5 solves in the month, each with up to 300 influence; the side
@@ -54,7 +61,8 @@ Decisions already made with the owner (2026-10-20):
   (Fire, Water, Earth, Air) are the schools every part belongs to.
 - **Affinities** (§13): every player joins one element; every solve adds to its
   monthly tug of war (added 2026-10-20).
-- Built on what exists: Elo (puzzle-as-opponent, protected below 500, up to 4800),
+- Built on what exists: Elo (protected below 500; since D5 priced as an even match against your
+  own Elo up to 3000, squares rated up to 1800),
   Stardust, the Spirit, the five rank names, Daily Square, Clash, server-side
   `finish_game` and the solve audit.
 
@@ -82,7 +90,7 @@ thing you own tells everyone how far you've climbed.
 - **Drop**: one roll per solve, decided on the server, with a pity cap so bad luck is bounded.
 - **Forge**: drops and Stardust become avatar parts. Choices matter: which element, which part.
 - **Flex**: the avatar, rank emblem, peak and titles show on the profile and every leaderboard row.
-- **Climb**: Elo serves harder squares, harder squares drop better, seasons reward the peak.
+- **Climb**: Elo serves harder squares, harder squares drop better, seasons reward the peak. (Since D5, squares level off above 1200 Elo, up to 1800 at 3000: see the Revision section.)
 - **Together**: every solve also pulls for your affinity in the monthly war (§13).
 
 What we deliberately avoid (the "not exploited" rules):
