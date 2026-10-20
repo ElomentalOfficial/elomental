@@ -1,0 +1,64 @@
+﻿
+> test
+> npm test --workspaces --if-present
+
+
+> @elomental/engine@0.1.0 test
+> node --test "test/**/*.test.ts"
+
+✔ people who work squares out are never flagged (1701.8048ms)
+✔ typing in a solved grid is caught on puzzles hard enough to judge (394.0076ms)
+✔ on the easiest Ranked puzzles, people are never flagged and most copying is caught (214.9476ms)
+✔ an honest start does not hide copying the rest (669.2835ms)
+✔ wrong digits, clears and replays are ignored; bad givens are refused (135.6777ms)
+✔ easy puzzles are unique and match their profile (30.7138ms)
+✔ medium puzzles are unique and match their profile (256.478ms)
+✔ hard puzzles are unique and match their profile (54.4368ms)
+✔ casual and daily profiles stay gentle (547.1986ms)
+✔ ranked puzzles land near their target rating and stay unique (2418.8925ms)
+✔ higher targets need harder techniques (280.678ms)
+✔ the same seed always produces the same puzzle (6.3483ms)
+✔ varied layouts: not all symmetric, and every digit is among the givens (969.983ms)
+✔ symmetry none still produces valid puzzles (1.2861ms)
+✔ techniques never contradict the solution on raw minimal puzzles (2605.8449ms)
+ℹ solved 361/400 with human techniques
+ℹ technique coverage: hiddenSingle=13113 fullHouse=7225 nakedPair=135 xWing=15 alsXz=171 claiming=173 wWing=45 nakedSingle=599 pointing=738 hiddenPair=85 xyWing=87 finnedXWing=148 nakedTriple=22 xyzWing=33 xyChain=98 twoStringKite=7 emptyRectangle=11 xChain=10 hiddenTriple=9 simpleColouring=7 finnedSwordfish=4 swordfish=6 finnedJellyfish=2
+✔ every technique stays sound at every point of a solve, not only when it is the easiest (10867.7999ms)
+ℹ fired: hiddenSingle=6166 claiming=4031 hiddenPair=3615 nakedTriple=3443 nakedQuad=2808 xyzWing=1356 jellyfish=1792 finnedXWing=3281 xyChain=4120 alsXz=5977 finnedSwordfish=3087 pointing=3690 finnedJellyfish=2891 xyWing=1164 xChain=4474 skyscraper=3179 xWing=2583 simpleColouring=2775 nakedSingle=5440 hiddenQuad=2290 wWing=1203 nakedPair=3312 swordfish=2279 remotePairs=453 hiddenTriple=3264 fullHouse=2213 twoStringKite=1425 emptyRectangle=1657
+✔ grading steps on generated puzzles agree with the stored solution (652.5244ms)
+✔ a solved grid needs no steps; a single gap is a full house (1.0056ms)
+✔ nextPlacement walks a puzzle to its solution (48.7833ms)
+✔ harder tiers get higher seed ratings (141.6269ms)
+✔ level 5 starts at the master rating (1.52ms)
+✔ every bank puzzle is unique, beats level 4 and needs a big finned fish (1109.3115ms)
+✔ top Ranked serves bank puzzles in disguise, sound and unique (1584.8367ms)
+✔ hints walk a level-5 puzzle all the way to its solution (16.4316ms)
+✔ random solved grids are valid and reproducible from their seed (6.2149ms)
+✔ countSolutions stops at the limit (0.6426ms)
+✔ conflicting givens have no solution (0.2142ms)
+✔ solve fills back missing cells of a solved grid (0.7981ms)
+✔ transformed puzzles stay unique, valid and equally hard (81.5199ms)
+✔ the same seed gives the same transform (0.5133ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 30
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14556.4017
+
+> @elomental/web@0.1.0 test
+> node --test "test/**/*.test.ts"
+
+✔ every colour pair meets its WCAG ratio in both themes (5.5754ms)
+✔ cell states that look alike to colour-blind players also differ in shape (1.5526ms)
+✔ accessibility settings from the account keep only known keys and values (1.4612ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 148.1362

@@ -1,0 +1,292 @@
+﻿
+> @elomental/web@0.1.0 test:a11y
+> playwright test
+
+node.exe : [2m[WebServer] [22m(node:35132) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being 
+set.
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Program Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([2m[WebServer]... env being set.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:30572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 124 tests using 12 workers
+
+(node:26596) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:10992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9084) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39956) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:31320) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:43392) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:37700) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:34948) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17368) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:7556) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:33916) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:26596) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:9084) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:10992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:39956) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:31320) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:43392) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:34948) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:37700) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:17368) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:21404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:7556) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:33916) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok   3 [dark] › e2e\a11y.spec.ts:2:1 › Home has no axe violations (6.9s)
+  ok   5 [dark] › e2e\a11y.spec.ts:120:1 › on long pages the header with Back stays in view while the body scrolls (7.6s)
+  ok   6 [dark] › e2e\a11y.spec.ts:137:1 › desktop: the wheel scrolls the page from anywhere, and the column widens with Text size (7.8s)
+  ok   1 [dark] › e2e\a11y.spec.ts:8:1 › Casual is a page; Clash opens from it as a dialog that keeps focus and closes back to the page (8.6s)
+  ok   4 [dark] › e2e\a11y.spec.ts:85:1 › "?" opens the keyboard shortcuts dialog (8.7s)
+  ok   2 [dark] › e2e\a11y.spec.ts:35:1 › a game plays from the keyboard and speaks to screen readers (10.2s)
+  ok   9 [dark] › e2e\a11y.spec.ts:160:1 › 200% text: nothing is cut off and nothing scrolls sideways (10.3s)
+  ok   7 [dark] › e2e\a11y.spec.ts:98:1 › Setup, the Accessibility page and the statement have no axe violations (10.7s)
+  ok  11 [dark] › e2e\layout.spec.ts:184:5 › small phone, text 100%: the first-game tutorial fits (11.4s)
+  ok  10 [dark] › e2e\install-result.spec.ts:35:1 › the first solve shows the note, and How unfolds the steps in the pop-up (13.8s)
+  ok  14 [dark] › e2e\layout.spec.ts:184:5 › small phone, text 125%: the first-game tutorial fits (8.8s)
+  ok  16 [dark] › e2e\layout.spec.ts:184:5 › small phone, text 150%: the first-game tutorial fits (8.8s)
+  ok   8 [dark] › e2e\layout.spec.ts:89:5 › small phone, text 100%: every screen fits (18.0s)
+  ok  18 [dark] › e2e\layout.spec.ts:184:5 › small phone, text 200%: the first-game tutorial fits (8.7s)
+  ok  20 [dark] › e2e\layout.spec.ts:184:5 › phone, text 100%: the first-game tutorial fits (8.6s)
+  ok  12 [dark] › e2e\install-result.spec.ts:48:1 › the second to fifth solves leave it out, the sixth shows it again (21.4s)
+  ok  13 [dark] › e2e\layout.spec.ts:89:5 › small phone, text 125%: every screen fits (15.8s)
+  ok  15 [dark] › e2e\layout.spec.ts:89:5 › small phone, text 150%: every screen fits (15.7s)
+  ok  17 [dark] › e2e\layout.spec.ts:89:5 › small phone, text 200%: every screen fits (15.6s)
+  ok  22 [dark] › e2e\layout.spec.ts:184:5 › phone, text 125%: the first-game tutorial fits (10.3s)
+  ok  19 [dark] › e2e\layout.spec.ts:89:5 › phone, text 100%: every screen fits (15.3s)
+  ok  24 [dark] › e2e\layout.spec.ts:184:5 › phone, text 150%: the first-game tutorial fits (8.9s)
+  ok  21 [dark] › e2e\layout.spec.ts:89:5 › phone, text 125%: every screen fits (15.5s)
+  ok  26 [dark] › e2e\layout.spec.ts:184:5 › phone, text 200%: the first-game tutorial fits (8.9s)
+  ok  28 [dark] › e2e\layout.spec.ts:184:5 › tablet upright, text 100%: the first-game tutorial fits (9.0s)
+  ok  23 [dark] › e2e\layout.spec.ts:89:5 › phone, text 150%: every screen fits (15.5s)
+  ok  30 [dark] › e2e\layout.spec.ts:184:5 › tablet upright, text 125%: the first-game tutorial fits (9.0s)
+  ok  32 [dark] › e2e\layout.spec.ts:184:5 › tablet upright, text 150%: the first-game tutorial fits (9.1s)
+  ok  25 [dark] › e2e\layout.spec.ts:89:5 › phone, text 200%: every screen fits (15.9s)
+  ok  27 [dark] › e2e\layout.spec.ts:89:5 › tablet upright, text 100%: every screen fits (15.8s)
+  ok  34 [dark] › e2e\layout.spec.ts:184:5 › tablet upright, text 200%: the first-game tutorial fits (9.2s)
+  ok  36 [dark] › e2e\layout.spec.ts:184:5 › tablet, text 100%: the first-game tutorial fits (9.1s)
+  ok  29 [dark] › e2e\layout.spec.ts:89:5 › tablet upright, text 125%: every screen fits (17.2s)
+  ok  38 [dark] › e2e\layout.spec.ts:184:5 › tablet, text 125%: the first-game tutorial fits (9.1s)
+  ok  31 [dark] › e2e\layout.spec.ts:89:5 › tablet upright, text 150%: every screen fits (17.5s)
+  ok  40 [dark] › e2e\layout.spec.ts:184:5 › tablet, text 150%: the first-game tutorial fits (9.1s)
+  ok  33 [dark] › e2e\layout.spec.ts:89:5 › tablet upright, text 200%: every screen fits (17.1s)
+  ok  35 [dark] › e2e\layout.spec.ts:89:5 › tablet, text 100%: every screen fits (16.9s)
+  ok  42 [dark] › e2e\layout.spec.ts:184:5 › tablet, text 200%: the first-game tutorial fits (9.2s)
+  ok  44 [dark] › e2e\layout.spec.ts:184:5 › desktop, text 100%: the first-game tutorial fits (9.1s)
+  ok  37 [dark] › e2e\layout.spec.ts:89:5 › tablet, text 125%: every screen fits (16.6s)
+  ok  39 [dark] › e2e\layout.spec.ts:89:5 › tablet, text 150%: every screen fits (16.7s)
+  ok  46 [dark] › e2e\layout.spec.ts:184:5 › desktop, text 125%: the first-game tutorial fits (9.1s)
+  ok  41 [dark] › e2e\layout.spec.ts:89:5 › tablet, text 200%: every screen fits (17.0s)
+  ok  48 [dark] › e2e\layout.spec.ts:184:5 › desktop, text 150%: the first-game tutorial fits (9.2s)
+  ok  52 [dark] › e2e\settings.spec.ts:143:1 › Text size scales the type (6.0s)
+  ok  43 [dark] › e2e\layout.spec.ts:89:5 › desktop, text 100%: every screen fits (17.0s)
+  ok  51 [dark] › e2e\settings.spec.ts:48:1 › every choice on the Accessibility page is stored and shown as chosen (8.8s)
+  ok  54 [dark] › e2e\settings.spec.ts:170:1 › Reduce motion: System follows the device, and a wrong number still shows before it goes (4.8s)
+  ok  53 [dark] › e2e\settings.spec.ts:153:1 › Contrast: High outlines every cell; System follows the device (8.4s)
+  ok  55 [dark] › e2e\settings.spec.ts:187:1 › Colour-blind friendly marks same numbers with a bar (6.1s)
+  ok  45 [dark] › e2e\layout.spec.ts:89:5 › desktop, text 125%: every screen fits (16.7s)
+(node:18984) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  61 [dark] › e2e\signin.spec.ts:32:1 › an expired email link says so, clears the address bar, and only then starts a guest (2.9s)
+(node:41568) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  56 [dark] › e2e\settings.spec.ts:203:1 › Timer: Hide takes the clock off the screen and out of the screen reader (6.4s)
+(node:54292) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:18984) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:28176) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:41568) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:54292) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  62 [dark] › e2e\signin.spec.ts:55:1 › the token is sent as a token hash of the right type, and an old hand-off id is cleared too (2.8s)
+  ok  47 [dark] › e2e\layout.spec.ts:89:5 › desktop, text 150%: every screen fits (16.7s)
+(node:28176) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:58596) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:51080) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  59 [dark] › e2e\settings.spec.ts:266:1 › Mistake limit in Casual: Off lets the game go on past three mistakes (6.9s)
+(node:36380) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:58596) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:51080) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  49 [dark] › e2e\layout.spec.ts:89:5 › desktop, text 200%: every screen fits (17.1s)
+(node:20252) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:36380) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20252) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  63 [light] › e2e\a11y.spec.ts:2:1 › Home has no axe violations (4.2s)
+  ok  66 [light] › e2e\a11y.spec.ts:85:1 › "?" opens the keyboard shortcuts dialog (5.5s)
+  ok  64 [light] › e2e\a11y.spec.ts:8:1 › Casual is a page; Clash opens from it as a dialog that keeps focus and closes back to the page (6.4s)
+  -   72 [light] › e2e\layout.spec.ts:89:5 › small phone, text 100%: every screen fits
+  -   74 [light] › e2e\layout.spec.ts:184:5 › small phone, text 100%: the first-game tutorial fits
+  -   75 [light] › e2e\layout.spec.ts:89:5 › small phone, text 125%: every screen fits
+  -   76 [light] › e2e\layout.spec.ts:184:5 › small phone, text 125%: the first-game tutorial fits
+  ok  58 [dark] › e2e\settings.spec.ts:250:1 › Wrong numbers: Briefly fades them, Until next move keeps them (13.2s)
+  ok  68 [light] › e2e\a11y.spec.ts:120:1 › on long pages the header with Back stays in view while the body scrolls (4.7s)
+  -   77 [light] › e2e\layout.spec.ts:89:5 › small phone, text 150%: every screen fits
+  -   79 [light] › e2e\layout.spec.ts:184:5 › small phone, text 200%: the first-game tutorial fits
+  -   78 [light] › e2e\layout.spec.ts:89:5 › small phone, text 200%: every screen fits
+  ok  65 [light] › e2e\a11y.spec.ts:35:1 › a game plays from the keyboard and speaks to screen readers (6.6s)
+  -   80 [light] › e2e\layout.spec.ts:184:5 › phone, text 100%: the first-game tutorial fits
+  -   81 [light] › e2e\layout.spec.ts:89:5 › phone, text 100%: every screen fits
+  -   82 [light] › e2e\layout.spec.ts:89:5 › phone, text 125%: every screen fits
+  -   83 [light] › e2e\layout.spec.ts:184:5 › phone, text 125%: the first-game tutorial fits
+  -   84 [light] › e2e\layout.spec.ts:89:5 › phone, text 150%: every screen fits
+  -   85 [light] › e2e\layout.spec.ts:184:5 › phone, text 150%: the first-game tutorial fits
+(node:2992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  57 [dark] › e2e\settings.spec.ts:212:1 › the three highlights each switch on and off (13.9s)
+  -   86 [light] › e2e\layout.spec.ts:89:5 › phone, text 200%: every screen fits
+  -   87 [light] › e2e\layout.spec.ts:184:5 › phone, text 200%: the first-game tutorial fits
+  -   88 [light] › e2e\layout.spec.ts:89:5 › tablet upright, text 100%: every screen fits
+  -   90 [light] › e2e\layout.spec.ts:184:5 › tablet upright, text 125%: the first-game tutorial fits
+  -   89 [light] › e2e\layout.spec.ts:89:5 › tablet upright, text 125%: every screen fits
+  -   91 [light] › e2e\layout.spec.ts:89:5 › tablet upright, text 150%: every screen fits
+  -   92 [light] › e2e\layout.spec.ts:184:5 › tablet upright, text 150%: the first-game tutorial fits
+  -   93 [light] › e2e\layout.spec.ts:89:5 › tablet upright, text 200%: every screen fits
+  -   94 [light] › e2e\layout.spec.ts:184:5 › tablet upright, text 200%: the first-game tutorial fits
+  -   95 [light] › e2e\layout.spec.ts:89:5 › tablet, text 100%: every screen fits
+  -   96 [light] › e2e\layout.spec.ts:184:5 › tablet, text 100%: the first-game tutorial fits
+  -   97 [light] › e2e\layout.spec.ts:89:5 › tablet, text 125%: every screen fits
+(node:16240) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  69 [light] › e2e\a11y.spec.ts:137:1 › desktop: the wheel scrolls the page from anywhere, and the column widens with Text size (4.9s)
+  -   98 [light] › e2e\layout.spec.ts:184:5 › tablet, text 125%: the first-game tutorial fits
+  -   99 [light] › e2e\layout.spec.ts:89:5 › tablet, text 150%: every screen fits
+  -  100 [light] › e2e\layout.spec.ts:184:5 › tablet, text 150%: the first-game tutorial fits
+  -  102 [light] › e2e\layout.spec.ts:184:5 › tablet, text 200%: the first-game tutorial fits
+  -  101 [light] › e2e\layout.spec.ts:89:5 › tablet, text 200%: every screen fits
+  -  103 [light] › e2e\layout.spec.ts:89:5 › desktop, text 100%: every screen fits
+  -  104 [light] › e2e\layout.spec.ts:184:5 › desktop, text 100%: the first-game tutorial fits
+  -  105 [light] › e2e\layout.spec.ts:89:5 › desktop, text 125%: every screen fits
+  -  106 [light] › e2e\layout.spec.ts:184:5 › desktop, text 125%: the first-game tutorial fits
+  -  107 [light] › e2e\layout.spec.ts:89:5 › desktop, text 150%: every screen fits
+  -  108 [light] › e2e\layout.spec.ts:184:5 › desktop, text 150%: the first-game tutorial fits
+  -  109 [light] › e2e\layout.spec.ts:89:5 › desktop, text 200%: every screen fits
+  -  110 [light] › e2e\layout.spec.ts:184:5 › desktop, text 200%: the first-game tutorial fits
+(node:2992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  60 [dark] › e2e\settings.spec.ts:286:1 › Vibration and Sounds: each cue only when switched on (13.7s)
+(node:16240) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  115 [light] › e2e\layout.spec.ts:184:5 › small phone, text 150%: the first-game tutorial fits
+(node:54808) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  -  116 [light] › e2e\layout.spec.ts:184:5 › tablet upright, text 100%: the first-game tutorial fits
+  ok  67 [light] › e2e\a11y.spec.ts:98:1 › Setup, the Accessibility page and the statement have no axe violations (7.6s)
+(node:54808) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  70 [light] › e2e\a11y.spec.ts:160:1 › 200% text: nothing is cut off and nothing scrolls sideways (7.4s)
+  ok 114 [light] › e2e\settings.spec.ts:170:1 › Reduce motion: System follows the device, and a wrong number still shows before it goes (3.8s)
+  ok 112 [light] › e2e\settings.spec.ts:143:1 › Text size scales the type (5.6s)
+  ok 111 [light] › e2e\settings.spec.ts:48:1 › every choice on the Accessibility page is stored and shown as chosen (6.0s)
+  ok 117 [light] › e2e\settings.spec.ts:203:1 › Timer: Hide takes the clock off the screen and out of the screen reader (6.6s)
+  ok  71 [light] › e2e\install-result.spec.ts:35:1 › the first solve shows the note, and How unfolds the steps in the pop-up (11.9s)
+  ok 123 [light] › e2e\signin.spec.ts:32:1 › an expired email link says so, clears the address bar, and only then starts a guest (2.9s)
+  ok 124 [light] › e2e\signin.spec.ts:55:1 › the token is sent as a token hash of the right type, and an old hand-off id is cleared too (2.9s)
+  ok 113 [light] › e2e\settings.spec.ts:153:1 › Contrast: High outlines every cell; System follows the device (9.2s)
+  ok 120 [light] › e2e\settings.spec.ts:187:1 › Colour-blind friendly marks same numbers with a bar (7.2s)
+  ok 121 [light] › e2e\settings.spec.ts:266:1 › Mistake limit in Casual: Off lets the game go on past three mistakes (7.3s)
+  ok 122 [light] › e2e\settings.spec.ts:286:1 › Vibration and Sounds: each cue only when switched on (9.7s)
+  ok 118 [light] › e2e\settings.spec.ts:212:1 › the three highlights each switch on and off (12.8s)
+  ok 119 [light] › e2e\settings.spec.ts:250:1 › Wrong numbers: Briefly fades them, Until next move keeps them (13.1s)
+  ok  73 [light] › e2e\install-result.spec.ts:48:1 › the second to fifth solves leave it out, the sixth shows it again (17.3s)
+  x   50 [dark] › e2e\layout.spec.ts:184:5 › desktop, text 200%: the first-game tutorial fits (45.0s)
+
+
+  1) [dark] › e2e\layout.spec.ts:184:5 › desktop, text 200%: the first-game tutorial fits ──────────
+
+    [31mTest timeout of 45000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+    [2m  - waiting for locator('.screen.welcome')[22m
+    [2m    - locator resolved to <button class="screen welcome flipping" aria-label="Elomental. Continue.">…</button>[22m
+    [2m  - attempting click action[22m
+    [2m    2 × waiting for element to be visible, enabled and stable[22m
+    [2m      - element is visible, enabled and stable[22m
+    [2m      - scrolling into view if needed[22m
+    [2m      - done scrolling[22m
+    [2m      - <main id="app">…</main> intercepts pointer events[22m
+    [2m    - retrying click action[22m
+    [2m    - waiting 20ms[22m
+    [2m    - waiting for element to be visible, enabled and stable[22m
+    [2m    - element is visible, enabled and stable[22m
+    [2m    - scrolling into view if needed[22m
+    [2m    - done scrolling[22m
+    [2m    - <main id="app">…</main> intercepts pointer events[22m
+    [2m  2 × retrying click action[22m
+    [2m      - waiting 100ms[22m
+    [2m      - waiting for element to be visible, enabled and stable[22m
+    [2m      - element is visible, enabled and stable[22m
+    [2m      - scrolling into view if needed[22m
+    [2m      - done scrolling[22m
+    [2m      - <div class="home-grid">…</div> from <main id="app">…</main> subtree intercepts pointer events[22m
+    [2m  - retrying click action[22m
+    [2m    - waiting 500ms[22m
+    [2m    - waiting for element to be visible, enabled and stable[22m
+    [2m  - element was detached from the DOM, retrying[22m
+
+
+      155 |       }, size);
+      156 |       await page.goto('/');
+    > 157 |       await page.locator('.screen.welcome').click();
+          |                                             ^
+      158 |       await expect(page.locator('.tile.area-casual')).toBeVisible();
+      159 |       await settled(page);
+      160 |       await page.locator('.tile.area-casual').click();
+        at C:\Users\Barsmin\Desktop\Claude\elomental\packages\web\e2e\layout.spec.ts:157:45
+
+    Error Context: test-results\layout-desktop-text-200-the-first-game-tutorial-fits-dark\error-context.md
+
+  1 failed
+    [dark] › e2e\layout.spec.ts:184:5 › desktop, text 200%: the first-game tutorial fits ───────────
+  40 skipped
+  83 passed (1.6m)
+npm error Lifecycle script `test:a11y` failed with error:
+npm error code 1
+npm error path C:\Users\Barsmin\Desktop\Claude\elomental\packages\web
+npm error workspace @elomental/web@0.1.0
+npm error location C:\Users\Barsmin\Desktop\Claude\elomental\packages\web
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c playwright test
