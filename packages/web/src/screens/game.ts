@@ -20,8 +20,10 @@ import {
   HINT_ELO_PENALTY,
   loadProfile,
   parMs,
+  promoted,
   puzzleProfile,
   rankedTarget,
+  rankTier,
   recordResult,
   type Mode,
   type Outcome,
@@ -901,6 +903,18 @@ function gameScreen(game: SavedGame): Screen {
       // The new rating counts up from the old one.
       countUp(eloRow.querySelector('strong')!, outcome.elo.before, outcome.elo.after, (n) => copy.result.eloChange(outcome.elo!.before, n, delta));
       rows.push(eloRow);
+      // A step up in tier or division gets its moment: the new emblem stamps in.
+      if (!outcome.elo.unrated && promoted(outcome.elo.before, outcome.elo.after)) {
+        const tier = rankTier(outcome.elo.after);
+        rows.push(
+          h(
+            'p',
+            { class: 'promotion good' },
+            h('span', { class: `tier-emblem tier-${tier.tier}`, html: ICONS.tiers[tier.tier], attrs: { 'aria-hidden': 'true' } }),
+            h('span', { text: copy.result.promoted(tier.label) }),
+          ),
+        );
+      }
       // Only encouragement here: what went well, or one tip for a bigger gain next time.
       if (outcome.elo.unrated) {
         rows.push(

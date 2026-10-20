@@ -174,13 +174,52 @@ export function eloDelta(player: number, puzzle: number, won: boolean): number {
   return -Math.round(k * expected * along(LOSS_CURVE, player));
 }
 
+/**
+ * Ranked tiers (docs/PROGRESSION_DESIGN.md §1.2): the five rank names spread over
+ * the whole Elo range, each split into divisions III, II, I by the Elo they start
+ * at. Archmage (3000+) has no divisions: its Elo speaks for itself.
+ */
+const TIERS: { from: number; divisions: number[] }[] = [
+  { from: 0, divisions: [0, 200, 400] },
+  { from: 600, divisions: [600, 800, 1000] },
+  { from: 1200, divisions: [1200, 1450, 1700] },
+  { from: 2000, divisions: [2000, 2350, 2700] },
+  { from: 3000, divisions: [] },
+];
+const DIVISIONS = ['III', 'II', 'I'] as const;
+
+export interface RankTier {
+  /** 0 Novice … 4 Archmage. */
+  tier: number;
+  /** 0 = III, 1 = II, 2 = I; null for Archmage. */
+  division: number | null;
+  name: string;
+  /** "Adept II", or "Archmage". */
+  label: string;
+}
+
+export function rankTier(elo: number): RankTier {
+  let tier = 0;
+  while (tier < TIERS.length - 1 && elo >= TIERS[tier + 1].from) tier++;
+  const { divisions } = TIERS[tier];
+  let division: number | null = null;
+  if (divisions.length) {
+    division = 0;
+    while (division < divisions.length - 1 && elo >= divisions[division + 1]) division++;
+  }
+  const name = copy.common.ranks[tier];
+  return { tier, division, name, label: division === null ? name : copy.common.rankDivision(name, DIVISIONS[division]) };
+}
+
+/** A step up in tier or division, between two Elo ratings. */
+export function promoted(before: number, after: number): boolean {
+  const a = rankTier(before);
+  const b = rankTier(after);
+  return b.tier > a.tier || (b.tier === a.tier && (b.division ?? 0) > (a.division ?? 0));
+}
+
 export function rankTitle(elo: number): string {
-  const [novice, apprentice, adept, elementalist, archmage] = copy.common.ranks;
-  if (elo < 300) return novice;
-  if (elo < 600) return apprentice;
-  if (elo < 900) return adept;
-  if (elo < 1200) return elementalist;
-  return archmage;
+  return rankTier(elo).label;
 }
 
 /** The daily square rolls over at 3 AM local time. */

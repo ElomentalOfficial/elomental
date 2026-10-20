@@ -117,7 +117,7 @@ One name per concept. Player-facing text uses exactly these.
 | Difficulty (Casual, Clash) | **Easy**, **Medium**, **Hard** | Beginner, Expert | Ranked has no difficulty label: it uses Elo. |
 | Player strength | **Elo** | elo, ELO, MMR, score | Always capital E. |
 | Puzzle strength | **rating** | difficulty score, level | "rated 1840". |
-| Ranks | **Novice**, **Apprentice**, **Adept**, **Elementalist**, **Archmage** | | Shown under the name. |
+| Ranks | **Novice**, **Apprentice**, **Adept**, **Elementalist**, **Archmage** | | Shown under the name, with a division below Archmage: **Adept II** (III lowest, I highest). A step up is **Promoted: Adept II**. |
 | Currency | **Stardust** | dust, coins, points | |
 | Rare drop | **Rusted Crown**; plural **Crowns** | | |
 | Monthly Daily progress | **this month** / **monthly Daily progress** | streak (there is no day-to-day streak counter) | *Proposal.* Today's copy says "Daily streak" for the month count. |

@@ -2,7 +2,7 @@ import { difficultyForRating } from '@elomental/engine';
 import { ICONS } from '../icons.ts';
 import { addToHomeNote, countNoteVisit } from '../install.ts';
 import { enableTilt, turnstileIn, turnstileOut } from '../motion.ts';
-import { loadProfile, rankTitle, rankedTarget } from '../profile.ts';
+import { loadProfile, rankTier, rankedTarget } from '../profile.ts';
 import { closeButton, h, hiddenHeading, mount, navigatingBack, openModal, toast, type Screen } from '../ui.ts';
 import { handleEmailLink } from '../emailLink.ts';
 import { onAccountChange, refreshAccount, signedIn } from '../backend.ts';
@@ -49,7 +49,12 @@ export function homeScreen(): Screen {
   const paintProfile = () => {
     const p = loadProfile();
     nameEl.textContent = p.name;
-    rankEl.textContent = p.title ?? rankTitle(p.elo);
+    // The tier emblem beside the rank (or the player's title, which replaces the rank's name)
+    const tier = rankTier(p.elo);
+    rankEl.replaceChildren(
+      h('span', { class: `tier-emblem tier-${tier.tier}`, html: ICONS.tiers[tier.tier], attrs: { 'aria-hidden': 'true' } }),
+      h('span', { text: p.title ?? tier.label }),
+    );
     eloChip.querySelector('strong')!.textContent = String(p.elo);
     dustChip.querySelector('strong')!.textContent = String(p.dust);
     crownChip.querySelector('strong')!.textContent = String(p.crowns);

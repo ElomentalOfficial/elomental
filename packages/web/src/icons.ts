@@ -139,6 +139,19 @@ export const ICONS = {
   check: stroke('<path d="M5 12.5l4.5 4.5L19 7"/>', 2.6),
   lock: stroke('<rect x="5" y="10.5" width="14" height="10" rx="1.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>'),
   crown: fill('M3 8l4.5 4L12 5l4.5 7L21 8l-2 10H5Z M5 19h14v2H5Z'),
+  /**
+   * Ranked tier emblems, Novice to Archmage (profile.ts rankTier): a square that gains
+   * detail as you climb. Novice an outline; Apprentice solid with one rune; Adept bound
+   * in two iron bands; Elementalist quartered into the four elements; Archmage crowned.
+   * Coloured by `.tier-emblem.tier-N` in styles.css; the tier is always written beside it.
+   */
+  tiers: [
+    fill('M6 3h12a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Z M6.5 5.5h11a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1h-11a1 1 0 0 1-1-1v-11a1 1 0 0 1 1-1Z'),
+    fill('M6 3h12a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Z M11 7h2v10h-2Z M13.2 10.4l3-2.2v2.2l-3 2.2Z'),
+    fill('M6 3h12a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Z M3 8h18v1.6H3Z M3 14.4h18V16H3Z M11 11h2v2h-2Z'),
+    fill('M6 3h12a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Z M3.6 5 5 3.6 20.4 19 19 20.4Z M19 3.6 20.4 5 5 20.4 3.6 19Z'),
+    fill('M3.5 2.5l3 2.6L9.2 1.8 12 4.6l2.8-2.8 2.7 3.3 3-2.6-1 6H4.5Z M6 10h12a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-6a3 3 0 0 1 3-3Z M10.6 14.4h2.8v2.8h-2.8Z'),
+  ] as const,
   dust: fill('M12 2.5 18 9l-6 12.5L6 9Z M5 4.5l1 1.8L8 7 6 7.8 5 9.8 4 7.8 2 7l2-.7Z'),
   pencil: stroke('<path d="M4 20l1-4.5L16 4.5l3.5 3.5-11 11z"/><path d="M13.5 7l3.5 3.5"/>'),
   sun: stroke('<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>'),

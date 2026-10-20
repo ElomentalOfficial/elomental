@@ -57,8 +57,10 @@ export const common = {
   crowns: 'Crowns',
   plusStardust: (n: number) => `+${n} Stardust`,
   rareCrown: 'Rare drop: Rusted Crown!',
-  /** Shown under the player's name, by Elo. */
+  /** Shown under the player's name, by Elo (tiers and divisions: profile.ts rankTier). */
   ranks: ['Novice', 'Apprentice', 'Adept', 'Elementalist', 'Archmage'] as const,
+  /** A tier with its division, e.g. "Adept II". */
+  rankDivision: (rank: string, division: string) => `${rank} ${division}`,
 };
 
 // --- Welcome ---------------------------------------------------------------
@@ -216,6 +218,8 @@ export const result = {
   tipNoHints: 'Solve it without hints for the full Elo gain.',
   tipFaster: 'A little faster next time earns a speed bonus.',
   protectedLoss: 'No Elo lost: your rating is protected below 500.',
+  /** A step up in tier or division; demotions get no line. */
+  promoted: (label: string) => `Promoted: ${label}`,
   thisMonth: 'This month',
   monthOf: (done: number, days: number) => `${done} / ${days} squares`,
   monthComplete: 'Month complete. Avatar unlocked!',
