@@ -241,7 +241,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
     if (f.stardust < cost) btn.disabled = true;
     else btn.addEventListener('click', () => {
       btn.disabled = true;
-      void buyPlate().then(async (err) => {
+      void buyPlate(n).then(async (err) => {
         close();
         toast(err ?? copy.forge.plateBought(name));
         await refresh();

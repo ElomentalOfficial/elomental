@@ -317,7 +317,7 @@ export const profile = {
 
 export const affinity = {
   title: 'Your affinity',
-  intro: 'Every square you solve adds influence to your element. Each month, the side with the most influence per player wins.',
+  intro: 'Every square you solve adds influence to your element. You count from your 5th square of the month, with up to 300 influence each. Each month, the side with the most influence per player wins.',
   /** One line of character per element; flavour only, no element plays differently. */
   character: {
     fire: 'Speed and nerve.',
@@ -327,7 +327,8 @@ export const affinity = {
   } as Record<string, string>,
   thisMonth: 'This month',
   place: (n: number) => ['1st', '2nd', '3rd', '4th'][n - 1] ?? `${n}th`,
-  members: (n: number) => (n === 1 ? '1 active player' : `${n} active players`),
+  /** Players with 5+ squares on that side this month. */
+  members: (n: number) => (n === 1 ? '1 player counted' : `${n} players counted`),
   average: (n: number) => `${n} influence each`,
   needsYou: 'Needs you',
   /** The card, read in full by screen readers. */
@@ -613,6 +614,8 @@ export const refusals = {
     not_owned: 'You don’t own that part yet.',
     already_alive: 'That avatar is already alive.',
     top_plate: 'You already have the Elomentalist plate.',
+    plate_owned: 'You already have that plate.',
+    plate_order: 'Plates are bought in order. Get the one before it first.',
     no_mends_left: 'You’ve filled in 3 days this month: that’s the most.',
     already_solved: 'That day is already done.',
     bad_date: 'Only missed days earlier this month can be filled in.',
@@ -825,23 +828,26 @@ export const leaderboard = {
   level: 'Level so far: nobody leads yet.',
   nobody: 'No influence yet this month.',
   daysLeft: (d: number) => (d <= 1 ? 'Last day' : `${d} days left`),
-  prize: 'Winners get a badge and 300 Stardust',
+  prize: 'Everyone on the winning side with 5 or more squares this month gets a badge and 300 Stardust',
   yours: (n: number, place: number, element: string) => `You: +${n} influence · ${ORDINAL(place)} in ${element}`,
+  yoursNotYet: (n: number, element: string) => `You: ${n} more ${n === 1 ? 'square' : 'squares'} and you count for ${element}`,
   yoursNone: (element: string) => `You: no influence yet for ${element} this month`,
   joinIn: 'Choose an affinity to join in',
   leading: 'Leading',
   noLeader: 'Nobody yet',
-  strengthNote: 'Strength: each side’s influence per active player, as a share of 100%. The strongest side wins the month.',
+  strengthNote: 'Strength: each side’s influence per player, as a share of 100%. Players count from their 5th square of the month, with up to 300 influence each. The strongest side wins the month.',
   a11yStrength: (parts: string) => `Strength this month: ${parts}`,
   details: 'Details',
   sheetTitle: (month: string) => `Affinities in ${month}`,
-  sheetIntro: 'Every square solved adds influence to its player’s affinity. The side with the most influence per active player wins the month.',
+  sheetIntro: 'Every square solved adds influence to its player’s affinity. Players count from their 5th square of the month, with up to 300 influence each. The side with the most influence per player wins the month; if sides tie, they all win.',
   members: (n: number) => (n === 1 ? '1 player' : `${n} players`),
   influence: (n: number) => `${n.toLocaleString('en-GB')} influence`,
   perPlayer: (n: number) => `${n} each`,
   topIn: (element: string) => `Top in ${element} this month`,
   topEmpty: 'Nobody yet.',
-  lastWinner: (element: string, month: string) => `${month}: ${element} won`,
+  /** One side, or every side that tied. */
+  lastWinner: (elements: string[], month: string) =>
+    `${month}: ${elements.length > 1 ? `${elements.slice(0, -1).join(', ')} and ${elements[elements.length - 1]}` : elements[0]} won`,
 
   // Ranks
   tiersTitle: 'Ranks',

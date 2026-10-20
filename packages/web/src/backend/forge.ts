@@ -88,7 +88,8 @@ async function call(fn: string, args: Record<string, unknown>): Promise<string |
 export const forgePart = (part: string) => call('forge_part', { p_part: part });
 export const equipPart = (slot: Slot, part: string | null) => call('equip_part', { p_slot: slot, p_part: part });
 export const polishPart = (part: string) => call('polish_part', { p_part: part });
-export const buyPlate = () => call('buy_plate', {});
+/** Buys plate n, the next one (a repeated tap can't buy two). */
+export const buyPlate = (n: number) => call('buy_plate', { p_plate: n });
 /** Fills in a missed Daily Square this month (YYYY-MM-DD) for MEND_COST Stardust. */
 export const mendDaily = (date: string) => call('mend_daily', { p_date: date });
 export const MEND_COST = 300;

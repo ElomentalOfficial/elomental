@@ -103,8 +103,11 @@ export interface FactionBoard {
   mine: Element | null;
   myInfluence: number;
   myPlace: number | null;
+  /** Your solves for your side this month: you count from 5. */
+  mySolves?: number;
   top: { id: string; name: string; influence: number }[] | null;
-  lastWinner: { month: string; winner: Element | null } | null;
+  /** winners: every side with the top standing (a tie has more than one). */
+  lastWinner: { month: string; winner: Element | null; winners?: Element[] | null } | null;
 }
 
 async function rpc<T>(fn: string, args: Record<string, unknown> = {}): Promise<T | null> {

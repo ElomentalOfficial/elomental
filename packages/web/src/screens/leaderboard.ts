@@ -351,7 +351,9 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
         h('strong', { text: pct.size ? `${pct.get(s.affinity)}%` : '–' }))));
     const mine = b.mine
       ? b.myInfluence > 0 && b.myPlace
-        ? t.yours(b.myInfluence, b.myPlace, name(b.mine))
+        ? (b.mySolves ?? 5) < 5
+          ? t.yoursNotYet(5 - (b.mySolves ?? 5), name(b.mine))
+          : t.yours(b.myInfluence, b.myPlace, name(b.mine))
         : t.yoursNone(name(b.mine))
       : null;
     return [
@@ -385,7 +387,9 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
             h('span', { class: 'fs-name' }, h('strong', { text: name(s.affinity) }), h('span', { text: `${t.members(s.members)} · ${t.influence(Number(s.influence))}` })),
             h('strong', { class: 'fs-standing', text: t.perPlayer(Number(s.standing)) })))),
         h('p', { class: 'note', text: t.prize }),
-        b.lastWinner?.winner ? h('p', { class: 'note', text: t.lastWinner(name(b.lastWinner.winner), monthName(b.lastWinner.month)) }) : null,
+        b.lastWinner?.winner
+          ? h('p', { class: 'note', text: t.lastWinner((b.lastWinner.winners ?? [b.lastWinner.winner]).map(name), monthName(b.lastWinner.month)) })
+          : null,
         b.mine
           ? h('section', { class: 'faction-top' }, h('h3', { text: t.topIn(name(b.mine)) }),
               b.top?.length
