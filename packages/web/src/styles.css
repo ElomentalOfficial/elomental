@@ -883,7 +883,8 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   min-width: 56px;
   height: 58px;
   margin-left: -10px;
-}.area-daily .tile-label {
+}
+.area-daily .tile-label {
   font-size: var(--fs-label);
 }
 .area-store,
@@ -1269,6 +1270,7 @@ html[data-large-text] .profile-stats.two {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--space-3);
   margin-bottom: var(--space-2);
 }
 /* Sub-pages (ui.ts subPage): the header stays put, only the body below it scrolls. */
@@ -1326,9 +1328,6 @@ html[data-large-text] .profile-stats.two {
 }
 /* the title between Back and its spacer: kept clear of both, centred, and a step smaller
    when it's long, so a two-line title still reads as one heading */
-.subbar {
-  gap: var(--space-3);
-}
 .subbar > h1 {
   flex: 1 1 auto;
   min-width: 0;
@@ -3228,7 +3227,8 @@ html[data-large-text] .part-grid {
 html[data-reduce-motion] .part-reveal,
 html[data-reduce-motion] .part-reveal * {
   animation: none !important;
-}.actions {
+}
+.actions {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -4278,7 +4278,9 @@ html.standalone .toast {
 /* Motion off: the square sits still (the text says it's loading). */
 html[data-reduce-motion] :is(.loader-hop, .loader-icon) {
   animation: none;
-}/* ---------- Game ---------- */
+}
+
+/* ---------- Game ---------- */
 .game {
   /* taller keys on tall phones, into the band that sat empty above them (L33) */
   --key-h: clamp(46px, 9dvh, 76px);
@@ -6391,7 +6393,8 @@ html[data-reduce-motion] .strength-seg {
 .lb-strength-legend strong {
   font-size: var(--fs-label);
   font-variant-numeric: tabular-nums;
-}.lb-legend-note {
+}
+.lb-legend-note {
   font-family: var(--serif);
   font-size: var(--fs-small);
   color: var(--muted);
@@ -7014,7 +7017,8 @@ html[data-large-text] .lb-me .lb-avatar {
 .badge-pick.on {
   background: var(--chosen-bg);
   box-shadow: inset 0 0 0 2px var(--accent);
-}.card-actions {
+}
+.card-actions {
   display: flex;
   flex-direction: column;
   align-self: stretch;
