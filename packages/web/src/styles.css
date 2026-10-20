@@ -925,9 +925,11 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
 .profile-card {
   isolation: isolate;
 }
-/* A whisper of uneven grain over each tile's surface (art/grain.webp, grey noise from
-   icons/make-grain.mjs, baked at 2x so retina screens don't stretch the specks into
-   blocks), overlay-blended into the tile's colour, under the frame. */
+/* A printed finish over each tile's surface, after a risograph reference (icons/make-grain.mjs,
+   both grey and overlay-blended into the tile's colour, under the frame): speckle and light
+   dry-brush scratches all over (art/grain.webp, tiling), and grainy stipple shading that
+   gathers towards the lower right edge (art/stipple.webp, stretched over the tile), like the
+   brush icons' shading. Baked at 2x so retina screens don't blur the specks. */
 .home-grid > .tile::before,
 .tile-setup::before,
 .profile-card::before {
@@ -936,12 +938,13 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   inset: 0;
   z-index: -1;
   border-radius: inherit;
-  background: url('./art/grain.webp') 0 0 / 320px 320px;
+  background:
+    url('./art/stipple.webp') 100% 100% / 100% 100% no-repeat,
+    url('./art/grain.webp') 0 0 / 320px 320px;
   mix-blend-mode: overlay;
-  opacity: 0.16;
+  opacity: 0.8;
   pointer-events: none;
-}
-.home-grid > .tile::after,
+}.home-grid > .tile::after,
 .tile-setup::after,
 .profile-card::after {
   --corner: calc(var(--frame-corner, 30px) * var(--frame-zoom, 1));
