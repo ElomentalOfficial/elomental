@@ -925,8 +925,9 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
 .profile-card {
   isolation: isolate;
 }
-/* A whisper of uneven grain over each tile's surface (art/grain.jpg, grey noise from
-   icons/make-grain.mjs), overlay-blended into the tile's colour, under the frame. */
+/* A whisper of uneven grain over each tile's surface (art/grain.webp, grey noise from
+   icons/make-grain.mjs, baked at 2x so retina screens don't stretch the specks into
+   blocks), overlay-blended into the tile's colour, under the frame. */
 .home-grid > .tile::before,
 .tile-setup::before,
 .profile-card::before {
@@ -935,7 +936,7 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   inset: 0;
   z-index: -1;
   border-radius: inherit;
-  background: url('./art/grain.jpg') 0 0 / 320px 320px;
+  background: url('./art/grain.webp') 0 0 / 320px 320px;
   mix-blend-mode: overlay;
   opacity: 0.16;
   pointer-events: none;
