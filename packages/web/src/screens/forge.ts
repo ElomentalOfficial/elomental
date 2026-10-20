@@ -1,6 +1,6 @@
 import { avatarSvg, partSvg } from '../avatar.ts';
 import { loadStandings, type Standing } from '../backend/affinity.ts';
-import { FORGE_COST, MAX_PLATE, MAX_POLISH, PLATE_COST, POLISH_COST, SLOTS, buyPlate, equipPart, forgePart, loadForge, needsCrown, polishPart, type Forge, type Part } from '../backend/forge.ts';
+import { ALIVE_COST, DEFAULT_AVATAR, FORGE_COST, MAX_PLATE, PLATE_COST, SLOTS, buyPlate, equipPart, forgePart, loadForge, polishPart, type Forge, type Part } from '../backend/forge.ts';
 import { ICONS } from '../icons.ts';
 import { paintPlate } from '../plates.ts';
 import { ELEMENTS, RARITIES, loadProfile, type Element, type Rarity } from '../profile.ts';
@@ -10,22 +10,28 @@ import { homeScreen } from './home.ts';
 import * as copy from '../copy/en.ts';
 
 /**
- * The Forge (docs/PROGRESSION_DESIGN.md, revised): your avatar, your Stardust and Crowns,
- * and the season's parts by slot: wearing, owned, ready to forge, or not yet affordable.
- * A part opens a sheet with its price and the one action that fits. Parts arrive every
- * 3rd solved square; Stardust forges any that are missing. Spent on the server.
+ * The Forge (docs/PROGRESSION_DESIGN.md, revised): your avatar, your Stardust and Spirits,
+ * your name plate, and the season's avatars and frames: wearing, owned, ready to forge, or
+ * not yet affordable. A part opens a sheet with its price and the one action that fits; an
+ * avatar you own can be brought to life (polished) once. Parts arrive every 3rd solved
+ * square; Stardust forges any that are missing. Spent on the server.
  */
 
-type State = 'wearing' | 'owned' | 'ready' | 'needs' | 'starter';
+type State = 'wearing' | 'owned' | 'ready' | 'needs';
+
+/** What's worn in a slot (Happy when no avatar is). */
+const worn = (f: Forge, slot: Part['slot']) => f.loadout[slot] ?? (slot === 'avatar' ? DEFAULT_AVATAR : null);
 
 function stateOf(f: Forge, p: Part): State {
-  if (f.loadout[p.slot] === p.id) return 'wearing';
+  if (worn(f, p.slot) === p.id) return 'wearing';
   if (f.owned.has(p.id)) return 'owned';
-  if (p.source !== 'craft') return 'starter';
-  return f.stardust >= FORGE_COST[p.rarity] && (!needsCrown(p.rarity) || f.crowns >= 1) ? 'ready' : 'needs';
+  return f.stardust >= FORGE_COST[p.rarity] ? 'ready' : 'needs';
 }
 
-const price = (r: Rarity) => (needsCrown(r) ? copy.forge.priceCrown(FORGE_COST[r]) : copy.forge.price(FORGE_COST[r]));
+const price = (r: Rarity) => copy.forge.price(FORGE_COST[r]);
+/** "Fire · Frame" for a frame, "Avatar" for an avatar. */
+const kind = (p: Part) => (p.element ? `${copy.forge.elements[p.element]} · ${copy.forge.slots[p.slot]}` : copy.forge.slots[p.slot]);
+const order = (p: Part) => (p.element ? ELEMENTS.indexOf(p.element) : 0);
 const rarityTag = (r: Rarity) => h('span', { class: `rarity-tag rarity-${r}`, text: rarityName(r) });
 
 export function forgeScreen(back: () => Screen = homeScreen): Screen {
@@ -57,14 +63,15 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
         h('button', { class: 'link-btn', text: copy.forge.oddsButton, attrs: { type: 'button' }, onclick: () => openOdds() }),
         f.affinity ? affinityLine(f.affinity) : null,
         h('span', { class: 'balance' }, h('span', { html: ICONS.dust, attrs: { 'aria-hidden': 'true' } }), h('strong', { text: String(f.stardust) }), h('span', { text: copy.common.stardust })),
-        h('span', { class: 'balance' }, h('span', { html: ICONS.crown, attrs: { 'aria-hidden': 'true' } }), h('strong', { text: String(f.crowns) }), h('span', { text: copy.common.crowns })),
+        h('span', { class: 'balance' }, h('span', { html: ICONS.spirit, attrs: { 'aria-hidden': 'true' } }), h('strong', { text: String(f.spirits) }), h('span', { text: copy.common.spirits })),
       ),
     );
     const groups = SLOTS.map((slot) => {
       const parts = f.parts
         .filter((p) => p.slot === slot)
-        .sort((a, b) => ELEMENTS.indexOf(a.element) - ELEMENTS.indexOf(b.element) || RARITIES.indexOf(a.rarity) - RARITIES.indexOf(b.rarity));
-      return h('section', { class: 'forge-group' }, h('h2', { text: copy.forge.slots[slot] }), h('div', { class: 'part-grid' }, ...parts.map((p) => partCard(f, p))));
+        // Happy first (everyone has it), then by element and rarity
+        .sort((a, b) => Number(b.source === 'starter') - Number(a.source === 'starter') || order(a) - order(b) || RARITIES.indexOf(a.rarity) - RARITIES.indexOf(b.rarity));
+      return h('section', { class: 'forge-group' }, h('h2', { text: copy.forge.slotGroups[slot] }), h('div', { class: 'part-grid' }, ...parts.map((p) => partCard(f, p))));
     });
     body.replaceChildren(
       head,
@@ -95,24 +102,25 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
     return state === 'wearing' ? copy.forge.wearing
       : state === 'owned' ? copy.forge.owned
       : state === 'ready' ? copy.forge.ready
-      : state === 'starter' ? copy.forge.withAffinity
       : copy.forge.needsMore;
   }
 
   function partCard(f: Forge, p: Part): HTMLElement {
     const state = stateOf(f, p);
     const name = partName(p.id);
+    const alive = f.owned.get(p.id)?.polish === 1;
+    const label = alive ? `${stateLabel(state)} · ${copy.forge.alive}` : stateLabel(state);
     return h(
       'button',
       {
         class: `part-card rarity-${p.rarity} state-${state}`,
-        attrs: { type: 'button', 'aria-label': `${name}, ${rarityName(p.rarity)}, ${copy.forge.elements[p.element]}. ${stateLabel(state)}.` },
+        attrs: { type: 'button', 'aria-label': `${name}, ${rarityName(p.rarity)}, ${kind(p)}. ${label}.` },
         onclick: () => openPart(p),
       },
       h('span', { class: 'part-art', html: partSvg(p.id, f.owned.get(p.id)?.polish ?? 0), attrs: { 'aria-hidden': 'true' } }),
       h('strong', { class: 'part-name', text: name, attrs: { 'aria-hidden': 'true' } }),
       h('span', { attrs: { 'aria-hidden': 'true' } }, rarityTag(p.rarity)),
-      h('span', { class: 'part-state', text: stateLabel(state), attrs: { 'aria-hidden': 'true' } }),
+      h('span', { class: 'part-state', text: label, attrs: { 'aria-hidden': 'true' } }),
     );
   }
 
@@ -141,21 +149,19 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
       const btn = h('button', { class: 'btn btn-primary', text: copy.forge.wear });
       btn.addEventListener('click', () => busy(btn, () => equipPart(p.slot, p.id), null));
       action = btn;
-    } else if (state === 'wearing') {
+    } else if (state === 'wearing' && p.id !== DEFAULT_AVATAR) {
       const btn = h('button', { class: 'btn', text: copy.forge.takeOff });
       btn.addEventListener('click', () => busy(btn, () => equipPart(p.slot, null), null));
       action = btn;
     }
-    let polishBtn: HTMLElement | null = null;
-    if (state === 'owned' || state === 'wearing') {
-      if (polish >= MAX_POLISH) polishBtn = h('p', { class: 'note', text: copy.forge.fullyPolished });
-      else {
-        const cost = POLISH_COST[polish];
-        const btn = h('button', { class: 'btn', text: copy.forge.polishTo(polish + 1, cost) });
-        if (f.stardust < cost) btn.disabled = true;
-        else btn.addEventListener('click', () => busy(btn, () => polishPart(p.id), copy.forge.polished(name, polish + 1)));
-        polishBtn = btn;
-      }
+    // an avatar you own can be brought to life, once (6000 Stardust and a Spirit)
+    let life: HTMLElement[] = [];
+    if (p.slot === 'avatar' && (state === 'owned' || state === 'wearing') && polish < 1) {
+      const can = f.stardust >= ALIVE_COST && f.spirits >= 1;
+      const btn = h('button', { class: 'btn', text: copy.forge.bringToLife(ALIVE_COST) });
+      if (!can) btn.disabled = true;
+      else btn.addEventListener('click', () => busy(btn, () => polishPart(p.id), copy.forge.broughtToLife(name)));
+      life = [h('p', { class: 'note', text: can ? copy.forge.lifeNote : copy.forge.lifeNeeds(ALIVE_COST) }), btn];
     }
     const close = openModal(
       h(
@@ -164,11 +170,10 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
         closeButton(() => close()),
         h('span', { class: 'part-sheet-art', html: partSvg(p.id, polish), attrs: { 'aria-hidden': 'true' } }),
         h('h2', { text: name }),
-        h('p', { class: 'part-sheet-meta' }, rarityTag(p.rarity), `${copy.forge.elements[p.element]} · ${copy.forge.slots[p.slot]}`, edition ? ` · ${copy.forge.edition(edition)}` : '', polish ? ` · ${copy.forge.polishLevel(polish)}` : ''),
-        state === 'starter' ? h('p', { class: 'note', text: copy.forge.withAffinity }) : null,
+        h('p', { class: 'part-sheet-meta' }, rarityTag(p.rarity), kind(p), edition ? ` · ${copy.forge.edition(edition)}` : '', polish ? ` · ${copy.forge.alive}` : ''),
         state === 'ready' || state === 'needs' ? h('p', { class: 'part-price', text: price(p.rarity) }) : null,
         action,
-        polishBtn,
+        ...life,
       ),
     );
   }
@@ -253,7 +258,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
         section(copy.forge.oddsDupeTitle, copy.forge.oddsDupe),
         section(copy.forge.oddsForgeTitle, copy.forge.oddsForge),
         section(copy.forge.oddsPaceTitle, copy.forge.oddsPace),
-        section(copy.forge.oddsCrownTitle, copy.forge.oddsCrown),
+        section(copy.forge.oddsSpiritTitle, copy.forge.oddsSpirit),
         section(copy.forge.oddsSpendTitle, ...copy.forge.oddsSpend),
       ),
     );

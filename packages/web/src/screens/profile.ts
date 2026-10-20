@@ -1,10 +1,12 @@
 import { avatarSvg } from '../avatar.ts';
 import { cachedAccount, refreshAccount } from '../backend/account.ts';
+import { canSwitchAffinity } from '../backend/affinity.ts';
 import { cachedLoadout, cachedPolish, loadForge } from '../backend/forge.ts';
 import { ICONS } from '../icons.ts';
 import { paintPlate } from '../plates.ts';
 import { dailyKey, loadProfile, rankTier } from '../profile.ts';
 import { goBack, h, mount, subPage, type Screen } from '../ui.ts';
+import { affinityScreen } from './affinity.ts';
 import { forgeScreen } from './forge.ts';
 import { homeScreen } from './home.ts';
 import * as copy from '../copy/en.ts';
@@ -28,9 +30,12 @@ export function profileScreen(): Screen {
   const nameEl = h('h2', { class: 'profile-plate' });
   paintPlate(nameEl, p.name, plate);
 
-  const loadout = cachedLoadout();
-  const worn = loadout && Object.values(loadout).some(Boolean);
-  const avatar = h('span', { class: `avatar profile-avatar${worn ? ' worn' : ''}`, html: worn ? avatarSvg(loadout, cachedPolish()) : '', attrs: { 'aria-hidden': 'true' } });
+  // the worn avatar in its frame (Happy until another is worn)
+  const avatar = h('span', { class: 'avatar profile-avatar worn', html: avatarSvg(cachedLoadout(), cachedPolish()), attrs: { 'aria-hidden': 'true' } });
+  // your side; Change shows while switching is allowed (the first 7 days of a season)
+  const side = account?.affinity
+    ? h('p', { class: 'forge-affinity' }, h('span', { class: 'drop-element', html: ICONS.elements[account.affinity], attrs: { 'aria-hidden': 'true' } }), h('span', { text: copy.forge.elements[account.affinity] }))
+    : null;
 
   const stat = (label: string, value: string) => h('div', { class: 'profile-stat' }, h('dt', { text: label }), h('dd', { text: value }));
   const collection = h('p', { class: 'profile-collection-line', text: signedInText() });
@@ -55,9 +60,7 @@ export function profileScreen(): Screen {
           h('span', { class: `tier-emblem tier-${tier.tier}`, html: ICONS.tiers[tier.tier], attrs: { 'aria-hidden': 'true' } }),
           h('span', { text: p.title ?? tier.label }),
         ),
-        account?.affinity
-          ? h('p', { class: 'forge-affinity' }, h('span', { class: 'drop-element', html: ICONS.elements[account.affinity], attrs: { 'aria-hidden': 'true' } }), h('span', { text: copy.forge.elements[account.affinity] }))
-          : null,
+        side,
       ),
       h(
         'section',
@@ -85,6 +88,10 @@ export function profileScreen(): Screen {
 
   if (account) {
     void refreshAccount();
+    void canSwitchAffinity().then((open) => {
+      if (!open || !side) return;
+      side.append(h('button', { class: 'link-btn', text: copy.affinity.change, attrs: { type: 'button', 'aria-label': copy.affinity.a11yChange }, onclick: () => mount(affinityScreen()) }));
+    });
     void loadForge().then((f) => {
       if (!el.isConnected && !document.body.contains(el)) return;
       if (!f) {
@@ -95,9 +102,7 @@ export function profileScreen(): Screen {
       const have = craftable.filter((x) => f.owned.has(x.id)).length;
       collection.textContent = copy.profile.season(have, craftable.length);
       bar.firstElementChild!.setAttribute('style', `width:${(have / Math.max(1, craftable.length)) * 100}%`);
-      const fresh = Object.values(f.loadout).some(Boolean);
-      avatar.classList.toggle('worn', fresh);
-      avatar.innerHTML = fresh ? avatarSvg(f.loadout, f.polish) : '';
+      avatar.innerHTML = avatarSvg(f.loadout, f.polish);
     });
   } else bar.remove();
 

@@ -31,6 +31,17 @@ material-based design in §2, §3.2–3.3, §4.2–4.3, §9–11 below:
   **Profile** (avatar, name on its plate, rank, best Elo, stats, "Season 0: n of 48 parts")
   with one way on: the Forge. The result shows one reward strip and no coaching tips.
 
+- **Whole avatars (migration `whole_avatars`, 2026-10-20):** the layered avatar is gone.
+  Two slots: the **Avatar** (one whole picture) and its **Frame**. Backdrop, Sigil and Aura
+  parts were paid back at their forge price; the Crest is no longer a part. Season 0's set
+  is 11 avatars (5 Common, 3 Rare, 2 Epic, 1 Mythic; placeholder faces) and the 12 frames,
+  23 parts. **Happy** is every player's avatar from the start. **Polish** now brings an
+  avatar to life once (still → animated) for 6000 Stardust and a **Spirit**. The Rusted
+  Crown became the Spirit (Crowns held carried over): 0.15% on each solve that counts
+  toward parts, guaranteed within 700 (about one every 7–8 weeks for a regular player).
+  Mythic forging needs Stardust only. Affinity switching (first 7 days of a season, once)
+  is reached from the Profile's Change button.
+
 Decisions already made with the owner (2026-10-20):
 
 - Ranked stays **solo against a rated puzzle**. Live 1v1 races are a later phase.

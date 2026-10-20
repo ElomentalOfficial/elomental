@@ -22,7 +22,7 @@ export interface Account {
   elo: number;
   rankedGames: number;
   stardust: number;
-  crowns: number;
+  spirits: number;
   /** Won daily squares, keyed YYYY-MM-DD. */
   daily: Record<string, true>;
   /** The element the player fights for (null until chosen, after 3 solves). */
@@ -71,7 +71,7 @@ export async function refreshAccount(session?: Session | null): Promise<Account 
   const [{ data: profile, error }, { data: dailies }, { count: solved }, { data: mends }, { data: best }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('display_name, title, name_changed_at, elo, ranked_games, stardust, crowns, settings, affinity, plate')
+      .select('display_name, title, name_changed_at, elo, ranked_games, stardust, spirits, settings, affinity, plate')
       .eq('id', s.user.id)
       .single(),
     supabase.from('games').select('date_key').eq('mode', 'daily').eq('won', true),
@@ -90,7 +90,7 @@ export async function refreshAccount(session?: Session | null): Promise<Account 
     elo: profile.elo,
     rankedGames: profile.ranked_games,
     stardust: profile.stardust,
-    crowns: profile.crowns,
+    spirits: profile.spirits,
     daily: Object.fromEntries((dailies ?? []).map((d) => [d.date_key as string, true as const])),
     affinity: (profile.affinity ?? null) as Element | null,
     solved: solved ?? 0,

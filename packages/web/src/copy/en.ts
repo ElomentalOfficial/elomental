@@ -54,9 +54,9 @@ export const common = {
   difficulty: { easy: 'Easy', medium: 'Medium', hard: 'Hard' },
   stardust: 'Stardust',
   elo: 'Elo',
-  crowns: 'Crowns',
+  spirits: 'Spirits',
   plusStardust: (n: number) => `+${n} Stardust`,
-  rareCrown: 'Rare drop: Rusted Crown!',
+  rareSpirit: 'Rare drop: a Spirit!',
   /** Shown under the player's name, by Elo (tiers and divisions: profile.ts rankTier). */
   ranks: ['Novice', 'Apprentice', 'Adept', 'Elementalist', 'Archmage'] as const,
   /** A tier with its division, e.g. "Adept II". */
@@ -194,16 +194,23 @@ export const game = {
 
 // --- Parts and the forge ---------------------------------------------------------
 // docs/PROGRESSION_DESIGN.md (revised 2026-10-20): every 3rd solved, rated square drops a
-// whole avatar part; Stardust forges any part still missing. Rarity is always written,
+// part (a whole avatar or a frame); Stardust forges any part still missing. Rarity is always written,
 // never shown by colour alone.
 
 export const forge = {
   rarities: { common: 'Common', rare: 'Rare', epic: 'Epic', mythic: 'Mythic' },
   elements: { fire: 'Fire', water: 'Water', earth: 'Earth', air: 'Air' },
-  /** Each element's part names start with this: "Ember Sigil", "Tide Frame". */
+  /** Each element's frame names start with this: "Ember Frame", "Tide Frame II". */
   names: { fire: 'Ember', water: 'Tide', earth: 'Stone', air: 'Gale' },
-  slots: { backdrop: 'Backdrop', sigil: 'Sigil', frame: 'Frame', crest: 'Crest', aura: 'Aura' },
-  /** "Ember Sigil", "Ember Sigil II", "Ember Sigil III". */
+  slots: { avatar: 'Avatar', frame: 'Frame' },
+  /** The Forge's group headings. */
+  slotGroups: { avatar: 'Avatars', frame: 'Frames' },
+  /** The avatars, by name (art/faces). */
+  avatars: {
+    happy: 'Happy', upset: 'Upset', angry: 'Angry', silly: 'Silly', sad: 'Sad', bored: 'Bored',
+    excited: 'Excited', scared: 'Scared', calm: 'Calm', tired: 'Tired', disappointed: 'Disappointed', shocked: 'Shocked',
+  } as Record<string, string>,
+  /** "Ember Frame", "Ember Frame II", "Ember Frame III". */
   part: (name: string, slot: string, n: number) => `${name} ${slot}${n > 1 ? ` ${'I'.repeat(n)}` : ''}`,
 
   // The result pop-up (reward.ts)
@@ -222,16 +229,14 @@ export const forge = {
 
   // The Forge page (screens/forge.ts)
   title: 'Forge',
-  intro: 'Every 3rd square you solve brings a part. Forge any part you’re missing with Stardust.',
+  intro: 'Every 3rd square you solve brings an avatar or a frame. Forge any you’re missing with Stardust.',
   parts: 'Parts',
   collected: (n: number, total: number) => `${n} of ${total} collected`,
   wearing: 'Wearing',
   owned: 'Owned',
   ready: 'Ready to forge',
   needsMore: 'Not enough Stardust yet',
-  withAffinity: 'Comes with your affinity',
   price: (stardust: number) => `${stardust} Stardust`,
-  priceCrown: (stardust: number) => `${stardust} Stardust and a Rusted Crown`,
   forge: 'Forge',
   wear: 'Wear',
   takeOff: 'Take off',
@@ -249,24 +254,24 @@ export const forge = {
   oddsDupeTitle: 'Parts you already have',
   oddsDupe: 'Most parts are ones you don’t have yet. One you already own turns into Stardust: 20 for Common, 50 Rare, 120 Epic, 300 Mythic.',
   oddsForgeTitle: 'Forging',
-  oddsForge: 'Any part you’re missing can be forged: 100 Stardust for Common, 250 Rare, 600 Epic, and 1200 with a Rusted Crown for Mythic.',
+  oddsForge: 'Any part you’re missing can be forged: 100 Stardust for Common, 250 Rare, 600 Epic, 1200 Mythic.',
   oddsPaceTitle: 'Each day',
   oddsPace: 'Your first 9 solved squares each day count toward parts: up to 3 parts a day.',
-  oddsCrownTitle: 'Rusted Crown',
-  oddsCrown: '3% on every rated solve, and one is guaranteed within 40.',
+  oddsSpiritTitle: 'Spirit',
+  oddsSpirit: 'The rarest drop: a 0.15% chance on each square that counts toward parts, and one is guaranteed within 700 of them. A Spirit brings one avatar to life.',
   oddsSpendTitle: 'Spending Stardust',
   oddsSpend: [
-    'Polish a part you own: 5 levels, from 200 to 3200 Stardust. It only changes the look.',
+    'Bring an avatar to life: 6000 Stardust and a Spirit, once per avatar.',
     'Name plates: Bronze 1000, Silver 2500, Gold 6000, Elomentalist 12000.',
     'Fill in a missed Daily Square: 300 Stardust, up to 3 days a month.',
   ],
 
-  // Polish and name plates (Stardust sinks; a look only)
-  numerals: ['', 'I', 'II', 'III', 'IV', 'V'] as const,
-  polishLevel: (n: number) => `Polish ${forge.numerals[n]}`,
-  polishTo: (n: number, stardust: number) => `Polish to ${forge.numerals[n]} · ${stardust} Stardust`,
-  fullyPolished: 'Fully polished',
-  polished: (name: string, n: number) => `${name} polished to ${forge.numerals[n]}.`,
+  // Polish (an avatar brought to life, once) and name plates: a look only
+  alive: 'Alive',
+  bringToLife: (stardust: number) => `Bring to life · ${stardust} Stardust and a Spirit`,
+  lifeNote: 'Polish brings an avatar to life, once: it moves wherever it shows. It takes a Spirit, the rarest drop.',
+  lifeNeeds: (stardust: number) => `Needs ${stardust} Stardust and a Spirit.`,
+  broughtToLife: (name: string) => `${name} is alive.`,
   plateTitle: 'Name plates',
   plates: ['No plate', 'Bronze', 'Silver', 'Gold', 'Elomentalist'] as const,
   plateCount: (n: number, total: number) => `${n} of ${total}`,
@@ -323,7 +328,10 @@ export const affinity = {
   /** The card, read in full by screen readers. */
   a11yCard: (element: string, line: string, place: string) => `${element}. ${line} ${place} this month.`,
   confirmTitle: (element: string) => `Join ${element}?`,
-  confirmText: 'Its crest is yours, free. You can switch once per season, in its first 7 days.',
+  confirmText: 'You can switch once per season, in its first 7 days.',
+  /** The Profile's affinity line, while switching is allowed. */
+  change: 'Change',
+  a11yChange: 'Change your affinity',
   join: 'Join',
   later: 'Decide later',
   joined: (element: string) => `Welcome to ${element}.`,
@@ -594,11 +602,11 @@ export const refusals = {
   finishOffline: 'No connection. This game wasn’t saved to your account.',
   /** The Forge (forge_part, refine_components, swap_components, equip_part). */
   forge: {
-    not_enough_stardust: 'Not enough Stardust or Crowns for that yet.',
+    not_enough_stardust: 'Not enough Stardust or Spirits for that yet.',
     already_owned: 'That part is already yours.',
     vaulted: 'That part’s season has ended. It can’t be forged any more.',
     not_owned: 'You don’t own that part yet.',
-    fully_polished: 'That part is polished all the way.',
+    already_alive: 'That avatar is already alive.',
     top_plate: 'You already have the Elomentalist plate.',
     no_mends_left: 'You’ve filled in 3 days this month: that’s the most.',
     already_solved: 'That day is already done.',

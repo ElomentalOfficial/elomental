@@ -22,9 +22,8 @@ export interface Profile {
   elo: number;
   rankedGames: number;
   dust: number;
-  crowns: number;
-  /** Wins since the last rare drop; a drop is guaranteed at PITY_LIMIT. */
-  pity: number;
+  /** Spirits (server only: a local guest earns none). */
+  spirits: number;
   /** Completed daily squares, keyed YYYY-MM-DD. */
   daily: Record<string, true>;
 }
@@ -34,8 +33,6 @@ const KEY = 'elomental:profile';
 export const START_ELO = 100;
 /** Below this rating, losing a ranked match costs nothing. */
 export const PROTECTED_BELOW = 500;
-const DROP_CHANCE = 0.03;
-const PITY_LIMIT = 40;
 
 const DUST: Record<Difficulty | 'daily' | 'ranked', number> = { easy: 4, medium: 8, hard: 15, daily: 12, ranked: 20 };
 
@@ -77,8 +74,7 @@ export function loadProfile(): Profile {
       elo: account.elo,
       rankedGames: account.rankedGames,
       dust: account.stardust,
-      crowns: account.crowns,
-      pity: 0,
+      spirits: account.spirits ?? 0,
       // filled-in days count for the month, like solved ones (the server counts them too)
       daily: { ...account.mended, ...account.daily },
     };
@@ -87,8 +83,7 @@ export function loadProfile(): Profile {
     elo: START_ELO,
     rankedGames: 0,
     dust: 0,
-    crowns: 0,
-    pity: 0,
+    spirits: 0,
     daily: {},
     ...readJson<Partial<Profile>>(KEY),
     guest: true,
@@ -252,7 +247,8 @@ export interface ResultInput {
 
 export interface Outcome {
   dust: number;
-  crown: boolean;
+  /** A Spirit dropped (server only; rolled on the solves that count toward parts). */
+  spirit: boolean;
   /**
    * `unrated`: a Ranked win that earned no Elo or speed bonus, because its
    * squares went in before they could be worked out ('copied') or the server
@@ -275,7 +271,7 @@ export const ELEMENTS: Element[] = ['fire', 'water', 'earth', 'air'];
 
 export interface Drop {
   rarity: Rarity;
-  /** The part's id ("s0-sigil-fire-2"). */
+  /** The part's id ("s0-avatar-calm", "s0-frame-fire-2"). */
   part: string;
   /** Already yours: turned into `stardust` instead. */
   duplicate: boolean;
@@ -287,18 +283,12 @@ export interface Drop {
 }
 export function recordResult(input: ResultInput): Outcome {
   const profile = loadProfile();
-  const outcome: Outcome = { dust: 0, crown: false };
+  const outcome: Outcome = { dust: 0, spirit: false };
 
   if (input.won) {
     const base = input.mode === 'casual' || input.mode === 'clash' ? DUST[input.difficulty] : DUST[input.mode];
     outcome.dust = Math.max(1, base - input.mistakes * 2 - input.hints);
     profile.dust += outcome.dust;
-    profile.pity++;
-    if (profile.pity >= PITY_LIMIT || Math.random() < DROP_CHANCE) {
-      outcome.crown = true;
-      profile.crowns++;
-      profile.pity = 0;
-    }
   }
 
   if (input.mode === 'ranked') {

@@ -107,7 +107,7 @@ export async function finishServerGame(input: {
   const d = data as {
     seconds: number;
     dust: number;
-    crown: boolean;
+    spirit: boolean;
     elo: { before: number; after: number; protectedLoss: boolean; bonus: number; hintCut: number; unrated?: 'copied' | 'unchecked' | null } | null;
     daily: { done: number; days: number; monthComplete: boolean } | null;
     drop?: Drop | null;
@@ -119,7 +119,7 @@ export async function finishServerGame(input: {
     seconds: d.seconds,
     outcome: {
       dust: d.dust,
-      crown: d.crown,
+      spirit: !!d.spirit,
       elo: d.elo ? { ...d.elo, bonus: Number(d.elo.bonus), hintCut: Number(d.elo.hintCut) } : undefined,
       daily: d.daily ?? undefined,
       drop: d.drop ?? undefined,

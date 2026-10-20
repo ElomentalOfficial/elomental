@@ -147,6 +147,8 @@ export const ICONS = {
   check: stroke('<path d="M5 12.5l4.5 4.5L19 7"/>', 2.6),
   lock: stroke('<rect x="5" y="10.5" width="14" height="10" rx="1.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>'),
   crown: fill('M3 8l4.5 4L12 5l4.5 7L21 8l-2 10H5Z M5 19h14v2H5Z'),
+  /** The Spirit: a little flame with eyes (it brings an avatar to life). */
+  spirit: fill('M12 2C8.2 6 6 9.3 6 13.4a6 6 0 0 0 12 0c0-1.6-.5-3.1-1.5-4.3-.3 1.6-1.2 2.7-2.4 3.2.7-3.5-.4-6.9-2.1-10.3Z M9.4 14.2a1.1 1.4 0 1 0 2.2 0 1.1 1.4 0 1 0-2.2 0Z M12.6 14.2a1.1 1.4 0 1 0 2.2 0 1.1 1.4 0 1 0-2.2 0Z'),
   /** The four elements (affinities, drops, parts): flame, drop, peaks, gust. Always shown with the element's name. */
   elements: {
     fire: stroke(elementPaths('fire')),

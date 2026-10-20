@@ -21,8 +21,6 @@
   --el-water: #386f71;
   --el-earth: #636945;
   --el-air: #867137;
-  /* Polish (a look only): the glint on polished parts. */
-  --polish-glint: #ffe9a8;
   --c-forest-highlight: #c9d09d;
   --c-crimson: #794341;
 
@@ -2346,9 +2344,8 @@ html[data-reduce-motion] .sword-live .sword-flame {
   color: var(--accent);
   flex: none;
 }
-/* The avatar (avatar.ts): five layers from the loadout. --el is the part's element
-   colour, palette only (Water borrows Rock until it has a colour of its own). A sigil
-   is drawn in Bright on a backdrop, and in its element's colour on the bare disc. */
+/* The avatar (avatar.ts): one whole picture in its frame. A frame's --el is its element's
+   colour, palette only. */
 .avatar-art {
   display: block;
   width: 100%;
@@ -2358,84 +2355,37 @@ html[data-reduce-motion] .sword-live .sword-flame {
 .avatar-base {
   fill: var(--surface-2);
 }
-/* On Home the bare disc keeps the profile card's own colours (--avatar-bg, --avatar-ring). */
-.avatar-btn .avatar-base {
-  fill: var(--avatar-bg);
-}
-.avatar-ring {
-  stroke: var(--avatar-ring);
-  stroke-width: 6;
-}
 .avatar-art .el-fire { --el: var(--el-fire); }
 .avatar-art .el-water { --el: var(--el-water); }
 .avatar-art .el-earth { --el: var(--el-earth); }
 .avatar-art .el-air { --el: var(--el-air); }
-.layer-backdrop .fill {
-  fill: var(--el);
-}
-.layer-backdrop .line {
-  fill: none;
-  stroke: color-mix(in srgb, var(--c-bright) 40%, transparent);
-  stroke-width: 1.6;
-  stroke-linecap: round;
-}
-.layer-backdrop .dot {
-  fill: color-mix(in srgb, var(--c-bright) 45%, transparent);
-}
-.layer-frame .ring.thin {
-  stroke-width: 1.6;
-}
-.layer-aura .aura.dotted {
-  stroke-dasharray: 1 6;
-  stroke-width: 3.4;
-}
-.layer-aura .aura.outer {
-  stroke-width: 1.6;
-  stroke-dasharray: 2 10;
-  animation-direction: reverse;
-  animation-duration: 20s;
-}
-.layer-sigil .ink {
-  fill: none;
-  stroke: var(--el);
-  stroke-width: 3;
-  stroke-linecap: round;
-}
-.avatar-art.has-backdrop .layer-sigil .ink {
-  stroke: var(--c-bright);
-}
 .layer-frame .ring {
   stroke: var(--el);
   stroke-width: 4;
+}
+.layer-frame .ring.thin {
+  stroke-width: 1.6;
 }
 .layer-frame .stud {
   fill: var(--c-bright);
   stroke: var(--el);
   stroke-width: 1.6;
 }
-.layer-crest .badge {
-  fill: var(--el);
-  stroke: var(--surface);
-  stroke-width: 2.4;
+/* Brought to life (polished once, forge.ts): the picture breathes, bobs and sways, softly
+   and out of step so it never ticks. A stand-in until each avatar has its own animation.
+   Still with Reduce motion. */
+.avatar-face.alive {
+  transform-box: fill-box;
+  transform-origin: 50% 85%;
+  animation: avatar-alive 3.4s ease-in-out infinite;
 }
-.layer-crest .badge-ink {
-  stroke: var(--c-bright);
+@keyframes avatar-alive {
+  0%, 100% { transform: translateY(0) rotate(0) scale(1, 1); }
+  25% { transform: translateY(-2.5%) rotate(-3deg) scale(0.98, 1.03); }
+  50% { transform: translateY(0) rotate(0) scale(1.03, 0.97); }
+  75% { transform: translateY(-2%) rotate(3deg) scale(0.99, 1.02); }
 }
-.layer-aura .aura {
-  stroke: var(--el);
-  stroke-width: 3;
-  stroke-dasharray: 5 8;
-  stroke-linecap: round;
-  transform-origin: 50px 50px;
-  filter: drop-shadow(0 0 3px var(--el));
-  animation: aura-turn 14s linear infinite;
-}
-@keyframes aura-turn {
-  to {
-    transform: rotate(360deg);
-  }
-}
-html[data-reduce-motion] .layer-aura .aura {
+html[data-reduce-motion] .avatar-face.alive {
   animation: none;
 }
 /* Home's avatar is a button into the Forge; once something is worn, the drawing replaces
@@ -5686,27 +5636,6 @@ button.plate-card {
   margin: var(--space-5) 0 var(--space-3);
   font-size: var(--fs-label);
   font-weight: 800;
-}/* Polish I–V on a part: a soft sheen, then a gilt glow, then a slow glint at V. */
-.avatar-layer.polish-1 { filter: drop-shadow(0 0 0.6px var(--polish-glint)); }
-.avatar-layer.polish-2 { filter: drop-shadow(0 0 1.2px var(--polish-glint)); }
-.avatar-layer.polish-3 { filter: drop-shadow(0 0 1.6px var(--polish-glint)) saturate(1.15); }
-.avatar-layer.polish-4 { filter: drop-shadow(0 0 2.4px var(--polish-glint)) saturate(1.25); }
-.avatar-layer.polish-5 {
-  filter: drop-shadow(0 0 2.4px var(--polish-glint)) saturate(1.3);
-  animation: polish-glint 3.6s ease-in-out infinite;
-}
-@keyframes polish-glint {
-  50% {
-    filter: drop-shadow(0 0 4px var(--polish-glint)) saturate(1.3) brightness(1.12);
-  }
-}
-html[data-reduce-motion] .avatar-layer.polish-5 {
-  animation: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  .avatar-layer.polish-5 {
-    animation: none;
-  }
 }
 
 /* ---------- Profile (screens/profile.ts) ---------- */

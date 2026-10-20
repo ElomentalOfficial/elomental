@@ -24,7 +24,19 @@ await db.exec(`
 `);
 
 const files = readdirSync(MIG).filter((f) => f.endsWith('.sql')).sort();
+// Just before whole_avatars, a player with the old layered parts, polish levels and Crowns,
+// to check what the move to whole avatars pays back.
+const AVATARS = files.find((f) => f.endsWith('_whole_avatars.sql'));
+let veteran = null;
 for (const f of files) {
+  if (f === AVATARS) {
+    veteran = (await db.query(`insert into auth.users default values returning id`)).rows[0].id;
+    await db.exec(`
+      update public.profiles set stardust = 1000, crowns = 2, affinity = 'fire' where id = '${veteran}';
+      insert into public.player_parts (player_id, part_id, how, polish) values
+        ('${veteran}', 's0-sigil-fire-2', 'drop', 3), ('${veteran}', 's0-crest-fire', 'starter', 0), ('${veteran}', 's0-frame-fire-1', 'forge', 1);
+      insert into public.avatar_loadouts (player_id, sigil, crest, frame) values ('${veteran}', 's0-sigil-fire-2', 's0-crest-fire', 's0-frame-fire-1');`);
+  }
   try {
     await db.exec(readFileSync(join(MIG, f), 'utf8'));
   } catch (e) {
@@ -77,7 +89,7 @@ check(drops === 300 && progressOk, 'exactly every 3rd solve drops a part, and th
 check(maxGapEpic <= 9, `Epic or better within 10 parts (longest wait ${maxGapEpic})`);
 check(maxGapMythic <= 24, `Mythic within 25 parts (longest wait ${maxGapMythic})`);
 const owned = (await db.query(`select count(*)::int n from public.player_parts where player_id = $1`, [a])).rows[0].n;
-check(owned === 48, `300 parts collect the whole 48-part set (${owned})`);
+check(owned === 23, `300 parts collect the whole 23-part set (${owned})`);
 const dupDust = (await db.query(`select coalesce(sum(stardust),0)::int s from public.drops where player_id = $1 and duplicate`, [a])).rows[0].s;
 check(dupDust > 0, `duplicates paid Stardust (${dupDust})`);
 
@@ -92,7 +104,7 @@ const c = await newPlayer();
 const lost = await play(c, 'ranked', 'medium', { won: false });
 check(lost.drop === null && lost.progress === null, 'a loss counts for nothing');
 
-// --- 4. affinity: too soon, choose, influence, crest
+// --- 4. affinity: too soon, choose, influence
 const d0 = await newPlayer();
 await as(d0);
 let err = null;
@@ -101,9 +113,7 @@ check(err?.includes('too_soon'), 'affinity needs 3 solved squares first');
 for (let i = 0; i < 3; i++) await play(d0, 'casual', 'hard');
 await as(d0);
 const ch = (await db.query(`select public.choose_affinity('water') as j`)).rows[0].j;
-check(ch.crest === 's0-crest-water', 'choosing gives the Water crest');
-const lo = (await db.query(`select crest from public.avatar_loadouts where player_id = $1`, [d0])).rows[0];
-check(lo?.crest === 's0-crest-water', 'and wears it');
+check(ch.affinity === 'water' && !('crest' in ch), 'choosing sets the affinity (no crest part any more)');
 const inf = await play(d0, 'daily', 'medium', { date: '2026-10-20' });
 check(inf.influence?.affinity === 'water' && inf.influence.amount === 5, `daily clean solve: +5 influence (${JSON.stringify(inf.influence)})`);
 await as(d0);
@@ -113,7 +123,7 @@ check(st.find((r) => r.affinity === 'water').members === 1, 'standings count the
 // --- 5. forging with Stardust, equip
 const e0 = await newPlayer();
 for (let i = 0; i < 3; i++) await play(e0, 'casual', 'medium');
-await db.exec(`update public.profiles set stardust = 2000, crowns = 0 where id = '${e0}'`);
+await db.exec(`update public.profiles set stardust = 2000, spirits = 0 where id = '${e0}'`);
 await as(e0);
 const common = (await db.query(`select id from public.parts where rarity = 'common' and source = 'craft' and id not in (select part_id from public.player_parts where player_id = $1) limit 1`, [e0])).rows[0].id;
 await db.query(`select public.forge_part($1)`, [common]);
@@ -122,28 +132,38 @@ check(sd === 1900, `forging a Common costs 100 Stardust (${2000 - sd})`);
 err = null; try { await db.query(`select public.forge_part($1)`, [common]); } catch (e) { err = e.message; }
 check(err?.includes('already_owned'), 'cannot forge it twice');
 const mythic = (await db.query(`select id from public.parts where rarity = 'mythic' limit 1`)).rows[0].id;
+await db.exec(`update public.profiles set stardust = 1000 where id = '${e0}'`);
 err = null; try { await db.query(`select public.forge_part($1)`, [mythic]); } catch (e) { err = e.message; }
-check(err?.includes('not_enough_stardust'), 'Mythic needs a Rusted Crown too');
-await db.exec(`update public.profiles set crowns = 1 where id = '${e0}'`);
+check(err?.includes('not_enough_stardust'), 'Mythic: 1200 Stardust, not affordable with 1000');
+await db.exec(`update public.profiles set stardust = 1900 where id = '${e0}'`);
 await db.query(`select public.forge_part($1)`, [mythic]);
-const after = (await db.query(`select stardust, crowns from public.profiles where id = $1`, [e0])).rows[0];
-check(after.stardust === 700 && after.crowns === 0, `Mythic: 1200 Stardust and a Crown (${JSON.stringify(after)})`);
+const after = (await db.query(`select stardust, spirits from public.profiles where id = $1`, [e0])).rows[0];
+check(after.stardust === 700 && after.spirits === 0, `Mythic: 1200 Stardust, no Spirit needed (${JSON.stringify(after)})`);
 await db.query(`select public.equip_part('${common.split('-')[1]}', $1)`, [common]);
 const eq = (await db.query(`select * from public.avatar_loadouts where player_id = $1`, [e0])).rows[0];
 check(Object.values(eq).includes(common), 'equipped it');
 
-// --- 6. sinks: polish, plates, mend a Daily
-await db.exec(`update public.profiles set stardust = 20000 where id = '${e0}'`);
+// --- 6. sinks: bring an avatar to life, plates, mend a Daily
+await db.exec(`update public.profiles set stardust = 20000, spirits = 0 where id = '${e0}'`);
 await as(e0);
-for (let i = 0; i < 5; i++) await db.query(`select public.polish_part($1)`, [common]);
-const pol = (await db.query(`select polish from public.player_parts where player_id = $1 and part_id = $2`, [e0, common])).rows[0].polish;
-const afterPolish = (await db.query(`select stardust from public.profiles where id = $1`, [e0])).rows[0].stardust;
-check(pol === 5 && afterPolish === 20000 - 6200, `polish I–V costs 6200 in all (${20000 - afterPolish})`);
-err = null; try { await db.query(`select public.polish_part($1)`, [common]); } catch (e) { err = e.message; }
-check(err?.includes('fully_polished'), 'no polish past V');
-err = null; try { await db.query(`select public.polish_part($1)`, [mythic === common ? 'x' : (await db.query(`select id from public.parts where id not in (select part_id from public.player_parts where player_id = $1) limit 1`, [e0])).rows[0].id]); } catch (e) { err = e.message; }
-check(err?.includes('not_owned'), 'only parts you own can be polished');
-for (let i = 0; i < 2; i++) await db.query(`select public.buy_plate()`);
+err = null; try { await db.query(`select public.polish_part('s0-avatar-happy')`); } catch (e) { err = e.message; }
+check(err?.includes('not_enough_stardust'), 'bringing an avatar to life needs a Spirit');
+await db.exec(`update public.profiles set spirits = 2 where id = '${e0}'`);
+await db.query(`select public.polish_part('s0-avatar-happy')`);
+const alive = (await db.query(`select polish from public.player_parts where player_id = $1 and part_id = 's0-avatar-happy'`, [e0])).rows[0]?.polish;
+const afterPolish = (await db.query(`select stardust, spirits from public.profiles where id = $1`, [e0])).rows[0];
+check(alive === 1 && afterPolish.stardust === 14000 && afterPolish.spirits === 1, `Happy (free) brought to life: 6000 Stardust and a Spirit (${JSON.stringify(afterPolish)})`);
+err = null; try { await db.query(`select public.polish_part('s0-avatar-happy')`); } catch (e) { err = e.message; }
+check(err?.includes('already_alive'), 'only once');
+const lacking = (await db.query(`select id from public.parts where slot = 'avatar' and source = 'craft' and id not in (select part_id from public.player_parts where player_id = $1) limit 1`, [e0])).rows[0].id;
+err = null; try { await db.query(`select public.polish_part($1)`, [lacking]); } catch (e) { err = e.message; }
+check(err?.includes('not_owned'), 'only avatars you own');
+err = null; try { await db.query(`select public.polish_part('s0-frame-fire-1')`); } catch (e) { err = e.message; }
+check(err?.includes('not_owned'), 'frames are never brought to life');
+await db.query(`select public.equip_part('avatar', 's0-avatar-happy')`);
+err = null; try { await db.query(`select public.equip_part('avatar', $1)`, [lacking]); } catch (e) { err = e.message; }
+check(err?.includes('not_owned'), 'can wear Happy, not an avatar you lack');
+await db.exec(`update public.profiles set stardust = 13800 where id = '${e0}'`);for (let i = 0; i < 2; i++) await db.query(`select public.buy_plate()`);
 const pl = (await db.query(`select plate, stardust from public.profiles where id = $1`, [e0])).rows[0];
 check(pl.plate === 2 && pl.stardust === 13800 - 3500, `Bronze then Silver plate: 3500 (${JSON.stringify(pl)})`);
 const ym = new Date(); const day = (n) => `${ym.getUTCFullYear()}-${String(ym.getUTCMonth() + 1).padStart(2, '0')}-${String(n).padStart(2, '0')}`;
@@ -161,7 +181,28 @@ check(err?.includes('bad_date'), 'today cannot be mended');
 // --- 7. catalogue and access
 const cat = (await db.query(`select rarity, count(*)::int n from public.parts where source = 'craft' group by rarity order by rarity`)).rows;
 console.log('  catalogue', cat.map((r) => `${r.rarity}:${r.n}`).join(' '));
-check(JSON.stringify(cat) === JSON.stringify([{ rarity: 'common', n: 16 }, { rarity: 'epic', n: 10 }, { rarity: 'mythic', n: 6 }, { rarity: 'rare', n: 16 }]), 'Season 0: 16 Common, 16 Rare, 10 Epic, 6 Mythic');
+check(JSON.stringify(cat) === JSON.stringify([{ rarity: 'common', n: 9 }, { rarity: 'epic', n: 6 }, { rarity: 'mythic', n: 1 }, { rarity: 'rare', n: 7 }]), 'Season 0: 11 avatars and 12 frames, 9 Common, 7 Rare, 6 Epic, 1 Mythic');
+
+// --- 8. the Spirit: rolled on solves that count toward parts, guaranteed within 700
+const sp = await newPlayer();
+await db.exec(`update public.profiles set spirit_pity = 698 where id = '${sp}'`);
+const s1 = await play(sp, 'casual', 'medium');
+const s2 = await play(sp, 'casual', 'medium');
+check(s2.spirit === true || s1.spirit === true, 'the 700th counted solve brings a Spirit');
+const spirits = (await db.query(`select spirits, spirit_pity from public.profiles where id = $1`, [sp])).rows[0];
+check(spirits.spirits >= 1, `Spirits held: ${spirits.spirits}`);
+for (let i = 0; i < 7; i++) await play(sp, 'casual', 'medium');
+await db.exec(`update public.profiles set spirit_pity = 699 where id = '${sp}'`);
+const s10 = await play(sp, 'casual', 'medium');
+check(s10.spirit === false, 'the 10th solve of a day rolls no Spirit');
+
+// --- 9. what the move to whole avatars paid back
+const v = (await db.query(`select stardust, spirits from public.profiles where id = $1`, [veteran])).rows[0];
+const vParts = (await db.query(`select part_id, polish from public.player_parts where player_id = $1 order by part_id`, [veteran])).rows;
+const vLoad = (await db.query(`select avatar, frame from public.avatar_loadouts where player_id = $1`, [veteran])).rows[0];
+check(v.stardust === 1000 + 250 + 1400 + 200 && v.spirits === 2, `veteran: Rare sigil 250 + polish III 1400 + frame polish I 200 back, Crowns kept as Spirits (${JSON.stringify(v)})`);
+check(JSON.stringify(vParts) === JSON.stringify([{ part_id: 's0-frame-fire-1', polish: 0 }]), `only the frame stays (${JSON.stringify(vParts)})`);
+check(vLoad.frame === 's0-frame-fire-1' && vLoad.avatar === null, 'still wears the frame; Happy as the avatar');
 await db.exec(`set role authenticated`);
 err = null; try { await db.exec(`update public.player_parts set part_id = part_id`); } catch (e) { err = e.message; }
 check(!!err, `players cannot write their parts (${err?.slice(0, 40)})`);

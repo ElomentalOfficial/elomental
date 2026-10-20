@@ -830,7 +830,7 @@ function gameScreen(game: SavedGame): Screen {
       rating: config.rating,
       grid: game.values.join(''),
     });
-    if ('refused' in result) return { outcome: { dust: 0, crown: false }, notice: result.refused };
+    if ('refused' in result) return { outcome: { dust: 0, spirit: false }, notice: result.refused };
     game.elapsedMs = result.seconds * 1000;
     timer.textContent = formatTime(game.elapsedMs);
     return { outcome: result.outcome };
@@ -851,7 +851,7 @@ function gameScreen(game: SavedGame): Screen {
     const verdict = clashVerdict(mine, theirs);
     const rewards = h('div', { class: 'rewards' });
     if (outcome.dust) rewards.append(h('div', { class: 'reward' }, h('span', { html: ICONS.dust }), h('span', { text: copy.common.plusStardust(outcome.dust) })));
-    if (outcome.crown) rewards.append(h('div', { class: 'reward rare', html: `${ICONS.crown}<span>${copy.common.rareCrown}</span>` }));
+    if (outcome.spirit) rewards.append(h('div', { class: 'reward rare', html: `${ICONS.spirit}<span>${copy.common.rareSpirit}</span>` }));
     openModal(
       h(
         'div',
@@ -940,9 +940,9 @@ function gameScreen(game: SavedGame): Screen {
       countUp(amount, 0, outcome.dust, copy.common.plusStardust);
       rewards.append(h('div', { class: 'reward' }, h('span', { html: ICONS.dust }), amount));
     }
-    if (outcome.crown) rewards.append(h('div', { class: 'reward rare', html: `${ICONS.crown}<span>${copy.common.rareCrown}</span>` }));
+    if (outcome.spirit) rewards.append(h('div', { class: 'reward rare', html: `${ICONS.spirit}<span>${copy.common.rareSpirit}</span>` }));
 
-    // One strip for everything earned: Stardust, a Crown, influence, and (between parts)
+    // One strip for everything earned: Stardust, a Spirit, influence, and (between parts)
     // how close the next part is.
     if (outcome.influence) rewards.append(influenceLine(outcome.influence));
     if (outcome.progress && !outcome.drop) rewards.append(progressLine(outcome.progress));

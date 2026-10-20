@@ -49,10 +49,10 @@ export function homeScreen(): Screen {
 
   // The avatar: the player's forged loadout (avatar.ts), and the way into their profile.
   const avatarBtn = h('button', { class: 'avatar avatar-btn', attrs: { type: 'button', 'aria-label': copy.profile.a11yAvatar } });
+  // Happy until another avatar is worn (avatar.ts)
   const paintAvatar = (loadout = cachedLoadout()) => {
-    const worn = loadout && Object.values(loadout).some(Boolean);
-    avatarBtn.innerHTML = worn ? avatarSvg(loadout, cachedPolish()) : '';
-    avatarBtn.classList.toggle('worn', !!worn);
+    avatarBtn.innerHTML = avatarSvg(loadout, cachedPolish());
+    avatarBtn.classList.add('worn');
   };
   paintAvatar();
   if (signedIn()) void loadLoadout().then((l) => l && el.isConnected && paintAvatar(l));
@@ -63,7 +63,7 @@ export function homeScreen(): Screen {
   const rankEl = h('span', { class: 'profile-rank' });
   const eloChip = stat('', copy.common.elo);
   const dustChip = stat('', copy.common.stardust, ICONS.dust);
-  const crownChip = stat('', copy.common.crowns, ICONS.crown);
+  const spiritChip = stat('', copy.common.spirits, ICONS.spirit);
   /** Signed in, the numbers come from the server cache and update when it refreshes. */
   const paintProfile = () => {
     const p = loadProfile();
@@ -77,7 +77,7 @@ export function homeScreen(): Screen {
     );
     eloChip.querySelector('strong')!.textContent = String(p.elo);
     dustChip.querySelector('strong')!.textContent = String(p.dust);
-    crownChip.querySelector('strong')!.textContent = String(p.crowns);
+    spiritChip.querySelector('strong')!.textContent = String(p.spirits);
   };
   paintProfile();
   const stopProfile = onAccountChange(paintProfile);
@@ -93,7 +93,7 @@ export function homeScreen(): Screen {
       nameEl,
       rankEl,
     ),
-    h('div', { class: 'profile-stats' }, eloChip, dustChip, crownChip),
+    h('div', { class: 'profile-stats' }, eloChip, dustChip, spiritChip),
     h('div', { class: 'setup-notch' }, setupTile),
   );
   setupTile.addEventListener('click', () => leave(profileCard, () => mount(setupScreen())));

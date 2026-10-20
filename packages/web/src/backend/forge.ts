@@ -5,46 +5,48 @@ import { knownError, supabase } from './client.ts';
 import * as copy from '../copy/en.ts';
 
 /**
- * The Forge's server side (supabase/migrations/…_simple_economy.sql): the season's parts,
+ * The Forge's server side (supabase/migrations/…_whole_avatars.sql): the season's parts,
  * the ones the player owns and wears, and the two calls that change them. Read-only to
  * the browser; forge_part and equip_part check every cost on the server.
  */
 
-export type Slot = 'backdrop' | 'sigil' | 'frame' | 'crest' | 'aura';
-export const SLOTS: Slot[] = ['sigil', 'backdrop', 'frame', 'aura', 'crest'];
+/** An avatar is one whole picture; a frame goes round it. */
+export type Slot = 'avatar' | 'frame';
+export const SLOTS: Slot[] = ['avatar', 'frame'];
+/** Everyone's avatar from the start, worn when no other is (a free starter). */
+export const DEFAULT_AVATAR = 's0-avatar-happy';
 
 export interface Part {
   id: string;
   slot: Slot;
-  element: Element;
+  /** Frames belong to an element; avatars to none. */
+  element: Element | null;
   rarity: Rarity;
   source: 'craft' | 'starter' | 'rank' | 'achievement' | 'event' | 'daily';
 }
 
-/** Stardust to forge a part (private.forge_cost); Mythic also takes a Rusted Crown. */
+/** Stardust to forge a part (private.forge_cost). */
 export const FORGE_COST: Record<Rarity, number> = { common: 100, rare: 250, epic: 600, mythic: 1200 };
-export const needsCrown = (rarity: Rarity): boolean => rarity === 'mythic';
-/** Polish levels I–V for an owned part (polish_part), each a look only. */
-export const POLISH_COST = [200, 400, 800, 1600, 3200];
-export const MAX_POLISH = 5;
+/** Polish brings an avatar to life, once (polish_part): Stardust and a Spirit. */
+export const ALIVE_COST = 6000;
 /** Name plates Bronze, Silver, Gold, Elomentalist (buy_plate), bought in order. */
 export const PLATE_COST = [1000, 2500, 6000, 12000];
 export const MAX_PLATE = 4;
-/** Polish level per owned part id. */
+/** Polish per owned part id: 1 when brought to life. */
 export type Polish = Record<string, number>;
 
 export type Loadout = Partial<Record<Slot, string | null>>;
 
 export interface Forge {
   parts: Part[];
-  /** Owned part ids, with a first-edition number and polish level. */
+  /** Owned part ids (Happy always), with a first-edition number and polish (1: alive). */
   owned: Map<string, { edition: number | null; polish: number }>;
   polish: Polish;
   /** Name plate: 0 none, 1 Bronze … 4 Elomentalist. */
   plate: number;
   loadout: Loadout;
   stardust: number;
-  crowns: number;
+  spirits: number;
   affinity: Element | null;
 }
 
@@ -56,8 +58,8 @@ export async function loadForge(): Promise<Forge | null> {
   const [parts, owned, loadout, profile] = await Promise.all([
     supabase.from('parts').select('id, slot, element, rarity, source'),
     supabase.from('player_parts').select('part_id, edition, polish'),
-    supabase.from('avatar_loadouts').select('backdrop, sigil, frame, crest, aura').maybeSingle(),
-    supabase.from('profiles').select('stardust, crowns, affinity, plate').eq('id', uid).single(),
+    supabase.from('avatar_loadouts').select('avatar, frame').maybeSingle(),
+    supabase.from('profiles').select('stardust, spirits, affinity, plate').eq('id', uid).single(),
   ]);
   if (parts.error || owned.error || profile.error) return null;
   const polish: Polish = Object.fromEntries((owned.data ?? []).filter((o) => o.polish).map((o) => [o.part_id as string, o.polish as number]));
@@ -65,12 +67,12 @@ export async function loadForge(): Promise<Forge | null> {
   writeJson(POLISH_KEY, polish);
   return {
     parts: (parts.data ?? []) as Part[],
-    owned: new Map((owned.data ?? []).map((o) => [o.part_id as string, { edition: o.edition ?? null, polish: o.polish ?? 0 }])),
+    owned: new Map([[DEFAULT_AVATAR, { edition: null, polish: 0 }], ...(owned.data ?? []).map((o) => [o.part_id as string, { edition: o.edition ?? null, polish: o.polish ?? 0 }] as const)]),
     polish,
     plate: profile.data.plate ?? 0,
     loadout: (loadout.data ?? {}) as Loadout,
     stardust: profile.data.stardust,
-    crowns: profile.data.crowns,
+    spirits: profile.data.spirits,
     affinity: (profile.data.affinity ?? null) as Element | null,
   };
 }
@@ -94,7 +96,7 @@ export const MENDS_A_MONTH = 3;
 
 const LOADOUT_KEY = 'elomental:loadout';
 const POLISH_KEY = 'elomental:polish';
-/** The last known polish levels, for Home's avatar. */
+/** The last known polish (which avatars are alive), for Home's avatar. */
 export const cachedPolish = (): Polish => readJson<Polish>(POLISH_KEY) ?? {};
 /** The last known loadout, for Home's avatar to paint at once. */
 export const cachedLoadout = (): Loadout | null => readJson<Loadout>(LOADOUT_KEY);
@@ -102,7 +104,7 @@ export const cachedLoadout = (): Loadout | null => readJson<Loadout>(LOADOUT_KEY
 /** The loadout alone (Home's avatar), refreshed into the cache. */
 export async function loadLoadout(): Promise<Loadout | null> {
   const [{ data, error }, owned] = await Promise.all([
-    supabase.from('avatar_loadouts').select('backdrop, sigil, frame, crest, aura').maybeSingle(),
+    supabase.from('avatar_loadouts').select('avatar, frame').maybeSingle(),
     supabase.from('player_parts').select('part_id, polish').gt('polish', 0),
   ]);
   if (error) return null;

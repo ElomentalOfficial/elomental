@@ -10,7 +10,8 @@ import * as copy from '../copy/en.ts';
  * Choosing an affinity (docs/PROGRESSION_DESIGN.md §13.2), shown once after the third
  * solved square: the four elements, each with its line and this month's standing, the
  * smallest side tagged "Needs you". Joining asks once (it holds for the season), then
- * gives that element's crest. "Decide later" asks again after the next solve.
+ * sets it. "Decide later" asks again after the next solve. The Profile's Change button
+ * opens it again while switching is allowed (the first 7 days of a season).
  */
 export function affinityScreen(): Screen {
   markAffinityPrompted();
@@ -39,7 +40,7 @@ export function affinityScreen(): Screen {
             onclick: () => confirm(e),
           },
           fewest === e ? h('span', { class: 'affinity-tag', text: copy.affinity.needsYou, attrs: { 'aria-hidden': 'true' } }) : null,
-          h('span', { class: 'affinity-art', html: avatarSvg({ backdrop: `s0-backdrop-${e}-1`, sigil: `s0-sigil-${e}-1` }), attrs: { 'aria-hidden': 'true' } }),
+          h('span', { class: 'affinity-art', html: avatarSvg({ frame: `s0-frame-${e}-2` }), attrs: { 'aria-hidden': 'true' } }),
           h('strong', { class: 'affinity-name', text: name, attrs: { 'aria-hidden': 'true' } }),
           h('span', { class: 'affinity-line', text: line, attrs: { 'aria-hidden': 'true' } }),
           s && where
@@ -67,7 +68,6 @@ export function affinityScreen(): Screen {
           return;
         }
         toast(copy.affinity.joined(name));
-        // the new crest shows on Home's avatar straight away
         void loadLoadout().finally(() => void goBack(homeScreen));
       });
     });
@@ -76,7 +76,7 @@ export function affinityScreen(): Screen {
         'div',
         { class: 'sheet affinity-confirm' },
         closeButton(() => close()),
-        h('span', { class: 'affinity-art', html: avatarSvg({ backdrop: `s0-backdrop-${e}-1`, sigil: `s0-sigil-${e}-1`, crest: `s0-crest-${e}` }), attrs: { 'aria-hidden': 'true' } }),
+        h('span', { class: 'affinity-art', html: avatarSvg({ frame: `s0-frame-${e}-3` }), attrs: { 'aria-hidden': 'true' } }),
         h('h2', { text: copy.affinity.confirmTitle(name) }),
         h('p', { class: 'note', text: copy.affinity.confirmText }),
         join,

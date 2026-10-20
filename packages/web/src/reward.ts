@@ -12,14 +12,15 @@ import * as copy from './copy/en.ts';
  * get one literal line. Still with Reduce motion (styles.css `.part-reveal`).
  */
 
-/** "s0-sigil-fire-2" → "Ember Sigil II". */
+/** "s0-avatar-calm" → "Calm"; "s0-frame-fire-2" → "Ember Frame II". */
 export function partName(id: string): string {
-  const [, slot, element, n] = id.split('-') as [string, keyof typeof copy.forge.slots, Element, string?];
-  return copy.forge.part(copy.forge.names[element], copy.forge.slots[slot], Number(n ?? 1));
+  const [, slot, element, n] = id.split('-') as [string, keyof typeof copy.forge.slots, string, string?];
+  if (slot === 'avatar') return copy.forge.avatars[element] ?? element;
+  return copy.forge.part(copy.forge.names[element as Element], copy.forge.slots[slot], Number(n ?? 1));
 }
 
-/** The element of a part, from its id. */
-export const partElement = (id: string): Element => id.split('-')[2] as Element;
+/** The element of a part, from its id (frames have one; avatars don't). */
+export const partElement = (id: string): Element | null => (id.split('-')[1] === 'frame' ? (id.split('-')[2] as Element) : null);
 
 export const rarityName = (r: Rarity): string => copy.forge.rarities[r];
 
@@ -40,8 +41,8 @@ export function dropReveal(drop: Drop, onOpenForge?: () => void): HTMLElement {
       h(
         'span',
         { class: 'reveal-meta' },
-        h('span', { class: 'drop-element', html: ICONS.elements[element] }),
-        h('span', { text: drop.duplicate ? copy.forge.elements[element] : `${copy.forge.newPart} · ${copy.forge.elements[element]}` }),
+        element ? h('span', { class: 'drop-element', html: ICONS.elements[element] }) : null,
+        h('span', { text: [drop.duplicate ? null : copy.forge.newPart, element ? copy.forge.elements[element] : copy.forge.slots.avatar].filter(Boolean).join(' · ') }),
       ),
     ),
   );

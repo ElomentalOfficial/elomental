@@ -34,6 +34,25 @@ export async function chooseAffinity(affinity: Element): Promise<string | null> 
   return null;
 }
 
+/**
+ * May the player switch sides now? Only once a side is chosen, in the first 7 days of the
+ * season, and once per season (choose_affinity has the same rule). False offline.
+ */
+export async function canSwitchAffinity(): Promise<boolean> {
+  const a = cachedAccount();
+  const { data: session } = await supabase.auth.getSession();
+  const uid = session.session?.user.id;
+  if (!a?.affinity || !uid) return false;
+  const now = new Date().toISOString();
+  const [season, profile] = await Promise.all([
+    supabase.from('seasons').select('id, starts_at').lte('starts_at', now).gt('ends_at', now).maybeSingle(),
+    supabase.from('profiles').select('affinity_season').eq('id', uid).single(),
+  ]);
+  if (season.error || !season.data || profile.error) return false;
+  const open = Date.now() < new Date(season.data.starts_at).getTime() + 7 * 86_400_000;
+  return open && profile.data.affinity_season !== season.data.id;
+}
+
 const PROMPTED_KEY = 'elomental:affinity-prompted';
 
 /**

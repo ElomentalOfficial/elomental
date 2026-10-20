@@ -119,15 +119,15 @@ One name per concept. Player-facing text uses exactly these.
 | Puzzle strength | **rating** | difficulty score, level | "rated 1840". |
 | Ranks | **Novice**, **Apprentice**, **Adept**, **Elementalist**, **Archmage** | | Shown under the name, with a division below Archmage: **Adept II** (III lowest, I highest). A step up is **Promoted: Adept II**. |
 | Currency | **Stardust** | dust, coins, points | |
-| Rare drop | **Rusted Crown**; plural **Crowns** | | |
+| Rarest drop | **Spirit**; plural **Spirits** | Rusted Crown (retired) | It brings an avatar to life. |
 | Monthly Daily progress | **this month** / **monthly Daily progress** | streak (there is no day-to-day streak counter) | *Proposal.* Today's copy says "Daily streak" for the month count. |
 | Speed reward | **speed bonus** | | |
 | What a solve brings | a **part** (every 3rd solved, rated square) | loot, drop box, chest, item, skin | Parts are always earned, never bought. |
 | Rarity | **Common**, **Rare**, **Epic**, **Mythic** | Legendary, Scrap, Forged | Familiar from other games on purpose. Always written, on its colour tag; never colour alone. |
 | Part names | element word + slot: **Ember** (Fire), **Tide** (Water), **Stone** (Earth), **Gale** (Air): "Tide Frame II" | | |
 | Bad-luck cap | **guarantee**: "Epic or better within 6 parts." | pity, pity timer | "Pity" is only an internal word. |
-| Making parts | **Forge** (the page and the verb): any missing part, for Stardust | craft, buy, upgrade | Mythic also takes a Rusted Crown. |
-| A part's shine | **polish**, levels **I** to **V**: "Polish to III" | upgrade, level up, enhance | A look only; never stronger. |
+| Making parts | **Forge** (the page and the verb): any missing part, for Stardust | craft, buy, upgrade | Parts are **avatars** (whole pictures) and **frames**. |
+| Animating an avatar | **bring to life** (polish, once): "Bring to life · 6000 Stardust and a Spirit"; it's then **Alive** | upgrade, level up, enhance, animate | A look only; never stronger. |
 | Behind the name | **name plate**: Bronze, Silver, Gold, Elomentalist | banner, badge, frame | "Frame" is an avatar slot. |
 | Missed Daily | **fill in** a missed day: "Fill in October 12?" | mend, repair, buy back, streak freeze | "Mend" is only an internal word. |
 | Your page | **Profile** (from Home's avatar) | account, card | "Account" is sign-in and email (Setup). |
@@ -148,7 +148,7 @@ One name per concept. Player-facing text uses exactly these.
 **Capitalisation.** Sentence case everywhere in source text ("Clash log",
 "Play square"); the design uppercases headings with CSS. Proper names keep
 their capitals: Elomental, Casual, Ranked, Daily Square, Clash, Elo, Stardust,
-Rusted Crown, Setup, Review.
+Spirit, Setup, Review.
 
 **Punctuation.**
 - Full sentences end with a period; labels, buttons, titles and stat values don't.
