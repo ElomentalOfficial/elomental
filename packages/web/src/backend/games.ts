@@ -1,5 +1,5 @@
 import type { Difficulty, Move } from '@elomental/engine';
-import type { Mode, Outcome } from '../profile.ts';
+import type { Drop, Element, Mode, Outcome } from '../profile.ts';
 import { refreshAccount } from './account.ts';
 import { knownError, supabase } from './client.ts';
 import * as copy from '../copy/en.ts';
@@ -110,6 +110,8 @@ export async function finishServerGame(input: {
     crown: boolean;
     elo: { before: number; after: number; protectedLoss: boolean; bonus: number; hintCut: number; unrated?: 'copied' | 'unchecked' | null } | null;
     daily: { done: number; days: number; monthComplete: boolean } | null;
+    drop?: Drop | null;
+    influence?: { affinity: Element; amount: number } | null;
   };
   void refreshAccount();
   return {
@@ -119,6 +121,8 @@ export async function finishServerGame(input: {
       crown: d.crown,
       elo: d.elo ? { ...d.elo, bonus: Number(d.elo.bonus), hintCut: Number(d.elo.hintCut) } : undefined,
       daily: d.daily ?? undefined,
+      drop: d.drop ?? undefined,
+      influence: d.influence ?? undefined,
     },
   };
 }

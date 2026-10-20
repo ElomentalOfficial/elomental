@@ -16,6 +16,7 @@ import {
   type Move,
 } from '@elomental/engine';
 import { ICONS } from '../icons.ts';
+import { dropReveal, influenceLine } from '../reward.ts';
 import {
   HINT_ELO_PENALTY,
   loadProfile,
@@ -967,6 +968,9 @@ function gameScreen(game: SavedGame): Screen {
         h('h2', { class: won ? 'good' : '', text: titles[reason] }),
         h('div', { class: 'stats' }, ...rows),
         rewards.childElementCount ? rewards : null,
+        // last beat: the drop cools out of the forge, then the affinity's share
+        outcome.drop ? dropReveal(outcome.drop) : null,
+        outcome.influence ? influenceLine(outcome.influence) : null,
         addToHomeResultNote(won),
         signupPrompt(),
         h('div', { class: 'actions' }, again, h('button', { class: 'btn', text: copy.common.home, onclick: () => void goBack(homeScreen) })),

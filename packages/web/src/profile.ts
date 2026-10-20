@@ -259,6 +259,31 @@ export interface Outcome {
    */
   elo?: { before: number; after: number; protectedLoss: boolean; bonus: number; hintCut: number; unrated?: 'copied' | 'unchecked' | null };
   daily?: { done: number; days: number; monthComplete: boolean };
+  /** The server's drop roll for a rated solve (signed-in players only; reward.ts shows it). */
+  drop?: Drop;
+  /** Influence added to the player's affinity this solve. */
+  influence?: { affinity: Element; amount: number };
+}
+
+export type Element = 'fire' | 'water' | 'earth' | 'air';
+export type Rarity = 'scrap' | 'forged' | 'tempered' | 'runed' | 'starforged';
+export const RARITIES: Rarity[] = ['scrap', 'forged', 'tempered', 'runed', 'starforged'];
+export const ELEMENTS: Element[] = ['fire', 'water', 'earth', 'air'];
+
+export interface Drop {
+  rarity: Rarity;
+  element: Element;
+  /** A finished part instead of a component (a quarter of Tempered+ drops). */
+  part: string | null;
+  /** That part was already yours: smelted into `smelted` Stardust plus one component. */
+  duplicate: boolean;
+  smelted: number;
+  /** How the game was played heated it up one tier. */
+  upgraded: boolean;
+  /** Which guarantee fired, if any. */
+  pity: 'tempered' | 'runed' | 'starforged' | null;
+  /** Drops left until each guarantee (null on Casual Easy, which doesn't count). */
+  pityLeft: { tempered: number; runed: number; starforged: number } | null;
 }
 
 export function recordResult(input: ResultInput): Outcome {

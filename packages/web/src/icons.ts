@@ -139,6 +139,13 @@ export const ICONS = {
   check: stroke('<path d="M5 12.5l4.5 4.5L19 7"/>', 2.6),
   lock: stroke('<rect x="5" y="10.5" width="14" height="10" rx="1.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>'),
   crown: fill('M3 8l4.5 4L12 5l4.5 7L21 8l-2 10H5Z M5 19h14v2H5Z'),
+  /** The four elements (affinities, drops, parts): flame, drop, peaks, gust. Always shown with the element's name. */
+  elements: {
+    fire: stroke('<path d="M12 3c1 4 5 6 5 11a5 5 0 0 1-10 0c0-3 2-4 2.5-6 1 1.5 2 2 2.5 2.5C12 8 11 6 12 3Z"/>'),
+    water: stroke('<path d="M12 3c3 5 6 8 6 12a6 6 0 0 1-12 0c0-4 3-7 6-12Z"/>'),
+    earth: stroke('<path d="M3 19 9 8l3.5 5.5L15 10l6 9Z"/>'),
+    air: stroke('<path d="M3 9h10a3 3 0 1 0-3-3"/><path d="M3 14h15a3 3 0 1 1-3 3"/><path d="M3 19h7"/>'),
+  },
   /**
    * Ranked tier emblems, Novice to Archmage (profile.ts rankTier): a square that gains
    * detail as you climb. Novice an outline; Apprentice solid with one rune; Adept bound

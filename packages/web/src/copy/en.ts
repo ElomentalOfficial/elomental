@@ -186,6 +186,33 @@ export const game = {
   },
 };
 
+// --- Drops and the forge -------------------------------------------------------
+// docs/PROGRESSION_DESIGN.md §2–4. A drop is a component ("Tempered Ember") or now
+// and then a finished part. Rarity is always written, never shown by colour alone.
+
+export const forge = {
+  rarities: { scrap: 'Scrap', forged: 'Forged', tempered: 'Tempered', runed: 'Runed', starforged: 'Starforged' },
+  elements: { fire: 'Fire', water: 'Water', earth: 'Earth', air: 'Air' },
+  /** Each element's material: what its components are made of. */
+  materials: { fire: 'Ember', water: 'Tideglass', earth: 'Ore', air: 'Plume' },
+  slots: { backdrop: 'Backdrop', sigil: 'Sigil', frame: 'Frame', crest: 'Crest', aura: 'Aura' },
+  /** "Tempered Ember". */
+  component: (rarity: string, material: string) => `${rarity} ${material}`,
+  /** A part's name from its element and slot: "Ember Sigil", the rarer of two "Ember Sigil II". */
+  part: (material: string, slot: string, second: boolean) => `${material} ${slot}${second ? ' II' : ''}`,
+  dropLabel: 'Drop',
+  partLabel: 'A whole part',
+  upgraded: 'Heated up a tier by how you played.',
+  duplicate: (stardust: number, component: string) => `Already yours: smelted into ${stardust} Stardust and a ${component}.`,
+  /** The nearest guarantee still ahead. */
+  pityLeft: (rarity: string, n: number) => (n <= 1 ? `${rarity} or better next drop.` : `${rarity} or better within ${n} drops.`),
+  pityHit: (rarity: string) => `${rarity} guaranteed: your luck came due.`,
+  influence: (n: number, element: string) => `+${n} influence for ${element}`,
+  /** Screen readers hear the drop as one literal line. */
+  a11yDrop: (name: string) => `Drop: ${name}.`,
+  skipReveal: 'Show the drop',
+};
+
 // --- Results ---------------------------------------------------------------
 
 export const result = {
