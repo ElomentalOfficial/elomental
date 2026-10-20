@@ -2668,7 +2668,7 @@ html[data-reduce-motion] .layer-aura .aura {
   color: var(--muted);
 }
 .part-state {
-  font-size: var(--fs-caption);
+  font-size: var(--fs-small);
   font-weight: 700;
   color: var(--muted);
 }
@@ -2697,7 +2697,8 @@ html[data-reduce-motion] .layer-aura .aura {
   border-radius: 999px;
   background: var(--rc);
   color: var(--c-bright);
-  font-size: var(--fs-caption);
+  /* 14px floor for anything that carries meaning (docs/AUDIT.md) */
+  font-size: var(--fs-small);
   font-weight: 700;
   letter-spacing: 0.03em;
   white-space: nowrap;
@@ -2795,7 +2796,7 @@ html[data-reduce-motion] .layer-aura .aura {
   border-radius: 999px;
   background: var(--rc);
   color: var(--c-bright);
-  font-size: var(--fs-caption);
+  font-size: var(--fs-small);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -2866,6 +2867,10 @@ html[data-reduce-motion] .layer-aura .aura {
 }
 .drop-note.good {
   color: var(--accent);
+}
+.drop-forge {
+  align-self: center;
+  font-size: var(--fs-small);
 }
 .influence-line,
 .part-progress {

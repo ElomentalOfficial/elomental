@@ -117,7 +117,7 @@ export const daily = {
   avatarUnlocked: 'Unlocked. Well played.',
   avatarLocked: 'Solve every square this month to unlock it.',
   nextIn: (hours: number, minutes: number) => `New square in ${hours}h ${minutes}m`,
-  missedLater: 'Missed days can be restored with tokens. Coming soon.',
+  missedLater: 'Filling in missed days is coming soon.',
   a11yDay: (month: string, day: number, state: keyof typeof DAY_STATE) => `${month} ${day}, ${DAY_STATE[state]}`,
 };
 
@@ -202,6 +202,7 @@ export const forge = {
 
   // The result pop-up (reward.ts)
   newPart: 'New part',
+  openForge: 'Open the Forge',
   duplicate: (stardust: number) => `Already yours: +${stardust} Stardust instead.`,
   pityHit: (rarity: string) => `${rarity} guaranteed: your luck came due.`,
   /** The counter toward the next part. */
@@ -255,7 +256,7 @@ export const forge = {
 
 export const affinity = {
   title: 'Your affinity',
-  intro: 'Every square you solve adds influence to your element. Each month the four pull against each other, and the winners’ members earn the most.',
+  intro: 'Every square you solve adds influence to your element. Each month, the side with the most influence per player wins.',
   /** One line of character per element; flavour only, no element plays differently. */
   character: {
     fire: 'Speed and nerve.',

@@ -23,7 +23,8 @@ export const partElement = (id: string): Element => id.split('-')[2] as Element;
 
 export const rarityName = (r: Rarity): string => copy.forge.rarities[r];
 
-export function dropReveal(drop: Drop): HTMLElement {
+/** onOpenForge: where the link under the part goes (the result passes the Forge). */
+export function dropReveal(drop: Drop, onOpenForge?: () => void): HTMLElement {
   const name = partName(drop.part);
   const element = partElement(drop.part);
   const card = h(
@@ -52,6 +53,8 @@ export function dropReveal(drop: Drop): HTMLElement {
   });
 
   const notes: HTMLElement[] = [];
+  // the way into the Forge, right where the player cares about parts
+  if (onOpenForge) notes.push(h('button', { class: 'link-btn drop-forge', text: copy.forge.openForge, attrs: { type: 'button' }, onclick: onOpenForge }));
   if (drop.duplicate) notes.push(h('p', { class: 'drop-note', text: copy.forge.duplicate(drop.stardust) }));
   if (drop.pity) notes.push(h('p', { class: 'drop-note good', text: copy.forge.pityHit(rarityName(drop.pity)) }));
   // the nearest guarantee still ahead
