@@ -1,0 +1,116 @@
+/* ---------- Welcome ---------- */
+/*
+ * 1. The copper ribbon fades in (0–0.7s) with its letters settling in one
+ *    by one, then "Competitive sudoku" beneath it.
+ * 2. It holds, then (welcome.ts) Home mounts underneath and the ribbon flips
+ *    up and away, then the empty page fades out over Home.
+ */
+.welcome {
+  max-width: none;
+  padding: 0;
+  align-items: center;
+  /* The theme's own page colour, so the splash flows into Home (and the
+     edges iOS paints) in light mode as well as dark. */
+  background: var(--bg);
+  perspective: 1400px;
+}
+.welcome-art {
+  max-width: 440px;
+  overflow: visible;
+}
+.ribbon {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+  animation: ribbon-in 0.75s cubic-bezier(0.2, 0.8, 0.3, 1) 0.05s forwards;
+}
+/* The logo ribbon takes the theme's main colour: Lava in dark, Crimson in light. */
+.ribbon path {
+  fill: var(--accent);
+}
+@keyframes ribbon-in {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.wordmark text {
+  font-family: var(--serif);
+  font-size: 62px;
+  text-anchor: middle;
+  fill: var(--c-bright);
+  opacity: 0;
+  animation: letter 0.55s ease forwards;
+}
+@keyframes letter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.tagline {
+  font-family: var(--serif);
+  font-size: var(--fs-title);
+  text-anchor: middle;
+  fill: var(--text);
+  opacity: 0;
+  animation: letter 0.6s ease 0.95s forwards;
+}
+/* The peel: the ribbon peels away like cloth over the plain page, drawn
+   frame by frame on a canvas (fabric.ts); Home enters only after it's gone. */
+.welcome.flipping {
+  pointer-events: none;
+}
+/* After the peel: lifted over Home, the empty page fades away. */
+.welcome.fading-out {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  animation: welcome-fade 0.55s ease forwards;
+}
+/* Already faded during the peel; moving the page would replay its fade, so hide it outright. */
+.welcome.fading-out .tagline {
+  visibility: hidden;
+}
+@keyframes welcome-fade {
+  to {
+    opacity: 0;
+  }
+}
+.welcome.flipping .welcome-art .ribbon {
+  visibility: hidden;
+}
+.welcome.flipping .tagline {
+  animation: tagline-out 0.25s ease forwards;
+}
+.fabric {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 61;
+  pointer-events: none;
+}
+@keyframes tagline-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+/* Reduce motion: no peel, the ribbon simply fades, then Home comes in. */
+html[data-reduce-motion] .welcome.flipping .welcome-art .ribbon {
+  visibility: visible;
+}
+html[data-reduce-motion] .welcome.flipping .welcome-art {
+  animation: tagline-out 0.3s ease forwards;
+}

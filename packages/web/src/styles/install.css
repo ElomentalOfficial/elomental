@@ -1,0 +1,126 @@
+/* ---------- Add to Home Screen (install.ts) ---------- */
+/* The note under the Home tiles: one quiet row, closed for good with ✕. */
+.install-note {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: 12px;
+  padding: var(--space-1) var(--space-1) var(--space-1) var(--space-3);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  will-change: transform;
+}
+.install-note-icon {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  color: var(--muted);
+}
+.install-note-text {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  line-height: 1.25;
+}
+.install-note-how {
+  flex: none;
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.install-note-close {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  padding: 14px;
+  color: var(--muted);
+}
+/* In the result pop-up: a box like the sign-up box below it; How unfolds the steps in place. */
+.install-result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  border-radius: var(--radius);
+  border: 1px solid var(--modal-border);
+  background: var(--surface-2);
+}
+.install-result:has(.install-steps) {
+  padding: var(--space-3) var(--space-4);
+}
+.install-result .install-note {
+  margin-top: 0;
+  background: none;
+}
+.install-result-title {
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+  line-height: 1.35;
+  color: var(--muted);
+  outline: none;
+}
+.install-result .install-steps {
+  margin: 0;
+}
+.install-result .install-step-num {
+  background: var(--modal-bg);
+}
+.install-sheet {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+.install-icon {
+  width: 40px;
+  height: 40px;
+  color: var(--accent);
+}
+.install-sheet h2 {
+  font-size: var(--fs-title);
+  text-transform: uppercase;
+}
+.install-sheet > p {
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+  line-height: 1.45;
+  color: var(--muted);
+}
+.install-steps {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: var(--space-2) 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+  line-height: 1.35;
+}
+.install-steps li {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+.install-step-num {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 1.6em;
+  height: 1.6em;
+  border-radius: 50%;
+  background: var(--surface-2);
+  font-family: var(--font);
+  font-size: var(--fs-small);
+  font-weight: 700;
+}

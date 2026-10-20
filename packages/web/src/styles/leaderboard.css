@@ -1,0 +1,792 @@
+/* ---------- Leaderboard (screens/leaderboard.ts; docs/LEADERBOARD_DESIGN.md) ---------- */
+.lb-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-height: 100%;
+}
+.lb-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+/* The affinities this month: a calm card, one bar, three short lines. */
+.lb-faction {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.lb-faction-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+}
+.lb-faction-head h2 {
+  font-size: var(--fs-body);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+/* The month's strength (leaderboard.ts): the leader, one bar of four shares adding to 100%,
+   and each side named with its share. Element colours sit only on shapes; all the text is
+   in the text colour, so it reads on every surface. */
+.lb-leader {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-1);
+}
+.lb-leader-mark {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-lg);
+  background: var(--el, var(--surface-2));
+  color: var(--c-bright);
+}
+.lb-leader-mark svg {
+  width: 24px;
+  height: 24px;
+}
+.lb-leader-name {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.lb-leader-name strong {
+  font-size: var(--fs-label);
+}
+.lb-leader-name span {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.lb-leader-pct {
+  font-size: var(--fs-display);
+  font-variant-numeric: tabular-nums;
+}
+.lb-strength {
+  display: flex;
+  gap: 4px;
+  height: 20px;
+}
+.strength-seg {
+  flex-basis: 0;
+  min-width: 10px;
+  border-radius: 999px;
+  background: var(--el);
+  transition: flex-grow 0.8s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+html[data-reduce-motion] .strength-seg {
+  transition: none;
+}
+.lb-faction .el-fire,
+.lb-strength-legend .el-fire { --el: var(--el-fire); }
+.lb-faction .el-water,
+.lb-strength-legend .el-water { --el: var(--el-water); }
+.lb-faction .el-earth,
+.lb-strength-legend .el-earth { --el: var(--el-earth); }
+.lb-faction .el-air,
+.lb-strength-legend .el-air { --el: var(--el-air); }
+/* Four across, two by two once larger text needs the room. */
+.lb-strength-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(72px * var(--text-scale))), 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.lb-strength-legend li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.strength-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+}
+.strength-dot {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--el);
+  color: var(--c-bright);
+  flex: none;
+}
+.strength-dot svg {
+  width: 12px;
+  height: 12px;
+}
+.lb-strength-legend strong {
+  font-size: var(--fs-label);
+  font-variant-numeric: tabular-nums;
+}
+.lb-legend-note {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.lb-faction-line,
+.lb-faction-side,
+.lb-faction-mine {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.lb-faction-side,
+.lb-faction-mine {
+  color: var(--text);
+}
+.lb-faction .link-btn {
+  align-self: flex-start;
+  font-size: var(--fs-small);
+}
+/* Search */
+.lb-search-field {
+  text-align: left;
+}
+.lb-dim {
+  display: none !important;
+}
+/* The five lists in balanced rows (3 + 2) rather than one hidden off the edge; two a row
+   (and the last across) when the labels are large or the phone is narrow. */
+.lb-tabs {
+  grid-template-columns: repeat(6, 1fr);
+}
+.lb-tabs .segment {
+  grid-column: span 2;
+  min-width: 0;
+  padding-inline: var(--space-1);
+}
+.lb-tabs .segment:nth-child(n + 4) {
+  grid-column: span 3;
+}
+@media (max-width: 359px) {
+  .lb-tabs {
+    grid-template-columns: 1fr 1fr;
+  }
+  .lb-tabs .segment:nth-child(n) {
+    grid-column: auto;
+  }
+  .lb-tabs .segment:last-child {
+    grid-column: 1 / -1;
+  }
+}
+html[data-large-text] .lb-tabs {
+  grid-template-columns: 1fr 1fr;
+}
+html[data-large-text] .lb-tabs .segment:nth-child(n) {
+  grid-column: auto;
+}
+html[data-large-text] .lb-tabs .segment:last-child {
+  grid-column: 1 / -1;
+}
+/* Large labels on phones up to 389px: one a row, so no word is cut or crowded. */
+@media (max-width: 389px) {
+  html[data-large-text] .lb-tabs {
+    grid-template-columns: 1fr;
+  }
+}
+/* Phones: the affinity card stays short so the list shows sooner (the legend, the rule and
+   the prize are in its Details sheet). */
+@media (max-width: 699px) {
+  .lb-faction .wide-only {
+    display: none;
+  }
+}
+/* ... and your side's place stands in for the legend there. */
+@media (min-width: 700px) {
+  .lb-faction .narrow-only {
+    display: none;
+  }
+}
+.lb-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+}
+.lb-meta {
+  min-width: 0;
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.lb-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+.lb-notice:empty {
+  display: none;
+}
+/* Rows: place · avatar · name and rank · Elo, always in that order and size. */
+.lb-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.lb-list > .note {
+  padding: var(--space-3);
+  font-family: var(--serif);
+  color: var(--muted);
+}
+.lb-row-btn {
+  display: grid;
+  grid-template-columns: 2.6em 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 64px;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.lb-row.is-me .lb-row-btn {
+  background: var(--chosen-bg);
+}
+.lb-row.is-focus .lb-row-btn {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.lb-row.placeholder {
+  height: 64px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  opacity: 0.6;
+}
+.lb-place {
+  justify-self: center;
+  font-size: var(--fs-body);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+/* The top three: a metal ring with the number inside (the number carries it, not colour). */
+.lb-place.medal {
+  display: grid;
+  place-items: center;
+  width: 2.2em;
+  height: 2.2em;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 3px var(--medal);
+}
+.medal-1 { --medal: var(--plate-gold); }
+.medal-2 { --medal: var(--plate-silver); }
+.medal-3 { --medal: var(--plate-bronze); }
+/* 4–100: a quiet underline in gold */
+.lb-place.top100 {
+  text-decoration: underline 2px var(--plate-gold);
+  text-underline-offset: 4px;
+}
+.lb-avatar {
+  width: 44px;
+  height: 44px;
+}
+.lb-who {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+}
+.lb-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-body);
+  font-weight: 700;
+}
+/* plates on rows: the plainer frames only fit in a row's height, so rows show the name's
+   plate as a compact border (the full ornament shows on the card) */
+.lb-name.name-plate {
+  padding: 4px 10px;
+  margin: 0;
+  overflow: visible;
+}
+/* a long name ends in … inside its plate rather than running past the row */
+.lb-name.name-plate .plate-text {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.lb-name.name-plate .plate-box svg {
+  display: none;
+}
+/* the cartouche's pointed ends hide too: its lines close into a plain double frame */
+.lb-name.plate-4 .plate-box::before,
+.lb-name.plate-4 .plate-box::after {
+  left: 0;
+  right: 0;
+  border-left: 1px solid currentColor;
+  border-right: 1px solid currentColor;
+}
+.lb-name.plate-4 .plate-box::after {
+  left: 3px;
+  right: 3px;
+}
+.lb-sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.lb-sub .tier-emblem,
+.lb-sub .drop-element {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+}
+.lb-score {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.lb-score strong {
+  font-size: var(--fs-label);
+  font-variant-numeric: tabular-nums;
+}
+.lb-score span {
+  white-space: nowrap;
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: var(--muted);
+}
+/* Larger text: a row is place and name, with the score on its own line under the name; no
+   avatar, and names and their lines wrap rather than shrink to a letter. */
+html[data-large-text] .lb-row-btn {
+  grid-template-columns: 2.6em minmax(0, 1fr);
+  row-gap: var(--space-1);
+}
+html[data-large-text] .lb-row-btn .lb-avatar {
+  display: none;
+}
+html[data-large-text] .lb-row-btn .lb-score {
+  grid-column: 2;
+  flex-direction: row;
+  align-items: baseline;
+  justify-self: start;
+  gap: var(--space-1);
+}
+html[data-large-text] .lb-name,
+html[data-large-text] .lb-name.name-plate .plate-text {
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: anywhere;
+}
+html[data-large-text] .lb-sub {
+  flex-wrap: wrap;
+}
+/* the month's leader: mark and name, the share on the line below */
+html[data-large-text] .lb-leader {
+  grid-template-columns: 44px minmax(0, 1fr);
+  row-gap: var(--space-1);
+}
+html[data-large-text] .lb-leader-pct {
+  grid-column: 2;
+}
+.lb-more {
+  align-self: center;
+}
+/* You: pinned to the bottom of the page, in every view. */
+.lb-me {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: auto;
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  /* the shade above, and a skirt of page colour below so no row peeks out under the bar */
+  box-shadow: 0 -6px 16px var(--shadow), 0 var(--space-5) 0 var(--bg);
+}
+/* The pinned bar sits on the page's bottom edge (its skirt covers the rows below it). */
+html:not([data-large-text]) .screen.leaderboard > .sub-body {
+  padding-bottom: 0;
+}
+/* ...and is the page's edge itself, so the scroll fade stays off it */
+html:not([data-large-text]) .screen.leaderboard > .sub-body.fade-bottom {
+  --fade-b: 0px;
+}
+/* Larger text: the bar is the last thing in the list, not pinned over it, and loses the avatar. */
+html[data-large-text] .lb-me {
+  position: static;
+  flex-wrap: wrap;
+  box-shadow: none;
+}
+html[data-large-text] .lb-me .lb-avatar {
+  display: none;
+}
+.lb-me-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  font-size: var(--fs-body);
+}
+.lb-me-text strong {
+  font-size: var(--fs-small);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.lb-jump {
+  flex: none;
+  width: auto;
+  min-height: 44px;
+  padding: 4px 16px;
+  font-size: var(--fs-body);
+  white-space: nowrap;
+}
+/* The affinities sheet and the ranks sheet */
+.faction-standings,
+.tier-list,
+.faction-top ol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-self: stretch;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+.faction-standings li,
+.tier-list li {
+  display: grid;
+  grid-template-columns: 1.6em 28px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+}
+.faction-standings li.is-mine,
+.tier-list li.is-mine {
+  background: var(--chosen-bg);
+}
+.tier-list li {
+  grid-template-columns: 28px minmax(0, 1fr) 7em;
+}
+.fs-name,
+.tier-name {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.fs-name span,
+.tier-name span {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.fs-standing,
+.tier-pct strong {
+  font-variant-numeric: tabular-nums;
+}
+.tier-pct {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.tier-share {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.tier-share span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+.tier-list .tier-emblem {
+  width: 28px;
+  height: 28px;
+}
+.faction-top {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  text-align: left;
+}
+.faction-top h3 {
+  font-size: var(--fs-body);
+}
+.faction-top li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+}
+/* a long name wraps; the influence keeps its place on the right */
+.faction-top li .link-btn {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+.faction-top li > span {
+  flex: none;
+  white-space: nowrap;
+}
+/* The show-off card (playerCard.ts): fixed slots, the same size whatever is equipped. */
+.player-card {
+  text-align: center;
+}
+.card-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  align-self: stretch;
+}
+/* later phase: card backgrounds and banners fill these without moving anything */
+.card-banner {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 0;
+}
+.card-avatar {
+  width: 128px;
+  height: 128px;
+  margin-bottom: var(--space-2);
+}
+.card-body.large .card-avatar {
+  width: 168px;
+  height: 168px;
+}
+/* a player's name as they typed it (M25), not shouted like a sheet title */
+.card-name {
+  margin-top: var(--space-2);
+  font-size: var(--fs-title);
+  text-transform: none;
+}
+.card-facts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-1) var(--space-3);
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+}
+.card-fact {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.card-fact .tier-emblem,
+.card-fact .drop-element {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+}
+.card-numbers {
+  font-family: var(--font);
+  font-size: var(--fs-body);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.card-stats {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+/* Badges (badges.ts): medals in fixed slots; three on the card, all on the full profile. */
+.card-badges {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.card-badges h3,
+.card-badges h2 {
+  font-size: var(--fs-small);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.profile-section.card-badges h2 {
+  font-size: var(--fs-label);
+  font-weight: 800;
+  color: var(--text);
+}
+.card-badges ul {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.card-badges ul.badge-grid,
+.badge-grid {
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+}
+.badge-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 112px;
+  padding: var(--space-2);
+  border-radius: var(--radius-lg);
+  outline: 2px dashed var(--line);
+  outline-offset: -2px;
+  text-align: center;
+}
+.badge-slot.filled {
+  outline: 0;
+  background: var(--surface-2);
+}
+.badge-slot.on-card {
+  background: var(--chosen-bg);
+}
+.badge-medal {
+  display: block;
+  width: 60px;
+  height: 60px;
+}
+/* Home's sheet when your side won the month: the medal, what it brought, the way to it. */
+.month-won {
+  text-align: center;
+}
+/* the laurel's lowest leaves reach just past the medal's box */
+.badge-art {
+  overflow: visible;
+}
+.badge-medal.month-won-art {
+  width: 96px;
+  height: 96px;
+  margin: 0 auto var(--space-3);
+}
+.badge-name {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.badge-tag {
+  font-size: var(--fs-small);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.badge-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  --el: var(--r-mythic);
+}
+.badge-art.el-fire { --el: var(--el-fire); }
+.badge-art.el-water { --el: var(--el-water); }
+.badge-art.el-earth { --el: var(--el-earth); }
+.badge-art.el-air { --el: var(--el-air); }
+.badge-shield {
+  fill: var(--el);
+  stroke: var(--plate-gold);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.badge-inner {
+  fill: none;
+  stroke: var(--c-bright);
+  stroke-opacity: 0.45;
+  stroke-width: 1;
+}
+.badge-mark {
+  color: var(--c-bright);
+}
+.badge-laurel {
+  fill: var(--plate-gold);
+}
+.badge-pick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: var(--space-2);
+  align-self: stretch;
+}
+.badge-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.badge-pick.on {
+  background: var(--chosen-bg);
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.card-actions {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+.card-actions .link-btn {
+  align-self: center;
+}
+.player-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-bottom: var(--space-5);
+}
+/* Wide screens: the list on the left, the affinities on the right. */
+@media (min-width: 900px) {
+  .screen.leaderboard {
+    max-width: calc(820px * var(--text-scale, 1));
+  }
+  .lb-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    grid-template-areas: 'main side' 'me side';
+    align-items: start;
+  }
+  .lb-main { grid-area: main; }
+  .lb-faction { grid-area: side; position: sticky; top: 0; }
+  .lb-me { grid-area: me; }
+}

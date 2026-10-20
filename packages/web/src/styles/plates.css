@@ -1,0 +1,209 @@
+/* ---------- Name plates and polish (Stardust; a look only) ---------- */
+/* A plate is an Art Deco border around the name (plates.ts): Bronze a single line with
+   square corners, Silver a double line with stepped corners, Gold sunburst fans and gems,
+   the Elomentalist a pointed cartouche with a sunburst crown and a soft glow. The name
+   keeps its own colour; the border is decoration in the plate's metal (--plate), a little
+   see-through and worn in specks and patches like the tiles' frames (art/plate-wear.png,
+   icons/make-plate-wear.mjs; a plain image mask, which Firefox draws as crisply). */
+.name-plate {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  padding: 7px 22px;
+  /* the border takes no more room than the name did */
+  margin: -7px 0;
+}
+/* a name as long as names may be (20 letters, no spaces) wraps inside its plate */
+.name-plate .plate-text {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+/* gems and the crown reach past the lines: room so they don't touch what's around */
+.name-plate.plate-3 {
+  margin: -4px 0 4px;
+}
+.name-plate.plate-4 {
+  padding: 8px 32px;
+  margin: 14px 12px 6px;
+}
+.plate-1 { --plate: var(--plate-bronze); }
+.plate-2 { --plate: var(--plate-silver); }
+.plate-3 { --plate: var(--plate-gold); }
+.plate-4 { --plate: var(--plate-elo); }
+.plate-frame {
+  position: absolute;
+  inset: -24px -16px;
+  color: var(--plate);
+  opacity: var(--plate-opacity, 1);
+  pointer-events: none;
+  -webkit-mask: url('../art/plate-wear.png') 0 0 / 128px 128px repeat;
+  mask: url('../art/plate-wear.png') 0 0 / 128px 128px repeat;
+}
+.plate-box {
+  position: absolute;
+  inset: 24px 16px;
+}
+.plate-box::before,
+.plate-box::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid currentColor;
+}
+.plate-box::after {
+  inset: 3px;
+}
+.plate-1 .plate-box::after {
+  content: none;
+}
+.plate-box svg {
+  position: absolute;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+}
+.plate-box svg .solid {
+  fill: currentColor;
+  stroke: none;
+}
+/* (sizes set here too: other rules stretch icons to their box) */
+.plate-box .plate-corner { width: 21px; height: 21px; }
+.plate-box .plate-mid { width: 20px; height: 14px; }
+.plate-corner { top: -5px; left: -5px; }
+.plate-corner.c-tr { left: auto; right: -5px; transform: scaleX(-1); }
+.plate-corner.c-bl { top: auto; bottom: -5px; transform: scaleY(-1); }
+.plate-corner.c-br { top: auto; left: auto; bottom: -5px; right: -5px; transform: scale(-1); }
+.plate-mid { top: -7px; left: calc(50% - 10px); }
+.plate-mid.m-b { top: auto; bottom: -7px; transform: scaleY(-1); }
+/* The Elomentalist: the straight lines stop where the pointed ends begin (26px in). */
+/* (not on leaderboard rows: there it was one prestige mark too many, M31) */
+.plate-4:not(.lb-name) .plate-box {
+  filter: drop-shadow(0 0 2px var(--plate-glow));
+}
+.plate-4 .plate-box::before,
+.plate-4 .plate-box::after {
+  left: 26px;
+  right: 26px;
+  border-left: 0;
+  border-right: 0;
+}
+.plate-box .elo-end,
+.plate-box .elo-inner {
+  left: 0;
+  width: 26px;
+}
+.plate-box .elo-end { top: 0.5px; height: calc(100% - 1px); }
+.plate-box .elo-inner { top: 3.5px; height: calc(100% - 7px); }
+.plate-box .e-r { left: auto; right: 0; transform: scaleX(-1); }
+.plate-box .elo-tip { width: 21px; height: 14px; top: calc(50% - 7px); left: -13.5px; }
+.plate-box .elo-tip.t-r { left: auto; right: -13.5px; transform: scaleX(-1); }
+.plate-box .elo-tip .ring { opacity: 0.6; }
+.plate-box .elo-crown { width: 44px; height: 22px; top: -20.5px; left: calc(50% - 22px); }
+.plate-box .elo-drop { width: 24px; height: 11px; top: calc(100% - 2.5px); left: calc(50% - 12px); }.plate-sheet,
+.mend-sheet {
+  text-align: center;
+}
+/* titles clear of the close button */
+.plate-sheet h2,
+.mend-sheet h2 {
+  padding: 0 44px;
+}
+/* Name plates on the Forge page (forge.ts platesSection): a card per plate, the plate drawn
+   around its own name; the next one is a button, ready to get with an accent outline. */
+.forge-plates {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.forge-plates .forge-heading-row {
+  margin-top: var(--space-3);
+}
+/* Spirits (forge.ts spiritsSection): how close the next one is, and Call a Spirit. */
+.forge-spirits {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.forge-spirits .forge-heading-row {
+  margin-top: var(--space-3);
+}
+.forge-spirits .forge-subheading {
+  margin-top: var(--space-2);
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+  font-weight: 400;
+  color: var(--muted);
+}
+.forge-spirits .btn {
+  align-self: flex-start;
+}
+.sheet-icon.spirit {
+  background: var(--surface-2);
+  color: var(--text);
+}
+.plate-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(104px * var(--text-scale))), 1fr));
+  gap: var(--space-2);
+}
+.plate-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-5) var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  text-align: center;
+}
+button.plate-card {
+  cursor: pointer;
+}
+/* the top plate gets the whole row, with room for its crown */
+.plate-card-4 {
+  grid-column: 1 / -1;
+  padding-top: var(--space-6);
+}
+.plate-card.state-ready {
+  box-shadow: inset 0 0 0 2px var(--field-border);
+}
+.plate-card.state-yours {
+  background: var(--chosen-bg);
+}
+.plate-card.state-yours .part-state,
+.plate-card.state-ready .part-state {
+  color: var(--text);
+}
+/* A plate you've moved past: its frame fades, the name stays at full contrast ("Replaced" says why). */
+.plate-card.state-replaced .plate-sample > :not(.plate-text) {
+  opacity: 0.45;
+}
+/* Bronze's thin corners leave room for a narrower inset; Gold's and Elomentalist's art needs theirs */
+.plate-card-1 .plate-sample {
+  padding-inline: var(--space-3);
+}
+/* the cards name the plate ("Bronze"), one word that shouldn't break; the sheet shows long player names */
+.plate-card .plate-sample .plate-text {
+  overflow-wrap: normal;
+}
+.plate-sample {
+  margin-bottom: var(--space-2);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.plate-price {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+}
+.plate-sheet .plate-preview {
+  align-self: center;
+  margin: var(--space-5) 0 var(--space-3);
+  font-size: var(--fs-label);
+  font-weight: 800;
+}

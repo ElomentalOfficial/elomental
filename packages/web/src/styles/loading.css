@@ -1,0 +1,95 @@
+/* ---------- Loading ---------- */
+.loading {
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  font-family: var(--serif);
+  font-size: var(--fs-label);
+}
+/* The loader (ICONS.loader), in the accent: a squishy square that crouches, springs up
+   stretched and spinning, lands with a hard squash (a little lopsided, like jelly) and
+   jiggles to a stop, every 1.3s. The hop layer squashes from the ground up; the square
+   inside does one full turn in the air, so every landing matches the last. */
+.loader {
+  position: relative;
+  width: 64px;
+  height: 116px;
+  color: var(--accent);
+}
+.loader-hop {
+  position: absolute;
+  left: 10px;
+  bottom: 8px;
+  width: 44px;
+  height: 44px;
+  transform-origin: 50% 100%;
+  animation: loader-hop 1.3s infinite;
+}
+.loader-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  animation: loader-spin 1.3s infinite;
+}
+@keyframes loader-hop {
+  0% {
+    transform: none;
+    animation-timing-function: ease-out;
+  }
+  /* crouch */
+  11% {
+    transform: scale(1.16, 0.82);
+    animation-timing-function: cubic-bezier(0.3, 0.6, 0.4, 1);
+  }
+  /* spring: stretched, slowing to the top */
+  20% {
+    transform: translateY(-40%) scale(0.88, 1.16);
+    animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1);
+  }
+  44% {
+    transform: translateY(-128%) scale(1);
+    animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.5);
+  }
+  /* falling faster and faster, stretched again just before the ground */
+  68% {
+    transform: translateY(-6%) scale(0.9, 1.12);
+    animation-timing-function: linear;
+  }
+  /* impact: flattened and a little lopsided */
+  71% {
+    transform: scale(1.3, 0.68) skewX(-7deg);
+    animation-timing-function: cubic-bezier(0.3, 0, 0.4, 1);
+  }
+  /* the jelly bounces back up a touch, then wobbles out */
+  78% {
+    transform: translateY(-7%) scale(0.88, 1.14) skewX(5deg);
+  }
+  84% {
+    transform: scale(1.1, 0.92) skewX(-3deg);
+  }
+  90% {
+    transform: scale(0.96, 1.04) skewX(1.5deg);
+  }
+  95% {
+    transform: scale(1.02, 0.98);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes loader-spin {
+  0%,
+  16% {
+    transform: none;
+    animation-timing-function: cubic-bezier(0.35, 0, 0.35, 1);
+  }
+  68%,
+  100% {
+    transform: rotate(360deg);
+  }
+}
+/* Motion off: the square sits still (the text says it's loading). */
+html[data-reduce-motion] :is(.loader-hop, .loader-icon) {
+  animation: none;
+}

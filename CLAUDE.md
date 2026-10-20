@@ -20,8 +20,10 @@
 ## Accessibility
 
 - Read [docs/ACCESSIBILITY_AUDIT.md](docs/ACCESSIBILITY_AUDIT.md) before any UI work. The bar is WCAG 2.2 AA.
-- Colours come only from the design tokens in `packages/web/src/styles.css` (`--c-*` palette, then the
-  theme tokens). No raw colour values in components or screens.
+- Colours come only from the design tokens in `packages/web/src/styles/tokens.css` (`--c-*` palette,
+  then the theme tokens). No raw colour values in components or screens.
+- `styles.css` only lists the files in `src/styles/` in cascade order (tokens, base, then one file per
+  screen or feature). Put a rule in its screen's file; a new file goes where its rules belong in that order.
 - Any new colour pair goes into `PAIRS` in `packages/web/scripts/contrast.ts`; `npm test` must pass
   (4.5:1 text, 3:1 large text and UI). Only add to `ACCEPTED` with a reason.
 - Never use colour alone to show a state: pair it with a shape, weight, icon, outline or text.
@@ -33,7 +35,7 @@
 
 ## Spacing and pages
 
-- Gaps and paddings in page layouts use the spacing tokens at the top of `styles.css`
+- Gaps and paddings in page layouts use the spacing tokens in `styles/tokens.css`
   (`--space-1` 4 · `-2` 8 · `-3` 12 · `-4` 16 · `-5` 24 · `-6` 32), picked by how closely two
   things belong: title → its help line `--space-1`; help line → its control `--space-3`; one item
   → the next in a card `--space-5` with a hairline between; card padding `--space-5` / `--space-4`;
@@ -47,7 +49,7 @@
 
 ## Font sizes
 
-- Use the six type-scale tokens at the top of `packages/web/src/styles.css`
+- Use the six type-scale tokens in `packages/web/src/styles/tokens.css`
   (`--fs-caption` 12, `--fs-small` 14, `--fs-body` 16, `--fs-label` 20, `--fs-title` 24,
   `--fs-display` 30), picked by role. They scale with Setup > Accessibility > Text size
   (`--text-scale`), so never add a new fixed `font-size` in px, and check new UI at 200%.

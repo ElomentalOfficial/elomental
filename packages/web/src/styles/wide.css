@@ -1,0 +1,415 @@
+/* ---------- Wide layouts (tablet landscape, desktop) ----------
+ *
+ * Phones keep the column above. On a wide screen the game becomes one grid
+ * (Figma "Desktop" / "iPad Pro 11 - 2"): the board on the left with the
+ * mistakes, clock and puzzle type over it; on the right Concede and Pause,
+ * a 3×3 keypad, Erase with Notes, then Hint and Undo; and the ELO MEN TAL
+ * banner hanging from the top edge over the controls. Every size derives
+ * from --board (fluid with the window), so it scales as one piece.
+ */
+.brand-banner {
+  display: none;
+}
+/* Tablets upright: the phone layout, zoomed as one piece (scale.ts sets --ui-zoom). */
+.screen:not(.welcome),
+.backdrop > .modal,
+.toast {
+  zoom: var(--ui-zoom, 1);
+}
+@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+  /*
+   * Home, wide (Figma desktop home): the profile card runs the full height on
+   * the left; beside it three rows of a wide and a narrow tile: Store and
+   * Setup, Leaderboard and Daily Square, Casual and Play Ranked. Setup gets a
+   * tile of its own here instead of the profile card's notch.
+   */
+  .screen.home {
+    --pad-y: clamp(24px, 5dvh, 64px);
+    max-width: none;
+    padding: var(--pad-y) clamp(24px, 5vw, 96px);
+    align-items: center;
+    justify-content: center;
+  }
+  .home-grid {
+    --gap: clamp(8px, 0.95vw, 14px);
+    flex: none;
+    /* Taller than Frame 116 (2.36 : 1) so Home reads as the page, not a header;
+       the columns and rows keep their proportions to each other. */
+    width: min(100%, 1400px, calc((100dvh - 2 * var(--pad-y)) * 1.9));
+    aspect-ratio: 1.9;
+    padding-top: 0;
+    gap: var(--gap);
+    /* Figma Frame 116: the profile card 652 wide, two tile columns of 281,
+       three equal rows; twice the gap between the card and the tiles. */
+    grid-template-columns: minmax(0, 2.32fr) minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: repeat(3, minmax(0, 1fr));
+    grid-template-areas:
+      'profile store setup'
+      'profile leader daily'
+      'profile casual ranked';
+  }
+  .area-setup {
+    display: flex;
+    grid-area: setup;
+  }
+  .setup-notch {
+    display: none;
+  }
+  /* The wide grid fills the window; touch tablets there find it in Setup instead. */
+  .install-note {
+    display: none;
+  }
+  .home-grid .tile-face,
+  .profile-main,
+  .profile-stats,
+  .tile-setup {
+    zoom: var(--wide-zoom, 1);
+  }
+  .profile-card {
+    margin-right: var(--gap);
+    padding: 28px 24px 24px;
+  }
+  /* The tiles are all the same size here: Store and Leaderboard stack their
+     icon over the label like the others, so the label fits. */
+  .area-store,
+  .area-leader {
+    flex-direction: column;
+    gap: 14px;
+  }
+  /* The wide tiles have room to spare: every icon at about 1.5x its phone size. */
+  .area-store .tile-icon {
+    width: 86px;
+    height: 77px;
+  }
+  .area-setup .tile-icon {
+    width: 74px;
+    height: 74px;
+  }
+  .area-daily .tile-icon {
+    width: 64px;
+    height: 70px;
+  }
+  .area-casual .tile-icon {
+    width: 100px;
+    height: 64px;
+  }
+  .area-ranked .tile-icon {
+    width: 66px;
+    height: 92px;
+  }
+  /* The arm still runs in from the tile's left edge (out past the padding, which
+     isn't zoomed); the box ends 36px right of centre so the cup sits over the label. */
+  .area-leader .tile-icon {
+    flex: none;
+    align-self: flex-start;
+    width: calc(50% + 36px + 10px / var(--wide-zoom, 1));
+    height: 84px;
+    margin-left: calc(-10px / var(--wide-zoom, 1));
+  }
+  .area-store .tile-icon::after {
+    bottom: 4px;
+  }
+  .area-leader .tile-label {
+    flex: none;
+  }
+  /* Daily is a near-square tile here: icon and label together, centred. */
+  .area-daily {
+    justify-content: center;
+    padding: 12px 8px;
+  }
+  /* Corners grow with the tiles, by the same factor as their contents (the
+     Setup tile is zoomed, so its own corners already follow). */
+  .home-grid > .tile,
+  .profile-card {
+    border-radius: calc(var(--radius) * var(--wide-zoom, 1));
+  }
+  .setup-notch {
+    padding: 0 0 calc(12px * var(--wide-zoom, 1)) calc(12px * var(--wide-zoom, 1));
+    border-bottom-left-radius: calc(10px * var(--wide-zoom, 1));
+  }
+  .setup-notch::before,
+  .setup-notch::after {
+    --r: calc(var(--radius) * var(--wide-zoom, 1));
+  }
+  /*
+   * Large text, wide: the same tile grid as at 100%, only the words grow. A row
+   * grows taller if its words need it (the page then scrolls), and the phone's
+   * one-column large-text rules are undone here.
+   */
+  html[data-large-text] .screen.home {
+    justify-content: flex-start;
+  }
+  html[data-large-text] .home-grid {
+    margin-block: auto;
+    grid-template-columns: minmax(0, 2.32fr) minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: repeat(3, minmax(min-content, 1fr));
+    grid-auto-rows: auto;
+    grid-template-areas:
+      'profile store setup'
+      'profile leader daily'
+      'profile casual ranked';
+  }
+  html[data-large-text] .home-grid > .tile {
+    flex-direction: column;
+    justify-content: center;
+    gap: 14px;
+    padding: 10px;
+    text-align: center;
+  }
+  html[data-large-text] .home-grid > .tile .tile-label {
+    font-size: min(var(--fs-label), 13cqi);
+  }
+  html[data-large-text] :is(.home-grid .tile-icon, .profile-card .avatar) {
+    zoom: var(--wide-icon-zoom, 1);
+  }
+  html[data-large-text] .profile-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  html[data-large-text] .stat-chip {
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 4px;
+    min-width: 0;
+    container-type: inline-size;
+  }
+  /* STARDUST is one word: it grows only as far as its chip has room for. */
+  html[data-large-text] .stat-chip span:last-child {
+    font-size: min(var(--fs-small), 13cqi);
+  }
+  /* The other pages keep their phone column, a little larger. */
+  .screen.daily,
+  .screen.casual,
+  .screen.forge,
+  .screen.profile-page,
+  .screen.leaderboard,
+  .screen.player-page,
+  .screen.affinity,
+  .screen.setup,
+  .screen.loading {
+    zoom: var(--wide-zoom, 1);
+  }
+  /* Pop-ups grow as one piece (scale.ts), so the type scale keeps its steps. */
+  .backdrop > .modal {
+    zoom: var(--modal-zoom, 1);
+  }
+
+  /* On the root so overlays outside the game (the hint card) can line up with it. */
+  /*
+   * Proportions from the Figma "Desktop" frame, as fractions of the board
+   * (576px there): controls 40% of it, set 15% apart; keys ~67px with ~13px
+   * between; Concede, Erase+Notes and Hint+Undo as tall as a key; a little
+   * extra air above and below the keypad; ~30px type over the board.
+   */
+  :root {
+    --board: min(calc(100dvh - 300px), 48vw, 760px);
+    --g: calc(var(--board) * 0.022);
+    --split: calc(var(--board) * 0.15);
+    --side: clamp(170px, calc(var(--board) * 0.4), 320px);
+    --col: calc((var(--side) - 5 * var(--g)) / 6);
+    /* A digit key: two of the six columns, square. */
+    --key: calc(2 * var(--col) + var(--g));
+    --bar: var(--key);
+    /* Extra air above and below the keypad: with the gaps either side, half a key in all. */
+    --air: max(0px, calc(var(--key) * 0.5 - 2 * var(--g)));
+    --status-h: calc(var(--key) * 0.75);
+    --total: calc(var(--board) + var(--split) + var(--side));
+    /* Left edge of the controls column, and the space above/below the centred game. */
+    --side-left: calc(50% - var(--total) / 2 + var(--board) + var(--split));
+    --game-margin: calc((100dvh - var(--status-h) - var(--g) - var(--board)) / 2);
+    /* The board's height left over above the controls, which sit level with its bottom edge. */
+    --side-room: calc(var(--board) - 6 * var(--key) - 2 * var(--air) - 8 * var(--g));
+    /* From the top edge down to a little above Concede. */
+    --banner-h: calc(var(--game-margin) + var(--status-h) + 2 * var(--g) + var(--side-room) - var(--key) * 0.6);
+  }
+  /* The hint card sits over the lower controls, level with the board's bottom edge. */
+  .hint-card {
+    left: var(--side-left);
+    right: auto;
+    width: var(--side);
+    bottom: var(--game-margin);
+  }
+  .screen.game {
+    position: relative;
+    max-width: none;
+    padding: 0;
+    display: grid;
+    align-content: center;
+    justify-content: center;
+    gap: var(--g);
+    grid-template-columns: var(--board) calc(var(--split) - 2 * var(--g)) repeat(6, var(--col));
+    /* status | room for the banner | Concede | air | 3 key rows | air | Erase+Notes | Hint+Undo,
+       so the controls end level with the board's bottom edge. */
+    grid-template-rows:
+      var(--status-h) var(--side-room) var(--bar) var(--air) var(--key) var(--key) var(--key) var(--air) var(--key)
+      var(--bar);
+  }
+  .game .topbar,
+  .game .status,
+  .game .controls,
+  .game .pad,
+  .game .actions-row {
+    display: contents;
+  }
+  .game .separator {
+    display: none;
+  }
+  /* Over the board: mistakes left, clock centred, puzzle type right, all at
+     the size of the keypad digits (there's room on a wide screen). */
+  .game .mistakes,
+  .game .timer,
+  .game .puzzle-info {
+    grid-area: 1 / 1;
+    align-self: center;
+    line-height: 1;
+  }
+  .game .mistakes {
+    justify-self: start;
+    gap: calc(var(--key) * 0.06);
+  }
+  .game .timer {
+    justify-self: center;
+    font-size: calc(var(--key) * 0.44);
+  }
+  .game .puzzle-info {
+    justify-self: end;
+    /* As large as the clock, a touch smaller on short screens so it keeps clear of it. */
+    font-size: min(calc(var(--key) * 0.44), calc(var(--board) * 0.052));
+    /* The code goes small under the type: beside it, it would run into the clock. */
+    flex-direction: column-reverse;
+    align-items: flex-end;
+    gap: 0.12em;
+  }
+  .game .square-code {
+    font-size: 0.5em;
+  }
+  .game .skull {
+    width: calc(var(--key) * 0.3);
+    height: calc(var(--key) * 0.29);
+  }
+  .game .board-wrap {
+    grid-area: 2 / 1 / -1 / 2;
+    width: var(--board);
+    align-self: start;
+  }
+  .game .cell {
+    font-size: 5.4cqi;
+  }
+  /*
+   * Rounded corners keep the phone's proportions as everything grows: a
+   * square's 2px on a ~351px board, a key's 4px on a ~65px key, an action's
+   * 4px on ~57px, a bar button's 2px on 40px.
+   */
+  .game .cell {
+    border-radius: calc(var(--board) * 0.0057);
+  }
+  .game .pause-cover {
+    border-radius: calc(var(--board) * 0.017);
+  }
+  .game .key {
+    border-radius: calc(var(--key) * 0.062);
+  }
+  .game .action {
+    border-radius: calc(var(--bar) * 0.07);
+  }
+  .game .bar-btn {
+    border-radius: calc(var(--bar) * 0.05);
+  }
+  /* The side column. */
+  .game .topbar > .bar-btn:not(.bar-icon) {
+    grid-area: 3 / 3 / 4 / 7;
+  }
+  .game .topbar > .bar-icon {
+    grid-area: 3 / 7 / 4 / 9;
+    width: auto;
+    padding: calc(var(--bar) * 0.3);
+  }
+  .game .bar-btn {
+    height: auto;
+    font-size: calc(var(--bar) * 0.44);
+  }
+  .game .pad > :nth-child(1) { grid-area: 5 / 3 / 6 / 5; }
+  .game .pad > :nth-child(2) { grid-area: 5 / 5 / 6 / 7; }
+  .game .pad > :nth-child(3) { grid-area: 5 / 7 / 6 / 9; }
+  .game .pad > :nth-child(4) { grid-area: 6 / 3 / 7 / 5; }
+  .game .pad > :nth-child(5) { grid-area: 6 / 5 / 7 / 7; }
+  .game .pad > :nth-child(6) { grid-area: 6 / 7 / 7 / 9; }
+  .game .pad > :nth-child(7) { grid-area: 7 / 3 / 8 / 5; }
+  .game .pad > :nth-child(8) { grid-area: 7 / 5 / 8 / 7; }
+  .game .pad > :nth-child(9) { grid-area: 7 / 7 / 8 / 9; }
+  .game .key-erase { grid-area: 9 / 3 / 10 / 5; }
+  .game .notes-toggle { grid-area: 9 / 5 / 10 / 9; }
+  .game .actions-row > :nth-child(1) { grid-area: 10 / 3 / 11 / 6; }
+  .game .actions-row > :nth-child(2) { grid-area: 10 / 6 / 11 / 9; }
+  /* Keypad digits in Federo, as in the Figma desktop frame. */
+  .game .key {
+    height: auto;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: calc(var(--key) * 0.44);
+  }
+  .game .key-erase svg {
+    width: calc(var(--key) * 0.4);
+    height: calc(var(--key) * 0.41);
+  }
+  .game .action {
+    height: auto;
+    gap: calc(var(--bar) * 0.12);
+    /* label : title on the type scale (20 : 24), against Home's 0.44. */
+    font-size: calc(var(--bar) * 0.37);
+  }
+  .game .action svg {
+    width: calc(var(--bar) * 0.28);
+    height: calc(var(--bar) * 0.28);
+  }
+  /*
+   * The splash ribbon, hanging from the top edge down to a little above
+   * Concede: its whole outline stretched to that length (game.ts), so the side
+   * tears and the torn tail sit where they do on the splash, as in the Figma
+   * desktop frame. The wordmark is centred above the tail (the last 15%).
+   */
+  .game .brand-banner {
+    isolation: isolate;
+    position: absolute;
+    top: 0;
+    left: var(--side-left);
+    width: var(--side);
+    height: var(--banner-h);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: calc(var(--side) * 0.03);
+    padding-bottom: calc(var(--banner-h) * 0.15);
+    color: var(--c-bright);
+    font-family: var(--serif);
+    /* Three lines must fit above the tail. */
+    font-size: min(calc(var(--side) * 0.17), calc(var(--banner-h) * 0.17));
+    line-height: 1;
+    letter-spacing: 0.45em;
+    /* letter-spacing trails each line; this re-centres it. */
+    text-indent: 0.45em;
+  }
+  /* The page turns in without it; then it drops from the top edge (it rolls back up on leaving, ui.ts goBack). */
+  .game .brand-banner {
+    animation: banner-drop 0.2s cubic-bezier(0.1, 0.9, 0.2, 1) 0.36s both;
+  }
+  @keyframes banner-drop {
+    from {
+      transform: translateY(-101%);
+      /* Parked above the edge, the turning page would tilt it into view. */
+      visibility: hidden;
+    }
+    to {
+      transform: translateY(0);
+      visibility: visible;
+    }
+  }
+  .game .brand-ribbon {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+  .game .brand-ribbon path {
+    fill: var(--accent); /* Lava in dark, Crimson in light, as on the splash */
+  }
+}

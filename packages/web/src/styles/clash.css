@@ -1,0 +1,311 @@
+/* ---------- Clash ---------- */
+.square-sheet {
+  gap: 10px;
+}
+.square-field {
+  width: 100%;
+  text-align: center;
+  font-size: var(--fs-title) !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.square-field::placeholder {
+  color: var(--muted);
+  opacity: 0.5;
+}
+.sheet .square-status:empty {
+  display: none;
+}
+.clash-sheet {
+  gap: 10px;
+}
+.sheet .clash-challenge {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: var(--accent-text);
+  font-size: var(--fs-body);
+}
+.clash-join {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+.clash-sheet.has-code .clash-join,
+.clash-sheet.has-code .clash-picker,
+.clash-sheet.has-code .clash-create > .note,
+.clash-sheet.has-code .clash-challenge {
+  display: none;
+}
+/* The sheet's two jobs (clashSheet.ts): choose first, then one of them. */
+.clash-choose,
+.clash-create {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+.clash-choose[hidden],
+.clash-create[hidden],
+.clash-join[hidden],
+.clash-log-btn[hidden],
+.clash-sheet.has-code .clash-back {
+  display: none;
+}
+.clash-unknown:empty {
+  display: none;
+}
+.clash-label {
+  align-self: flex-start;
+  margin-top: 4px;
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+/* Six painted boxes; the real text field sits invisibly on top of them. */
+.code-input {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+  width: 100%;
+}
+.code-box,
+.clash-code span {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  font-family: var(--serif);
+  font-size: var(--fs-title);
+  color: var(--text);
+}
+/* Each slot has a field's edge (3:1 against the pop-up), like the text fields. */
+.code-box {
+  box-shadow: inset 0 0 0 1px var(--field-border);
+  transition: box-shadow 0.15s ease;
+}
+.code-box.active {
+  box-shadow: inset 0 0 0 2px var(--select);
+}
+.code-box.active:empty::after {
+  content: '';
+  width: 2px;
+  height: 45%;
+  background: var(--select);
+  animation: caret 1s steps(1) infinite;
+}
+@keyframes caret {
+  50% {
+    opacity: 0;
+  }
+}
+.code-field {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  /* ≥16px stops iOS zooming into the field. */
+  font-size: var(--fs-body);
+  color: transparent;
+  caret-color: transparent;
+  background: transparent;
+  border: 0;
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+  touch-action: auto;
+}
+.clash-label-row {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 4px;
+}
+.clash-label-row .clash-label {
+  align-self: center;
+  margin-top: 0;
+}
+.paste-btn {
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+}
+.paste-btn:active {
+  transform: scale(0.96);
+}
+/* Easy, Medium and Hard under "How hard should the square be?", one a row. */
+.clash-picker {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-2);
+  width: 100%;
+}
+.clash-created {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+.clash-created:empty {
+  display: none;
+}
+.clash-code {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+.clash-code span {
+  color: var(--accent-text);
+  animation: pop-in 0.3s ease backwards;
+}
+.clash-code span:nth-child(2) { animation-delay: 0.04s; }
+.clash-code span:nth-child(3) { animation-delay: 0.08s; }
+.clash-code span:nth-child(4) { animation-delay: 0.12s; }
+.clash-code span:nth-child(5) { animation-delay: 0.16s; }
+.clash-code span:nth-child(6) { animation-delay: 0.2s; }
+.clash-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.clash-actions .btn {
+  padding: 0 8px;
+  font-size: var(--fs-label);
+}
+.clash-log-btn {
+  min-height: 44px;
+  font-size: var(--fs-label);
+}
+.log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+.log-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 6px 10px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  text-align: left;
+  font-family: var(--serif);
+}
+.log-row:active {
+  transform: scale(0.98);
+}
+.log-code {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+.log-code strong {
+  font-size: var(--fs-label);
+  letter-spacing: 0.06em;
+}
+.log-code small {
+  font-size: var(--fs-caption);
+  color: var(--muted);
+}
+.log-times {
+  font-size: var(--fs-body);
+  color: var(--muted);
+  text-align: center;
+}
+.log-status {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: var(--fs-small);
+  background: var(--surface);
+}
+.log-status.won {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.clash-table {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--serif);
+}
+.clash-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  align-items: baseline;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+  font-size: var(--fs-label);
+}
+.clash-row > :not(:first-child) {
+  text-align: right;
+}
+.clash-row span:first-child {
+  color: var(--muted);
+}
+.clash-row strong {
+  font-weight: normal;
+}
+.clash-head {
+  font-size: var(--fs-caption);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.clash-table .note {
+  margin-top: 4px;
+}
+
+.confirm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: center;
+  font-family: var(--serif);
+  font-size: var(--fs-label);
+}
+/* Centred with margins, not translateX, so the drop animation is purely vertical. */
+.toast {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 14px);
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  z-index: 60;
+  width: fit-content;
+  max-width: calc(100vw - 32px);
+  padding: 12px 20px;
+  border-radius: var(--radius);
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 6px 20px var(--shadow);
+  font-weight: 700;
+  font-size: var(--fs-small);
+  text-align: center;
+  animation: drop 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+@keyframes drop {
+  from {
+    transform: translateY(-140%);
+    opacity: 0;
+  }
+}
+html.standalone .toast {
+  top: calc(var(--status-clear) + 12px);
+}
+.toast.out {
+  opacity: 0;
+  transform: translateY(-60%);
+}

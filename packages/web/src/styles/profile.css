@@ -1,0 +1,81 @@
+/* ---------- Profile (screens/profile.ts) ---------- */
+.profile-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-bottom: var(--space-5);
+}
+.profile-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  text-align: center;
+}
+.profile-avatar {
+  width: 144px;
+  height: 144px;
+  margin-bottom: var(--space-2);
+}
+.profile-plate {
+  font-size: var(--fs-title);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+.profile-tier {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+}
+.profile-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.profile-section h2 {
+  font-size: var(--fs-label);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+/* Larger text: a section title grows only as far as its card has room for ("COLLECTION" on a small phone). */
+html[data-large-text] .profile-section {
+  container-type: inline-size;
+}
+html[data-large-text] .profile-section h2 {
+  font-size: min(var(--fs-label), 11cqi);
+}
+.profile-stats-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+.profile-stat dt {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.profile-stat dd {
+  margin: 0;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.profile-collection-line {
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+}
+/* In the hero, under your rank and side: in sight without scrolling. */
+.profile-forge {
+  align-self: stretch;
+  margin-top: var(--space-2);
+}

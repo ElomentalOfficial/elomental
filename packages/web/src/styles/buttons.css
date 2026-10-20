@@ -1,0 +1,47 @@
+/* ---------- Buttons ---------- */
+.btn {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 20px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: var(--fs-label);
+  transition: transform 0.08s ease, filter 0.15s ease;
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn-primary {
+  background: var(--primary-bg);
+  color: var(--primary-text);
+}
+/* Secondary call to action that shouldn't compete with the main button. */
+.btn-outline {
+  background: transparent;
+  color: var(--accent-text);
+  box-shadow: inset 0 0 0 1.5px var(--accent-text);
+}
+.icon-btn {
+  width: 44px;
+  height: 44px;
+  padding: 11px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  flex: none;
+}
+.icon-btn-spacer {
+  width: 44px;
+  flex: none;
+}
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 38px;
+  height: 38px;
+  padding: 11px;
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}

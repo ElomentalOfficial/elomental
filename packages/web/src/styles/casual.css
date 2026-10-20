@@ -1,0 +1,498 @@
+/* ---------- Casual ---------- */
+/* A page (screens/casual.ts): the tagline, a card for playing alone, then playing
+   with a friend. Like Daily, one block centred under the header; it scrolls on
+   short phones. Clash and Square code open as pop-ups over it. */
+/*
+ * Casual fits the screen, like Home: every option in view, no scrolling. The body is
+ * held to the page's height and the feather takes whatever room the cards leave, on
+ * every screen: from a small mark on a short phone up to a large feather on a tall one,
+ * so there is never a big empty gap above it. (One rule for all sizes: the earlier
+ * per-size layouts each left a gap somewhere.) Short phones also tighten the cards and
+ * lay the friend options out in rows. At Text size 125% and up the words need the room,
+ * so there the page scrolls instead and the feather keeps its own size.
+ */
+.casual-body {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-4);
+  /* Room above the feather for its drift-in and tap swings: the scrolling body clips
+     anything that rises past its top edge. */
+  padding-top: clamp(16px, 5dvh, 40px);
+  padding-bottom: var(--space-2);
+}
+/* The art scales to whatever height the feather is given. */
+.casual-feather .brush-art {
+  object-fit: contain;
+}
+html:not([data-large-text]) .casual-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  /* if it ever runs taller than the screen, it starts at the top and scrolls, never cut at both ends */
+  justify-content: safe center;
+  /* the feather's box has its own headroom (below), so the page's can be small */
+  padding-top: var(--space-2);
+}
+html:not([data-large-text]) .casual-body > * {
+  flex-shrink: 0;
+}
+/* The head (feather and tagline) grows into all the free height, and the feather in it. */
+html:not([data-large-text]) .casual-body > .casual-head {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+html:not([data-large-text]) .casual-feather {
+  flex: 1 1 0;
+  width: min(100%, 260px);
+  height: auto;
+  min-height: 56px;
+  max-height: 220px;
+}
+/* Headroom inside the feather's box for its drift-in and tap swings. */
+html:not([data-large-text]) .casual-feather-art {
+  inset: 14px 0 18px;
+}
+/* The shortest phones (640px and less, portrait): no room for a feather above the
+   tagline, so it sits beside it at a fixed medium size instead of shrinking to a speck. */
+@media (max-height: 640px) and (max-aspect-ratio: 5/4) {
+  html:not([data-large-text]) .casual-body > .casual-head {
+    flex: 0 0 auto;
+    flex-direction: row;
+    justify-content: center;
+    gap: var(--space-3);
+    text-align: left;
+  }
+  html:not([data-large-text]) .casual-feather {
+    flex: none;
+    width: 76px;
+    height: 58px;
+    min-height: 0;
+  }
+  html:not([data-large-text]) .casual-feather-art {
+    inset: 3px 0 10px;
+  }
+  html:not([data-large-text]) .casual-feather-shadow {
+    height: 8px;
+  }
+}
+/* Wide landscape screens (laptops, desktops, tablets on their side): the page is zoomed
+   up, so a single column of cards would use all the height and squeeze the feather to a
+   speck. The page widens into two columns instead: the feather and tagline on the left,
+   as tall as the cards, the cards unchanged on the right. */
+@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+  html:not([data-large-text]) .screen.casual {
+    max-width: calc(820px * var(--text-scale, 1));
+  }
+  html:not([data-large-text]) .casual-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 440px);
+    grid-auto-rows: auto;
+    align-content: center;
+    column-gap: var(--space-6);
+    row-gap: var(--space-4);
+  }
+  html:not([data-large-text]) .casual-body > .casual-head {
+    grid-column: 1;
+    grid-row: 1 / span 4;
+    justify-content: center;
+  }
+  html:not([data-large-text]) .casual-body > :not(.casual-head) {
+    grid-column: 2;
+  }
+  html:not([data-large-text]) .casual-feather {
+    max-height: 300px;
+  }
+}
+@media (max-height: 720px) {
+  html:not([data-large-text]) .casual-body {
+    gap: var(--space-3);
+  }
+  html:not([data-large-text]) .casual-card {
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+  html:not([data-large-text]) .difficulty {
+    padding: 8px 0 7px;
+  }
+  /* Clash and Square code as rows: icon, then name and line. */
+  html:not([data-large-text]) .friend-option {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: var(--space-3);
+    align-items: center;
+    padding: var(--space-3);
+    text-align: left;
+  }
+  html:not([data-large-text]) .friend-icon {
+    grid-row: span 2;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 0;
+    padding: 10px;
+  }
+  html:not([data-large-text]) .friend-option strong {
+    font-size: var(--fs-body);
+    white-space: normal;
+  }
+}
+/* Short and narrow (small phones): the two rows stack, full width, so their words stay on one line. */
+@media (max-height: 720px) and (max-width: 360px) {
+  html:not([data-large-text]) .friend-card {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+  html:not([data-large-text]) .friend-option {
+    padding: var(--space-2) var(--space-3);
+  }
+  html:not([data-large-text]) .friend-icon {
+    width: 34px;
+    height: 34px;
+    padding: 8px;
+  }
+}
+.casual-friends {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.casual-card,
+.friend-option {
+  position: relative;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.casual-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-4);
+}
+/* The feather stands free above the tagline. It drifts down into place when the page
+   opens, then floats gently; its shadow shrinks and fades as it lifts. */
+.casual-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-1);
+  text-align: center;
+}
+.casual-feather {
+  position: relative;
+  display: block;
+  width: 116px;
+  height: 100px;
+  /* Tap it and it swings (casual.ts). The img inside ignores pointers, so the span gets them. */
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.casual-feather-art {
+  position: absolute;
+  inset: 0 0 18px;
+  animation:
+    feather-in 1.1s cubic-bezier(0.2, 0.7, 0.3, 1) both,
+    feather-float 4.2s ease-in-out 1.1s 2;
+}
+.casual-feather-shadow {
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  bottom: 2px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--feather-shadow);
+  filter: blur(2.5px);
+  animation:
+    feather-shadow-in 1.1s ease-out both,
+    feather-shadow-float 4.2s ease-in-out 1.1s 2;
+}
+@keyframes feather-in {
+  from {
+    transform: translate(-16px, -44px) rotate(-16deg);
+    opacity: 0;
+  }
+  60% {
+    transform: translate(5px, 4px) rotate(5deg);
+    opacity: 1;
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes feather-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(-3deg);
+  }
+}
+@keyframes feather-shadow-in {
+  from {
+    transform: scaleX(0.3);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes feather-shadow-float {
+  0%,
+  100% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scaleX(0.76);
+    opacity: 0.6;
+  }
+}
+/* Still, not sped up, for anyone who turned motion off. */
+html[data-reduce-motion] .casual-feather-art,
+html[data-reduce-motion] .casual-feather-shadow {
+  animation: none !important;
+}
+.casual-head p {
+  font-family: var(--serif);
+  font-size: var(--fs-label);
+  color: var(--muted);
+}
+.resume-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 12px 12px 18px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  box-shadow: inset 4px 0 0 var(--primary-bg);
+  color: var(--text);
+  text-align: left;
+}
+.resume-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.resume-text strong {
+  font-family: var(--serif);
+  font-size: var(--fs-label);
+  font-weight: 400;
+}
+.resume-text small {
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.resume-go {
+  width: 40px;
+  height: 40px;
+  flex: none;
+  padding: 13px 12px 13px 14px;
+  border-radius: 50%;
+  background: var(--primary-bg);
+  color: var(--primary-text);
+}
+.casual-friends .casual-label {
+  padding: 0 var(--space-1);
+}
+.casual-label {
+  margin-bottom: -6px;
+  font-size: var(--fs-small);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.difficulty-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 4px;
+  border-radius: 8px;
+  background: var(--chip-bg);
+}
+.difficulty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 0 10px;
+  border-radius: 6px;
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+  color: var(--muted);
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+.difficulty.on {
+  background: var(--surface-2);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1.5px var(--select);
+}
+/* One to three filled squares: how hard it is. */
+.pips {
+  display: flex;
+  gap: 3px;
+}
+.pips i {
+  width: 7px;
+  height: 7px;
+  border-radius: 2px;
+  background: currentColor;
+  opacity: 0.25;
+}
+.pips i.on {
+  opacity: 1;
+}
+/* Clash and Square code: two cards side by side, the same gap as between the cards. */
+.friend-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.friend-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 18px 18px 16px; /* the Casual card's side padding */
+  color: var(--text);
+}
+.friend-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 4px;
+  padding: 12px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--text);
+}
+/* Brush art in a round badge spills over the circle, like the Home icons break out of
+   their tiles: the circle stays a backdrop, the art sits on top of it. Any brush icon in
+   these badges does this (Clash now; Square code and later ones too). */
+.friend-icon > :is(.brush-art, .clash-live) {
+  transform: scale(2.1);
+}
+/*
+ * The Clash fist bump plays every 5 seconds (ICONS.clash: each fist and the impact lines
+ * are their own layer): the fists draw back, then snap together until their knuckles
+ * meet (a little past touching, so no gap shows) and stay pressed a moment, squashing
+ * from the knuckles (narrower and taller); then they bounce apart and settle. The impact
+ * lines burst out on the hit and wiggle as they settle. Still for Reduce motion.
+ */
+.clash-live {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.clash-live .brush-art {
+  position: absolute;
+  inset: 0;
+}
+/* Origins at the knuckle fronts, so the squash never pulls the fists apart. */
+.clash-live .clash-left {
+  transform-origin: 48% 52%;
+  animation: clash-left 5s ease-in-out 2 forwards;
+}
+.clash-live .clash-right {
+  transform-origin: 52% 52%;
+  animation: clash-right 5s ease-in-out 2 forwards;
+}
+.clash-live .clash-burst {
+  transform-origin: 50% 50%;
+  animation: clash-burst 5s ease-out 2 forwards;
+}
+@keyframes clash-left {
+  0%,
+  66% {
+    transform: none;
+  }
+  75% {
+    transform: translateX(-7%) rotate(-3deg);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.6);
+  }
+  79% {
+    transform: translateX(3.2%) scale(0.9, 1.08);
+  }
+  83% {
+    transform: translateX(3.2%) scale(0.94, 1.04);
+  }
+  88% {
+    transform: translateX(-1%) scale(1.02, 0.99);
+  }
+  94%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes clash-right {
+  0%,
+  66% {
+    transform: none;
+  }
+  75% {
+    transform: translateX(7%) rotate(3deg);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.6);
+  }
+  79% {
+    transform: translateX(-3.2%) scale(0.9, 1.08);
+  }
+  83% {
+    transform: translateX(-3.2%) scale(0.94, 1.04);
+  }
+  88% {
+    transform: translateX(1%) scale(1.02, 0.99);
+  }
+  94%,
+  100% {
+    transform: none;
+  }
+}
+@keyframes clash-burst {
+  0%,
+  77% {
+    transform: none;
+    opacity: 0.55;
+  }
+  80% {
+    transform: scale(1.32) rotate(-5deg);
+    opacity: 1;
+  }
+  85% {
+    transform: scale(0.94) rotate(4deg);
+  }
+  90% {
+    transform: scale(1.06) rotate(-2deg);
+  }
+  95% {
+    transform: scale(1) rotate(1deg);
+  }
+  100% {
+    transform: none;
+    opacity: 0.55;
+  }
+}
+html[data-reduce-motion] .clash-live .brush-art {
+  animation: none;
+  opacity: 1;
+}
+.friend-option strong {
+  font-family: var(--serif);
+  font-size: var(--fs-label);
+  font-weight: 400;
+  white-space: nowrap;
+}
+.friend-option small {
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.resume-card:active,
+.difficulty:active,
+.friend-option:active {
+  filter: brightness(1.08);
+}

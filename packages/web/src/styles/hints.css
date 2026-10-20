@@ -1,0 +1,51 @@
+/* ---------- Explained hints ---------- */
+/* A transparent layer: the board stays fully visible, only touches are held. */
+.hint-layer {
+  position: fixed;
+  inset: 0;
+  bottom: calc(-1 * var(--standalone-gap, 0px));
+  z-index: 40;
+  touch-action: none;
+  transition: opacity 0.18s ease;
+}
+.hint-layer.closing {
+  opacity: 0;
+}
+/* The card sits over the number pad, which isn't needed while reading. */
+.hint-card {
+  bottom: max(16px, calc(env(safe-area-inset-bottom) + 8px));
+}
+/* Everything outside the explanation fades back so the logic stands out. */
+.board.explaining .cell {
+  transition: opacity 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+}
+.board.explaining .cell:not(.hx-focus):not(.hx-ring):not(.hx-target) {
+  opacity: 0.32;
+}
+.cell.hx-focus {
+  background: color-mix(in srgb, var(--accent) 16%, var(--cell));
+}
+/* A digit that does the work: ringed in the accent. */
+.cell.hx-ring {
+  box-shadow: inset 0 0 0 2.5px var(--accent);
+}
+/* A square ruled out: a soft cross. */
+.cell.hx-ruled::after {
+  content: '';
+  position: absolute;
+  inset: 22%;
+  background:
+    linear-gradient(45deg, transparent 46%, var(--accent) 46%, var(--accent) 54%, transparent 54%),
+    linear-gradient(-45deg, transparent 46%, var(--accent) 46%, var(--accent) 54%, transparent 54%);
+  opacity: 0.75;
+}
+/* The square the hint fills. */
+.cell.hx-target {
+  background: var(--accent);
+  animation: hx-pulse 1.2s ease-in-out infinite;
+}
+@keyframes hx-pulse {
+  50% {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+}

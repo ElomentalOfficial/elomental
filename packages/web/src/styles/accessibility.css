@@ -1,0 +1,424 @@
+/* ---------- Accessibility preferences (a11y.ts) ---------- */
+/* Accessibility page (screens/accessibility.ts): one card per group, one block per choice. */
+.choice-list {
+  gap: 0;
+}
+/* Title, help line, options: each step bigger than the last. */
+.choice {
+  display: flex;
+  flex-direction: column;
+}
+.choice + .choice {
+  margin-top: var(--space-5);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--modal-border);
+}
+.choice p {
+  font-size: var(--fs-small);
+}
+.choice .segmented {
+  margin-top: var(--space-3);
+}
+.choice .segment {
+  height: auto;
+  min-height: 44px;
+  padding: var(--space-2) var(--space-1);
+  text-align: center;
+}
+.choice-list > .btn + .btn {
+  margin-top: var(--space-3);
+}
+/* Accessibility statement (screens/statement.ts). */
+.statement-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-left: 1.2em;
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+  line-height: 1.4;
+}
+.statement-link {
+  display: grid;
+  place-items: center;
+  text-decoration: none;
+}
+
+/* Keyboard shortcuts panel. */
+/* Two columns (L36): the keys, kept together on one line, then what they do, left-aligned
+   right beside them. */
+.shortcut-list {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-2) var(--space-4);
+  align-items: center;
+  width: 100%;
+  text-align: left;
+}
+.shortcut {
+  display: contents;
+}
+.shortcut dt {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--space-1);
+}
+.shortcut dd {
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+}
+.kbd-arrow {
+  display: inline-grid;
+  place-items: center;
+}
+.kbd-arrow svg {
+  display: block;
+  width: 1em;
+  height: 1em;
+}
+kbd {
+  min-width: 28px;
+  padding: 3px 7px;
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px var(--field-border);
+  background: var(--surface-2);
+  font-family: var(--font);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  text-align: center;
+}
+
+/*
+ * Reduce motion (Setup > Accessibility, or the system's setting: a11y.ts sets
+ * the attribute for either). Movement stops; what an animation *tells* the
+ * player stays: a wrong number still shows for its moment, then goes.
+ */
+html[data-reduce-motion] *,
+html[data-reduce-motion] *::before,
+html[data-reduce-motion] *::after {
+  animation-duration: 0.01ms !important;
+  animation-delay: 0ms !important;
+  transition-duration: 0.01ms !important;
+}
+html[data-reduce-motion] .cell.wrong.fading {
+  animation: wrong-fade 1.4s steps(1, end) forwards !important;
+}
+
+/* Hide timer: the clock keeps counting, it just isn't shown. */
+html[data-hide-timer] .timer {
+  visibility: hidden;
+}
+
+/* Colour-blind friendly: same-number cells get a bar under the number. */
+html[data-colour-blind] .cell.same::after {
+  content: '';
+  position: absolute;
+  left: 30%;
+  right: 30%;
+  bottom: 12%;
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
+}
+/* The row/column/box highlight gets a hairline edge. */
+html[data-colour-blind] .cell.cross {
+  box-shadow: inset 0 0 0 1px var(--grid-line);
+}
+
+/*
+ * High contrast: no translucent text, every cell outlined, highlights drawn
+ * as outlines as well as fills, wider selection and focus rings.
+ */
+:root[data-contrast='high'][data-theme] {
+  --muted: var(--text);
+  --modal-border: var(--field-border);
+}
+:root[data-contrast='high'][data-theme='dark'] {
+  --accent-text: var(--text);
+  --grid-line: #9a9b8f;
+  --field-border: #9a9b8f;
+  --chip-bg: rgba(255, 255, 229, 0.08);
+}
+:root[data-contrast='high'][data-theme='light'] {
+  --grid-line: #6b6c58;
+  --field-border: #6b6c58;
+}
+html[data-contrast='high'] .cell {
+  box-shadow: inset 0 0 0 1px var(--grid-line);
+}
+html[data-contrast='high'] .cell.cross {
+  box-shadow: inset 0 0 0 2px var(--select);
+}
+html[data-contrast='high'] .cell.selected {
+  box-shadow: inset 0 0 0 3px var(--select), inset 0 0 0 5px var(--select-inner);
+}
+html[data-contrast='high'] .box-frame {
+  outline-width: 2px;
+}
+html[data-contrast='high'] :is(button, [href], [tabindex]:not([tabindex='-1']), .text-field):focus-visible {
+  outline-width: 6px;
+}
+/* High contrast: the empty mistake slots show clearly too. */
+html[data-contrast='high'] .skull:not(.used) {
+  color: var(--muted);
+}
+
+/*
+ * Large text (125% and up): screens that can outgrow the phone scroll, and
+ * rows of buttons wrap instead of squeezing their labels.
+ */
+html[data-large-text] .screen:not(.sub) {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+  scrollbar-width: none;
+}
+html[data-large-text] .screen :is(button, a) {
+  touch-action: pan-y;
+}
+html[data-large-text] .screen::-webkit-scrollbar {
+  display: none;
+}
+/* Home becomes one column in reading order: every tile gets a full row, Setup its own tile. */
+html[data-large-text] .home-grid {
+  flex: none;
+  grid-template-columns: 1fr;
+  grid-template-rows: none;
+  grid-template-areas: 'profile' 'daily' 'store' 'leader' 'casual' 'ranked' 'setup';
+  grid-auto-rows: minmax(76px, auto);
+}
+html[data-large-text] .home-grid > .tile {
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 18px;
+  padding: 14px 20px;
+  text-align: left;
+}
+html[data-large-text] .area-setup {
+  display: flex;
+  grid-area: setup;
+}
+html[data-large-text] .setup-notch {
+  display: none;
+}
+html[data-large-text] .profile-stats {
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+html[data-large-text] .tile-label {
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+html[data-large-text] .game .board-wrap,
+html[data-large-text] .game .controls {
+  flex: none;
+}
+/* Hint, Undo and Notes stay in one row: each icon above its name, so Notes stays on screen. */
+html[data-large-text] .action {
+  height: auto;
+  min-height: var(--action-h);
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  overflow-wrap: anywhere;
+}
+/* They stack on very narrow screens, and in the wide game layout, where the actions sit in
+   a narrow column beside the board (the same query as that layout's). */
+@media (max-width: 339px), (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5 / 4) {
+  html[data-large-text] .actions-row {
+    grid-auto-flow: row;
+    grid-template-columns: 1fr;
+  }
+  html[data-large-text] .action {
+    flex-direction: row;
+  }
+}
+/* Larger text: the Forge's head stacks (avatar above its balances), and the cost pill wraps. */
+html[data-large-text] .forge-head {
+  grid-template-columns: minmax(0, 1fr);
+}
+html[data-large-text] .forge-avatar {
+  justify-self: center;
+}
+html[data-large-text] .life-cost-short {
+  white-space: normal;
+  text-align: center;
+  border-radius: var(--radius-lg);
+}
+/* The hint count sits on the Hint button's corner, so the three actions keep one height. */
+html[data-large-text] .action {
+  position: relative;
+}
+html[data-large-text] .action .hint-count {
+  position: absolute;
+  top: var(--space-1);
+  right: var(--space-1);
+}
+/* A part card reads across: art on the left, name, rarity and state beside it. */
+html[data-large-text] .part-card {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-items: center;
+  justify-items: start;
+  column-gap: var(--space-3);
+  row-gap: 2px;
+  text-align: left;
+}
+html[data-large-text] .part-card .part-art {
+  grid-row: 1 / span 3;
+}
+html[data-large-text] .part-card > :not(.part-art) {
+  grid-column: 2;
+  min-width: 0;
+}
+/* The keypad numbers stay inside their keys. */
+html[data-large-text] .key {
+  font-size: min(var(--fs-display), calc(var(--key-h) * 0.62));
+}
+html[data-large-text] .topbar {
+  height: auto;
+  min-height: 40px;
+}
+/* The mistakes, square code and puzzle type wrap onto lines of their own instead of being cut off. */
+html[data-large-text] .status {
+  height: auto;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+html[data-large-text] .puzzle-info {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+html[data-large-text] .puzzle-type {
+  white-space: normal;
+  overflow: visible;
+}
+html[data-large-text] .bar-btn {
+  height: auto;
+  min-height: 40px;
+  padding-block: 2px;
+  line-height: 1.15;
+}
+/*
+ * Titles that are one long word (ACCESSIBILITY, KEYBOARD, LEADERBOARD) can't
+ * wrap, so they grow only as far as their row has room for: cqi is a share
+ * of the box they sit in.
+ */
+html[data-large-text] :is(.subbar, .modal, .casual-card, .home-grid > .tile, .calendar) {
+  container-type: inline-size;
+}
+/* Page headers: Back on its own row, the title under it with the full width. */
+html[data-large-text] .subbar {
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  row-gap: var(--space-2);
+}
+html[data-large-text] .subbar > :is(h1, h2, div) {
+  flex: 1 0 100%;
+  min-width: 0;
+  text-align: left;
+}
+html[data-large-text] .subbar h1 {
+  font-size: min(var(--fs-title), 9.5cqi);
+}
+html[data-large-text] .subbar > .icon-btn-spacer {
+  display: none;
+}
+html[data-large-text] .modal h2 {
+  font-size: min(var(--fs-title), 12.5cqi);
+}
+html[data-large-text] .home-grid > .tile .tile-label {
+  min-width: 0;
+  font-size: min(var(--fs-label), 10.5cqi);
+}
+/* Rows of options wrap: each keeps its label whole, a long one takes a row of its own. */
+html[data-large-text] .segmented:is(.cols-3, .cols-4) {
+  display: flex;
+  flex-wrap: wrap;
+}
+html[data-large-text] .segmented:is(.cols-3, .cols-4) > .segment {
+  flex: 1 1 auto;
+  padding-inline: 0.6em;
+}
+/* The three stats stay side by side and alike: number over name, each name as large as its
+   chip has room for (so STARDUST never wraps and the chips keep one height). */
+html[data-large-text] .profile-stats {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+html[data-large-text] .stat-chip {
+  min-width: 0;
+  padding: var(--space-2) var(--space-1);
+  container-type: inline-size;
+}
+html[data-large-text] .stat-chip span:last-child {
+  font-size: min(var(--fs-small), 13cqi);
+}
+html[data-large-text] .stat-chip strong {
+  font-size: min(var(--fs-label), 30cqi);
+}
+html[data-large-text] .month-head {
+  flex-wrap: wrap;
+  column-gap: var(--space-3);
+}
+html[data-large-text] .month-count {
+  white-space: nowrap;
+}
+/* Daily: the seven columns always fit; the numbers grow only as far as a day has room. */
+html[data-large-text] .calendar {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+html[data-large-text] .day-num {
+  font-size: min(var(--fs-small), 6cqi);
+}
+html[data-large-text] .day.today .day-num {
+  font-size: min(var(--fs-body), 6.5cqi);
+}
+html[data-large-text] .weekday {
+  font-size: min(var(--fs-small), 5cqi);
+}
+/* Pop-ups get wider (up to the screen) so the larger words have room. */
+html[data-large-text] .modal {
+  max-width: min(520px, calc(100vw - 2 * var(--gutter)));
+}
+/* Clash and Square code stack, each a full-width row: icon, then its name and line. */
+html[data-large-text] .friend-card {
+  grid-template-columns: 1fr;
+}
+html[data-large-text] .friend-option {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: var(--space-4);
+  align-items: center;
+  text-align: left;
+}
+html[data-large-text] .friend-icon {
+  grid-row: span 2;
+  margin-bottom: 0;
+}
+html[data-large-text] .friend-option strong {
+  white-space: normal;
+}
+/* Clash: the difficulty buttons wrap, Share and Play stack, the code's six boxes keep their numbers inside. */
+html[data-large-text] .clash-actions {
+  grid-template-columns: 1fr;
+}
+html[data-large-text] :is(.code-box, .clash-code span) {
+  font-size: min(var(--fs-title), 9cqi);
+}
+html[data-large-text] .log-row {
+  grid-template-columns: 1fr auto;
+}
+html[data-large-text] .log-times {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+html[data-large-text] .clash-row {
+  font-size: min(var(--fs-label), 8cqi);
+}
+/* Keyboard shortcuts at large text: the keys, then what they do underneath. */
+html[data-large-text] .shortcut-list {
+  grid-template-columns: 1fr;
+  gap: var(--space-1);
+}
+html[data-large-text] .shortcut dd {
+  margin-bottom: var(--space-3);
+}

@@ -1,0 +1,437 @@
+/* ---------- Game ---------- */
+.game {
+  /* taller keys on tall phones, into the band that sat empty above them (L33) */
+  --key-h: clamp(46px, 9dvh, 76px);
+  --action-h: clamp(42px, 7dvh, 68px);
+  gap: 10px;
+  padding-top: max(16px, env(safe-area-inset-top));
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  flex: none;
+  padding: 0 4px;
+}
+.bar-btn {
+  height: 40px;
+  padding: 0 10px;
+  border-radius: 2px;
+  background: var(--bar-bg);
+  font-family: var(--serif);
+  font-size: var(--fs-title);
+}
+.bar-icon {
+  width: 36px;
+  padding: 9px 7px;
+}
+.timer {
+  font-family: var(--serif);
+  font-size: var(--fs-display);
+  font-variant-numeric: tabular-nums;
+}
+.timer.over-par {
+  color: var(--muted);
+}
+.separator {
+  height: 2px;
+  flex: none;
+  margin: 0 calc(-1 * var(--gutter));
+  color: var(--separator);
+}
+.status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 22px;
+  flex: none;
+  padding: 0 4px;
+}
+.mistakes {
+  display: flex;
+  gap: 5px;
+}
+.skull {
+  width: 19px;
+  height: 18px;
+  color: var(--mistake-off);
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+.skull.used {
+  color: var(--mistake-on);
+  transform: scale(1.1);
+}
+.puzzle-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+}
+.puzzle-type {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+/* The square code beside the puzzle type: tap to copy. */
+.square-code {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  font: inherit;
+  font-size: 0.86em;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  /* A 24px+ tap target around the small text, without moving it. */
+  padding: 8px 0;
+  margin: -8px 0;
+}
+.square-code[hidden] {
+  display: none;
+}
+.square-code-icon {
+  display: flex;
+  width: 1.05em;
+}
+.square-code-icon svg {
+  width: 100%;
+  height: auto;
+}
+
+/* The board shrinks on short screens so the controls always fit without scrolling. */
+.board-wrap {
+  position: relative;
+  flex: none;
+  align-self: center;
+  width: min(100%, calc(77dvh - 154px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));
+  aspect-ratio: 1;
+  container-type: inline-size;
+}
+/*
+ * The board is one 9x9 grid in reading order (rows are ARIA rows, game.ts).
+ * Figma rule: 4px between 3x3 boxes, 2px between squares, so the boxes read at
+ * a glance. A zero-width spacer track after every third row and column makes
+ * the box gap 2px + 0 + 2px.
+ */
+.board {
+  --tracks: repeat(3, minmax(0, 1fr)) 0 repeat(3, minmax(0, 1fr)) 0 repeat(3, minmax(0, 1fr));
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: var(--tracks);
+  grid-template-rows: var(--tracks);
+  gap: 2px;
+  touch-action: none;
+}
+.board-row {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
+}
+/* The 3x3 box outline at 3:1 (game.ts places one frame per box). */
+.box-frame {
+  border-radius: 3px;
+  outline: 1px solid var(--grid-line);
+  outline-offset: 1px;
+  pointer-events: none;
+}
+.cell {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border-radius: 2px;
+  background: var(--cell);
+  color: var(--cell-text);
+  /* Semi-bold (Figma): bold made the digits look cramped. */
+  font-weight: 600;
+  /* 28px on a phone-sized board, scaling down on smaller ones. */
+  font-size: min(28px, 8.2cqi);
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.cell.cross {
+  background: var(--cell-cross);
+}
+.cell.selected {
+  box-shadow: inset 0 0 0 2px var(--select), inset 0 0 0 4px var(--select-inner);
+}
+/* The player's own numbers: their own colour and a lighter weight than the givens. */
+.cell.filled {
+  color: var(--cell-user);
+  font-weight: 500;
+}
+/* Figma: every square holding the focused digit, given or entered, is filled.
+   Comes after .filled so the player's own digits light up too. */
+.cell.same {
+  background: var(--same-bg);
+  color: var(--same-text);
+}
+/* A wrong entry flips to a filled square (crimson in light, bright in dark):
+   the change in fill (not just hue) keeps it readable for colour-blind players. */
+.cell.wrong {
+  background: var(--wrong-bg);
+  color: var(--wrong-text);
+}
+/* A slash in the corner: "wrong" as a shape, so it never depends on the fill colour. */
+.cell.wrong::before {
+  content: '';
+  position: absolute;
+  top: 8%;
+  right: 8%;
+  width: 26%;
+  height: 26%;
+  background: linear-gradient(to top right, transparent calc(50% - 1px), currentColor calc(50% - 1px), currentColor calc(50% + 1px), transparent calc(50% + 1px));
+}
+.cell.hinted {
+  animation: hinted 0.9s ease;
+}
+/* A hint flashes the accent with a ring: the ring tells it apart from a mistake or a highlight without colour. */
+@keyframes hinted {
+  30% {
+    background: var(--accent);
+    color: var(--on-accent);
+    box-shadow: inset 0 0 0 3px var(--on-accent);
+  }
+}
+/* A wrong digit shakes, holds in the mistake colour, then fades back to the
+   empty square (the game removes it when this ends; game.ts WRONG_FADE_MS). */
+.cell.wrong.fading {
+  animation:
+    shake 0.3s ease,
+    wrong-fade 1.4s ease-in forwards;
+}
+@keyframes wrong-fade {
+  0%,
+  45% {
+    background: var(--wrong-bg);
+    color: var(--wrong-text);
+  }
+  100% {
+    background: var(--cell);
+    color: transparent;
+  }
+}
+/* A digit placed by the player pops in. */
+.cell.pop {
+  animation: pop-in 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes pop-in {
+  from {
+    transform: scale(0.72);
+  }
+}
+/* Completing a row, column or box sends a ripple through it, outward from
+   the square just filled. */
+.cell.sweep {
+  animation: sweep 0.5s ease-out both;
+}
+@keyframes sweep {
+  30% {
+    background: var(--accent);
+    color: var(--on-accent);
+    transform: scale(0.94);
+  }
+}
+/* The skull row flinches on a mistake. */
+.status.strike .mistakes {
+  animation: shake 0.35s ease;
+}
+@keyframes shake {
+  25% {
+    transform: translateX(-6%);
+  }
+  75% {
+    transform: translateX(6%);
+  }
+}
+.notes {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template: repeat(3, minmax(0, 1fr)) / repeat(3, minmax(0, 1fr));
+  place-items: center;
+  padding: 6% 10%;
+  font-size: clamp(9px, calc(2.3cqi * var(--text-scale)), 3cqi);
+  font-weight: 700;
+  color: var(--cell-text);
+}
+.won .cell {
+  animation: glow 0.6s ease both;
+}
+@keyframes glow {
+  50% {
+    background: var(--accent);
+    color: var(--on-accent);
+  }
+}
+.paused .board {
+  visibility: hidden;
+}
+.pause-cover {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font-family: var(--serif);
+  font-size: var(--fs-title);
+}
+.paused .pause-cover {
+  display: flex;
+}
+.pause-note {
+  margin-top: -6px;
+  font-size: var(--fs-body);
+  color: var(--muted);
+}
+.play-badge {
+  width: 64px;
+  height: 64px;
+  padding: 18px 16px 18px 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+  padding: 0 4px;
+}
+.pad {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+}
+.key {
+  height: var(--key-h);
+  border-radius: 4px;
+  background: var(--key-bg);
+  color: var(--key-text);
+  /* Montserrat reads at a glance on the keys; the serif's 4 and 1 are too stylised. */
+  font-family: var(--font);
+  font-weight: 500;
+  font-size: var(--fs-display);
+  line-height: 1;
+  transition: transform 0.06s ease, filter 0.15s ease, opacity 0.2s ease;
+}
+.key:active {
+  transform: scale(0.93);
+  filter: brightness(1.15);
+}
+/* All nine placed: the key settles back and fades. */
+.key.done {
+  position: relative;
+  opacity: 0.55;
+  transform: scale(0.94);
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+/* A small check in the corner: "all nine placed" as a shape, not only fading. */
+.key.done::after {
+  content: '';
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 9px;
+  height: 5px;
+  border-left: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(-45deg);
+}
+.key-erase {
+  display: grid;
+  place-items: center;
+  background: var(--erase-bg);
+  color: var(--erase-text);
+}
+.key-erase svg {
+  width: 32px;
+  height: 33px;
+}
+.actions-row {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  gap: 4px;
+}
+.action {
+  height: var(--action-h);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 4px;
+  background: var(--action-bg);
+  color: var(--action-text);
+  font-family: var(--serif);
+  font-size: var(--fs-label);
+}
+.action svg {
+  width: calc(20px * var(--text-scale));
+  height: calc(20px * var(--text-scale));
+}
+.action:active {
+  filter: brightness(1.15);
+}
+.action.locked {
+  opacity: 0.4;
+}
+/* Three buttons share the row when the Notes button is there. */
+.actions-row:has(> :nth-child(3)) .action {
+  gap: 7px;
+}
+.action.notes-toggle {
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+.action.notes-toggle.on {
+  background: var(--notes-on-bg);
+  color: var(--notes-on-text);
+}
+/*
+ * Notes mode, at a glance: every key's digit shrinks and slides to the spot it
+ * takes as a pencil mark (1 top-left … 9 bottom-right), so the keypad itself
+ * shows that a tap writes a note, not a number.
+ */
+.key[data-digit] {
+  container-type: size;
+  display: grid;
+  place-items: center;
+}
+.key[data-digit] span {
+  transition: transform 0.2s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+.notes-mode .key[data-digit] span {
+  transform: translate(calc(var(--nx) * 31cqw), calc(var(--ny) * 27cqh)) scale(0.56);
+}
+.key[data-digit='1'], .key[data-digit='4'], .key[data-digit='7'] { --nx: -1; }
+.key[data-digit='2'], .key[data-digit='5'], .key[data-digit='8'] { --nx: 0; }
+.key[data-digit='3'], .key[data-digit='6'], .key[data-digit='9'] { --nx: 1; }
+.key[data-digit='1'], .key[data-digit='2'], .key[data-digit='3'] { --ny: -1; }
+.key[data-digit='4'], .key[data-digit='5'], .key[data-digit='6'] { --ny: 0; }
+.key[data-digit='7'], .key[data-digit='8'], .key[data-digit='9'] { --ny: 1; }
+html[data-reduce-motion] .key[data-digit] span {
+  transition: none;
+}
+.hint-count {
+  min-width: 22px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-family: var(--font);
+  font-size: var(--fs-small);
+  font-weight: 800;
+}

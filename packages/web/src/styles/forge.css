@@ -1,0 +1,480 @@
+/* ---------- The Forge (screens/forge.ts) ---------- */
+.forge-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-bottom: var(--space-5);
+}
+.forge-status {
+  font-family: var(--serif);
+  color: var(--muted);
+  text-align: center;
+  padding: var(--space-6) var(--space-4);
+}
+.forge-head {
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.forge-avatar {
+  display: block;
+  width: 112px;
+  height: 112px;
+}
+.forge-balances {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.forge-intro {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.balance {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.balance svg {
+  width: 20px;
+  height: 20px;
+  color: var(--accent);
+}
+.balance strong {
+  font-size: var(--fs-label);
+}
+.balance span:last-child {
+  color: var(--muted);
+  font-size: var(--fs-small);
+}
+.forge-heading {
+  margin-top: var(--space-3);
+  font-size: var(--fs-label);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.forge-group h2 {
+  margin-bottom: var(--space-2);
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+  font-weight: 400;
+  color: var(--muted);
+}
+/* Cards as wide as their words need: fewer per row as Text size grows. */
+.part-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(104px * var(--text-scale))), 1fr));
+  gap: var(--space-2);
+}
+/* Larger text: cards read across (art, then words), as wide as the text needs. */
+html[data-large-text] .part-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(150px * var(--text-scale))), 1fr));
+  gap: var(--space-2);
+}
+.part-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-3) var(--space-2);
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+/* Mythic looks it (M31): a still inner edge in its rarity colour and a folded corner. No motion. */
+.part-card.rarity-mythic::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px solid var(--r-mythic);
+  border-radius: calc(var(--radius-lg) - 6px);
+  pointer-events: none;
+}
+.part-card.rarity-mythic::after {
+  content: '';
+  position: absolute;
+  /* inside the state ring, following its curve */
+  top: 2px;
+  right: 2px;
+  width: 14px;
+  height: 14px;
+  border-top-right-radius: calc(var(--radius-lg) - 2px);
+  background: linear-gradient(225deg, var(--r-mythic) 50%, transparent 50%);
+  pointer-events: none;
+}
+/* an avatar brought to life: the Spirit glyph beside "Alive" */
+.alive-glyph {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-right: 0.25em;
+  vertical-align: -0.15em;
+}
+.alive-glyph svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.part-art {
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 2px;
+}
+.part-name {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  line-height: 1.2;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+.part-state {
+  font-size: var(--fs-small);
+  font-weight: 700;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+/* (labels stay in the text colour for contrast; the outline and wash carry the accent) */
+.part-card.state-ready .part-state,
+.part-card.state-wearing .part-state {
+  color: var(--text);
+}
+/* ready: a neutral outline (the accent stays for the screen's primary action, M24); the words
+   "Ready to forge" carry it. wearing: filled with a wash of the accent */
+.part-card.state-ready {
+  box-shadow: inset 0 0 0 2px var(--field-border);
+}
+.part-card.state-wearing {
+  background: var(--chosen-bg);
+}
+/* not yet yours: a dim silhouette */
+.part-card.state-needs .part-art,
+.part-card.state-starter .part-art {
+  opacity: 0.4;
+  filter: grayscale(0.6);
+}
+/* Rarity tag: the rarity's name on its own colour (Bright text, 4.5:1 or better). */
+.rarity-tag {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--rc);
+  color: var(--c-bright);
+  /* 14px floor for anything that carries meaning (docs/AUDIT.md); Montserrat, as a bold tag */
+  font-family: var(--font);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+.rarity-common { --rc: var(--r-common); }
+.rarity-rare { --rc: var(--r-rare); }
+.rarity-epic { --rc: var(--r-epic); }
+.rarity-mythic { --rc: var(--r-mythic); }
+.part-sheet {
+  text-align: center;
+}
+/* the main action sits a step below the name and its tags */
+.part-sheet > .btn {
+  margin-top: var(--space-2);
+}
+/* Bring to life (forge.ts): its own section under a hairline, the two costs side by side,
+   each with what you have; a cost you can't cover yet is outlined in the accent and says
+   how many more are needed on an accent pill. */
+.life-section {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--line);
+}
+.life-section h3 {
+  font-size: var(--fs-label);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.life-section .note {
+  margin-top: calc(-1 * var(--space-2));
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.life-cost {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(120px * var(--text-scale))), 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.life-cost-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-3) var(--space-2);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+}
+.life-cost-item.short {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+/* what's missing, in words on the accent (never colour alone) */
+.life-cost-short {
+  margin-top: var(--space-1);
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.life-cost-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.life-cost-main strong {
+  font-size: var(--fs-label);
+}
+.life-cost-label {
+  font-size: var(--fs-small);
+  font-weight: 700;
+}
+.life-cost-icon svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  color: var(--accent);
+}
+.life-cost-have {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.life-cost-item.short .life-cost-have {
+  color: var(--text);
+}
+.part-sheet-art {
+  display: block;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto var(--space-2);
+}
+.part-sheet-meta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.part-price {
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+}
+.forge-heading-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+  margin-top: var(--space-3);
+}
+.forge-heading-row .forge-heading {
+  margin-top: 0;
+}
+.forge-count {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+  white-space: nowrap;
+}
+/* A new part on the result (reward.ts): its card turns over in its rarity's colour. Epic
+   glows, Mythic flares; the rarer, the longer. Tap to skip. The rarity is always written. */
+.drop {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.part-reveal {
+  --start: 0.6s;
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3);
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 2px var(--rc);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transform-origin: 50% 50%;
+  animation: reveal-turn 0.55s cubic-bezier(0.2, 0.8, 0.3, 1.15) var(--start) both;
+}
+@keyframes reveal-turn {
+  from {
+    transform: perspective(600px) rotateY(-90deg);
+    opacity: 0;
+  }
+}
+.reveal-art {
+  display: block;
+  width: 72px;
+  height: 72px;
+}
+.reveal-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 0;
+}
+.reveal-rarity {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--rc);
+  color: var(--c-bright);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.reveal-name {
+  font-family: var(--serif);
+  font-size: var(--fs-label);
+  font-weight: 400;
+}
+.reveal-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.reveal-flare {
+  position: absolute;
+  grid-area: 1 / 1 / -1 / -1;
+  inset: calc(var(--space-3) * -1);
+  pointer-events: none;
+  opacity: 0;
+}
+.part-reveal.rarity-epic .reveal-flare {
+  background: radial-gradient(circle at 20% 50%, color-mix(in srgb, var(--rc) 70%, transparent), transparent 65%);
+  animation: reveal-glow 1.4s ease-out calc(var(--start) + 0.3s) both;
+}
+.part-reveal.rarity-mythic .reveal-flare {
+  background: radial-gradient(circle at 20% 50%, var(--c-bright), color-mix(in srgb, var(--rc) 70%, transparent) 30%, transparent 70%);
+  animation: reveal-flare 1.3s ease-out calc(var(--start) + 0.3s) both;
+}
+.part-reveal.rarity-mythic {
+  animation: reveal-turn 0.55s cubic-bezier(0.2, 0.8, 0.3, 1.15) var(--start) both, reveal-shine 3.2s ease-in-out calc(var(--start) + 1.6s) 2;
+}
+@keyframes reveal-glow {
+  from { opacity: 0; }
+  30% { opacity: 1; }
+  to { opacity: 0.35; }
+}
+@keyframes reveal-flare {
+  from { opacity: 0; transform: scale(0.4); }
+  25% { opacity: 1; }
+  to { opacity: 0; transform: scale(1.8); }
+}
+@keyframes reveal-shine {
+  0%, 70%, 100% { box-shadow: inset 0 0 0 2px var(--rc); }
+  82% { box-shadow: inset 0 0 0 2px var(--rc), 0 0 14px color-mix(in srgb, var(--rc) 70%, transparent); }
+}
+.drop-element {
+  display: inline-block;
+  flex: none;
+  width: 1.1em;
+  height: 1.1em;
+}
+.drop-element svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.drop-note,
+.drop-pity,
+.influence-line,
+.part-progress {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+  text-align: center;
+}
+.drop-note.good {
+  color: var(--accent-text);
+}
+.drop-forge {
+  align-self: center;
+  font-size: var(--fs-small);
+}
+.influence-line,
+.part-progress {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+/* Toward the next part: three steps, filled as squares are solved. */
+.part-steps {
+  display: inline-flex;
+  gap: 4px;
+}
+.part-steps i {
+  width: 18px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.part-steps i.done {
+  background: var(--accent);
+  box-shadow: none;
+}
+html[data-reduce-motion] .part-reveal,
+html[data-reduce-motion] .part-reveal * {
+  animation: none !important;
+}
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+/* Not yet usable: a plain neutral button, never a faded primary (full review L24). */
+.btn:disabled,
+.btn-primary:disabled {
+  background: var(--disabled-bg);
+  color: var(--disabled-text);
+  box-shadow: none;
+  /* not colour alone: a dashed edge where an enabled button has a fill (it can't take focus) */
+  outline: 1.5px dashed var(--field-border);
+  outline-offset: -1.5px;
+  transform: none;
+  cursor: default;
+}

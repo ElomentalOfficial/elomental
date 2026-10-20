@@ -1,0 +1,357 @@
+/* ---------- Modals & toasts ---------- */
+/*
+ * Absolute inside the fixed body, not fixed: in home-screen mode iOS stops
+ * fixed layers above the home indicator, but the body is stretched to the real
+ * bottom edge (viewport.ts), so the backdrop now covers the whole screen.
+ * Bottom padding keeps the panel centred in the visible area.
+ */
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  /* Frosted glass: a light blur keeps the shapes behind readable, and the
+     theme's frost tint (above) frosts them over. */
+  background: var(--frost);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  backdrop-filter: blur(14px) saturate(1.2);
+  /* Auto margins on the panel centre it, and a panel taller than the screen
+     scrolls instead of being cut off at the top (the backdrop is .scrollable). */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--gutter);
+  animation: fade 0.18s ease;
+}
+.backdrop > .modal {
+  margin: auto 0;
+  flex: none;
+}
+/* Home-screen app: centred in the space between the status bar (and its blur)
+   and the home indicator, never under either. */
+html.standalone .backdrop {
+  padding-top: calc(var(--status-clear) + 8px);
+  padding-bottom: calc(max(env(safe-area-inset-bottom), 12px) + 8px);
+}
+/* Narrower than the page so its edges never line up with the tiles behind it. */
+.modal {
+  position: relative;
+  width: 100%;
+  max-width: min(340px, calc(100vw - 64px));
+  border-radius: var(--radius-lg);
+  /* A hairline edge so the panel never melts into the blurred page behind it. */
+  border: 1px solid var(--modal-border);
+  background: var(--modal-bg);
+  color: var(--text);
+  /* spacing scale (L25): more room over the close button's row, then the card padding */
+  padding: var(--space-6) var(--space-5) var(--space-5);
+  animation: rise 0.22s ease;
+}
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes rise {
+  from {
+    transform: translateY(14px);
+    opacity: 0;
+  }
+}
+.sheet {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+.sheet h2 {
+  font-size: var(--fs-title);
+  text-transform: uppercase;
+}
+.sheet p {
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+}
+.sheet-icon {
+  width: 72px;
+  height: 72px;
+  padding: 16px;
+  border-radius: 50%;
+  color: var(--c-bright);
+}
+.sheet-icon.casual {
+  background: var(--c-forest);
+}
+/* A sheet's badge takes its mode tile's colour (Casual Forest, Ranked Lava); the Casual
+   sub-sheets (Clash, Square code) are neutral, so the sheet's one accent is its button (L30). */
+.sheet-icon.clash {
+  width: 64px;
+  height: 64px;
+  padding: 11px;
+  background: var(--surface-2);
+}
+/* The fist bump spills over its badge, as it does in the Casual circle. */
+.sheet-icon.clash > .clash-live {
+  transform: scale(1.75);
+}
+/* Square code's megaphone: a neutral badge (its cone is Lava, the accent badge's own
+   colour), the art spilling over it like the fist bump. */
+.sheet-icon.square {
+  width: 64px;
+  height: 64px;
+  padding: 11px;
+  background: var(--surface-2);
+}
+.sheet-icon.square .brush-art {
+  transform: scale(1.75);
+}
+.sheet-icon.ranked {
+  width: 110px;
+  height: 110px;
+  padding: 14px;
+  background: var(--c-lava);
+}
+/* The Ranked pop-up's sword spills over its badge like the other badge art, and its
+   flame flickers: the fire is its own layer behind the sword (ICONS.rankedLive). It
+   breathes around the blade's middle, never swaying off it. Still for Reduce motion. */
+.sheet-icon.ranked .sword-live {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scale(1.6);
+}
+.sword-live .brush-art {
+  position: absolute;
+  inset: 0;
+}
+.sword-live .sword-flame {
+  transform-origin: 62% 45%;
+  /* decorative: twice, then rest (L27); only Alive loops, because it means something */
+  animation: flame-flicker 1.8s ease-in-out 2;
+}
+@keyframes flame-flicker {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  22% {
+    transform: scale(1.035, 1.05) rotate(-1.2deg);
+    filter: brightness(1.08);
+  }
+  48% {
+    transform: scale(0.985, 1.02) rotate(0.8deg);
+    filter: brightness(0.96);
+  }
+  74% {
+    transform: scale(1.04, 0.99) rotate(-0.6deg);
+    filter: brightness(1.1);
+  }
+}
+html[data-reduce-motion] .sword-live .sword-flame {
+  animation: none;
+}
+/* Tapping the sword heats it (heatingSword, home.ts sets --heat from 0 to 1): the
+   molten-blade layer fades in and a fiery glow spreads round it. (The flame keeps its
+   size: swelling it pulled its Crimson edge out from behind the blade, a dark band.) */
+.sheet-icon.ranked {
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.sword-live {
+  --heat: 0;
+  filter: drop-shadow(0 0 calc(var(--heat) * 16px) var(--c-lava));
+}
+.sword-live .sword-heat {
+  opacity: var(--heat);
+}
+.ranked-copy {
+  line-height: 1.4;
+}
+/* The Ranked sheet's facts: your rank, the square's length, the stakes, the pauses. */
+.ranked-facts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.ranked-facts li:first-child {
+  font-family: var(--font);
+  font-weight: 700;
+  color: var(--text);
+}
+.note {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.good {
+  color: var(--accent-text);
+}
+/* Ranked pop-up: "Start" is the theme's primary button (crimson light, lava dark). */
+.btn-start {
+  margin-top: 6px;
+}
+.result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.result h2 {
+  font-size: var(--fs-title);
+  text-align: center;
+  text-transform: uppercase;
+}
+/* The line on how the game went, right under the title (copy.result.winLine / lossLine). */
+.stats .result-line {
+  text-align: center;
+}
+.stats {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.stat {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  column-gap: var(--space-3);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--serif);
+  font-size: var(--fs-label);
+}
+.stat span {
+  color: var(--muted);
+}
+.stat strong {
+  margin-left: auto;
+  font-weight: normal;
+  text-align: right;
+}
+/* A small second line inside a row, under the value (the Elo row's speed bonus). */
+.stat .stat-sub {
+  flex-basis: 100%;
+  font-size: var(--fs-small);
+  text-align: right;
+  color: var(--accent-text);
+}
+.stat .stat-sub.muted {
+  color: var(--muted);
+}
+/* a cut (slow solve, hints) is said plainly, not in the reward colour */
+.stat .stat-sub.plain {
+  color: var(--text);
+}
+/* "10 Elo to Adept III" in the Ranks sheet: the one line about you. */
+.tier-next {
+  font-weight: 700;
+  font-size: var(--fs-small);
+}
+/* One strip for everything earned (game.ts): it wraps onto a second line when narrow. */
+.rewards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+.reward {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--fs-body);
+  font-weight: 700;
+}
+.reward svg {
+  width: calc(24px * var(--text-scale));
+  height: calc(24px * var(--text-scale));
+  color: var(--accent);
+  flex: none;
+}
+/* The avatar (avatar.ts): one whole picture in its frame. A frame's --el is its element's
+   colour, palette only. */
+.avatar-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.avatar-base {
+  fill: var(--surface-2);
+}
+.avatar-art .el-fire { --el: var(--el-fire); }
+.avatar-art .el-water { --el: var(--el-water); }
+.avatar-art .el-earth { --el: var(--el-earth); }
+.avatar-art .el-air { --el: var(--el-air); }
+.layer-frame .ring {
+  stroke: var(--el);
+  stroke-width: 4;
+}
+/* The Mythic frame's gems (avatar.ts frame, IV): the element's colour, edged in cream. */
+.layer-frame .gem {
+  fill: var(--el);
+  stroke: var(--c-bright);
+  stroke-width: 1.6;
+}
+/* An element's crest (avatar.ts crestSvg): its mark in cream on a disc of its colour. */
+.crest circle {
+  fill: var(--el);
+}
+.crest-mark {
+  fill: none;
+  stroke: var(--c-bright);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.layer-frame .ring.thin {
+  stroke-width: 1.6;
+}
+.layer-frame .stud {
+  fill: var(--c-bright);
+  stroke: var(--el);
+  stroke-width: 1.6;
+}
+/* Brought to life (polished once, forge.ts): the picture breathes, bobs and sways, softly
+   and out of step so it never ticks. A stand-in until each avatar has its own animation.
+   Still with Reduce motion. */
+.avatar-face.alive {
+  transform-box: fill-box;
+  transform-origin: 50% 85%;
+  animation: avatar-alive 3.4s ease-in-out infinite;
+}
+@keyframes avatar-alive {
+  0%, 100% { transform: translateY(0) rotate(0) scale(1, 1); }
+  25% { transform: translateY(-2.5%) rotate(-3deg) scale(0.98, 1.03); }
+  50% { transform: translateY(0) rotate(0) scale(1.03, 0.97); }
+  75% { transform: translateY(-2%) rotate(3deg) scale(0.99, 1.02); }
+}
+html[data-reduce-motion] .avatar-face.alive {
+  animation: none;
+}
+/* Home's avatar is a button into the Forge; once something is worn, the drawing replaces
+   the plain disc and its ring. */
+.avatar-btn {
+  display: block;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.avatar-btn.worn {
+  background: none;
+  box-shadow: none;
+}
+.avatar-btn svg {
+  width: 100%;
+  height: 100%;
+}

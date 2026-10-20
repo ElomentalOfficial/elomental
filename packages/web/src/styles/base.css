@@ -1,0 +1,344 @@
+/* The page itself: resets, the app shell, iOS status-area colours, focus, icons, page turns. */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+/* Nothing in the app is selectable text; this also covers modals and the
+   notes wheel, which live outside #app. */
+*,
+*::before,
+*::after {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+html {
+  touch-action: manipulation;
+}
+
+/* App shell, not a document: nothing scrolls, bounces, zooms or pulls to refresh. */
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  -webkit-text-size-adjust: 100%;
+  /* No background transition: the first frame must already be the solid theme
+     colour, because that is what iOS samples for the status bar at launch. */
+}
+body {
+  /* the base size follows Setup > Text size too, for anything without a type-scale token */
+  font-size: var(--fs-body);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  /* Extended by the measured shortfall of fixed layers in home-screen mode (viewport.ts). */
+  bottom: calc(-1 * var(--standalone-gap, 0px));
+}
+/*
+ * Home-screen mode draws under the status bar. Clear it with the reported
+ * inset, or 60px where iOS reports 0, plus room for iOS 26's fade below it.
+ */
+html.standalone {
+  --status-clear: max(env(safe-area-inset-top), 60px);
+}
+/* iOS 26 draws a soft blur below the status bar; content starts under it,
+   where the blur only has the plain page colour to soften. */
+html.standalone .screen:not(.welcome) {
+  padding-top: calc(var(--status-clear) + 30px);
+}
+/* Literal page colours (not variables), for iOS's status-area sampling. */
+html,
+html body {
+  background: #262721;
+}
+html[data-theme='light'],
+html[data-theme='light'] body {
+  background: #ffffe5;
+}
+/* Home-screen app: the background lines on the page itself too (grain.ts), so a strip
+   the app's layers don't reach at the bottom still has them. */
+html.standalone {
+  background-image: var(--page-lines-dark, none);
+  background-size: var(--page-lines-size, cover);
+  background-position: var(--page-lines-pos, 0 0);
+  background-repeat: no-repeat;
+}
+html.standalone[data-theme='light'] {
+  background-image: var(--page-lines-light, none);
+}
+/*
+ * The strip iOS 26 samples to tint its status-bar fade: a real element (iOS
+ * ignores pseudo-elements), fixed, full width, opaque, deeper than 10px, in
+ * the literal theme colour. In the browser it hides under the app. In
+ * home-screen mode it covers the status-bar zone above the content (which is
+ * padded clear of it), so the fade blends into the page; popups (z-index 10+)
+ * still cover it, and it steps aside for the dark welcome ribbon.
+ */
+#status-tint {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 14px;
+  z-index: 0;
+  pointer-events: none;
+  background: #262721;
+}
+html[data-theme='light'] #status-tint {
+  background: #ffffe5;
+}
+html.standalone #status-tint {
+  z-index: 5;
+  height: calc(var(--status-clear) + 26px);
+}
+html.standalone.welcome-active #status-tint {
+  display: none;
+}
+/*
+ * Pop-up open: iOS paints the status-bar blur from #status-tint and the strip
+ * by the home indicator from the page background, outside anything we can
+ * cover. Both switch to the backdrop's own edge colours (the backdrop fades
+ * into exactly these), so the dimmed page runs edge to edge.
+ * Colours = the page colour under the backdrop's frost.
+ */
+html {
+  /* Frosted glass: a smoky Highlight2 over the softly blurred page. */
+  --frost: rgba(64, 65, 60, 0.45);
+  --scrim-top: #323330;
+  --scrim-bottom: #323330;
+  /* The tutorial: the page under its 68% shade (a literal, for iOS's status-area sampling). */
+  --coach-page: #1a1b16;
+}
+html[data-theme='light'] {
+  /* Frosted glass: a smoky Rock over the softly blurred page, a step darker than the
+     page (the dark theme's frost is a step lighter), so the pop-up stands forward. */
+  --frost: rgba(179, 181, 160, 0.45);
+  /* Bright under that frost */
+  --scrim-top: #dddec6;
+  --scrim-bottom: #dddec6;
+  --coach-page: #5f5f55;
+}
+html.modal-open,
+html.modal-open body {
+  background: var(--scrim-bottom);
+}
+html.modal-open #status-tint {
+  background: var(--scrim-top);
+}
+/* Tutorial: the page under its 68% shade, edge to edge. */
+html.coach-open,
+html.coach-open body,
+html.coach-open #status-tint {
+  background: var(--coach-page);
+}
+/* Fades with the backdrop instead of jumping ahead of it. */
+html.standalone:not(.welcome-active) #status-tint {
+  transition: background-color 0.18s ease;
+}
+/* Fill the fixed body (more reliable on iOS than 100dvh). */
+#app {
+  position: relative;
+  z-index: 1;
+  background: var(--bg);
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+/*
+ * Faint wood-grain lines behind every screen (grain.ts draws them). A mask, so
+ * the theme sets their colour; z-index -1 keeps them under the content but
+ * over #app's own background (#app is its own stacking context).
+ *
+ * Pinned to the whole screen, 60px past the top and bottom edges (and the
+ * home-screen app's bottom gap), so they run under the status bar and the
+ * home indicator too. #status-tint draws the same layer in the same place
+ * (below), so the lines carry on through the status-bar strip.
+ */
+#app::before,
+#status-tint::after {
+  content: '';
+  left: 0;
+  width: 100%;
+  top: -60px;
+  /* Home-screen mode: the real screen height (viewport.ts), because iOS under-reports 100lvh there. */
+  height: calc(var(--screen-h, calc(100lvh + var(--standalone-gap, 0px))) + 120px);
+  pointer-events: none;
+  background: var(--grain-color);
+  -webkit-mask: var(--grain) center / cover no-repeat;
+  mask: var(--grain) center / cover no-repeat;
+}
+#app::before {
+  position: fixed;
+  z-index: -1;
+}
+#status-tint {
+  overflow: hidden;
+}
+#status-tint::after {
+  position: absolute;
+  transition: opacity 0.18s ease;
+}
+/* Under a pop-up or the tutorial the strip takes the dimmed colour; the lines there are covered too. */
+html:is(.modal-open, .coach-open) #status-tint::after {
+  opacity: 0;
+}
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+/* Keyboard focus is a double ring outside the control, so it never looks like a selection
+   (a single solid ring or a fill). Fields and search use the same ring. */
+button:focus-visible,
+[href]:focus-visible,
+[tabindex]:not([tabindex='-1']):focus-visible,
+.text-field:focus-visible,
+.review-search:focus-within {
+  outline: 4px double var(--focus);
+  outline-offset: 2px;
+}
+/* Headings get focus only so a screen reader starts there (ui.ts holdFocus): no ring. */
+[tabindex='-1']:focus {
+  outline: none;
+}
+/* "Skip to board": hidden until it has keyboard focus. */
+.skip-link {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  z-index: 30;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  background: var(--primary-bg);
+  color: var(--primary-text);
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+  transform: translate(-50%, -200%);
+  /* Parked above the top edge, but a page turn tilts it into view: keep it unseen too. */
+  opacity: 0;
+}
+.skip-link:focus {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+/* Read by screen readers, not shown. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* Brush-style icons (icons.ts `brush`): baked PNGs, fitted like the SVG icons. */
+.brush-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  -webkit-user-select: none;
+  user-select: none;
+  pointer-events: none;
+}
+/* The leaderboard arm fills its box from the right; a narrow box trims the arm, not the cup. */
+.brush-arm {
+  object-fit: cover;
+  object-position: right center;
+}
+/* Icons exported per theme (icons.ts `themed`). */
+:root[data-theme='light'] .ic-dark,
+:root[data-theme='dark'] .ic-light {
+  display: none;
+}
+h1,
+h2 {
+  font-weight: 800;
+}
+
+.screen {
+  width: 100%;
+  /* The column widens with Text size, so larger words keep the same line lengths (phones are narrower anyway). */
+  max-width: calc(440px * var(--text-scale, 1));
+  height: 100%;
+  padding: max(var(--gutter), env(safe-area-inset-top)) var(--gutter) max(var(--gutter), env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+}
+
+/* Sub-screens turnstile in from the left hinge, like a Windows Phone page. */
+.screen.daily,
+.screen.casual,
+.screen.forge,
+.screen.profile-page,
+.screen.leaderboard,
+.screen.player-page,
+.screen.affinity,
+.screen.setup,
+.screen.game,
+.screen.loading {
+  transform-origin: 0 50%;
+  animation: page-in 0.42s cubic-bezier(0.1, 0.9, 0.2, 1) both;
+  /* Keeps the page on its own layer after the turn too (as the home tiles do):
+     otherwise iOS Safari flattens it the moment the 3D turn ends and repaints
+     it, and the masked, scrolling pages flicker for a frame. Fixed layers are
+     all on <body>, so this moves nothing. */
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+/* Returning to a page (e.g. the calendar after a daily game) swings it in
+   from the other side: the reverse of leaving it. The class stays on that
+   screen (ui.ts goBack): if the entry's name changed once it had played, the
+   browser would play the new one too, and the page would swing in twice. */
+.screen.daily.from-back,
+.screen.casual.from-back,
+.screen.forge.from-back,
+.screen.profile-page.from-back,
+.screen.leaderboard.from-back,
+.screen.player-page.from-back,
+.screen.affinity.from-back,
+.screen.setup.from-back {
+  animation-name: page-back-in;
+}
+@keyframes page-back-in {
+  from {
+    transform: perspective(1200px) rotateY(-55deg);
+    opacity: 0;
+  }
+  to {
+    transform: perspective(1200px) rotateY(0deg);
+    opacity: 1;
+  }
+}
+@keyframes page-in {
+  from {
+    transform: perspective(1200px) rotateY(55deg);
+    opacity: 0;
+  }
+  to {
+    transform: perspective(1200px) rotateY(0deg);
+    opacity: 1;
+  }
+}

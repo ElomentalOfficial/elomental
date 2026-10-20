@@ -1,0 +1,142 @@
+/* ---------- Choosing an affinity (screens/affinity.ts) ---------- */
+.affinity-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-bottom: var(--space-5);
+}
+.affinity-intro {
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+  color: var(--muted);
+  text-align: center;
+}
+/* Two cards side by side, one per row once larger text needs the width. */
+.affinity-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(150px * var(--text-scale))), 1fr));
+  gap: var(--space-3);
+}
+.affinity-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+.affinity-art {
+  display: block;
+  width: 96px;
+  height: 96px;
+  margin-bottom: var(--space-1);
+}
+.affinity-confirm .affinity-art {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto var(--space-2);
+}
+.affinity-confirm {
+  text-align: center;
+}
+.affinity-name {
+  font-size: var(--fs-label);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.affinity-line {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.affinity-standing {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--space-1);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.affinity-standing strong {
+  color: var(--text);
+}
+.affinity-tag {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  padding: 2px 8px;
+  border-radius: 999px;
+  /* ink on page colours, not the accent: the page's accent is for its button (M24) */
+  background: var(--text);
+  color: var(--bg);
+  font-size: var(--fs-small);
+  font-weight: 700;
+}
+.forge-affinity {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+}
+
+/* The drop odds sheet (forge.ts openOdds): exact numbers, plain. */
+.odds-sheet {
+  text-align: left;
+}
+.odds-sheet > :not(h2, .close-btn, button) {
+  align-self: stretch;
+}
+.odds-sheet h2 {
+  /* clear of the close button */
+  padding: 0 44px;
+  text-align: center;
+}
+.odds {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.odds th,
+.odds td {
+  padding: 6px 0;
+  font-size: var(--fs-body);
+  border-bottom: 1px solid var(--line);
+}
+.odds th {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--serif);
+  font-weight: 400;
+  text-align: left;
+}
+.odds td {
+  font-weight: 700;
+  text-align: right;
+}
+.odds-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+/* Federo has one weight: never bolder than 400 (a synthetic bold smears it). */
+.odds-section h3 {
+  font-family: inherit;
+  font-size: var(--fs-body);
+  font-weight: 400;
+  color: var(--text);
+}
+.forge-balances .link-btn {
+  align-self: flex-start;
+}

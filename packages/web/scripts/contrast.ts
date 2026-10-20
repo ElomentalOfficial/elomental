@@ -1,5 +1,6 @@
 /**
- * Contrast and colour-blindness audit of the theme tokens in styles.css.
+ * Contrast and colour-blindness audit of the theme tokens (src/styles/tokens.css, and the High
+ * contrast overrides in src/styles/accessibility.css).
  *
  * Every colour pair the app actually draws is listed in PAIRS by token, so a
  * changed token is re-checked automatically. Translucent colours and element
@@ -282,7 +283,10 @@ export function lookAlikes(css: string): Record<Theme, StatePair[]> {
   return out;
 }
 
-export const readStyles = (): string => readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8');
+/** The whole stylesheet as one text: styles.css with each of its @imports (src/styles/*.css) in place. */
+export const readStyles = (): string =>
+  readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8').replace(/^@import '\.\/(styles\/[\w-]+\.css)';$/gm, (_, file: string) =>
+    readFileSync(new URL(`../src/${file}`, import.meta.url), 'utf8'));
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const css = readStyles();

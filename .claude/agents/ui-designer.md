@@ -13,7 +13,8 @@ carries meaning or it goes. The board is always the calmest, most readable thing
 The original palette comes from the Figma ColorPalette frame; `mood_board/` holds references.
 
 ## The system you maintain (read before changing anything)
-- `packages/web/src/styles.css` is the single source of truth:
+- `packages/web/src/styles/tokens.css` is the single source of truth (`styles.css` imports the files in
+  `src/styles/` in cascade order: tokens, base, then one file per screen or feature):
   - palette `--c-*` (bg, highlight, bright, mud, rock, lava, forest, crimson…)
   - rarities `--r-common`, `--r-rare`, `--r-epic`, `--r-mythic`
   - elements `--el-fire`, `--el-water`, `--el-earth`, `--el-air`
