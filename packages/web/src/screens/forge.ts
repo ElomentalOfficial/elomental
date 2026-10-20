@@ -162,19 +162,20 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
       const btn = h('button', { class: 'btn', text: copy.forge.lifeButton });
       if (!can) btn.disabled = true;
       else btn.addEventListener('click', () => busy(btn, () => polishPart(p.id), copy.forge.broughtToLife(name)));
-      const cost = (icon: string, amount: string, label: string, have: number, enough: boolean) =>
-        h('li', { class: `life-cost-item${enough ? '' : ' short'}` },
+      const cost = (icon: string, amount: string, label: string, have: number, need: number) =>
+        h('li', { class: `life-cost-item${have >= need ? '' : ' short'}` },
           h('span', { class: 'life-cost-main' }, h('span', { class: 'life-cost-icon', html: icon }), h('strong', { text: amount })),
           h('span', { class: 'life-cost-label', text: label }),
-          h('span', { class: 'life-cost-have', text: copy.forge.lifeHave(have) }));
+          h('span', { class: 'life-cost-have', text: copy.forge.lifeHave(have) }),
+          have >= need ? null : h('span', { class: 'life-cost-short', text: copy.forge.lifeShort(need - have) }));
       life = h(
         'section',
         { class: 'life-section' },
         h('h3', { text: copy.forge.lifeTitle }),
         h('p', { class: 'note', text: copy.forge.lifeNote }),
         h('ul', { class: 'life-cost', attrs: { 'aria-label': copy.forge.a11yLifeCost(ALIVE_COST, f.stardust, f.spirits) } },
-          cost(ICONS.dust, String(ALIVE_COST), copy.common.stardust, f.stardust, f.stardust >= ALIVE_COST),
-          cost(ICONS.spirit, '1', copy.forge.lifeSpirit, f.spirits, f.spirits >= 1)),
+          cost(ICONS.dust, String(ALIVE_COST), copy.common.stardust, f.stardust, ALIVE_COST),
+          cost(ICONS.spirit, '1', copy.forge.lifeSpirit, f.spirits, 1)),
         btn,
       );
     }

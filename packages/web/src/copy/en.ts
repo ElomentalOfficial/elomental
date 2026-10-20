@@ -273,6 +273,8 @@ export const forge = {
   lifeButton: 'Bring to life',
   lifeSpirit: 'Spirit',
   lifeHave: (n: number) => `You have ${n}`,
+  /** Under a cost the player can't cover yet. */
+  lifeShort: (n: number) => `Need ${n} more`,
   /** The cost, read as one line by screen readers. */
   a11yLifeCost: (stardust: number, haveDust: number, haveSpirits: number) => `Costs ${stardust} Stardust and 1 Spirit. You have ${haveDust} Stardust and ${plural(haveSpirits, 'Spirit')}.`,
   broughtToLife: (name: string) => `${name} is alive.`,
