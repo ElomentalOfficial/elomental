@@ -2693,6 +2693,80 @@ html[data-reduce-motion] .avatar-face.alive {
 .part-sheet {
   text-align: center;
 }
+/* the main action sits a step below the name and its tags */
+.part-sheet > .btn {
+  margin-top: var(--space-2);
+}
+/* Bring to life (forge.ts): its own section under a hairline, the two costs side by side,
+   each with what you have; a cost you can't cover yet is outlined, with its "You have" in
+   the text colour. */
+.life-section {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--line);
+}
+.life-section h3 {
+  font-size: var(--fs-label);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.life-section .note {
+  margin-top: calc(-1 * var(--space-2));
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.life-cost {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.life-cost-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-3) var(--space-2);
+  border-radius: 10px;
+  background: var(--surface-2);
+}
+.life-cost-item.short {
+  box-shadow: inset 0 0 0 1px var(--field-border);
+}
+.life-cost-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.life-cost-main strong {
+  font-size: var(--fs-label);
+}
+.life-cost-label {
+  font-size: var(--fs-small);
+  font-weight: 700;
+}
+.life-cost-icon svg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  color: var(--accent);
+}
+.life-cost-have {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.life-cost-item.short .life-cost-have {
+  color: var(--text);
+}
 .part-sheet-art {
   display: block;
   width: 140px;

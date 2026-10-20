@@ -154,14 +154,29 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
       btn.addEventListener('click', () => busy(btn, () => equipPart(p.slot, null), null));
       action = btn;
     }
-    // an avatar you own can be brought to life, once (6000 Stardust and a Spirit)
-    let life: HTMLElement[] = [];
+    // An avatar you own can be brought to life, once: its own section under a hairline,
+    // with the two costs side by side and what you have of each.
+    let life: HTMLElement | null = null;
     if (p.slot === 'avatar' && (state === 'owned' || state === 'wearing') && polish < 1) {
       const can = f.stardust >= ALIVE_COST && f.spirits >= 1;
-      const btn = h('button', { class: 'btn', text: copy.forge.bringToLife(ALIVE_COST) });
+      const btn = h('button', { class: 'btn', text: copy.forge.lifeButton });
       if (!can) btn.disabled = true;
       else btn.addEventListener('click', () => busy(btn, () => polishPart(p.id), copy.forge.broughtToLife(name)));
-      life = [h('p', { class: 'note', text: can ? copy.forge.lifeNote : copy.forge.lifeNeeds(ALIVE_COST) }), btn];
+      const cost = (icon: string, amount: string, label: string, have: number, enough: boolean) =>
+        h('li', { class: `life-cost-item${enough ? '' : ' short'}` },
+          h('span', { class: 'life-cost-main' }, h('span', { class: 'life-cost-icon', html: icon }), h('strong', { text: amount })),
+          h('span', { class: 'life-cost-label', text: label }),
+          h('span', { class: 'life-cost-have', text: copy.forge.lifeHave(have) }));
+      life = h(
+        'section',
+        { class: 'life-section' },
+        h('h3', { text: copy.forge.lifeTitle }),
+        h('p', { class: 'note', text: copy.forge.lifeNote }),
+        h('ul', { class: 'life-cost', attrs: { 'aria-label': copy.forge.a11yLifeCost(ALIVE_COST, f.stardust, f.spirits) } },
+          cost(ICONS.dust, String(ALIVE_COST), copy.common.stardust, f.stardust, f.stardust >= ALIVE_COST),
+          cost(ICONS.spirit, '1', copy.forge.lifeSpirit, f.spirits, f.spirits >= 1)),
+        btn,
+      );
     }
     const close = openModal(
       h(
@@ -173,7 +188,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
         h('p', { class: 'part-sheet-meta' }, rarityTag(p.rarity), kind(p), edition ? ` · ${copy.forge.edition(edition)}` : '', polish ? ` · ${copy.forge.alive}` : ''),
         state === 'ready' || state === 'needs' ? h('p', { class: 'part-price', text: price(p.rarity) }) : null,
         action,
-        ...life,
+        life,
       ),
     );
   }

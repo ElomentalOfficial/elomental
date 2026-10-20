@@ -127,6 +127,7 @@ One name per concept. Player-facing text uses exactly these.
 | Part names | element word + slot: **Ember** (Fire), **Tide** (Water), **Stone** (Earth), **Gale** (Air): "Tide Frame II" | | |
 | Bad-luck cap | **guarantee**: "Epic or better within 6 parts." | pity, pity timer | "Pity" is only an internal word. |
 | Making parts | **Forge** (the page and the verb): any missing part, for Stardust | craft, buy, upgrade | Parts are **avatars** (whole pictures) and **frames**. |
+| Putting a part on | **Equip** (button), **Equipped** (state), **Unequip** | wear, wearing, take off | Same words for avatars and frames. |
 | Animating an avatar | **bring to life** (polish, once): "Bring to life · 6000 Stardust and a Spirit"; it's then **Alive** | upgrade, level up, enhance, animate | A look only; never stronger. |
 | Behind the name | **name plate**: Bronze, Silver, Gold, Elomentalist | banner, badge, frame | "Frame" is an avatar slot. |
 | Missed Daily | **fill in** a missed day: "Fill in October 12?" | mend, repair, buy back, streak freeze | "Mend" is only an internal word. |
