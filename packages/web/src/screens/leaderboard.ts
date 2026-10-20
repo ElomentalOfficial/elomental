@@ -13,6 +13,7 @@ import {
   type SearchHit,
 } from '../backend/leaderboard.ts';
 import { supabase } from '../backend/client.ts';
+import { signUpForm } from '../accountForm.ts';
 import { ICONS } from '../icons.ts';
 import { paintPlate } from '../plates.ts';
 import { cardAvatar, openPlayerCard } from '../playerCard.ts';
@@ -217,6 +218,13 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
   function meContent(me: LbMe | null): (HTMLElement | string)[] {
     const account = cachedAccount();
     if (!me || !account) return [h('p', { class: 'note', text: t.offline })];
+    // Guests are never listed, however many games they've played: say so, and offer the way in.
+    if (account.anonymous) {
+      return [
+        h('span', { class: 'lb-me-text' }, h('strong', { text: t.you }), h('span', { text: t.guestBar })),
+        h('button', { class: 'btn btn-primary lb-jump', text: t.guestSignUp, attrs: { type: 'button' }, onclick: openGuestSignUp }),
+      ];
+    }
     let text: string;
     let canJump = false;
     if (me.restricted) text = t.restricted;
@@ -244,6 +252,25 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
       me.hidden ? h('button', { class: 'link-btn', text: copy.privacy.open, attrs: { type: 'button' }, onclick: () => mount(privacyScreen(() => leaderboardScreen({ view }))) }) : '',
       canJump ? jump : '',
     ];
+  }
+  /** The sign-up form in a sheet; once signed up, the board reloads with your place. */
+  function openGuestSignUp() {
+    const close = openModal(
+      h(
+        'div',
+        { class: 'sheet' },
+        closeButton(() => close()),
+        signUpForm({
+          title: t.guestSheetTitle,
+          text: t.guestSheetText((cachedAccount()?.rankedGames ?? 0) > 0),
+          onDone: () => {
+            close();
+            void paintMe();
+            void load(0);
+          },
+        }),
+      ),
+    );
   }
   const meLoadout = () => {
     const l = readJson<{ avatar?: string | null; frame?: string | null }>('elomental:loadout') ?? {};

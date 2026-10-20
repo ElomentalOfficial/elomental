@@ -934,8 +934,7 @@ function gameScreen(game: SavedGame): Screen {
         }),
         clashTable(code, mine, theirs),
         rewards.childElementCount ? rewards : null,
-        addToHomeResultNote(mine.solved),
-        signupPrompt(),
+        resultExtra(mine.solved, !!outcome.drop),
         h(
           'div',
           { class: 'actions' },
@@ -963,14 +962,18 @@ function gameScreen(game: SavedGame): Screen {
       statRow(copy.result.mistakes, copy.result.mistakesOf(game.mistakes, MAX_MISTAKES)),
     ];
     if (game.hints) rows.push(statRow(copy.result.hints, String(game.hints)));
+    let promotedNow = false;
     if (outcome.elo) {
       const delta = outcome.elo.after - outcome.elo.before;
       const eloRow = statRow(copy.result.elo, copy.result.eloChange(outcome.elo.before, outcome.elo.after), delta > 0 ? 'good' : '');
       // The new rating counts up from the old one.
       countUp(eloRow.querySelector('strong')!, outcome.elo.before, outcome.elo.after, (n) => copy.result.eloChange(outcome.elo!.before, n, delta));
+      // a speed bonus is a small line inside the Elo row, not a block of its own
+      if (!outcome.elo.unrated && outcome.elo.bonus > 0) eloRow.append(h('span', { class: 'stat-sub', text: copy.result.speedBonus(Math.round(outcome.elo.bonus * 100)) }));
       rows.push(eloRow);
       // A step up in tier or division gets its moment: the new emblem stamps in.
-      if (!outcome.elo.unrated && promoted(outcome.elo.before, outcome.elo.after)) {
+      promotedNow = !outcome.elo.unrated && promoted(outcome.elo.before, outcome.elo.after);
+      if (promotedNow) {
         const tier = rankTier(outcome.elo.after);
         rows.push(
           h(
@@ -990,7 +993,7 @@ function gameScreen(game: SavedGame): Screen {
               outcome.elo.unrated === 'copied' ? copy.result.unratedCopied : copy.result.unratedUnchecked,
           }),
         );
-      } else if (outcome.elo.bonus > 0) rows.push(h('p', { class: 'note good', text: copy.result.speedBonus(Math.round(outcome.elo.bonus * 100)) }));
+      }
       if (outcome.elo.protectedLoss) rows.push(h('p', { class: 'note', text: copy.result.protectedLoss }));
     }
     if (outcome.daily) {
@@ -1038,8 +1041,7 @@ function gameScreen(game: SavedGame): Screen {
         rewards.childElementCount ? rewards : null,
         // last beat: the drop cools out of the forge, then the affinity's share
         outcome.drop ? dropReveal(outcome.drop, () => void goBack(forgeScreen)) : null,
-        addToHomeResultNote(won),
-        signupPrompt(),
+        resultExtra(won, !!outcome.drop || promotedNow || !!outcome.daily?.badgeNew),
         h('div', { class: 'actions' }, again, h('button', { class: 'btn', text: copy.common.home, onclick: () => void goBack(homeScreen) })),
       ),
       { dismissible: false },
@@ -1318,13 +1320,24 @@ function gameScreen(game: SavedGame): Screen {
   };
 }
 
+/**
+ * At most one optional block on a result (full review H9), and none when the result already
+ * has its moment (a part, a promotion, the month's badge): the install note when it's due,
+ * otherwise, for guests, the sign-up line. Each counts only the results it was offered on,
+ * so the two never land together.
+ */
+function resultExtra(won: boolean, busy: boolean): HTMLElement | null {
+  if (busy) return null;
+  return addToHomeResultNote(won) ?? signupPrompt();
+}
+
 const RESULTS_KEY = 'elomental:results';
-/** Every 5th result (3rd, 8th, 13th…), so it never shares a result with the install note (1st, 6th…). */
+/** Every 5th result it's offered on (3rd, 8th, 13th…). */
 const SIGNUP_EVERY = 5;
 
 /**
- * Guests only: a sign-up box at the end of every 5th result. A guest account
- * (anonymous) keeps everything it earned when an email is added; a local
+ * Guests only: one line ("Keep this on any device. Sign up") that opens the sign-up form.
+ * A guest account (anonymous) keeps everything it earned when an email is added; a local
  * guest saves from the next game on.
  */
 function signupPrompt(): HTMLElement | null {
@@ -1335,9 +1348,11 @@ function signupPrompt(): HTMLElement | null {
   const keeps = signedIn(); // anonymous account: this game is already on the server
   const box = signUpForm({
     collapsed: true,
+    line: keeps ? copy.account.keepLine : copy.account.saveLine,
     title: keeps ? copy.account.keepRewards : copy.account.saveProgress,
     text: keeps ? copy.account.keepRewardsText : copy.account.saveProgressText,
-    onDone: () => box.replaceChildren(h('p', { class: 'signup-done', text: copy.account.signedUp })),
+    // saved to this guest (everything kept), or signed in to another account (this guest stays behind)
+    onDone: (kind) => box.replaceChildren(h('p', { class: 'signup-done', text: kind === 'email_change' ? copy.account.signedUp : copy.account.signedInSwitched })),
   });
   return box;
 }

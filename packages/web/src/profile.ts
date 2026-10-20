@@ -69,7 +69,8 @@ export function loadProfile(): Profile {
   if (account) {
     return {
       guest: account.anonymous,
-      name: account.anonymous ? copy.common.guest : account.name,
+      // a guest account already has its own name from the server ("Calm Sage"): show it
+      name: account.name || copy.common.guest,
       title: account.anonymous ? null : (account.title ?? null),
       elo: account.elo,
       rankedGames: account.rankedGames,

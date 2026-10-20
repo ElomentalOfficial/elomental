@@ -11,12 +11,21 @@ import * as copy from '../copy/en.ts';
  * already has an account signs into that account instead (`switched`, and the
  * guest's progress stays behind).
  */
-export async function sendSignInEmail(email: string): Promise<{ error: string | null; switched?: boolean; kind: CodeKind }> {
+/**
+ * A guest's email is attached to the guest account. If it already belongs to another
+ * account, nothing is sent and `needsSwitch` says so, until the guest agrees (`allowSwitch`):
+ * then it's a sign-in that switches this phone to that account.
+ */
+export async function sendSignInEmail(
+  email: string,
+  options: { allowSwitch?: boolean } = {},
+): Promise<{ error: string | null; switched?: boolean; needsSwitch?: boolean; kind: CodeKind }> {
   const redirect = `${location.origin}${location.pathname}`;
-  if (cachedAccount()?.anonymous) {
+  if (cachedAccount()?.anonymous && !options.allowSwitch) {
     const { error } = await supabase.auth.updateUser({ email }, { emailRedirectTo: redirect });
     if (!error) return { error: null, kind: 'email_change' };
     if (!/already|registered|exists/i.test(error.message)) return { error: friendlyAuthError(error.message), kind: 'email_change' };
+    return { error: null, needsSwitch: true, kind: 'email' };
   }
   const { error } = await supabase.auth.signInWithOtp({
     email,

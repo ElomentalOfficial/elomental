@@ -329,7 +329,7 @@ export const profile = {
   season: (n: number, total: number) => `Season Alpha: ${n} of ${total} parts`,
   collectionOffline: 'Your parts show here when you’re online.',
   forge: 'Forge',
-  guestNote: 'Make an account to keep your avatar, parts and Elo on any device.',
+  guestNote: 'Sign up to keep your avatar, parts and Elo on any device.',
 };
 // --- Affinities ----------------------------------------------------------------
 // docs/PROGRESSION_DESIGN.md §13: each player fights for one element in a monthly war.
@@ -577,7 +577,23 @@ export const account = {
   codeLabel: 'Code from the email',
   useCode: 'Use code',
   waitingLink: 'Waiting for the link…',
-  switchWarning: 'That email already has an account. Signing in switches to it; this guest’s progress won’t move over.',
+  /** Asked before switching (the code isn't sent until the guest chooses). */
+  switchTitle: (email: string) => `${email} already has an account`,
+  switchText: (elo: number, stardust: number) =>
+    `Signing in switches to that account. This guest’s ${elo} Elo and ${stardust} Stardust won’t move over, and you can’t come back to them.`,
+  switchGo: 'Switch to that account',
+  playedBefore: 'Played before? Use the same email to sign in.',
+  /** After a sign-in or a switch to an existing account (not a guest's email being saved). */
+  signedInSwitched: 'Signed in. You’re on your account now.',
+  /** The result's one-line invitation (opens the form when tapped). */
+  keepLine: 'Keep this on any device.',
+  saveLine: 'Sign up to save your games from now on.',
+  signUpShort: 'Sign up',
+  notNow: 'Not now',
+  /** Once, when a guest who played offline gets an account this session (decision D9). */
+  offlineTitle: 'A fresh start here',
+  offlineText: 'Games you played offline couldn’t move to this profile, so Elo and Stardust start again here. From now on, every game is saved.',
+  offlineOk: 'OK',
   signedIn: 'Signed in.',
   signedUp: 'Signed up. Your progress is saved.',
   guestIntro: 'Playing as a guest. Sign up with your email to keep your Elo, Stardust and Daily progress on any device.',
@@ -585,7 +601,7 @@ export const account = {
   keepRewards: 'Keep your rewards',
   saveProgress: 'Save your progress',
   keepRewardsText: 'Sign up with your email. Your Stardust, Elo and Daily progress stay yours, on any device.',
-  saveProgressText: 'Sign up with your email so your Stardust, Elo and Daily progress are saved from now on.',
+  saveProgressText: 'Sign up with your email to save your games from now on, on any device. What you played before signing up starts again on the account.',
   signedInAs: (email: string) => `Signed in as ${email}`,
   playerName: 'Player name',
   saveName: 'Save name',
@@ -812,6 +828,14 @@ export const leaderboard = {
   ofTotal: (n: number) => `of ${n.toLocaleString('en-GB')}`,
   ordinal: ORDINAL,
   notRated: 'Play a Ranked game to get your place.',
+  /** A guest (no email yet) is never listed, however many games they've played. */
+  guestBar: 'Guests aren’t listed. Sign up to get your place.',
+  guestSignUp: 'Sign up',
+  guestSheetTitle: 'Get your place',
+  guestSheetText: (rated: boolean) =>
+    rated
+      ? 'Sign up with your email to appear on the leaderboard. Your Elo, Stardust and Daily progress come with you.'
+      : 'Sign up with your email, then play Ranked to get your place. Your Stardust and Daily progress come with you.',
   hiddenBar: (place: number | null) => (place ? `You’re hidden. Your place would be #${place.toLocaleString('en-GB')}.` : 'You’re hidden from the leaderboard.'),
   restricted: 'Ranked is closed to you for now, so you aren’t listed.',
   notInView: {
@@ -930,6 +954,7 @@ export const privacy = {
   title: 'Leaderboard and card',
   summary: 'Your country, and what other players see.',
   open: 'Open',
+  a11yOpen: 'Open leaderboard and card settings',
   intro: 'Choose what other players see. Your place is always visible to you.',
   group: 'What others see',
   country: 'Country',
@@ -945,6 +970,8 @@ export const privacy = {
   statsHelp: 'Squares solved and Ranked games played.',
   saved: 'Saved.',
   guest: 'Make an account to appear on the leaderboard.',
+  /** Setup's row for a guest, in place of Open. */
+  guestRow: 'Guests aren’t listed. Sign up in Account, at the top of Setup, to get your place and choose what your card shows.',
 };
 // --- Founder access (literal; screens/setup.ts) -------------------------------
 // Review and Dev mode need a code from an authenticator app on top of the founder email.

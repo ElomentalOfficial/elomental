@@ -16,8 +16,9 @@ export const test = base.extend<{ app: Page }>({
       localStorage.setItem('elomental:tutorial-done', 'true');
     }, theme);
     await page.goto('/');
-    // The splash is a button: skip it.
-    await page.locator('.screen.welcome').click();
+    // The splash is a button: skip it (it also turns away by itself after a moment, so a
+    // click that lands as it goes isn't waited on).
+    await page.locator('.screen.welcome').click({ timeout: 2_000 }).catch(() => undefined);
     await expect(page.locator('.tile.area-casual')).toBeVisible();
     await use(page);
   },
@@ -82,7 +83,8 @@ const rows = (from: number, n: number, base: number, mePlace = 0) =>
  * data): parts, plates, Stardust, an affinity, badges, the leaderboard and a player card.
  * `affinity: null` (with 3 solves) makes Home open the affinity choice.
  */
-export async function signedIn(page: Page, opts: { affinity?: string | null; textSize?: number } = {}) {
+export async function signedIn(page: Page, opts: { affinity?: string | null; textSize?: number; anonymous?: boolean } = {}) {
+  const anonymous = !!opts.anonymous;
   const affinity = opts.affinity === undefined ? 'fire' : opts.affinity;
   const profile = { display_name: ME, title: null, name_changed_at: null, elo: 1530, ranked_games: 80, stardust: 6400, spirits: 1, settings: {}, affinity, plate: 3, affinity_season: null, showcase: [] };
   const standings = [{ affinity: 'fire', members: 41, influence: 9840, standing: 240 }, { affinity: 'water', members: 12, influence: 3240, standing: 270 }, { affinity: 'earth', members: 28, influence: 5600, standing: 200 }, { affinity: 'air', members: 33, influence: 6000, standing: 182 }];
@@ -118,17 +120,17 @@ export async function signedIn(page: Page, opts: { affinity?: string | null; tex
     const single = (route.request().headers().accept ?? '').includes('vnd.pgrst.object');
     return json(single ? (found[0] ?? null) : found);
   });
-  await page.addInitScript(([ref, uid, affinity, textSize]) => {
+  await page.addInitScript(([ref, uid, affinity, textSize, anonymous]) => {
     if (sessionStorage.getItem('signed-in-ready')) return;
     sessionStorage.setItem('signed-in-ready', '1');
     localStorage.setItem('elomental:tutorial-done', 'true');
     localStorage.setItem('elomental:install-note', '-1');
     if (textSize) localStorage.setItem('elomental:a11y', JSON.stringify({ textSize }));
     localStorage.setItem(`sb-${ref}-auth-token`, JSON.stringify({ access_token: 'x', refresh_token: 'y', token_type: 'bearer', expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 86400,
-      user: { id: uid, is_anonymous: false, email: 'test@example.com', aud: 'authenticated', role: 'authenticated' } }));
-    localStorage.setItem('elomental:account', JSON.stringify({ userId: uid, anonymous: false, email: 'test@example.com', name: ME, title: null, nextNameChange: null, elo: 1530, rankedGames: 80,
+      user: { id: uid, is_anonymous: anonymous, email: 'test@example.com', aud: 'authenticated', role: 'authenticated' } }));
+    localStorage.setItem('elomental:account', JSON.stringify({ userId: uid, anonymous, email: 'test@example.com', name: ME, title: null, nextNameChange: null, elo: 1530, rankedGames: 80,
       stardust: 6400, spirits: 1, daily: {}, mended: {}, affinity, solved: 40, plate: 3, showcase: [] }));
-  }, [REF, UID, affinity, opts.textSize ?? 0] as const);
+  }, [REF, UID, affinity, opts.textSize ?? 0, anonymous] as const);
 }
 
 // --- Layout (layout.spec.ts, layout-signed-in.spec.ts) ---------------------------------------

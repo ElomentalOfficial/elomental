@@ -1,3 +1,4 @@
+import { signUpForm } from '../accountForm.ts';
 import { avatarSvg } from '../avatar.ts';
 import { badgeArt, badgeLabel } from '../badges.ts';
 import { myBadges, setShowcase } from '../backend/leaderboard.ts';
@@ -100,7 +101,10 @@ export function profileScreen(): Screen {
       ),
       h('section', { class: 'profile-section' }, h('h2', { text: copy.profile.collection }), collection, bar),
       badgesSection,
-      account?.anonymous ? h('p', { class: 'note', text: copy.profile.guestNote }) : null,
+      // a guest gets the way to act on it: the sign-up form, one tap away
+      account?.anonymous
+        ? h('section', { class: 'profile-section' }, signUpForm({ collapsed: true, title: copy.account.keepRewards, text: copy.profile.guestNote, onDone: () => mount(profileScreen()) }))
+        : null,
       forgeBtn,
     ),
   );

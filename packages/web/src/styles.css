@@ -1648,11 +1648,27 @@ html.standalone .screen.scrollable {
 .result .signup .text-field {
   --field-bg: var(--modal-bg);
 }
+/* The one-line invitation on a result is just the line, no box (it opens into the form). */
+.result .signup.line.collapsed:has(> .signup-line) {
+  padding: 0;
+  border: 0;
+  background: none;
+}
 .signup-head h2 {
   font-size: var(--fs-body);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.02em;
+  /* (a title can hold an email address, which has no spaces to wrap at) */
+  overflow-wrap: anywhere;
+}
+/* in a sheet, the title clears the ✕ in the corner */
+.sheet .signup-head h2 {
+  padding-right: 44px;
+}
+/* Larger text: the guest's You bar puts its button on a row of its own. */
+html[data-large-text] .lb-me .lb-jump {
+  flex-basis: 100%;
 }
 .signup-head p {
   margin-top: 4px;
@@ -1706,6 +1722,13 @@ html.standalone .screen.scrollable {
   bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
   transform: translateX(-50%);
   z-index: 1000;
+}
+/* The result's one-line invitation: the line, then Sign up (opens the form in place). */
+.signup-line {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+  text-align: center;
 }
 .signup-done {
   font-family: var(--serif);
@@ -2362,8 +2385,10 @@ html[data-reduce-motion] .sword-live .sword-flame {
 }
 .stat {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: baseline;
+  column-gap: var(--space-3);
   padding-bottom: 6px;
   border-bottom: 1px solid var(--line);
   font-family: var(--serif);
@@ -2373,7 +2398,16 @@ html[data-reduce-motion] .sword-live .sword-flame {
   color: var(--muted);
 }
 .stat strong {
+  margin-left: auto;
   font-weight: normal;
+  text-align: right;
+}
+/* A small second line inside a row, under the value (the Elo row's speed bonus). */
+.stat .stat-sub {
+  flex-basis: 100%;
+  font-size: var(--fs-small);
+  text-align: right;
+  color: var(--accent-text);
 }
 /* One strip for everything earned (game.ts): it wraps onto a second line when narrow. */
 .rewards {

@@ -143,15 +143,21 @@ function accessibilityLink(): HTMLElement {
   );
 }
 
-/** Setup's way into Leaderboard and card (screens/privacy.ts); signed-in players only. */
+/**
+ * Setup's way into Leaderboard and card (screens/privacy.ts); signed-in players only. A guest
+ * is never listed, so the row says how to get there instead (the Account section above
+ * signs up).
+ */
 function privacyLink(): HTMLElement | null {
-  if (!cachedAccount()) return null;
+  const account = cachedAccount();
+  if (!account) return null;
   const t = copy.privacy;
+  if (account.anonymous) return h('section', { class: 'setting' }, h('div', {}, h('h2', { text: t.title }), h('p', { text: t.guestRow })));
   return h(
     'section',
     { class: 'setting' },
     h('div', {}, h('h2', { text: t.title }), h('p', { text: t.summary })),
-    h('button', { class: 'btn', text: t.open, onclick: () => mount(privacyScreen()) }),
+    h('button', { class: 'btn', text: t.open, attrs: { 'aria-label': t.a11yOpen }, onclick: () => mount(privacyScreen()) }),
   );
 }
 
