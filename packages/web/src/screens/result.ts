@@ -7,7 +7,9 @@ import type { ClashResult } from '../clash.ts';
 import { clashTable, clashVerdict, shareButton } from '../clashView.ts';
 import { ICONS } from '../icons.ts';
 import { addToHomeResultNote } from '../install.ts';
-import { dailyGoal, nextRank, parMs, promoted, rankTier, type Outcome } from '../profile.ts';
+import { TECHNIQUE_BY_ID } from '@elomental/engine';
+import { dailyGoal, parMs, promoted, rankTier, type Outcome } from '../profile.ts';
+import { rankProgress } from '../rankBar.ts';
 import { dropReveal, influenceLine, progressLine } from '../reward.ts';
 import { readJson, writeJson } from '../storage.ts';
 import { formatTime, goBack, h, openModal } from '../ui.ts';
@@ -98,14 +100,13 @@ export function showResult(game: SavedGame, won: boolean, reason: FinishReason, 
     else if (!outcome.elo.unrated && outcome.elo.bonus < 0) sub(copy.result.slowCut(Math.round((2 * parMs(config.target ?? config.rating)) / 60_000)), 'stat-sub plain');
     if (!outcome.elo.unrated && outcome.elo.hintCut > 0) sub(copy.game.hintEloCut(Math.round(outcome.elo.hintCut * 100)), 'stat-sub plain');
     rows.push(eloRow);
-    // how far the next rank is now (at the top there's no next); after a promotion, below it
-    const next = nextRank(outcome.elo.after);
-    const nextLine = next ? h('p', { class: 'note result-next-rank', text: copy.common.toNextRank(next.gap, next.label) }) : null;
-    // A step up in tier or division gets its moment: the new emblem stamps in.
-    promotedNow = !outcome.elo.unrated && promoted(outcome.elo.before, outcome.elo.after);
-    if (!promotedNow && nextLine) sub(nextLine.textContent!, 'stat-sub muted');
+    // the rank shown before and after (the server's, with its grace; a local guest's own)
+    const tierBefore = outcome.elo.tierBefore ?? rankTier(outcome.elo.before).tier;
+    const tierAfter = outcome.elo.tier ?? rankTier(outcome.elo.after).tier;
+    // A step up in rank gets its moment: the new emblem stamps in.
+    promotedNow = !outcome.elo.unrated && promoted(tierBefore, tierAfter);
     if (promotedNow) {
-      const tier = rankTier(outcome.elo.after);
+      const tier = rankTier(outcome.elo.after, tierAfter);
       rows.push(
         h(
           'p',
@@ -113,9 +114,14 @@ export function showResult(game: SavedGame, won: boolean, reason: FinishReason, 
           h('span', { class: `tier-emblem tier-${tier.tier}`, html: ICONS.tiers[tier.tier], attrs: { 'aria-hidden': 'true' } }),
           h('span', { text: copy.result.promoted(tier.label) }),
         ),
-        nextLine,
       );
     }
+    // how far the next rank is now, on its bar (at the top there's no next)
+    rows.push(rankProgress(outcome.elo.after, tierAfter, 'result-next-rank'));
+    // what made the square hard, once it needed more than singles (after a loss most of all)
+    const key = config.hardest ? TECHNIQUE_BY_ID[config.hardest] : null;
+    if (key && key.level > 1) rows.push(h('p', { class: 'note', text: copy.result.keyStep(copy.techniqueName(key.name)) }));
+    if (!won && outcome.elo.comeback) rows.push(h('p', { class: 'note', text: copy.result.comeback }));
     // Only what went well here; no coaching tips (docs/AUDIT.md: a quieter result).
     if (outcome.elo.unrated) {
       rows.push(

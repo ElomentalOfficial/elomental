@@ -44,7 +44,7 @@ export default async function () {
     await as(fo);
     await db.exec(`select set_config('test.aal', 'aal2', false); select set_config('test.session', '${sess}', false)`);
     await db.query(`select public.dev_set_mode(true)`);
-    await db.query(`select public.dev_action('elo', '4800')`);
+    await db.query(`select public.dev_action('elo', '2000')`);
     await db.exec(`select private.refresh_lb()`);
     const listed = (await one(`select count(*)::int n from private.lb where id = $1`, [fo])).n;
     check(listed === 0, `SEC-6 a dev-mode account isn't on the leaderboard (listed: ${listed})`);

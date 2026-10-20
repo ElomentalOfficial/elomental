@@ -1,0 +1,4549 @@
+{
+ "N": 10000,
+ "DAYS": 180,
+ "personas": {
+  "casual": {
+   "label": "Casual (singles only)",
+   "q": [
+    1,
+    0.6,
+    0.25,
+    0.04,
+    0.01,
+    0.005
+   ],
+   "base": 0.015,
+   "perClue": 0.012,
+   "hint": 0.2,
+   "ceiling": 0,
+   "share": 0.5
+  },
+  "medium": {
+   "label": "Newspaper medium (pointing, pairs)",
+   "q": [
+    1,
+    0.96,
+    0.85,
+    0.3,
+    0.08,
+    0.03
+   ],
+   "base": 0.01,
+   "perClue": 0.007,
+   "hint": 0.1,
+   "ceiling": 2,
+   "share": 0.35
+  },
+  "enthusiast": {
+   "label": "Enthusiast (X-Wing, XY-Wing)",
+   "q": [
+    1,
+    0.99,
+    0.97,
+    0.88,
+    0.4,
+    0.15
+   ],
+   "base": 0.005,
+   "perClue": 0.004,
+   "hint": 0.05,
+   "ceiling": 3,
+   "share": 0.12
+  },
+  "diehard": {
+   "label": "Diehard (chains)",
+   "q": [
+    1,
+    0.995,
+    0.99,
+    0.97,
+    0.88,
+    0.7
+   ],
+   "base": 0.002,
+   "perClue": 0.002,
+   "hint": 0.02,
+   "ceiling": 4,
+   "share": 0.03
+  }
+ },
+ "stages": [
+  {
+   "id": "N1",
+   "from": 0,
+   "clues": [
+    38,
+    40
+   ],
+   "steps": {}
+  },
+  {
+   "id": "N2",
+   "from": 200,
+   "clues": [
+    34,
+    36
+   ],
+   "steps": {}
+  },
+  {
+   "id": "A1",
+   "from": 300,
+   "clues": [
+    30,
+    32
+   ],
+   "steps": {}
+  },
+  {
+   "id": "A2",
+   "from": 400,
+   "clues": [
+    30,
+    32
+   ],
+   "steps": {
+    "1": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "id": "A3",
+   "from": 500,
+   "clues": [
+    28,
+    30
+   ],
+   "steps": {
+    "1": [
+     2,
+     3
+    ]
+   }
+  },
+  {
+   "id": "D1",
+   "from": 600,
+   "clues": [
+    28,
+    30
+   ],
+   "steps": {
+    "1": [
+     0,
+     2
+    ],
+    "2": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "id": "D2",
+   "from": 700,
+   "clues": [
+    26,
+    28
+   ],
+   "steps": {
+    "1": [
+     1,
+     3
+    ],
+    "2": [
+     1,
+     2
+    ]
+   }
+  },
+  {
+   "id": "D3",
+   "from": 800,
+   "clues": [
+    24,
+    26
+   ],
+   "steps": {
+    "1": [
+     1,
+     3
+    ],
+    "2": [
+     2,
+     3
+    ]
+   }
+  },
+  {
+   "id": "D4",
+   "from": 900,
+   "clues": [
+    24,
+    26
+   ],
+   "steps": {
+    "1": [
+     0,
+     2
+    ],
+    "2": [
+     1,
+     2
+    ],
+    "3": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "id": "M1",
+   "from": 1000,
+   "clues": [
+    22,
+    24
+   ],
+   "steps": {
+    "2": [
+     1,
+     3
+    ],
+    "3": [
+     1,
+     2
+    ]
+   }
+  },
+  {
+   "id": "M2",
+   "from": 1150,
+   "clues": [
+    22,
+    24
+   ],
+   "steps": {
+    "2": [
+     1,
+     3
+    ],
+    "3": [
+     2,
+     3
+    ]
+   }
+  },
+  {
+   "id": "M3",
+   "from": 1300,
+   "clues": [
+    20,
+    22
+   ],
+   "steps": {
+    "2": [
+     0,
+     2
+    ],
+    "3": [
+     1,
+     2
+    ],
+    "4": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "id": "E1",
+   "from": 1450,
+   "clues": [
+    17,
+    20
+   ],
+   "steps": {
+    "2": [
+     0,
+     2
+    ],
+    "3": [
+     1,
+     2
+    ],
+    "4": [
+     1,
+     2
+    ]
+   }
+  },
+  {
+   "id": "E2",
+   "from": 1600,
+   "clues": [
+    17,
+    20
+   ],
+   "steps": {
+    "3": [
+     0,
+     2
+    ],
+    "4": [
+     1,
+     2
+    ],
+    "5": [
+     1,
+     1
+    ]
+   }
+  }
+ ],
+ "wins": {
+  "live": [
+   {
+    "elo": 150,
+    "target": 150,
+    "p": {
+     "casual": 0.9069010000000104,
+     "medium": 0.944386249999975,
+     "enthusiast": 0.9690420000000219,
+     "diehard": 0.985034999999957
+    }
+   },
+   {
+    "elo": 250,
+    "target": 250,
+    "p": {
+     "casual": 0.9065770000000101,
+     "medium": 0.9445034999999821,
+     "enthusiast": 0.9690250000000211,
+     "diehard": 0.9850109999999582
+    }
+   },
+   {
+    "elo": 300,
+    "target": 300,
+    "p": {
+     "casual": 0.37981249687999474,
+     "medium": 0.8311220286767372,
+     "enthusiast": 0.9279673440036081,
+     "diehard": 0.9651395603723348
+    }
+   },
+   {
+    "elo": 400,
+    "target": 400,
+    "p": {
+     "casual": 0.1754977130843184,
+     "medium": 0.7481574992389338,
+     "enthusiast": 0.9076081646053582,
+     "diehard": 0.9572947057403186
+    }
+   },
+   {
+    "elo": 500,
+    "target": 500,
+    "p": {
+     "casual": 0.05102301250539825,
+     "medium": 0.6177709358127944,
+     "enthusiast": 0.8709897997674402,
+     "diehard": 0.9413461876865723
+    }
+   },
+   {
+    "elo": 600,
+    "target": 600,
+    "p": {
+     "casual": 0.003792527491483322,
+     "medium": 0.48416131062753937,
+     "enthusiast": 0.8270664120290109,
+     "diehard": 0.9225736727069123
+    }
+   },
+   {
+    "elo": 800,
+    "target": 800,
+    "p": {
+     "casual": 0.013303119285267982,
+     "medium": 0.2861465882373126,
+     "enthusiast": 0.7830713889095064,
+     "diehard": 0.9137764808192529
+    }
+   },
+   {
+    "elo": 1000,
+    "target": 1000,
+    "p": {
+     "casual": 0.000536369494153431,
+     "medium": 0.12433785732090766,
+     "enthusiast": 0.6935207905058672,
+     "diehard": 0.8905560942958204
+    }
+   },
+   {
+    "elo": 1200,
+    "target": 1200,
+    "p": {
+     "casual": 0.0019899306651340065,
+     "medium": 0.0678322205187713,
+     "enthusiast": 0.5216101450729982,
+     "diehard": 0.84478133962483
+    }
+   },
+   {
+    "elo": 1600,
+    "target": 1333,
+    "p": {
+     "casual": 0.0028023542474349115,
+     "medium": 0.029423273811437924,
+     "enthusiast": 0.34205119158897157,
+     "diehard": 0.8071267703249896
+    }
+   },
+   {
+    "elo": 2000,
+    "target": 1466,
+    "p": {
+     "casual": 0.00004870237271629718,
+     "medium": 0.004333230167018004,
+     "enthusiast": 0.23642877555036637,
+     "diehard": 0.7504034761533277
+    }
+   },
+   {
+    "elo": 2400,
+    "target": 1600,
+    "p": {
+     "casual": 0.0001978055397907638,
+     "medium": 0.002194280300903089,
+     "enthusiast": 0.17288322355351002,
+     "diehard": 0.6992239588975082
+    }
+   },
+   {
+    "elo": 3000,
+    "target": 1800,
+    "p": {
+     "casual": 0.0012710631600827329,
+     "medium": 0.009150069400147957,
+     "enthusiast": 0.07281776966975163,
+     "diehard": 0.5950941880091042
+    }
+   }
+  ],
+  "stages": [
+   {
+    "id": "N1",
+    "from": 0,
+    "p": {
+     "casual": 0.9850000000000382,
+     "medium": 0.989999999999899,
+     "enthusiast": 0.9949999999999201,
+     "diehard": 0.9980000000000404
+    }
+   },
+   {
+    "id": "N2",
+    "from": 200,
+    "p": {
+     "casual": 0.9488139999999611,
+     "medium": 0.9689650000000385,
+     "enthusiast": 0.982977000000017,
+     "diehard": 0.9920190000000103
+    }
+   },
+   {
+    "id": "A1",
+    "from": 300,
+    "p": {
+     "casual": 0.9011949999999955,
+     "medium": 0.940952749999989,
+     "enthusiast": 0.9669990000000517,
+     "diehard": 0.983985499999962
+    }
+   },
+   {
+    "id": "A2",
+    "from": 400,
+    "p": {
+     "casual": 0.5405442000000169,
+     "medium": 0.9031903199999823,
+     "enthusiast": 0.9573636600000691,
+     "diehard": 0.9790735324999745
+    }
+   },
+   {
+    "id": "A3",
+    "from": 500,
+    "p": {
+     "casual": 0.25363155600000004,
+     "medium": 0.8371739381759861,
+     "enthusiast": 0.9351357489292236,
+     "diehard": 0.9678012752089409
+    }
+   },
+   {
+    "id": "D1",
+    "from": 600,
+    "p": {
+     "casual": 0.1432917149999994,
+     "medium": 0.7567479545199922,
+     "enthusiast": 0.9208796682432416,
+     "diehard": 0.9653434932858892
+    }
+   },
+   {
+    "id": "D2",
+    "from": 700,
+    "p": {
+     "casual": 0.05224396875000086,
+     "medium": 0.6621415399785628,
+     "enthusiast": 0.8902977586469595,
+     "diehard": 0.9518423534886362
+    }
+   },
+   {
+    "id": "D3",
+    "from": 800,
+    "p": {
+     "casual": 0.012737814093750357,
+     "medium": 0.5551250945049959,
+     "enthusiast": 0.8564267798959905,
+     "diehard": 0.9385182779934089
+    }
+   },
+   {
+    "id": "D4",
+    "from": 900,
+    "p": {
+     "casual": 0.00337366935000004,
+     "medium": 0.20386252784760048,
+     "enthusiast": 0.785146185168867,
+     "diehard": 0.9242449057519012
+    }
+   },
+   {
+    "id": "M1",
+    "from": 1000,
+    "p": {
+     "casual": 0.0018173535624999852,
+     "medium": 0.12474639461249842,
+     "enthusiast": 0.7289106771791434,
+     "diehard": 0.9066952519833658
+    }
+   },
+   {
+    "id": "M2",
+    "from": 1150,
+    "p": {
+     "casual": 0.00007332302799999882,
+     "medium": 0.03799067881303092,
+     "enthusiast": 0.6411604625425135,
+     "diehard": 0.8792023698114846
+    }
+   },
+   {
+    "id": "M3",
+    "from": 1300,
+    "p": {
+     "casual": 0.00006906380799999962,
+     "medium": 0.011752748131500174,
+     "enthusiast": 0.2976564530389132,
+     "diehard": 0.8024567525008452
+    }
+   },
+   {
+    "id": "E1",
+    "from": 1450,
+    "p": {
+     "casual": 0.00003427940962000015,
+     "medium": 0.006080336534100037,
+     "enthusiast": 0.2052653752686579,
+     "diehard": 0.7494288386717083
+    }
+   },
+   {
+    "id": "E2",
+    "from": 1600,
+    "p": {
+     "casual": 0.0000063389118613999615,
+     "medium": 0.0005201563771200106,
+     "enthusiast": 0.0342162444144006,
+     "diehard": 0.5386243038668712
+    }
+   }
+  ]
+ },
+ "results": {
+  "live": {
+   "casual": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 0.0013,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Adept",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elementalist",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Archmage",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     1,
+     0,
+     0,
+     0,
+     0
+    ],
+    "elo": {
+     "1": 196,
+     "3": 306,
+     "7": 398,
+     "14": 466,
+     "30": 491,
+     "60": 493,
+     "90": 493,
+     "180": 493
+    },
+    "plateau": [
+     490,
+     494,
+     499
+    ],
+    "winEnd": 0.06327759427451059,
+    "win30": 0.1771740817899937,
+    "promos30": 2,
+    "promos": 2,
+    "newTech": 0,
+    "lossGames14": 0,
+    "demotions": 0.0015,
+    "gracedDemotions": 0.0013,
+    "avgLoss": 15.163412775061383,
+    "streakP90": 63,
+    "comebackShare": 0,
+    "protectionLost": 20,
+    "upDays30": 0.3380066666667038,
+    "downDays30": 0.05872666666666955,
+    "upDaysEnd": 0.12695666666666972,
+    "downDaysEnd": 0.12428666666666872
+   },
+   "medium": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 8,
+      "p90": 14
+     },
+     {
+      "name": "Adept",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elementalist",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Archmage",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0.1995,
+     0.8005,
+     0,
+     0,
+     0
+    ],
+    "elo": {
+     "1": 206,
+     "3": 373,
+     "7": 562,
+     "14": 652,
+     "30": 677,
+     "60": 681,
+     "90": 680,
+     "180": 681
+    },
+    "plateau": [
+     579,
+     682,
+     796
+    ],
+    "winEnd": 0.40127541489143564,
+    "win30": 0.5017359822713203,
+    "promos30": 6,
+    "promos": 31,
+    "newTech": 0,
+    "lossGames14": 13,
+    "demotions": 17.5276,
+    "gracedDemotions": 4.094,
+    "avgLoss": 17.965446346199425,
+    "streakP90": 207,
+    "comebackShare": 0,
+    "protectionLost": 5,
+    "upDays30": 0.6399566666666702,
+    "downDays30": 0.3484466666667058,
+    "upDaysEnd": 0.5064100000000014,
+    "downDaysEnd": 0.4864733333333341
+   },
+   "enthusiast": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 6,
+      "p90": 7
+     },
+     {
+      "name": "Adept",
+      "reached": 0.9872,
+      "median": 22,
+      "p90": 48
+     },
+     {
+      "name": "Elementalist",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Archmage",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0.3499,
+     0.6501,
+     0,
+     0
+    ],
+    "elo": {
+     "1": 209,
+     "3": 400,
+     "7": 703,
+     "14": 1025,
+     "30": 1216,
+     "60": 1252,
+     "90": 1255,
+     "180": 1256
+    },
+    "plateau": [
+     1115,
+     1252,
+     1473
+    ],
+    "winEnd": 0.5113161987285871,
+    "win30": 0.6944408308125476,
+    "promos30": 8,
+    "promos": 28,
+    "newTech": 0,
+    "lossGames14": 7,
+    "demotions": 14.9899,
+    "gracedDemotions": 4.0257,
+    "avgLoss": 19.653462959818203,
+    "streakP90": 180,
+    "comebackShare": 0,
+    "protectionLost": 5,
+    "upDays30": 0.7911866666666698,
+    "downDays30": 0.19341333333335023,
+    "upDaysEnd": 0.47214000000000567,
+    "downDaysEnd": 0.4941333333333335
+   },
+   "diehard": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 5,
+      "p90": 6
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 14,
+      "p90": 17
+     },
+     {
+      "name": "Elementalist",
+      "reached": 0.9989,
+      "median": 45,
+      "p90": 66
+     },
+     {
+      "name": "Archmage",
+      "reached": 0.2271,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0,
+     0.0143,
+     0.8047,
+     0.181
+    ],
+    "elo": {
+     "1": 211,
+     "3": 418,
+     "7": 777,
+     "14": 1214,
+     "30": 1727,
+     "60": 2202,
+     "90": 2448,
+     "180": 2751
+    },
+    "plateau": [
+     2282,
+     2718,
+     3036
+    ],
+    "winEnd": 0.6572034204586461,
+    "win30": 0.8608894702370293,
+    "promos30": 8,
+    "promos": 16,
+    "newTech": 0,
+    "lossGames14": 3,
+    "demotions": 2.2485,
+    "gracedDemotions": 0.1603,
+    "avgLoss": 13.20997588994585,
+    "streakP90": 89,
+    "comebackShare": 0,
+    "protectionLost": 4,
+    "upDays30": 0.9079333333332672,
+    "downDays30": 0.08366666666667326,
+    "upDaysEnd": 0.5450266666666648,
+    "downDaysEnd": 0.44355666666668275
+   },
+   "_pooled": [
+    [
+     "Novice",
+     0.569825
+    ],
+    [
+     "Apprentice",
+     0.322163
+    ],
+    [
+     "Adept",
+     0.078441
+    ],
+    [
+     "Elementalist",
+     0.024141
+    ],
+    [
+     "Archmage",
+     0.00543
+    ]
+   ],
+   "_above": [
+    [
+     900,
+     0.15449
+    ],
+    [
+     1000,
+     0.14843499999999998
+    ],
+    [
+     1300,
+     0.077064
+    ],
+    [
+     1450,
+     0.046296000000000004
+    ],
+    [
+     1500,
+     0.04056
+    ],
+    [
+     1550,
+     0.036275999999999996
+    ],
+    [
+     1600,
+     0.033479999999999996
+    ]
+   ]
+  },
+  "proposal": {
+   "casual": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 4,
+      "p90": 5
+     },
+     {
+      "name": "Adept",
+      "reached": 0.1577,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Archmage",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elomental",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0.9952,
+     0.0048,
+     0,
+     0
+    ],
+    "elo": {
+     "1": 167,
+     "3": 288,
+     "7": 422,
+     "14": 460,
+     "30": 467,
+     "60": 466,
+     "90": 466,
+     "180": 466
+    },
+    "plateau": [
+     420,
+     466,
+     506
+    ],
+    "winEnd": 0.5018747029662648,
+    "win30": 0.597233067540707,
+    "promos30": 1,
+    "promos": 1,
+    "newTech": 1,
+    "lossGames14": 12,
+    "demotions": 0.9586,
+    "gracedDemotions": 0.3477,
+    "avgLoss": 16.34071523052175,
+    "streakP90": 131,
+    "comebackShare": 0,
+    "protectionLost": 4,
+    "upDays30": 0.6151466666666722,
+    "downDays30": 0.3396400000000379,
+    "upDaysEnd": 0.4842766666666689,
+    "downDaysEnd": 0.45168666666667934
+   },
+   "medium": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 4,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 10,
+      "p90": 13
+     },
+     {
+      "name": "Archmage",
+      "reached": 0.033,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elomental",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0.0004,
+     0.9993,
+     0.0003,
+     0
+    ],
+    "elo": {
+     "1": 168,
+     "3": 296,
+     "7": 500,
+     "14": 706,
+     "30": 850,
+     "60": 868,
+     "90": 867,
+     "180": 868
+    },
+    "plateau": [
+     773,
+     867,
+     901
+    ],
+    "winEnd": 0.508070249399046,
+    "win30": 0.7220029718039055,
+    "promos30": 2,
+    "promos": 2,
+    "newTech": 3,
+    "lossGames14": 5,
+    "demotions": 0.7966,
+    "gracedDemotions": 0.0481,
+    "avgLoss": 13.528366270481012,
+    "streakP90": 121,
+    "comebackShare": 0,
+    "protectionLost": 4,
+    "upDays30": 0.7574066666666653,
+    "downDays30": 0.18311666666668383,
+    "upDaysEnd": 0.44572666666668365,
+    "downDaysEnd": 0.4278200000000262
+   },
+   "enthusiast": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 3,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 9,
+      "p90": 10
+     },
+     {
+      "name": "Archmage",
+      "reached": 1,
+      "median": 21,
+      "p90": 26
+     },
+     {
+      "name": "Elomental",
+      "reached": 0.0479,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0,
+     0.0001,
+     0.9952,
+     0.0047
+    ],
+    "elo": {
+     "1": 169,
+     "3": 300,
+     "7": 526,
+     "14": 823,
+     "30": 1153,
+     "60": 1294,
+     "90": 1295,
+     "180": 1295
+    },
+    "plateau": [
+     1227,
+     1295,
+     1321
+    ],
+    "winEnd": 0.5037071807001439,
+    "win30": 0.8420323097854674,
+    "promos30": 3,
+    "promos": 3,
+    "newTech": 4,
+    "lossGames14": 2,
+    "demotions": 1.3056,
+    "gracedDemotions": 0.0794,
+    "avgLoss": 10.269389520103648,
+    "streakP90": 90,
+    "comebackShare": 0,
+    "protectionLost": 3,
+    "upDays30": 0.9116866666666005,
+    "downDays30": 0.06093666666667156,
+    "upDaysEnd": 0.4387166666666866,
+    "downDaysEnd": 0.4147733333333691
+   },
+   "diehard": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 3,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 9,
+      "p90": 10
+     },
+     {
+      "name": "Archmage",
+      "reached": 1,
+      "median": 18,
+      "p90": 20
+     },
+     {
+      "name": "Elomental",
+      "reached": 1,
+      "median": 36,
+      "p90": 42
+     }
+    ],
+    "dist": [
+     0,
+     0,
+     0,
+     0.0002,
+     0.9998
+    ],
+    "elo": {
+     "1": 170,
+     "3": 302,
+     "7": 538,
+     "14": 874,
+     "30": 1350,
+     "60": 1610,
+     "90": 1611,
+     "180": 1611
+    },
+    "plateau": [
+     1592,
+     1612,
+     1646
+    ],
+    "winEnd": 0.6018933143473582,
+    "win30": 0.9252919964359441,
+    "promos30": 3,
+    "promos": 4,
+    "newTech": 5,
+    "lossGames14": 1,
+    "demotions": 0.7516,
+    "gracedDemotions": 0.0014,
+    "avgLoss": 9.694024836078901,
+    "streakP90": 64,
+    "comebackShare": 0,
+    "protectionLost": 3,
+    "upDays30": 0.9798866666666219,
+    "downDays30": 0.012969999999999595,
+    "upDaysEnd": 0.4560166666666797,
+    "downDaysEnd": 0.5291233333333343
+   },
+   "_pooled": [
+    [
+     "Novice",
+     0
+    ],
+    [
+     "Apprentice",
+     0.49773999999999996
+    ],
+    [
+     "Adept",
+     0.352167
+    ],
+    [
+     "Archmage",
+     0.11953499999999999
+    ],
+    [
+     "Elomental",
+     0.030558
+    ]
+   ],
+   "_above": [
+    [
+     900,
+     0.224235
+    ],
+    [
+     1000,
+     0.15009299999999998
+    ],
+    [
+     1300,
+     0.08016
+    ],
+    [
+     1450,
+     0.030558
+    ],
+    [
+     1500,
+     0.029997000000000003
+    ],
+    [
+     1550,
+     0.029649000000000002
+    ],
+    [
+     1600,
+     0.021317999999999997
+    ]
+   ]
+  },
+  "owner idea literally: halve every number, squares still follow Elo": {
+   "casual": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 0.0018,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Adept",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Archmage",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elomental",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     1,
+     0,
+     0,
+     0,
+     0
+    ],
+    "elo": {
+     "1": 134,
+     "3": 167,
+     "7": 205,
+     "14": 236,
+     "30": 245,
+     "60": 246,
+     "90": 246,
+     "180": 246
+    },
+    "plateau": [
+     245,
+     247,
+     249
+    ],
+    "winEnd": 0.06352159169544307,
+    "win30": 0.14841506159132992,
+    "promos30": 0,
+    "promos": 0,
+    "newTech": 0,
+    "lossGames14": 0,
+    "demotions": 0.0018,
+    "gracedDemotions": 0.0017,
+    "avgLoss": 8.000038330242656,
+    "streakP90": 32,
+    "comebackShare": 0,
+    "protectionLost": 20,
+    "upDays30": 0.31041333333335586,
+    "downDays30": 0.06573666666666962,
+    "upDaysEnd": 0.12766000000000244,
+    "downDaysEnd": 0.1312500000000026
+   },
+   "medium": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 7,
+      "p90": 13
+     },
+     {
+      "name": "Adept",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Archmage",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elomental",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0.2135,
+     0.7865,
+     0,
+     0,
+     0
+    ],
+    "elo": {
+     "1": 148,
+     "3": 219,
+     "7": 292,
+     "14": 328,
+     "30": 340,
+     "60": 340,
+     "90": 340,
+     "180": 340
+    },
+    "plateau": [
+     288,
+     341,
+     397
+    ],
+    "winEnd": 0.4004757556176724,
+    "win30": 0.4843579048177984,
+    "promos30": 3,
+    "promos": 17,
+    "newTech": 0,
+    "lossGames14": 15,
+    "demotions": 18.1217,
+    "gracedDemotions": 1.3219,
+    "avgLoss": 8.996007114630013,
+    "streakP90": 104,
+    "comebackShare": 0,
+    "protectionLost": 4,
+    "upDays30": 0.6221400000000041,
+    "downDays30": 0.36473000000004135,
+    "upDaysEnd": 0.5014566666666674,
+    "downDaysEnd": 0.486643333333336
+   },
+   "enthusiast": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 5,
+      "p90": 6
+     },
+     {
+      "name": "Adept",
+      "reached": 0.9896,
+      "median": 21,
+      "p90": 47
+     },
+     {
+      "name": "Archmage",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elomental",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0.3487,
+     0.6513,
+     0,
+     0
+    ],
+    "elo": {
+     "1": 151,
+     "3": 240,
+     "7": 380,
+     "14": 526,
+     "30": 610,
+     "60": 627,
+     "90": 628,
+     "180": 628
+    },
+    "plateau": [
+     557,
+     627,
+     735
+    ],
+    "winEnd": 0.5116598532818954,
+    "win30": 0.6814932708922076,
+    "promos30": 3,
+    "promos": 15,
+    "newTech": 0,
+    "lossGames14": 8,
+    "demotions": 14.8414,
+    "gracedDemotions": 1.5931,
+    "avgLoss": 9.85429716802945,
+    "streakP90": 90,
+    "comebackShare": 0,
+    "protectionLost": 4,
+    "upDays30": 0.7661866666666676,
+    "downDays30": 0.20349333333335007,
+    "upDaysEnd": 0.4531033333333454,
+    "downDaysEnd": 0.4835066666666693
+   },
+   "diehard": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 5,
+      "p90": 5
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 13,
+      "p90": 16
+     },
+     {
+      "name": "Archmage",
+      "reached": 0.9997,
+      "median": 43,
+      "p90": 62
+     },
+     {
+      "name": "Elomental",
+      "reached": 0.2206,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0,
+     0.008,
+     0.8091,
+     0.1829
+    ],
+    "elo": {
+     "1": 153,
+     "3": 253,
+     "7": 423,
+     "14": 628,
+     "30": 878,
+     "60": 1117,
+     "90": 1228,
+     "180": 1348
+    },
+    "plateau": [
+     1146,
+     1344,
+     1496
+    ],
+    "winEnd": 0.6636821566939912,
+    "win30": 0.8553969960828279,
+    "promos30": 2,
+    "promos": 4,
+    "newTech": 0,
+    "lossGames14": 3,
+    "demotions": 2.1385,
+    "gracedDemotions": 0.0395,
+    "avgLoss": 6.632567628832515,
+    "streakP90": 42,
+    "comebackShare": 0,
+    "protectionLost": 3,
+    "upDays30": 0.8914633333332831,
+    "downDays30": 0.08239666666667322,
+    "upDaysEnd": 0.5052733333333328,
+    "downDaysEnd": 0.43144333333335344
+   },
+   "_pooled": [
+    [
+     "Novice",
+     0.574725
+    ],
+    [
+     "Apprentice",
+     0.317119
+    ],
+    [
+     "Adept",
+     0.078396
+    ],
+    [
+     "Archmage",
+     0.024273
+    ],
+    [
+     "Elomental",
+     0.005487
+    ]
+   ],
+   "_above": [
+    [
+     900,
+     0.030074999999999998
+    ],
+    [
+     1000,
+     0.029759999999999998
+    ],
+    [
+     1300,
+     0.020553000000000002
+    ],
+    [
+     1450,
+     0.005487
+    ],
+    [
+     1500,
+     0.003459
+    ],
+    [
+     1550,
+     0.000321
+    ],
+    [
+     1600,
+     0
+    ]
+   ]
+  },
+  "proposal, protected below 200 (owner)": {
+   "casual": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 4,
+      "p90": 5
+     },
+     {
+      "name": "Adept",
+      "reached": 0.1571,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Archmage",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elomental",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0.9959,
+     0.0041,
+     0,
+     0
+    ],
+    "elo": {
+     "1": 167,
+     "3": 284,
+     "7": 421,
+     "14": 460,
+     "30": 466,
+     "60": 466,
+     "90": 466,
+     "180": 467
+    },
+    "plateau": [
+     420,
+     466,
+     507
+    ],
+    "winEnd": 0.502003192280415,
+    "win30": 0.5981688484918816,
+    "promos30": 1,
+    "promos": 1,
+    "newTech": 1,
+    "lossGames14": 12,
+    "demotions": 0.9537,
+    "gracedDemotions": 0.3455,
+    "avgLoss": 16.337573372524314,
+    "streakP90": 131,
+    "comebackShare": 0,
+    "protectionLost": 2,
+    "upDays30": 0.6162800000000064,
+    "downDays30": 0.33906666666670393,
+    "upDaysEnd": 0.4845833333333356,
+    "downDaysEnd": 0.4514000000000131
+   },
+   "medium": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 4,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 10,
+      "p90": 13
+     },
+     {
+      "name": "Archmage",
+      "reached": 0.0325,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elomental",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0.0006,
+     0.9991,
+     0.0003,
+     0
+    ],
+    "elo": {
+     "1": 168,
+     "3": 294,
+     "7": 499,
+     "14": 705,
+     "30": 850,
+     "60": 868,
+     "90": 867,
+     "180": 867
+    },
+    "plateau": [
+     773,
+     867,
+     901
+    ],
+    "winEnd": 0.5079978696247568,
+    "win30": 0.7223875330999645,
+    "promos30": 2,
+    "promos": 2,
+    "newTech": 3,
+    "lossGames14": 6,
+    "demotions": 0.7999,
+    "gracedDemotions": 0.048,
+    "avgLoss": 13.529268003393565,
+    "streakP90": 121,
+    "comebackShare": 0,
+    "protectionLost": 2,
+    "upDays30": 0.7578899999999983,
+    "downDays30": 0.182666666666684,
+    "upDaysEnd": 0.44563000000001746,
+    "downDaysEnd": 0.42782000000002646
+   },
+   "enthusiast": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 3,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 9,
+      "p90": 10
+     },
+     {
+      "name": "Archmage",
+      "reached": 1,
+      "median": 21,
+      "p90": 26
+     },
+     {
+      "name": "Elomental",
+      "reached": 0.0482,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0,
+     0.0001,
+     0.995,
+     0.0049
+    ],
+    "elo": {
+     "1": 169,
+     "3": 299,
+     "7": 525,
+     "14": 822,
+     "30": 1153,
+     "60": 1294,
+     "90": 1295,
+     "180": 1295
+    },
+    "plateau": [
+     1228,
+     1295,
+     1321
+    ],
+    "winEnd": 0.5037827836523707,
+    "win30": 0.8422944406822038,
+    "promos30": 3,
+    "promos": 3,
+    "newTech": 4,
+    "lossGames14": 2,
+    "demotions": 1.3134,
+    "gracedDemotions": 0.0796,
+    "avgLoss": 10.270467329145076,
+    "streakP90": 90,
+    "comebackShare": 0,
+    "protectionLost": 2,
+    "upDays30": 0.9118699999999346,
+    "downDays30": 0.060870000000004816,
+    "upDaysEnd": 0.4389666666666863,
+    "downDaysEnd": 0.4147166666667027
+   },
+   "diehard": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 3,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 9,
+      "p90": 10
+     },
+     {
+      "name": "Archmage",
+      "reached": 1,
+      "median": 18,
+      "p90": 20
+     },
+     {
+      "name": "Elomental",
+      "reached": 1,
+      "median": 36,
+      "p90": 42
+     }
+    ],
+    "dist": [
+     0,
+     0,
+     0,
+     0.0002,
+     0.9998
+    ],
+    "elo": {
+     "1": 170,
+     "3": 302,
+     "7": 538,
+     "14": 873,
+     "30": 1350,
+     "60": 1610,
+     "90": 1611,
+     "180": 1611
+    },
+    "plateau": [
+     1592,
+     1612,
+     1647
+    ],
+    "winEnd": 0.6019229903483128,
+    "win30": 0.9253210877442026,
+    "promos30": 3,
+    "promos": 4,
+    "newTech": 5,
+    "lossGames14": 1,
+    "demotions": 0.7552,
+    "gracedDemotions": 0.0013,
+    "avgLoss": 9.694979108975458,
+    "streakP90": 64,
+    "comebackShare": 0,
+    "protectionLost": 2,
+    "upDays30": 0.9798499999999549,
+    "downDays30": 0.012973333333332929,
+    "upDaysEnd": 0.4560833333333461,
+    "downDaysEnd": 0.5290266666666674
+   },
+   "_pooled": [
+    [
+     "Novice",
+     0
+    ],
+    [
+     "Apprentice",
+     0.49816
+    ],
+    [
+     "Adept",
+     0.351747
+    ],
+    [
+     "Archmage",
+     0.11951099999999999
+    ],
+    [
+     "Elomental",
+     0.030581999999999998
+    ]
+   ],
+   "_above": [
+    [
+     900,
+     0.22388499999999997
+    ],
+    [
+     1000,
+     0.15009299999999998
+    ],
+    [
+     1300,
+     0.080124
+    ],
+    [
+     1450,
+     0.030581999999999998
+    ],
+    [
+     1500,
+     0.029981999999999998
+    ],
+    [
+     1550,
+     0.029637
+    ],
+    [
+     1600,
+     0.02136
+    ]
+   ]
+  },
+  "proposal, gentle losses (0.5 x stake at 300, as live)": {
+   "casual": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 4,
+      "p90": 5
+     },
+     {
+      "name": "Adept",
+      "reached": 0.3576,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Archmage",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elomental",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0.9643,
+     0.0357,
+     0,
+     0
+    ],
+    "elo": {
+     "1": 167,
+     "3": 288,
+     "7": 432,
+     "14": 494,
+     "30": 500,
+     "60": 501,
+     "90": 501,
+     "180": 501
+    },
+    "plateau": [
+     454,
+     501,
+     552
+    ],
+    "winEnd": 0.39175504204335426,
+    "win30": 0.5240643214187697,
+    "promos30": 1,
+    "promos": 1,
+    "newTech": 1,
+    "lossGames14": 14,
+    "demotions": 4.2519,
+    "gracedDemotions": 0.9398,
+    "avgLoss": 9.906015417983859,
+    "streakP90": 115,
+    "comebackShare": 0,
+    "protectionLost": 4,
+    "upDays30": 0.6363466666666676,
+    "downDays30": 0.3538133333333747,
+    "upDaysEnd": 0.49176333333333205,
+    "downDaysEnd": 0.4990966666666667
+   },
+   "medium": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 4,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 10,
+      "p90": 12
+     },
+     {
+      "name": "Archmage",
+      "reached": 0.0936,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elomental",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0,
+     0.996,
+     0.004,
+     0
+    ],
+    "elo": {
+     "1": 168,
+     "3": 296,
+     "7": 505,
+     "14": 726,
+     "30": 889,
+     "60": 894,
+     "90": 894,
+     "180": 894
+    },
+    "plateau": [
+     839,
+     893,
+     916
+    ],
+    "winEnd": 0.4210612955350389,
+    "win30": 0.6893616938240118,
+    "promos30": 2,
+    "promos": 2,
+    "newTech": 3,
+    "lossGames14": 6,
+    "demotions": 0.7983,
+    "gracedDemotions": 0.1516,
+    "avgLoss": 9.07854519201752,
+    "streakP90": 99,
+    "comebackShare": 0,
+    "protectionLost": 4,
+    "upDays30": 0.8179033333333262,
+    "downDays30": 0.18147000000001787,
+    "upDaysEnd": 0.5381166666666694,
+    "downDaysEnd": 0.45999666666667616
+   },
+   "enthusiast": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 3,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 9,
+      "p90": 10
+     },
+     {
+      "name": "Archmage",
+      "reached": 1,
+      "median": 20,
+      "p90": 24
+     },
+     {
+      "name": "Elomental",
+      "reached": 0.0571,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0,
+     0,
+     0.9939,
+     0.0061
+    ],
+    "elo": {
+     "1": 169,
+     "3": 300,
+     "7": 528,
+     "14": 832,
+     "30": 1174,
+     "60": 1298,
+     "90": 1298,
+     "180": 1299
+    },
+    "plateau": [
+     1262,
+     1299,
+     1329
+    ],
+    "winEnd": 0.4789578041844726,
+    "win30": 0.8354303400390752,
+    "promos30": 3,
+    "promos": 3,
+    "newTech": 4,
+    "lossGames14": 2,
+    "demotions": 0.9962,
+    "gracedDemotions": 0.0871,
+    "avgLoss": 9.008149729520085,
+    "streakP90": 81,
+    "comebackShare": 0,
+    "protectionLost": 3,
+    "upDays30": 0.9406599999999254,
+    "downDays30": 0.05712666666667126,
+    "upDaysEnd": 0.5491366666666708,
+    "downDaysEnd": 0.41438666666670354
+   },
+   "diehard": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 3,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 9,
+      "p90": 10
+     },
+     {
+      "name": "Archmage",
+      "reached": 1,
+      "median": 18,
+      "p90": 20
+     },
+     {
+      "name": "Elomental",
+      "reached": 1,
+      "median": 35,
+      "p90": 41
+     }
+    ],
+    "dist": [
+     0,
+     0,
+     0,
+     0.0001,
+     0.9999
+    ],
+    "elo": {
+     "1": 170,
+     "3": 302,
+     "7": 541,
+     "14": 879,
+     "30": 1360,
+     "60": 1610,
+     "90": 1611,
+     "180": 1611
+    },
+    "plateau": [
+     1592,
+     1612,
+     1647
+    ],
+    "winEnd": 0.6019092835750719,
+    "win30": 0.9236964322824286,
+    "promos30": 3,
+    "promos": 4,
+    "newTech": 5,
+    "lossGames14": 1,
+    "demotions": 0.7043,
+    "gracedDemotions": 0.0017,
+    "avgLoss": 9.59072188602987,
+    "streakP90": 64,
+    "comebackShare": 0,
+    "protectionLost": 3,
+    "upDays30": 0.9867766666666392,
+    "downDays30": 0.012326666666666293,
+    "upDaysEnd": 0.4559533333333462,
+    "downDaysEnd": 0.5291466666666668
+   },
+   "_pooled": [
+    [
+     "Novice",
+     0
+    ],
+    [
+     "Apprentice",
+     0.48215
+    ],
+    [
+     "Adept",
+     0.36644999999999994
+    ],
+    [
+     "Archmage",
+     0.120671
+    ],
+    [
+     "Elomental",
+     0.030729
+    ]
+   ],
+   "_above": [
+    [
+     900,
+     0.28755
+    ],
+    [
+     1000,
+     0.15139999999999998
+    ],
+    [
+     1300,
+     0.08852399999999999
+    ],
+    [
+     1450,
+     0.030728999999999996
+    ],
+    [
+     1500,
+     0.029991
+    ],
+    [
+     1550,
+     0.029625
+    ],
+    [
+     1600,
+     0.021276
+    ]
+   ]
+  },
+  "proposal + players learn the next technique": {
+   "casual": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 4,
+      "p90": 5
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 46,
+      "p90": 78
+     },
+     {
+      "name": "Archmage",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elomental",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0.4706,
+     0.5294,
+     0,
+     0
+    ],
+    "elo": {
+     "1": 167,
+     "3": 288,
+     "7": 422,
+     "14": 471,
+     "30": 505,
+     "60": 583,
+     "90": 595,
+     "180": 601
+    },
+    "plateau": [
+     592,
+     600,
+     611
+    ],
+    "winEnd": 0.5017996704930829,
+    "win30": 0.6138909737038009,
+    "promos30": 1,
+    "promos": 98,
+    "newTech": 2,
+    "lossGames14": 12,
+    "demotions": 94.1017,
+    "gracedDemotions": 2.9628,
+    "avgLoss": 16.092115629460782,
+    "streakP90": 115,
+    "comebackShare": 0,
+    "protectionLost": 4,
+    "upDays30": 0.6294300000000048,
+    "downDays30": 0.3182866666666958,
+    "upDaysEnd": 0.4883100000000007,
+    "downDaysEnd": 0.4181333333333674
+   },
+   "medium": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 4,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 10,
+      "p90": 13
+     },
+     {
+      "name": "Archmage",
+      "reached": 0.3511,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elomental",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0.0004,
+     0.7091,
+     0.2905,
+     0
+    ],
+    "elo": {
+     "1": 168,
+     "3": 296,
+     "7": 500,
+     "14": 706,
+     "30": 850,
+     "60": 870,
+     "90": 873,
+     "180": 887
+    },
+    "plateau": [
+     773,
+     877,
+     1261
+    ],
+    "winEnd": 0.5214949199760539,
+    "win30": 0.7223292677097959,
+    "promos30": 2,
+    "promos": 3,
+    "newTech": 3,
+    "lossGames14": 5,
+    "demotions": 3.1295,
+    "gracedDemotions": 0.3085,
+    "avgLoss": 13.26710287538836,
+    "streakP90": 121,
+    "comebackShare": 0,
+    "protectionLost": 4,
+    "upDays30": 0.7577866666666657,
+    "downDays30": 0.18278333333335037,
+    "upDaysEnd": 0.46639666666667345,
+    "downDaysEnd": 0.411470000000036
+   },
+   "enthusiast": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 3,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 9,
+      "p90": 10
+     },
+     {
+      "name": "Archmage",
+      "reached": 1,
+      "median": 21,
+      "p90": 26
+     },
+     {
+      "name": "Elomental",
+      "reached": 0.5891,
+      "median": 155,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0,
+     0.0001,
+     0.4377,
+     0.5622
+    ],
+    "elo": {
+     "1": 169,
+     "3": 300,
+     "7": 526,
+     "14": 823,
+     "30": 1153,
+     "60": 1296,
+     "90": 1305,
+     "180": 1503
+    },
+    "plateau": [
+     1228,
+     1459,
+     1595
+    ],
+    "winEnd": 0.5459800808362006,
+    "win30": 0.8420352998470684,
+    "promos30": 3,
+    "promos": 6,
+    "newTech": 4,
+    "lossGames14": 2,
+    "demotions": 3.1727,
+    "gracedDemotions": 0.095,
+    "avgLoss": 10.01327513431305,
+    "streakP90": 88,
+    "comebackShare": 0,
+    "protectionLost": 3,
+    "upDays30": 0.9116933333332671,
+    "downDays30": 0.06092666666667154,
+    "upDaysEnd": 0.4497600000000147,
+    "downDaysEnd": 0.4675866666666743
+   },
+   "diehard": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 3,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 9,
+      "p90": 10
+     },
+     {
+      "name": "Archmage",
+      "reached": 1,
+      "median": 18,
+      "p90": 20
+     },
+     {
+      "name": "Elomental",
+      "reached": 1,
+      "median": 36,
+      "p90": 42
+     }
+    ],
+    "dist": [
+     0,
+     0,
+     0,
+     0.0002,
+     0.9998
+    ],
+    "elo": {
+     "1": 170,
+     "3": 302,
+     "7": 538,
+     "14": 874,
+     "30": 1350,
+     "60": 1613,
+     "90": 1628,
+     "180": 1663
+    },
+    "plateau": [
+     1603,
+     1659,
+     1700
+    ],
+    "winEnd": 0.6966012047183806,
+    "win30": 0.9252919964359441,
+    "promos30": 3,
+    "promos": 4,
+    "newTech": 5,
+    "lossGames14": 1,
+    "demotions": 0.7509,
+    "gracedDemotions": 0.0015,
+    "avgLoss": 10.315442802994134,
+    "streakP90": 64,
+    "comebackShare": 0,
+    "protectionLost": 3,
+    "upDays30": 0.9798866666666219,
+    "downDays30": 0.012969999999999595,
+    "upDaysEnd": 0.4980633333333314,
+    "downDaysEnd": 0.47484333333333945
+   },
+   "_pooled": [
+    [
+     "Novice",
+     0
+    ],
+    [
+     "Apprentice",
+     0.23544
+    ],
+    [
+     "Adept",
+     0.5128969999999999
+    ],
+    [
+     "Archmage",
+     0.15420499999999998
+    ],
+    [
+     "Elomental",
+     0.09745799999999999
+    ]
+   ],
+   "_above": [
+    [
+     900,
+     0.305785
+    ],
+    [
+     1000,
+     0.25166299999999997
+    ],
+    [
+     1300,
+     0.135098
+    ],
+    [
+     1450,
+     0.09745799999999999
+    ],
+    [
+     1500,
+     0.090486
+    ],
+    [
+     1550,
+     0.083928
+    ],
+    [
+     1600,
+     0.042468
+    ]
+   ]
+  },
+  "(a) comeback square: after 2 losses in a row, one stage lower until a win": {
+   "casual": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 4,
+      "p90": 5
+     },
+     {
+      "name": "Adept",
+      "reached": 0.2268,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Archmage",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elomental",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0.9893,
+     0.0107,
+     0,
+     0
+    ],
+    "elo": {
+     "1": 167,
+     "3": 288,
+     "7": 424,
+     "14": 480,
+     "30": 490,
+     "60": 490,
+     "90": 490,
+     "180": 490
+    },
+    "plateau": [
+     441,
+     491,
+     525
+    ],
+    "winEnd": 0.5024489500013175,
+    "win30": 0.6038051270316409,
+    "promos30": 1,
+    "promos": 1,
+    "newTech": 1,
+    "lossGames14": 12,
+    "demotions": 2.2024,
+    "gracedDemotions": 0.5708,
+    "avgLoss": 16.56596368995948,
+    "streakP90": 83,
+    "comebackShare": 0.1831951901068047,
+    "protectionLost": 4,
+    "upDays30": 0.6197900000000093,
+    "downDays30": 0.32823666666670004,
+    "upDaysEnd": 0.46700333333334154,
+    "downDaysEnd": 0.4542366666666779
+   },
+   "medium": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 4,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 10,
+      "p90": 13
+     },
+     {
+      "name": "Archmage",
+      "reached": 0.0648,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elomental",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0.0001,
+     0.9981,
+     0.0018,
+     0
+    ],
+    "elo": {
+     "1": 168,
+     "3": 296,
+     "7": 500,
+     "14": 708,
+     "30": 861,
+     "60": 879,
+     "90": 879,
+     "180": 879
+    },
+    "plateau": [
+     793,
+     880,
+     907
+    ],
+    "winEnd": 0.5065057416119125,
+    "win30": 0.7255142957741486,
+    "promos30": 2,
+    "promos": 2,
+    "newTech": 3,
+    "lossGames14": 5,
+    "demotions": 0.9696,
+    "gracedDemotions": 0.0982,
+    "avgLoss": 13.404158209510099,
+    "streakP90": 98,
+    "comebackShare": 0.18831424239180966,
+    "protectionLost": 4,
+    "upDays30": 0.7670399999999992,
+    "downDays30": 0.17489000000001587,
+    "upDaysEnd": 0.44629000000001706,
+    "downDaysEnd": 0.42608666666669454
+   },
+   "enthusiast": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 3,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 9,
+      "p90": 10
+     },
+     {
+      "name": "Archmage",
+      "reached": 1,
+      "median": 21,
+      "p90": 26
+     },
+     {
+      "name": "Elomental",
+      "reached": 0.1124,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0,
+     0,
+     0.9693,
+     0.0307
+    ],
+    "elo": {
+     "1": 169,
+     "3": 300,
+     "7": 526,
+     "14": 823,
+     "30": 1156,
+     "60": 1298,
+     "90": 1300,
+     "180": 1300
+    },
+    "plateau": [
+     1263,
+     1299,
+     1386
+    ],
+    "winEnd": 0.5019453223045999,
+    "win30": 0.8435790024140893,
+    "promos30": 3,
+    "promos": 4,
+    "newTech": 4,
+    "lossGames14": 2,
+    "demotions": 2.9125,
+    "gracedDemotions": 0.1229,
+    "avgLoss": 10.170085662407566,
+    "streakP90": 70,
+    "comebackShare": 0.1711387910576701,
+    "protectionLost": 3,
+    "upDays30": 0.915379999999929,
+    "downDays30": 0.058396666666671294,
+    "upDaysEnd": 0.4399566666666872,
+    "downDaysEnd": 0.41356666666670333
+   },
+   "diehard": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 3,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 9,
+      "p90": 10
+     },
+     {
+      "name": "Archmage",
+      "reached": 1,
+      "median": 18,
+      "p90": 20
+     },
+     {
+      "name": "Elomental",
+      "reached": 1,
+      "median": 36,
+      "p90": 42
+     }
+    ],
+    "dist": [
+     0,
+     0,
+     0,
+     0,
+     1
+    ],
+    "elo": {
+     "1": 170,
+     "3": 302,
+     "7": 538,
+     "14": 874,
+     "30": 1350,
+     "60": 1613,
+     "90": 1615,
+     "180": 1615
+    },
+    "plateau": [
+     1595,
+     1615,
+     1652
+    ],
+    "winEnd": 0.6085002222395384,
+    "win30": 0.9252907203980951,
+    "promos30": 3,
+    "promos": 4,
+    "newTech": 5,
+    "lossGames14": 1,
+    "demotions": 0.7028,
+    "gracedDemotions": 0.0003,
+    "avgLoss": 9.790662241346762,
+    "streakP90": 54,
+    "comebackShare": 0.10410436752813221,
+    "protectionLost": 3,
+    "upDays30": 0.9805099999999546,
+    "downDays30": 0.01244666666666629,
+    "upDaysEnd": 0.44726666666668213,
+    "downDaysEnd": 0.5363100000000016
+   },
+   "_pooled": [
+    [
+     "Novice",
+     0
+    ],
+    [
+     "Apprentice",
+     0.494685
+    ],
+    [
+     "Adept",
+     0.354685
+    ],
+    [
+     "Archmage",
+     0.11694600000000001
+    ],
+    [
+     "Elomental",
+     0.033684
+    ]
+   ],
+   "_above": [
+    [
+     900,
+     0.24114
+    ],
+    [
+     1000,
+     0.15063
+    ],
+    [
+     1300,
+     0.091476
+    ],
+    [
+     1450,
+     0.033684
+    ],
+    [
+     1500,
+     0.030242999999999996
+    ],
+    [
+     1550,
+     0.029817000000000003
+    ],
+    [
+     1600,
+     0.022683
+    ]
+   ]
+  },
+  "(b1) losses 1.5x the stake from 500 (300 0.75, 500 1.5, 1600 1.75)": {
+   "casual": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 4,
+      "p90": 5
+     },
+     {
+      "name": "Adept",
+      "reached": 0.067,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Archmage",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elomental",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0.9993,
+     0.0007,
+     0,
+     0
+    ],
+    "elo": {
+     "1": 167,
+     "3": 288,
+     "7": 416,
+     "14": 433,
+     "30": 435,
+     "60": 436,
+     "90": 436,
+     "180": 436
+    },
+    "plateau": [
+     409,
+     439,
+     480
+    ],
+    "winEnd": 0.5700116094798516,
+    "win30": 0.644422350542493,
+    "promos30": 1,
+    "promos": 1,
+    "newTech": 1,
+    "lossGames14": 11,
+    "demotions": 0.2595,
+    "gracedDemotions": 0.1021,
+    "avgLoss": 22.333786526383324,
+    "streakP90": 139,
+    "comebackShare": 0,
+    "protectionLost": 4,
+    "upDays30": 0.5668400000000094,
+    "downDays30": 0.4137333333333724,
+    "upDaysEnd": 0.4548966666666804,
+    "downDaysEnd": 0.5242700000000013
+   },
+   "medium": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 4,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 10,
+      "p90": 14
+     },
+     {
+      "name": "Archmage",
+      "reached": 0.0063,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elomental",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0.0188,
+     0.9812,
+     0,
+     0
+    ],
+    "elo": {
+     "1": 168,
+     "3": 296,
+     "7": 495,
+     "14": 679,
+     "30": 784,
+     "60": 795,
+     "90": 795,
+     "180": 795
+    },
+    "plateau": [
+     690,
+     796,
+     873
+    ],
+    "winEnd": 0.6101085454733638,
+    "win30": 0.7583729172385671,
+    "promos30": 3,
+    "promos": 3,
+    "newTech": 3,
+    "lossGames14": 5,
+    "demotions": 3.9365,
+    "gracedDemotions": 0.3841,
+    "avgLoss": 22.074995626627334,
+    "streakP90": 156,
+    "comebackShare": 0,
+    "protectionLost": 4,
+    "upDays30": 0.7190999999999956,
+    "downDays30": 0.27898666666667393,
+    "upDaysEnd": 0.5015499999999988,
+    "downDaysEnd": 0.49524666666666833
+   },
+   "enthusiast": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 3,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 9,
+      "p90": 11
+     },
+     {
+      "name": "Archmage",
+      "reached": 1,
+      "median": 22,
+      "p90": 31
+     },
+     {
+      "name": "Elomental",
+      "reached": 0.0023,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0,
+     0.0421,
+     0.9578,
+     0.0001
+    ],
+    "elo": {
+     "1": 169,
+     "3": 300,
+     "7": 524,
+     "14": 809,
+     "30": 1091,
+     "60": 1222,
+     "90": 1236,
+     "180": 1237
+    },
+    "plateau": [
+     1073,
+     1237,
+     1295
+    ],
+    "winEnd": 0.6212812878284123,
+    "win30": 0.8535822988384236,
+    "promos30": 3,
+    "promos": 4,
+    "newTech": 4,
+    "lossGames14": 2,
+    "demotions": 4.1733,
+    "gracedDemotions": 0.5267,
+    "avgLoss": 17.833375073655375,
+    "streakP90": 123,
+    "comebackShare": 0,
+    "protectionLost": 3,
+    "upDays30": 0.8469333333333121,
+    "downDays30": 0.15258000000000993,
+    "upDaysEnd": 0.5187333333333317,
+    "downDaysEnd": 0.4802166666666702
+   },
+   "diehard": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 3,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 9,
+      "p90": 10
+     },
+     {
+      "name": "Archmage",
+      "reached": 1,
+      "median": 18,
+      "p90": 21
+     },
+     {
+      "name": "Elomental",
+      "reached": 1,
+      "median": 38,
+      "p90": 50
+     }
+    ],
+    "dist": [
+     0,
+     0,
+     0,
+     0.0259,
+     0.9741
+    ],
+    "elo": {
+     "1": 170,
+     "3": 302,
+     "7": 537,
+     "14": 866,
+     "30": 1320,
+     "60": 1593,
+     "90": 1599,
+     "180": 1599
+    },
+    "plateau": [
+     1551,
+     1599,
+     1624
+    ],
+    "winEnd": 0.6514206344162222,
+    "win30": 0.9285705566746894,
+    "promos30": 3,
+    "promos": 5,
+    "newTech": 5,
+    "lossGames14": 1,
+    "demotions": 2.6978,
+    "gracedDemotions": 0.1871,
+    "avgLoss": 13.70249394612419,
+    "streakP90": 82,
+    "comebackShare": 0,
+    "protectionLost": 3,
+    "upDays30": 0.9370366666665917,
+    "downDays30": 0.06285000000000487,
+    "upDaysEnd": 0.5102566666666676,
+    "downDaysEnd": 0.47551333333333634
+   },
+   "_pooled": [
+    [
+     "Novice",
+     0
+    ],
+    [
+     "Apprentice",
+     0.50623
+    ],
+    [
+     "Adept",
+     0.34882199999999997
+    ],
+    [
+     "Archmage",
+     0.115713
+    ],
+    [
+     "Elomental",
+     0.029235
+    ]
+   ],
+   "_above": [
+    [
+     900,
+     0.171059
+    ],
+    [
+     1000,
+     0.14494800000000002
+    ],
+    [
+     1300,
+     0.047346
+    ],
+    [
+     1450,
+     0.029234999999999997
+    ],
+    [
+     1500,
+     0.028374
+    ],
+    [
+     1550,
+     0.026643
+    ],
+    [
+     1600,
+     0.014754
+    ]
+   ]
+  },
+  "(b2) losses 2.0x the stake from 500 (300 0.75, 500 2.0, 1600 2.25)": {
+   "casual": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 4,
+      "p90": 5
+     },
+     {
+      "name": "Adept",
+      "reached": 0.0382,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Archmage",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elomental",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0.9999,
+     0.0001,
+     0,
+     0
+    ],
+    "elo": {
+     "1": 167,
+     "3": 288,
+     "7": 412,
+     "14": 421,
+     "30": 421,
+     "60": 421,
+     "90": 421,
+     "180": 422
+    },
+    "plateau": [
+     403,
+     425,
+     460
+    ],
+    "winEnd": 0.6159954005322787,
+    "win30": 0.6781500143712516,
+    "promos30": 1,
+    "promos": 1,
+    "newTech": 1,
+    "lossGames14": 10,
+    "demotions": 0.1676,
+    "gracedDemotions": 0.0479,
+    "avgLoss": 27.726608682816064,
+    "streakP90": 148,
+    "comebackShare": 0,
+    "protectionLost": 4,
+    "upDays30": 0.5772933333333413,
+    "downDays30": 0.4163366666667039,
+    "upDaysEnd": 0.4764233333333357,
+    "downDaysEnd": 0.5161233333333362
+   },
+   "medium": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 4,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 11,
+      "p90": 15
+     },
+     {
+      "name": "Archmage",
+      "reached": 0.0024,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elomental",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0.0725,
+     0.9275,
+     0,
+     0
+    ],
+    "elo": {
+     "1": 168,
+     "3": 296,
+     "7": 491,
+     "14": 654,
+     "30": 735,
+     "60": 742,
+     "90": 742,
+     "180": 743
+    },
+    "plateau": [
+     636,
+     742,
+     840
+    ],
+    "winEnd": 0.6666986687323434,
+    "win30": 0.7822150179739517,
+    "promos30": 3,
+    "promos": 7,
+    "newTech": 3,
+    "lossGames14": 5,
+    "demotions": 10.2818,
+    "gracedDemotions": 1.8603,
+    "avgLoss": 29.81396990513737,
+    "streakP90": 183,
+    "comebackShare": 0,
+    "protectionLost": 4,
+    "upDays30": 0.7115566666666595,
+    "downDays30": 0.27285000000000537,
+    "upDaysEnd": 0.5099700000000004,
+    "downDaysEnd": 0.46196333333334205
+   },
+   "enthusiast": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 3,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 9,
+      "p90": 11
+     },
+     {
+      "name": "Archmage",
+      "reached": 1,
+      "median": 24,
+      "p90": 37
+     },
+     {
+      "name": "Elomental",
+      "reached": 0.0004,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0,
+     0.1396,
+     0.8604,
+     0
+    ],
+    "elo": {
+     "1": 169,
+     "3": 300,
+     "7": 521,
+     "14": 797,
+     "30": 1042,
+     "60": 1150,
+     "90": 1160,
+     "180": 1161
+    },
+    "plateau": [
+     985,
+     1160,
+     1278
+    ],
+    "winEnd": 0.6744239442557634,
+    "win30": 0.8619372289522756,
+    "promos30": 4,
+    "promos": 7,
+    "newTech": 4,
+    "lossGames14": 2,
+    "demotions": 8.2608,
+    "gracedDemotions": 1.6126,
+    "avgLoss": 23.90464706116313,
+    "streakP90": 147,
+    "comebackShare": 0,
+    "protectionLost": 3,
+    "upDays30": 0.827536666666657,
+    "downDays30": 0.15721666666667933,
+    "upDaysEnd": 0.48885333333333664,
+    "downDaysEnd": 0.47273666666667186
+   },
+   "diehard": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 3,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 9,
+      "p90": 10
+     },
+     {
+      "name": "Archmage",
+      "reached": 1,
+      "median": 18,
+      "p90": 21
+     },
+     {
+      "name": "Elomental",
+      "reached": 0.9955,
+      "median": 41,
+      "p90": 61
+     }
+    ],
+    "dist": [
+     0,
+     0,
+     0,
+     0.0977,
+     0.9023
+    ],
+    "elo": {
+     "1": 170,
+     "3": 302,
+     "7": 536,
+     "14": 860,
+     "30": 1299,
+     "60": 1562,
+     "90": 1584,
+     "180": 1585
+    },
+    "plateau": [
+     1457,
+     1585,
+     1612
+    ],
+    "winEnd": 0.6922817481622877,
+    "win30": 0.930567413469249,
+    "promos30": 3,
+    "promos": 6,
+    "newTech": 5,
+    "lossGames14": 1,
+    "demotions": 4.9924,
+    "gracedDemotions": 0.6187,
+    "avgLoss": 18.03557019525209,
+    "streakP90": 103,
+    "comebackShare": 0,
+    "protectionLost": 3,
+    "upDays30": 0.9271566666665855,
+    "downDays30": 0.06580666666667226,
+    "upDaysEnd": 0.4742600000000023,
+    "downDaysEnd": 0.4812033333333349
+   },
+   "_pooled": [
+    [
+     "Novice",
+     0
+    ],
+    [
+     "Apprentice",
+     0.525325
+    ],
+    [
+     "Adept",
+     0.341427
+    ],
+    [
+     "Archmage",
+     0.10617900000000001
+    ],
+    [
+     "Elomental",
+     0.027069
+    ]
+   ],
+   "_above": [
+    [
+     900,
+     0.155015
+    ],
+    [
+     1000,
+     0.133248
+    ],
+    [
+     1300,
+     0.037605
+    ],
+    [
+     1450,
+     0.027069
+    ],
+    [
+     1500,
+     0.024768
+    ],
+    [
+     1550,
+     0.02145
+    ],
+    [
+     1600,
+     0.009347999999999999
+    ]
+   ]
+  },
+  "(c) comeback square + losses 1.5x": {
+   "casual": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 4,
+      "p90": 5
+     },
+     {
+      "name": "Adept",
+      "reached": 0.0865,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Archmage",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elomental",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0.9993,
+     0.0007,
+     0,
+     0
+    ],
+    "elo": {
+     "1": 167,
+     "3": 288,
+     "7": 417,
+     "14": 445,
+     "30": 450,
+     "60": 450,
+     "90": 451,
+     "180": 451
+    },
+    "plateau": [
+     413,
+     452,
+     492
+    ],
+    "winEnd": 0.5741570209998123,
+    "win30": 0.6493274067524619,
+    "promos30": 1,
+    "promos": 1,
+    "newTech": 1,
+    "lossGames14": 11,
+    "demotions": 0.3494,
+    "gracedDemotions": 0.1454,
+    "avgLoss": 22.830105112745812,
+    "streakP90": 99,
+    "comebackShare": 0.12778244702892422,
+    "protectionLost": 4,
+    "upDays30": 0.5601300000000065,
+    "downDays30": 0.42271666666669944,
+    "upDaysEnd": 0.4374433333333536,
+    "downDaysEnd": 0.5449066666666716
+   },
+   "medium": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 4,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 10,
+      "p90": 14
+     },
+     {
+      "name": "Archmage",
+      "reached": 0.0075,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elomental",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0.0093,
+     0.9906,
+     0.0001,
+     0
+    ],
+    "elo": {
+     "1": 168,
+     "3": 296,
+     "7": 495,
+     "14": 681,
+     "30": 792,
+     "60": 806,
+     "90": 805,
+     "180": 806
+    },
+    "plateau": [
+     702,
+     806,
+     878
+    ],
+    "winEnd": 0.6099953920145906,
+    "win30": 0.7609427952938256,
+    "promos30": 3,
+    "promos": 3,
+    "newTech": 3,
+    "lossGames14": 5,
+    "demotions": 2.9346,
+    "gracedDemotions": 0.2047,
+    "avgLoss": 21.956685307549222,
+    "streakP90": 133,
+    "comebackShare": 0.12141742567346812,
+    "protectionLost": 4,
+    "upDays30": 0.7194066666666636,
+    "downDays30": 0.27869000000000754,
+    "upDaysEnd": 0.4916233333333349,
+    "downDaysEnd": 0.5050633333333329
+   },
+   "enthusiast": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 3,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 9,
+      "p90": 11
+     },
+     {
+      "name": "Archmage",
+      "reached": 1,
+      "median": 22,
+      "p90": 30
+     },
+     {
+      "name": "Elomental",
+      "reached": 0.0028,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0,
+     0.0329,
+     0.9671,
+     0
+    ],
+    "elo": {
+     "1": 169,
+     "3": 300,
+     "7": 524,
+     "14": 809,
+     "30": 1094,
+     "60": 1234,
+     "90": 1250,
+     "180": 1251
+    },
+    "plateau": [
+     1096,
+     1252,
+     1298
+    ],
+    "winEnd": 0.6208644893802284,
+    "win30": 0.8546150229761819,
+    "promos30": 4,
+    "promos": 4,
+    "newTech": 4,
+    "lossGames14": 2,
+    "demotions": 3.8159,
+    "gracedDemotions": 0.3838,
+    "avgLoss": 17.75092320001605,
+    "streakP90": 107,
+    "comebackShare": 0.10486094007460474,
+    "protectionLost": 3,
+    "upDays30": 0.847926666666646,
+    "downDays30": 0.15163333333334347,
+    "upDaysEnd": 0.511999999999999,
+    "downDaysEnd": 0.48681666666666906
+   },
+   "diehard": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 3,
+      "p90": 4
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 9,
+      "p90": 10
+     },
+     {
+      "name": "Archmage",
+      "reached": 1,
+      "median": 18,
+      "p90": 21
+     },
+     {
+      "name": "Elomental",
+      "reached": 1,
+      "median": 38,
+      "p90": 50
+     }
+    ],
+    "dist": [
+     0,
+     0,
+     0,
+     0.0156,
+     0.9844
+    ],
+    "elo": {
+     "1": 170,
+     "3": 302,
+     "7": 537,
+     "14": 866,
+     "30": 1321,
+     "60": 1595,
+     "90": 1600,
+     "180": 1600
+    },
+    "plateau": [
+     1564,
+     1601,
+     1627
+    ],
+    "winEnd": 0.6535350961908284,
+    "win30": 0.928716060918895,
+    "promos30": 3,
+    "promos": 5,
+    "newTech": 5,
+    "lossGames14": 1,
+    "demotions": 2.5242,
+    "gracedDemotions": 0.1234,
+    "avgLoss": 13.695561085366295,
+    "streakP90": 72,
+    "comebackShare": 0.07946340141536978,
+    "protectionLost": 3,
+    "upDays30": 0.9373033333332577,
+    "downDays30": 0.0625833333333382,
+    "upDaysEnd": 0.5027533333333356,
+    "downDaysEnd": 0.4821699999999993
+   },
+   "_pooled": [
+    [
+     "Novice",
+     0
+    ],
+    [
+     "Apprentice",
+     0.5029049999999999
+    ],
+    [
+     "Adept",
+     0.35100800000000004
+    ],
+    [
+     "Archmage",
+     0.11655499999999998
+    ],
+    [
+     "Elomental",
+     0.029532
+    ]
+   ],
+   "_above": [
+    [
+     900,
+     0.17391199999999998
+    ],
+    [
+     1000,
+     0.146087
+    ],
+    [
+     1300,
+     0.04989299999999999
+    ],
+    [
+     1450,
+     0.029532
+    ],
+    [
+     1500,
+     0.028818
+    ],
+    [
+     1550,
+     0.027308999999999996
+    ],
+    [
+     1600,
+     0.015554999999999998
+    ]
+   ]
+  },
+  "live + players learn the next technique": {
+   "casual": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 0.7546,
+      "median": 116,
+      "p90": null
+     },
+     {
+      "name": "Adept",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elementalist",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Archmage",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0.9757,
+     0.0243,
+     0,
+     0,
+     0
+    ],
+    "elo": {
+     "1": 196,
+     "3": 306,
+     "7": 401,
+     "14": 474,
+     "30": 493,
+     "60": 498,
+     "90": 504,
+     "180": 506
+    },
+    "plateau": [
+     503,
+     514,
+     535
+    ],
+    "winEnd": 0.23975730997862488,
+    "win30": 0.20112161147724728,
+    "promos30": 2,
+    "promos": 4,
+    "newTech": 0,
+    "lossGames14": 0,
+    "demotions": 3.0758,
+    "gracedDemotions": 1.8683,
+    "avgLoss": 15.602417375157492,
+    "streakP90": 148,
+    "comebackShare": 0,
+    "protectionLost": 18,
+    "upDays30": 0.37796333333337423,
+    "downDays30": 0.09373000000000337,
+    "upDaysEnd": 0.38429333333337223,
+    "downDaysEnd": 0.4013700000000351
+   },
+   "medium": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 8,
+      "p90": 14
+     },
+     {
+      "name": "Adept",
+      "reached": 0.1562,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Elementalist",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Archmage",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0.1946,
+     0.7546,
+     0.0508,
+     0,
+     0
+    ],
+    "elo": {
+     "1": 206,
+     "3": 373,
+     "7": 562,
+     "14": 653,
+     "30": 678,
+     "60": 688,
+     "90": 692,
+     "180": 725
+    },
+    "plateau": [
+     580,
+     706,
+     1137
+    ],
+    "winEnd": 0.42794253470236654,
+    "win30": 0.5029778102857221,
+    "promos30": 6,
+    "promos": 31,
+    "newTech": 0,
+    "lossGames14": 13,
+    "demotions": 17.8533,
+    "gracedDemotions": 4.4071,
+    "avgLoss": 18.198590949120028,
+    "streakP90": 205,
+    "comebackShare": 0,
+    "protectionLost": 5,
+    "upDays30": 0.6415866666666705,
+    "downDays30": 0.346730000000038,
+    "upDaysEnd": 0.5168299999999982,
+    "downDaysEnd": 0.4713500000000072
+   },
+   "enthusiast": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 6,
+      "p90": 7
+     },
+     {
+      "name": "Adept",
+      "reached": 0.9874,
+      "median": 22,
+      "p90": 48
+     },
+     {
+      "name": "Elementalist",
+      "reached": 0.2525,
+      "median": null,
+      "p90": null
+     },
+     {
+      "name": "Archmage",
+      "reached": 0,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0.2049,
+     0.565,
+     0.2301,
+     0
+    ],
+    "elo": {
+     "1": 209,
+     "3": 400,
+     "7": 703,
+     "14": 1025,
+     "30": 1218,
+     "60": 1277,
+     "90": 1325,
+     "180": 1608
+    },
+    "plateau": [
+     1122,
+     1539,
+     2154
+    ],
+    "winEnd": 0.5767457054129054,
+    "win30": 0.6953805987742748,
+    "promos30": 8,
+    "promos": 26,
+    "newTech": 0,
+    "lossGames14": 7,
+    "demotions": 10.9018,
+    "gracedDemotions": 2.8658,
+    "avgLoss": 18.85569081320774,
+    "streakP90": 180,
+    "comebackShare": 0,
+    "protectionLost": 5,
+    "upDays30": 0.7924366666666691,
+    "downDays30": 0.19218333333335003,
+    "upDaysEnd": 0.5186699999999965,
+    "downDaysEnd": 0.46485000000000826
+   },
+   "diehard": {
+    "tiers": [
+     {
+      "name": "Novice",
+      "reached": 1,
+      "median": 0,
+      "p90": 0
+     },
+     {
+      "name": "Apprentice",
+      "reached": 1,
+      "median": 5,
+      "p90": 6
+     },
+     {
+      "name": "Adept",
+      "reached": 1,
+      "median": 14,
+      "p90": 17
+     },
+     {
+      "name": "Elementalist",
+      "reached": 0.9989,
+      "median": 45,
+      "p90": 66
+     },
+     {
+      "name": "Archmage",
+      "reached": 0.3728,
+      "median": null,
+      "p90": null
+     }
+    ],
+    "dist": [
+     0,
+     0,
+     0.0143,
+     0.628,
+     0.3577
+    ],
+    "elo": {
+     "1": 211,
+     "3": 418,
+     "7": 777,
+     "14": 1214,
+     "30": 1727,
+     "60": 2202,
+     "90": 2448,
+     "180": 2839
+    },
+    "plateau": [
+     2282,
+     2786,
+     3103
+    ],
+    "winEnd": 0.695989310927394,
+    "win30": 0.8608894702370293,
+    "promos30": 8,
+    "promos": 16,
+    "newTech": 0,
+    "lossGames14": 3,
+    "demotions": 2.097,
+    "gracedDemotions": 0.1316,
+    "avgLoss": 13.332783776034915,
+    "streakP90": 88,
+    "comebackShare": 0,
+    "protectionLost": 4,
+    "upDays30": 0.9079333333332672,
+    "downDays30": 0.08366666666667326,
+    "upDaysEnd": 0.5735899999999964,
+    "downDaysEnd": 0.41481333333335935
+   },
+   "_pooled": [
+    [
+     "Novice",
+     0.55596
+    ],
+    [
+     "Apprentice",
+     0.300848
+    ],
+    [
+     "Adept",
+     0.08600899999999999
+    ],
+    [
+     "Elementalist",
+     0.04645199999999999
+    ],
+    [
+     "Archmage",
+     0.010731000000000001
+    ]
+   ],
+   "_above": [
+    [
+     900,
+     0.26886999999999994
+    ],
+    [
+     1000,
+     0.23933
+    ],
+    [
+     1300,
+     0.115685
+    ],
+    [
+     1450,
+     0.10124399999999999
+    ],
+    [
+     1500,
+     0.097788
+    ],
+    [
+     1550,
+     0.094104
+    ],
+    [
+     1600,
+     0.09049199999999999
+    ]
+   ]
+  }
+ },
+ "map": {
+  "young": [
+   {
+    "old": 100,
+    "n": 1476,
+    "p25": 144,
+    "median": 145,
+    "p75": 147
+   },
+   {
+    "old": 200,
+    "n": 36841,
+    "p25": 148,
+    "median": 168,
+    "p75": 186
+   },
+   {
+    "old": 300,
+    "n": 18158,
+    "p25": 264,
+    "median": 289,
+    "p75": 316
+   },
+   {
+    "old": 400,
+    "n": 30857,
+    "p25": 306,
+    "median": 400,
+    "p75": 432
+   },
+   {
+    "old": 500,
+    "n": 18023,
+    "p25": 434,
+    "median": 476,
+    "p75": 509
+   },
+   {
+    "old": 600,
+    "n": 11466,
+    "p25": 496,
+    "median": 546,
+    "p75": 671
+   },
+   {
+    "old": 700,
+    "n": 12807,
+    "p25": 532,
+    "median": 653,
+    "p75": 727
+   },
+   {
+    "old": 800,
+    "n": 10996,
+    "p25": 541,
+    "median": 669,
+    "p75": 760
+   },
+   {
+    "old": 1000,
+    "n": 8168,
+    "p25": 783,
+    "median": 819,
+    "p75": 857
+   },
+   {
+    "old": 1200,
+    "n": 9704,
+    "p25": 819,
+    "median": 858,
+    "p75": 893
+   },
+   {
+    "old": 1400,
+    "n": 1504,
+    "p25": 851,
+    "median": 882,
+    "p75": 914
+   },
+   {
+    "old": 1600,
+    "n": 0
+   },
+   {
+    "old": 2000,
+    "n": 0
+   },
+   {
+    "old": 2400,
+    "n": 0
+   },
+   {
+    "old": 3000,
+    "n": 0
+   }
+  ],
+  "all": [
+   {
+    "old": 100,
+    "n": 1476,
+    "p25": 144,
+    "median": 145,
+    "p75": 147
+   },
+   {
+    "old": 200,
+    "n": 36841,
+    "p25": 148,
+    "median": 168,
+    "p75": 186
+   },
+   {
+    "old": 300,
+    "n": 18158,
+    "p25": 264,
+    "median": 289,
+    "p75": 316
+   },
+   {
+    "old": 400,
+    "n": 31435,
+    "p25": 308,
+    "median": 401,
+    "p75": 432
+   },
+   {
+    "old": 500,
+    "n": 60571,
+    "p25": 431,
+    "median": 472,
+    "p75": 504
+   },
+   {
+    "old": 600,
+    "n": 23715,
+    "p25": 565,
+    "median": 750,
+    "p75": 832
+   },
+   {
+    "old": 700,
+    "n": 27418,
+    "p25": 729,
+    "median": 835,
+    "p75": 887
+   },
+   {
+    "old": 800,
+    "n": 20509,
+    "p25": 806,
+    "median": 882,
+    "p75": 903
+   },
+   {
+    "old": 1000,
+    "n": 13003,
+    "p25": 813,
+    "median": 883,
+    "p75": 1086
+   },
+   {
+    "old": 1200,
+    "n": 31090,
+    "p25": 1114,
+    "median": 1246,
+    "p75": 1294
+   },
+   {
+    "old": 1400,
+    "n": 13610,
+    "p25": 1274,
+    "median": 1298,
+    "p75": 1312
+   },
+   {
+    "old": 1600,
+    "n": 9819,
+    "p25": 1304,
+    "median": 1332,
+    "p75": 1379
+   },
+   {
+    "old": 2000,
+    "n": 9631,
+    "p25": 1449,
+    "median": 1585,
+    "p75": 1604
+   },
+   {
+    "old": 2400,
+    "n": 16119,
+    "p25": 1599,
+    "median": 1612,
+    "p75": 1631
+   },
+   {
+    "old": 3000,
+    "n": 6605,
+    "p25": 1611,
+    "median": 1629,
+    "p75": 1651
+   }
+  ]
+ }
+}

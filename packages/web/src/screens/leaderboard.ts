@@ -109,7 +109,7 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
 
   /** One row: place, avatar in its frame, name on its plate, rank and affinity, Elo. */
   function row(r: LbRow): HTMLElement {
-    const tier = rankTier(r.elo);
+    const tier = rankTier(r.elo, r.tier);
     const rank = r.title ?? tier.label;
     const name = h('strong', { class: 'lb-name' });
     paintPlate(name, r.name, r.plate);
@@ -319,7 +319,7 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
     results.replaceChildren(...(hits.length ? hits.map(hitRow) : [h('li', { class: 'note', text: t.noResults(q) })]));
   }
   function hitRow(hit: SearchHit): HTMLElement {
-    const tier = rankTier(hit.elo);
+    const tier = rankTier(hit.elo, hit.tier);
     const name = h('strong', { class: 'lb-name' });
     paintPlate(name, hit.name, hit.plate);
     return h(
@@ -452,9 +452,9 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
     const close = openModal(sheet);
     void lbTiers().then((data) => {
       const account = cachedAccount();
-      const mine = rankTier(account?.elo ?? 0).tier;
+      const mine = rankTier(account?.elo ?? 0, account?.tier).tier;
       // where you stand: the next rank and how far it is (once you've played Ranked)
-      const up = account && account.rankedGames > 0 ? nextRank(account.elo) : null;
+      const up = account && account.rankedGames > 0 ? nextRank(account.elo, account.tier) : null;
       if (!data) return sheet.replaceChildren(closeButton(() => close()), h('p', { class: 'note', text: t.offline }));
       sheet.replaceChildren(
         closeButton(() => close()),

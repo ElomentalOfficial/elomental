@@ -3,19 +3,18 @@ import { db, as, check, newPlayer, play, setAudit, SOLVED, one } from './harness
 
 export default async function () {
   let err = null;
-  // --- 16. Ranked length (batch B10, decision D5): short squares at every level
-  const targets = (await one(`select json_agg(private.ranked_target(e) order by e) j from unnest(array[100, 1190, 1200, 2000, 3000, 4800]) e`)).j;
-  check(JSON.stringify(targets) === JSON.stringify([150, 1190, 1200, 1466, 1800, 1800]), `D5 the square follows Elo to 1200, then a third as fast, to 1800 at 3000 (${targets})`);
+  // --- 16. Ranked length (batch B10, decision D5): par stays 10 to 15 minutes (the squares
+  // themselves go by stage since ranked_ladder: ladder.mjs)
   const pars = (await one(`select json_agg(private.par_seconds(r) order by r) j from unnest(array[150, 400, 600, 1800]) r`)).j;
   check(JSON.stringify(pars) === JSON.stringify([600, 600, 780, 900]), `D5 par is 10 to 15 minutes (${pars})`);
   const hi = await newPlayer();
-  await db.exec(`update public.profiles set elo = 2000, ranked_games = 50, affinity = 'earth' where id = '${hi}'`);
+  await db.exec(`update public.profiles set elo = 900, ranked_games = 50 where id = '${hi}'`);
   const hiWin = await play(hi, 'ranked', 'hard', { rating: 1466 });
-  const even = (await one(`select private.elo_delta(2000, 2000, true, 50) d`)).d;
+  const even = (await one(`select private.elo_delta(900, 900, true, 50) d`)).d;
   // (play() starts the game 1200 s back: 1.33x the 900 s par, so no speed bonus)
   check(hiWin.elo.bonus === 0 && hiWin.elo.after - hiWin.elo.before === even, `D5 a win is priced as an even match against your own Elo, not the square's 1466 (+${hiWin.elo.after - hiWin.elo.before}, even +${even})`);
-  check(hiWin.influence?.amount === 3 + 2 + 1, `D5 Ranked influence goes by your Elo (${JSON.stringify(hiWin.influence)})`);
-  // C2 wins: a square far easier than its target is discounted, a harder one earns no premium
+  // C2 wins: the square's rating buys nothing: a harder one earns no premium, and (ranked_ladder)
+  // an easier one no discount, since the audit rates the very square the server dealt
   async function rankedAt(uid, target, audited) {
     const { rows } = await db.query(`insert into public.games (user_id, mode, difficulty, seed, rating, target_rating, started_at)
       values ($1, 'ranked', 'hard', 's', $2, $2, now() - interval '1200 seconds') returning id`, [uid, target]);
@@ -25,9 +24,9 @@ export default async function () {
   }
   const c2p = await newPlayer();
   const gain = (j) => j.elo.after - j.elo.before;
-  const at2000 = async (r) => { await db.exec(`update public.profiles set elo = 2000, ranked_games = 50 where id = '${c2p}'`); return rankedAt(c2p, 1466, r); };
-  const fair = await at2000(1466), cheap = await at2000(100), dear = await at2000(1828);
-  check(gain(cheap) < gain(fair) / 2, `C2 a square far easier than its target is discounted (+${gain(cheap)} vs +${gain(fair)})`);
+  const at900 = async (r) => { await db.exec(`update public.profiles set elo = 900, ranked_games = 50 where id = '${c2p}'`); return rankedAt(c2p, 780, r); };
+  const fair = await at900(780), cheap = await at900(100), dear = await at900(1130);
+  check(gain(cheap) === gain(fair), `C2 an easier square than its stage's is priced the same (+${gain(cheap)} vs +${gain(fair)})`);
   check(gain(dear) === gain(fair), `C2 a harder square earns no premium (+${gain(dear)} vs +${gain(fair)})`);
   // par goes by the target: at target 300 (par 600 s), 280 s is +25% whatever rating is claimed
   const lowP = await newPlayer();
@@ -38,10 +37,6 @@ export default async function () {
   await as(lowP);
   const lowJ = (await db.query(`select public.finish_game($1, true, 0, 0, 280, 650, $2) j`, [lowG[0].id, SOLVED])).rows[0].j;
   check(lowJ.elo.bonus === 0.25, `C2 par goes by the target, not the claimed rating (bonus ${lowJ.elo.bonus})`);
-
-  await db.exec(`update public.profiles set elo = 4000 where id = '${hi}'`);
-  const top = await play(hi, 'ranked', 'hard', { rating: 1800 });
-  check(top.elo.after - top.elo.before < even, `D5 above 3000 the gains fade (+${top.elo.after - top.elo.before})`);
 
   // --- 17. Ranked integrity (batch B11): one private audit per game, rate limits, the hand-off gone
   const ai = await newPlayer();

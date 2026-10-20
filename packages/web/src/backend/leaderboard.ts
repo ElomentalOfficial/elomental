@@ -17,6 +17,8 @@ export interface LbRow {
   name: string;
   title: string | null;
   elo: number;
+  /** The rank shown (0 Novice … 4 Elomental, its grace included); missing from a server before ranked_ladder. */
+  tier?: number | null;
   /** What the view ranks by: Elo, or the best Elo this season (Season). */
   value: number;
   plate: number;
@@ -68,6 +70,8 @@ export interface SearchHit {
   id: string;
   name: string;
   elo: number;
+  /** The rank shown (0 Novice … 4 Elomental, its grace included); missing from a server before ranked_ladder. */
+  tier?: number | null;
   title: string | null;
   plate: number;
   avatar: string | null;
@@ -82,6 +86,8 @@ export interface PlayerCard {
   name: string;
   title: string | null;
   elo: number;
+  /** The rank shown (0 Novice … 4 Elomental, its grace included); missing from a server before ranked_ladder. */
+  tier?: number | null;
   plate: number;
   avatar: string | null;
   frame: string | null;

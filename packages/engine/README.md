@@ -23,8 +23,23 @@ it applies the **easiest** technique that makes progress, and records what it ne
 
 - **level**: the level of the hardest technique the puzzle needed
 - **score**: total effort, the sum of the weights of every step
-- **rating**: the puzzle's starting Elo for ranked play, `100 + 60 × hardestWeight + 4 × effort beyond singles`.
-  Real results recalibrate it.
+- **rating**: the puzzle's strength, `100 + 45 × hardestWeight + 6 × effort beyond singles`. Par
+  time goes by it.
+
+## Ranked stages
+
+Ranked doesn't aim at the player's Elo. The Elo picks one of 14 stages (`RANKED_STAGES`,
+`rankedStage(elo)`), and each stage fixes the square's shape: a clue floor, the technique family
+it may need, and how many steps of it. Each rank is one family (singles, pointing, pairs and
+triples, fish and wings, chains), and its last stage brings in one step of the next rank's.
+`generatePuzzle({ rankedStage })` carves until a square fits. A stage that finds nothing in 500
+carves falls back to the one below, never harder. E2 comes from the master bank. The server
+mirrors the floors and ratings (`private.ranked_stage`, `private.stage_rating`), and
+`supabase/tests/ladder.mjs` checks the two agree.
+
+```bash
+node scripts/benchmark-stages.ts --count 20
+```
 
 ## How generation works
 

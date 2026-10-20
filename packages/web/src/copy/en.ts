@@ -13,6 +13,8 @@ export const plural = (n: number, one: string, many = `${one}s`): string => `${n
 export const capitalize = (s: string): string => s[0].toUpperCase() + s.slice(1);
 /** Every Elo, Stardust and count in one style (L29): grouped from five digits, "12,480", "6400". */
 export const formatNumber = (n: number): string => (Math.abs(n) >= 10000 ? n.toLocaleString('en-GB') : String(n));
+/** A technique's name as shown ("X-Wing"): a word joiner after each hyphen, so it never breaks there. */
+export const techniqueName = (name: string): string => name.replace(/-/g, '-⁠');
 /** "4, 7 and 9". */
 export const listOf = (items: (string | number)[]): string =>
   items.length <= 1 ? String(items[0] ?? '') : `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`;
@@ -64,10 +66,8 @@ export const common = {
   spiritsLabel: (n: number) => (n === 1 ? 'Spirit' : 'Spirits'),
   plusStardust: (n: number) => `+${formatNumber(n)} Stardust`,
   rareSpirit: 'Rare drop: a Spirit!',
-  /** Shown under the player's name, by Elo (tiers and divisions: profile.ts rankTier). */
-  ranks: ['Novice', 'Apprentice', 'Adept', 'Elementalist', 'Archmage'] as const,
-  /** A tier with its division, e.g. "Adept II". */
-  rankDivision: (rank: string, division: string) => `${rank} ${division}`,
+  /** Shown under the player's name, by Elo (profile.ts rankTier). Names only, no divisions. */
+  ranks: ['Novice', 'Apprentice', 'Adept', 'Archmage', 'Elomental'] as const,
   /** How far the next rank is (profile.ts nextRank). */
   toNextRank: (gap: number, label: string) => `${gap} Elo to ${label}`,
 };
@@ -124,9 +124,24 @@ export const home = {
     /** The length, and the slow cut at twice it. */
     length: (minutes: number, slow: number) => `About ${minutes} min. Faster wins more; over ${slow} min wins less.`,
     stakes: (win: number, loss: number) =>
-      loss === 0 ? `Win about +${win}. No Elo lost below 500.`
-      : win < 1 ? `Little Elo left to gain above 3000. Lose about −${loss}.`
+      loss === 0 ? `Win about +${win}. Losses cost no Elo below 300.`
+      : win < 1 ? `Little Elo left to gain above 1600. Lose about −${loss}.`
       : `Win about +${win}, lose about −${loss} (3 mistakes or Concede).`,
+    /** After two losses in a row (profile.ts rankedStageFor). */
+    comeback: 'After two losses in a row, this square is a step easier.',
+    /**
+     * Once each, before the first square from a stage that brings in a technique family
+     * (engine RANKED_STAGES[].introduces). Information, not a reward. Technique names keep a
+     * word joiner after the hyphen (techniqueName), so they never break across lines.
+     */
+    newTechnique: {
+      title: 'New in your Ranked squares',
+      pointing: 'From now on, a square can need pointing: if a number can only go in one row of a box, it can’t go anywhere else in that row. Columns work the same way. A hint shows you how, for a smaller Elo gain.',
+      pairs: 'From now on, a square can need pairs: two cells that can only hold the same two numbers keep them out of the rest of their row, column or box. A hint shows you how, for a smaller Elo gain.',
+      wings: 'From now on, a square can need an X-⁠Wing or an XY-⁠Wing. In an X-⁠Wing, a number fits just two cells in each of two rows, in the same two columns, so it can’t go anywhere else in those columns. A hint shows you how, for a smaller Elo gain.',
+      chains: 'From now on, a square can need a chain or a linked pattern, such as a Finned X-⁠Wing, a Skyscraper or an XY-⁠Chain. A hint shows you how, for a smaller Elo gain.',
+      finned: 'From now on, a square can need a Finned Swordfish or a Finned Jellyfish. A hint shows you how, for a smaller Elo gain.',
+    },
     pauses: '3 pauses of up to 5 minutes.',
     start: 'Start',
   },
@@ -320,7 +335,7 @@ export const forge = {
   oddsSpendTitle: 'Spending Stardust',
   oddsSpend: [
     'Bring an avatar to life: 6000 Stardust and a Spirit, once per avatar.',
-    'Name plates: Bronze 1000, Silver 2500, Gold 6000, Elomentalist 12000.',
+    'Name plates: Bronze 1000, Silver 2500, Gold 6000, Starforged 12000.',
     'Fill in a missed Daily Square: 300 Stardust, up to 3 days a month.',
     'Call a Spirit: 15000 Stardust, then 5000 more for each one called this season.',
   ],
@@ -351,7 +366,7 @@ export const forge = {
   a11yLifeCost: (stardust: number, haveDust: number, haveSpirits: number) => `Costs ${formatNumber(stardust)} Stardust and 1 Spirit. You have ${formatNumber(haveDust)} Stardust and ${plural(haveSpirits, 'Spirit')}.`,
   broughtToLife: (name: string) => `${name} is alive.`,
   plateTitle: 'Name plates',
-  plates: ['No plate', 'Bronze', 'Silver', 'Gold', 'Elomentalist'] as const,
+  plates: ['No plate', 'Bronze', 'Silver', 'Gold', 'Starforged'] as const,
   plateCount: (n: number, total: number) => `${n} of ${total}`,
   plateA11y: (name: string) => `${name} name plate`,
   plateReplaced: 'Replaced',
@@ -459,9 +474,13 @@ export const result = {
     too_quick: 'Unrated: solved faster than a Ranked square can be worked out.',
   },
   speedBonus: (percent: number) => `Speed bonus +${percent}%`,
-  protectedLoss: 'No Elo lost: your rating is protected below 500.',
-  /** A step up in tier or division; demotions get no line. */
+  protectedLoss: 'No Elo lost: losses cost nothing below 300 Elo.',
+  /** A step up in rank; demotions get no line. */
   promoted: (label: string) => `Promoted: ${label}`,
+  /** After a second loss in a row, from 300 Elo up: what the next game holds. */
+  comeback: 'Your next square is a step easier, until you win one.',
+  /** A Ranked square's hardest step, when it needed more than singles (techniqueName). */
+  keyStep: (technique: string) => `Key step: ${technique}`,
   thisMonth: 'This month',
   monthOf: (done: number, days: number) => `${done} / ${days} squares`,
   /** Shown once, on the solve or fill-in that earns the month's badge. */
@@ -732,7 +751,7 @@ export const refusals = {
     not_owned: 'You don’t own that part yet.',
     already_alive: 'That avatar is already alive.',
     no_avatar_to_wake: 'Every avatar you own is alive or has a Spirit waiting for it.',
-    top_plate: 'You already have the Elomentalist plate.',
+    top_plate: 'You already have the Starforged plate.',
     plate_owned: 'You already have that plate.',
     plate_order: 'Plates are bought in order. Get the one before it first.',
     no_mends_left: 'You’ve filled in 3 days this month: that’s the most.',
@@ -1119,7 +1138,7 @@ export const dev = {
   nextPartHelp: 'Your next solve brings a part of this rarity.',
   nextSpirit: 'Next solve brings a Spirit',
   elo: 'Elo',
-  eloHelp: 'From 0 to 4800. Set it to see each rank and promotion.',
+  eloHelp: 'From 0 to 2000. Set it to see each rank and promotion.',
   setElo: 'Set Elo',
   plate: 'Name plate',
   forgetAffinity: 'Forget my affinity',

@@ -34,7 +34,7 @@ export const cardAvatar = (c: { avatar: string | null; frame: string | null; ali
 /** The card's body (shared by the sheet and the full profile of another player). */
 export function cardBody(c: PlayerCard, opts: { large?: boolean } = {}): HTMLElement {
   const t = copy.leaderboard.card;
-  const tier = rankTier(c.elo);
+  const tier = rankTier(c.elo, c.tier);
   const name = h('h2', { class: 'card-name', attrs: { 'data-slot': 'name-effect' } });
   paintPlate(name, c.name, c.plate);
   const facts: (HTMLElement | null)[] = [

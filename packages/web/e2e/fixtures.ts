@@ -102,12 +102,12 @@ const rows = (from: number, n: number, base: number, mePlace = 0) =>
  * Signs the page in as a sample player, with every server call answered by fakes (no live
  * data): parts, plates, Stardust, an affinity, badges, the leaderboard and a player card.
  * `affinity: null` (with 3 solves) makes Home ask for a side; `monthWon` leaves last month's
- * win unseen, so Home shows it.
+ * win unseen, so Home shows it; `lossRun` sets the Ranked losses in a row (2: a comeback square).
  */
-export async function signedIn(page: Page, opts: { affinity?: string | null; textSize?: number; anonymous?: boolean; monthWon?: boolean } = {}) {
+export async function signedIn(page: Page, opts: { affinity?: string | null; textSize?: number; anonymous?: boolean; monthWon?: boolean; lossRun?: number } = {}) {
   const anonymous = !!opts.anonymous;
   const affinity = opts.affinity === undefined ? 'fire' : opts.affinity;
-  const profile = { display_name: ME, title: null, name_changed_at: null, elo: 1530, ranked_games: 80, stardust: 6400, spirits: 1, settings: {}, affinity, plate: 3, affinity_season: null, showcase: [] };
+  const profile = { display_name: ME, title: null, name_changed_at: null, elo: 930, rank_tier: 2, ranked_loss_run: opts.lossRun ?? 0, ranked_games: 80, stardust: 6400, spirits: 1, settings: {}, affinity, plate: 3, affinity_season: null, showcase: [] };
   const standings = [{ affinity: 'fire', members: 41, influence: 9840, standing: 240 }, { affinity: 'water', members: 12, influence: 3240, standing: 270 }, { affinity: 'earth', members: 28, influence: 5600, standing: 200 }, { affinity: 'air', members: 33, influence: 6000, standing: 182 }];
   const tables: Record<string, unknown[]> = {
     profiles: [profile], parts: catalogue(),
@@ -118,14 +118,14 @@ export async function signedIn(page: Page, opts: { affinity?: string | null; tex
   };
   const updated = new Date(Date.now() - 3 * 60000).toISOString();
   const rpc: Record<string, unknown> = {
-    lb_page: { view: 'global', scope: null, page: 0, rows: rows(1, 30, 3120, 0), total: 12480, updated },
-    lb_around_me: { scope: null, place: 48, rows: rows(38, 21, 2050, 48), listed: true, updated },
-    lb_me: { place: 48, total: 12480, scope: null, elo: 1530, rated: true, hidden: false, restricted: false, listed: true, value: 1530 },
-    lb_tiers: { total: 12480, tiers: [{ floor: 0, players: 4100 }, { floor: 600, players: 3900 }, { floor: 1200, players: 2900 }, { floor: 2000, players: 1450 }, { floor: 3000, players: 130 }] },
+    lb_page: { view: 'global', scope: null, page: 0, rows: rows(1, 30, 1650, 0), total: 12480, updated },
+    lb_around_me: { scope: null, place: 48, rows: rows(38, 21, 1160, 48), listed: true, updated },
+    lb_me: { place: 48, total: 12480, scope: null, elo: 930, rated: true, hidden: false, restricted: false, listed: true, value: 930 },
+    lb_tiers: { total: 12480, tiers: [{ floor: 0, players: 4100 }, { floor: 300, players: 3900 }, { floor: 600, players: 2900 }, { floor: 1000, players: 1450 }, { floor: 1450, players: 130 }] },
     faction_board: { month: '2026-10-01', endsAt: '2026-11-01T00:00:00Z', mine: affinity, myInfluence: 54, mySolves: 9, myPlace: 12, standings,
       top: rows(1, 10, 0).map((r, i) => ({ id: r.id, name: r.name, influence: 300 - i * 20 })), lastWinner: { month: '2026-09-01', winner: 'fire', winners: ['fire', 'water'] } },
     affinity_standings: standings,
-    player_card: { id: 'x', name: LONG_NAME, title: 'Founder', elo: 3120, plate: 4, avatar: 's0-avatar-calm', frame: 's0-frame-fire-3', alive: true, peak: 3204, place: 2, notRanked: false,
+    player_card: { id: 'x', name: LONG_NAME, title: 'Founder', elo: 1612, tier: 4, plate: 4, avatar: 's0-avatar-calm', frame: 's0-frame-fire-3', alive: true, peak: 1640, place: 2, notRanked: false,
       affinity: 'fire', country: 'RO', stats: { solved: 2840, ranked: 1120 }, badges: ['win-2026-09-water', 'daily-2026-10', 'win-2026-07-earth'], showcase: ['win-2026-09-water', 'daily-2026-10', 'win-2026-07-earth'], following: false, me: false },
   };
   // Anything not faked below never leaves the browser (routes added later are tried first).
@@ -150,7 +150,7 @@ export async function signedIn(page: Page, opts: { affinity?: string | null; tex
     if (textSize) localStorage.setItem('elomental:a11y', JSON.stringify({ textSize }));
     localStorage.setItem(`sb-${ref}-auth-token`, JSON.stringify({ access_token: 'x', refresh_token: 'y', token_type: 'bearer', expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 86400,
       user: { id: uid, is_anonymous: anonymous, email: 'test@example.com', aud: 'authenticated', role: 'authenticated' } }));
-    localStorage.setItem('elomental:account', JSON.stringify({ userId: uid, anonymous, email: 'test@example.com', name: ME, title: null, nextNameChange: null, elo: 1530, rankedGames: 80,
+    localStorage.setItem('elomental:account', JSON.stringify({ userId: uid, anonymous, email: 'test@example.com', name: ME, title: null, nextNameChange: null, elo: 930, tier: 2, lossRun: 0, rankedGames: 80,
       stardust: 6400, spirits: 1, daily: {}, mended: {}, affinity, solved: 40, plate: 3, showcase: [] }));
   }, [REF, UID, affinity, opts.textSize ?? 0, anonymous, !!opts.monthWon] as const);
 }

@@ -67,7 +67,7 @@ Mistakes to avoid:
 │ ① (av) Name on plate   2840  │ top-3 medallion
 │ ② (av) Name            2790  │
 │ ③ …                           │
-│ 4  (av) Name  ▣ Adept  2410  │ rows: place · avatar+frame · name/plate · tier · Elo
+│ 4  (av) Name  ▣ Adept   930  │ rows: place · avatar+frame · name/plate · tier · Elo
 │ …                             │
 │      [ Show more ]            │ 50 per page
 ├───────────────────────────────┤
@@ -114,7 +114,7 @@ The list column is capped at the phone column width × 1.4 so lines stay short; 
 │ [card background — later]    │
 │        ( avatar + frame )    │ avatar slot (alive = moves), frame slot
 │        [ Name on plate ]     │ name plate slot (+ name effect, later)
-│   ▣ Adept II · 🔥 Fire · RO  │ tier emblem, title, faction, country (if shown)
+│   ▣ Adept · 🔥 Fire · RO     │ tier emblem, title, faction, country (if shown)
 │   1530 Elo · Peak 1612 · #48,012
 │   140 solved · 80 ranked     │ stats line (if shown)
 │   🏅 Winner Oct 2026 …       │ badges row (up to 4, then "+n")
@@ -161,7 +161,7 @@ Monetization notes: rows get only avatar, frame and plate, so paying never makes
 | `lb_page(view, page, scope)` | 50 rows of a view: `global`, `friends`, `faction` (scope = element, default yours), `season`, `country` (scope = code, default yours) |
 | `lb_around_me(view, scope)` | 10 above, you, 10 below (you computed live if you're hidden or new) |
 | `lb_me(view, scope)` | your place and total in that view, for the pinned bar |
-| `lb_tiers()` | for each tier: Elo floor and share of ranked players |
+| `lb_tiers()` | for each rank: Elo floor and share of ranked players, counted by the rank shown (`rank_tier`, with its 50-Elo grace; `ranked_ladder`) |
 | `lb_search(query)` | ≤ 20 players, prefix then trigram similarity; rate-limited |
 | `player_card(player)` | the show-off card, with privacy applied |
 | `follow(player)`, `unfollow(player)` | — |

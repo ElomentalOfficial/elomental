@@ -187,6 +187,24 @@ html[data-reduce-motion] .sword-live .sword-flame {
   font-weight: 700;
   color: var(--text);
 }
+/* Once per technique family: what the squares from here can need (home.ts newTechnique). */
+.ranked-new {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  text-align: left;
+}
+.ranked-new h3 {
+  font-size: var(--fs-body);
+}
+.ranked-new p {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  line-height: 1.4;
+}
 .note {
   font-family: var(--serif);
   font-size: var(--fs-small);
@@ -251,7 +269,7 @@ html[data-reduce-motion] .sword-live .sword-flame {
 .stat .stat-sub.plain {
   color: var(--text);
 }
-/* "10 Elo to Adept III" in the Ranks sheet: the one line about you. */
+/* "10 Elo to Adept" in the Ranks sheet: the one line about you. */
 .tier-next {
   font-weight: 700;
   font-size: var(--fs-small);

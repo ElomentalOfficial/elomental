@@ -498,7 +498,7 @@ html[data-large-text] .lb-me .lb-avatar {
   background: var(--chosen-bg);
 }
 .tier-list li {
-  grid-template-columns: 28px minmax(0, 1fr) 7em;
+  grid-template-columns: 28px minmax(0, 1fr) 5em;
 }
 .fs-name,
 .tier-name {
@@ -520,7 +520,7 @@ html[data-large-text] .lb-me .lb-avatar {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4px;
+  gap: var(--space-1);
 }
 .tier-share {
   width: 100%;
@@ -532,7 +532,8 @@ html[data-large-text] .lb-me .lb-avatar {
 .tier-share span {
   display: block;
   height: 100%;
-  background: var(--accent);
+  /* the text accent: Lava is under 3:1 on the track */
+  background: var(--accent-text);
 }
 .tier-list .tier-emblem {
   width: 28px;

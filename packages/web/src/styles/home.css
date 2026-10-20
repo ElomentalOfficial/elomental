@@ -378,9 +378,9 @@
   font-size: var(--fs-body);
   color: var(--muted);
 }
-/* Ranked tier emblems (ICONS.tiers): the shape tells the tier, the colour only adds to
-   it. Novice to Adept in the text colour, Elementalist in the theme accent, Archmage in
-   Lava with a faint glow. The tier is always written beside the emblem. */
+/* Ranked rank emblems (ICONS.tiers): the shape tells the rank, the colour only adds to
+   it. Novice to Adept in the text colour, Archmage in the theme accent, Elomental in
+   Lava with a faint glow. The rank is always written beside the emblem. */
 .tier-emblem {
   display: inline-block;
   flex: none;
@@ -392,12 +392,51 @@
   width: 100%;
   height: 100%;
 }
-.tier-emblem.tier-3 {
-  color: var(--accent);
+/* the text accent (Lava is under 3:1 on the dark cards); Elomental stands apart by its
+   outline and glow, not by colour */
+.tier-emblem.tier-3,
+.tier-emblem.tier-4 {
+  color: var(--accent-text);
 }
 .tier-emblem.tier-4 {
-  color: var(--c-lava);
-  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--c-lava) 55%, transparent));
+  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--c-lava) 60%, transparent));
+}
+/* at 16px in a leaderboard row the glow would fill the X */
+.lb-sub .tier-emblem.tier-4 {
+  filter: none;
+}
+/* How far the next rank is (rankBar.ts): the line, then a bar from this rank's floor. The
+   line carries the meaning; the bar only shows it. */
+.rank-progress {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.rank-bar {
+  display: block;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.rank-bar span {
+  display: block;
+  height: 100%;
+  /* the text accent: Lava on the dark track is under 3:1, Ember isn't */
+  background: var(--accent-text);
+}
+/* Windows High Contrast drops backgrounds: an outlined track and a solid fill */
+@media (forced-colors: active) {
+  .rank-bar {
+    border: 1px solid CanvasText;
+  }
+  .rank-bar span {
+    background: CanvasText;
+    forced-color-adjust: none;
+  }
 }
 /* The promotion line on the result: the new emblem stamps in. */
 .promotion {

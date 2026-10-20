@@ -14,8 +14,12 @@ export interface ServerStart {
   gameId: string;
   seed: string;
   difficulty: Difficulty;
-  /** Ranked: the rating the puzzle must aim for (from the player's Elo). */
+  /** Ranked: the rating the square stands for (its stage's; par goes by it). */
   targetRating?: number;
+  /** Ranked: the stage to deal (engine RANKED_STAGES); missing from a server before ranked_ladder. */
+  stage?: number;
+  /** Ranked: a stage easier than the Elo's own, after two losses in a row. */
+  comeback?: boolean;
   resumed: boolean;
 }
 
@@ -40,12 +44,22 @@ export async function startServerGame(options: {
     const refusal = knownError(error, copy.refusals.start);
     throw refusal ? new GameRefused(refusal) : new Error(error.message);
   }
-  const d = data as { game_id: string; seed: string; difficulty: Difficulty; target_rating?: number | null; resumed: boolean };
+  const d = data as {
+    game_id: string;
+    seed: string;
+    difficulty: Difficulty;
+    target_rating?: number | null;
+    stage?: number | null;
+    comeback?: boolean;
+    resumed: boolean;
+  };
   return {
     gameId: d.game_id,
     seed: d.seed,
     difficulty: d.difficulty,
     targetRating: d.target_rating ?? undefined,
+    stage: d.stage ?? undefined,
+    comeback: !!d.comeback,
     resumed: d.resumed,
   };
 }
@@ -120,7 +134,18 @@ export async function finishServerGame(input: {
     seconds: number;
     dust: number;
     spirit: boolean;
-    elo: { before: number; after: number; protectedLoss: boolean; bonus: number; hintCut: number; unrated?: Unrated | null } | null;
+    elo: {
+      before: number;
+      after: number;
+      protectedLoss: boolean;
+      bonus: number;
+      hintCut: number;
+      unrated?: Unrated | null;
+      tierBefore?: number;
+      tier?: number;
+      stage?: number | null;
+      comeback?: boolean;
+    } | null;
     daily: DailyMonth | null;
     drop?: Drop | null;
     progress?: { count: number; every: number } | null;

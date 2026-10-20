@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
   DIFFICULTIES,
+  RANKED_STAGES,
   RATING_WINDOW,
   countClues,
   countSolutions,
@@ -10,6 +11,7 @@ import {
   isValidSolution,
   matchesGivens,
   parseGrid,
+  rankedStage,
   solve,
   type Difficulty,
 } from '../src/index.ts';
@@ -81,6 +83,47 @@ test('ranked puzzles land near their target rating and stay unique', () => {
       assert.equal(grade(puzzle).rating, generated.rating, 'grading with every technique agrees');
     }
   }
+});
+
+test('ranked stages deal their technique family, uniquely and the same every time', () => {
+  // what each stage's squares may need beyond singles, and how many such steps
+  const family: Record<string, { level: number; steps?: [number, number] }> = {
+    N1: { level: 1 }, N2: { level: 1 }, A1: { level: 1 },
+    A2: { level: 2, steps: [1, 1] }, A3: { level: 2, steps: [2, 3] },
+    D1: { level: 2 }, D2: { level: 2 }, D3: { level: 2, steps: [3, Infinity] },
+    D4: { level: 3 }, M1: { level: 3 }, M2: { level: 3 }, M3: { level: 4 }, E1: { level: 4 }, E2: { level: 5 },
+  };
+  for (const [stage, { id, profile }] of RANKED_STAGES.entries()) {
+    for (let i = 0; i < 2; i++) {
+      const generated = generatePuzzle({ difficulty: 'medium', rankedStage: stage, seed: `stage-${id}-${i}` });
+      const puzzle = parseGrid(generated.puzzle);
+      assert.equal(generated.stage, stage, `${id} fell back`);
+      assert.equal(countSolutions(puzzle), 1);
+      assert.deepEqual(solve(puzzle), parseGrid(generated.solution));
+      assert.equal(generated.level, family[id].level, `${id}: ${JSON.stringify(generated.counts)}`);
+      assert.equal(grade(puzzle).level, generated.level, 'grading with every technique agrees');
+      if (profile) assert.ok(generated.clues >= profile.minClues);
+      const steps = family[id].steps;
+      if (steps) {
+        const n = advanced(generated.counts).reduce((sum, [, c]) => sum + (c ?? 0), 0);
+        assert.ok(n >= steps[0] && n <= steps[1], `${id}: ${n} steps beyond singles`);
+      }
+    }
+  }
+  assert.deepEqual(
+    generatePuzzle({ difficulty: 'medium', rankedStage: 4, seed: 'stage-repeat' }),
+    generatePuzzle({ difficulty: 'medium', rankedStage: 4, seed: 'stage-repeat' }),
+  );
+});
+
+test('an Elo plays at the stage whose floor it has reached', () => {
+  assert.equal(rankedStage(0), 0);
+  assert.equal(rankedStage(100), 0);
+  assert.equal(rankedStage(299), 1);
+  assert.equal(rankedStage(300), 2);
+  assert.equal(rankedStage(1449), 11);
+  assert.equal(rankedStage(1450), 12);
+  assert.equal(rankedStage(5000), RANKED_STAGES.length - 1);
 });
 
 test('higher targets need harder techniques', () => {

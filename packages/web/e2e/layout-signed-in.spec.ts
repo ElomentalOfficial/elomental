@@ -116,7 +116,7 @@ test('Home: the next-step line, Spirits only once there is one, the Store still 
   await page.setViewportSize({ width: 375, height: 812 });
   await open(page, 100);
   await expect(page.locator('.tile.area-casual')).toBeVisible();
-  // 1530 Elo, 80 Ranked games: the line says what's next
+  // 930 Elo (Adept), 80 Ranked games: the line says what's next
   await expect(page.locator('.home-line')).toHaveText(/^Today’s\sDaily\sis\swaiting · \d\ssquares?\sto\syour\snext\spart$/);
   // the fixture has 1 Spirit: three chips, the numbers on one line
   await expect(page.locator('.stat-chip:visible')).toHaveCount(3);

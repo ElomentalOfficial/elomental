@@ -1,0 +1,358 @@
+﻿Elo ladder sim: 10000 players per persona, 180 days, 2-4 Ranked games a day
+
+Win chance of a median player (m = 1) on the squares served
+LIVE   elo  target      casual    mediumenthusiast   diehard
+       150    150         91%       94%       97%       99%
+       250    250         91%       94%       97%       99%
+       300    300         38%       83%       93%       97%
+       400    400         18%       75%       91%       96%
+       500    500          5%       62%       87%       94%
+       600    600          0%       48%       83%       92%
+       800    800          1%       29%       78%       91%
+      1000   1000          0%       12%       69%       89%
+      1200   1200          0%        7%       52%       84%
+      1600   1333          0%        3%       34%       81%
+      2000   1466          0%        0%       24%       75%
+      2400   1600          0%        0%       17%       70%
+      3000   1800          0%        1%        7%       60%
+PROPOSED stage from      casual    mediumenthusiast   diehard
+     N1       0           99%       99%       99%      100%
+     N2     200           95%       97%       98%       99%
+     A1     300           90%       94%       97%       98%
+     A2     400           54%       90%       96%       98%
+     A3     500           25%       84%       94%       97%
+     D1     600           14%       76%       92%       97%
+     D2     700            5%       66%       89%       95%
+     D3     800            1%       56%       86%       94%
+     D4     900            0%       20%       79%       92%
+     M1    1000            0%       12%       73%       91%
+     M2    1150            0%        4%       64%       88%
+     M3    1300            0%        1%       30%       80%
+     E1    1450            0%        1%       21%       75%
+     E2    1600            0%        0%        3%       54%
+
+== live
+  Casual (singles only)
+    days to tier (median / worst 10%, reached by day 180): Apprentice —/— (0%), Adept —/— (0%), Elementalist —/— (0%), Archmage —/— (0%)
+    median Elo by day: {"1":196,"3":306,"7":398,"14":466,"30":491,"60":493,"90":493,"180":493}  plateau p10/50/90 490/494/499
+    win rate days 1-30 18%, last 30 days 6%; tier at day 180: Novice 100%, Apprentice 0%, Adept 0%, Elementalist 0%, Archmage 0%
+    rank-ups first 30 days 2 (all 2); Elo-losing games in first 14 days 0; protection ends day 20; days with Elo up/down: first 30 34%/6%, last 30 13%/12%; demotions in 180 days 0.0 (with a 50 grace 0.0)
+    average loss 15.2 Elo; worst run of losses (p90 of each player's largest) 63 Elo
+  Newspaper medium (pointing, pairs)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 8/14 (100%), Adept —/— (0%), Elementalist —/— (0%), Archmage —/— (0%)
+    median Elo by day: {"1":206,"3":373,"7":562,"14":652,"30":677,"60":681,"90":680,"180":681}  plateau p10/50/90 579/682/796
+    win rate days 1-30 50%, last 30 days 40%; tier at day 180: Novice 20%, Apprentice 80%, Adept 0%, Elementalist 0%, Archmage 0%
+    rank-ups first 30 days 6 (all 31); Elo-losing games in first 14 days 13; protection ends day 5; days with Elo up/down: first 30 64%/35%, last 30 51%/49%; demotions in 180 days 17.5 (with a 50 grace 4.1)
+    average loss 18.0 Elo; worst run of losses (p90 of each player's largest) 207 Elo
+  Enthusiast (X-Wing, XY-Wing)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 6/7 (100%), Adept 22/48 (99%), Elementalist —/— (0%), Archmage —/— (0%)
+    median Elo by day: {"1":209,"3":400,"7":703,"14":1025,"30":1216,"60":1252,"90":1255,"180":1256}  plateau p10/50/90 1115/1252/1473
+    win rate days 1-30 69%, last 30 days 51%; tier at day 180: Novice 0%, Apprentice 35%, Adept 65%, Elementalist 0%, Archmage 0%
+    rank-ups first 30 days 8 (all 28); Elo-losing games in first 14 days 7; protection ends day 5; days with Elo up/down: first 30 79%/19%, last 30 47%/49%; demotions in 180 days 15.0 (with a 50 grace 4.0)
+    average loss 19.7 Elo; worst run of losses (p90 of each player's largest) 180 Elo
+  Diehard (chains)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 5/6 (100%), Adept 14/17 (100%), Elementalist 45/66 (100%), Archmage —/— (23%)
+    median Elo by day: {"1":211,"3":418,"7":777,"14":1214,"30":1727,"60":2202,"90":2448,"180":2751}  plateau p10/50/90 2282/2718/3036
+    win rate days 1-30 86%, last 30 days 66%; tier at day 180: Novice 0%, Apprentice 0%, Adept 1%, Elementalist 80%, Archmage 18%
+    rank-ups first 30 days 8 (all 16); Elo-losing games in first 14 days 3; protection ends day 4; days with Elo up/down: first 30 91%/8%, last 30 55%/44%; demotions in 180 days 2.2 (with a 50 grace 0.2)
+    average loss 13.2 Elo; worst run of losses (p90 of each player's largest) 89 Elo
+  pooled tiers at day 180 (mix 50/35/12/3): Novice 57.0%, Apprentice 32.2%, Adept 7.8%, Elementalist 2.4%, Archmage 0.5%
+  pooled share at or above: 900 15.4%, 1000 14.8%, 1300 7.7%, 1450 4.6%, 1500 4.1%, 1550 3.6%, 1600 3.3%
+
+== proposal
+  Casual (singles only)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 4/5 (100%), Adept —/— (16%), Archmage —/— (0%), Elomental —/— (0%)
+    median Elo by day: {"1":167,"3":288,"7":422,"14":460,"30":467,"60":466,"90":466,"180":466}  plateau p10/50/90 420/466/506
+    win rate days 1-30 60%, last 30 days 50%; tier at day 180: Novice 0%, Apprentice 100%, Adept 0%, Archmage 0%, Elomental 0%
+    rank-ups first 30 days 1 (all 1), new techniques met 1; Elo-losing games in first 14 days 12; protection ends day 4; days with Elo up/down: first 30 62%/34%, last 30 48%/45%; demotions in 180 days 1.0 (with a 50 grace 0.3)
+    average loss 16.3 Elo; worst run of losses (p90 of each player's largest) 131 Elo
+  Newspaper medium (pointing, pairs)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 4/4 (100%), Adept 10/13 (100%), Archmage —/— (3%), Elomental —/— (0%)
+    median Elo by day: {"1":168,"3":296,"7":500,"14":706,"30":850,"60":868,"90":867,"180":868}  plateau p10/50/90 773/867/901
+    win rate days 1-30 72%, last 30 days 51%; tier at day 180: Novice 0%, Apprentice 0%, Adept 100%, Archmage 0%, Elomental 0%
+    rank-ups first 30 days 2 (all 2), new techniques met 3; Elo-losing games in first 14 days 5; protection ends day 4; days with Elo up/down: first 30 76%/18%, last 30 45%/43%; demotions in 180 days 0.8 (with a 50 grace 0.0)
+    average loss 13.5 Elo; worst run of losses (p90 of each player's largest) 121 Elo
+  Enthusiast (X-Wing, XY-Wing)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 3/4 (100%), Adept 9/10 (100%), Archmage 21/26 (100%), Elomental —/— (5%)
+    median Elo by day: {"1":169,"3":300,"7":526,"14":823,"30":1153,"60":1294,"90":1295,"180":1295}  plateau p10/50/90 1227/1295/1321
+    win rate days 1-30 84%, last 30 days 50%; tier at day 180: Novice 0%, Apprentice 0%, Adept 0%, Archmage 100%, Elomental 0%
+    rank-ups first 30 days 3 (all 3), new techniques met 4; Elo-losing games in first 14 days 2; protection ends day 3; days with Elo up/down: first 30 91%/6%, last 30 44%/41%; demotions in 180 days 1.3 (with a 50 grace 0.1)
+    average loss 10.3 Elo; worst run of losses (p90 of each player's largest) 90 Elo
+  Diehard (chains)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 3/4 (100%), Adept 9/10 (100%), Archmage 18/20 (100%), Elomental 36/42 (100%)
+    median Elo by day: {"1":170,"3":302,"7":538,"14":874,"30":1350,"60":1610,"90":1611,"180":1611}  plateau p10/50/90 1592/1612/1646
+    win rate days 1-30 93%, last 30 days 60%; tier at day 180: Novice 0%, Apprentice 0%, Adept 0%, Archmage 0%, Elomental 100%
+    rank-ups first 30 days 3 (all 4), new techniques met 5; Elo-losing games in first 14 days 1; protection ends day 3; days with Elo up/down: first 30 98%/1%, last 30 46%/53%; demotions in 180 days 0.8 (with a 50 grace 0.0)
+    average loss 9.7 Elo; worst run of losses (p90 of each player's largest) 64 Elo
+  pooled tiers at day 180 (mix 50/35/12/3): Novice 0.0%, Apprentice 49.8%, Adept 35.2%, Archmage 12.0%, Elomental 3.1%
+  pooled share at or above: 900 22.4%, 1000 15.0%, 1300 8.0%, 1450 3.1%, 1500 3.0%, 1550 3.0%, 1600 2.1%
+
+== owner idea literally: halve every number, squares still follow Elo
+  Casual (singles only)
+    days to tier (median / worst 10%, reached by day 180): Apprentice —/— (0%), Adept —/— (0%), Archmage —/— (0%), Elomental —/— (0%)
+    median Elo by day: {"1":134,"3":167,"7":205,"14":236,"30":245,"60":246,"90":246,"180":246}  plateau p10/50/90 245/247/249
+    win rate days 1-30 15%, last 30 days 6%; tier at day 180: Novice 100%, Apprentice 0%, Adept 0%, Archmage 0%, Elomental 0%
+    rank-ups first 30 days 0 (all 0); Elo-losing games in first 14 days 0; protection ends day 20; days with Elo up/down: first 30 31%/7%, last 30 13%/13%; demotions in 180 days 0.0 (with a 50 grace 0.0)
+    average loss 8.0 Elo; worst run of losses (p90 of each player's largest) 32 Elo
+  Newspaper medium (pointing, pairs)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 7/13 (100%), Adept —/— (0%), Archmage —/— (0%), Elomental —/— (0%)
+    median Elo by day: {"1":148,"3":219,"7":292,"14":328,"30":340,"60":340,"90":340,"180":340}  plateau p10/50/90 288/341/397
+    win rate days 1-30 48%, last 30 days 40%; tier at day 180: Novice 21%, Apprentice 79%, Adept 0%, Archmage 0%, Elomental 0%
+    rank-ups first 30 days 3 (all 17); Elo-losing games in first 14 days 15; protection ends day 4; days with Elo up/down: first 30 62%/36%, last 30 50%/49%; demotions in 180 days 18.1 (with a 50 grace 1.3)
+    average loss 9.0 Elo; worst run of losses (p90 of each player's largest) 104 Elo
+  Enthusiast (X-Wing, XY-Wing)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 5/6 (100%), Adept 21/47 (99%), Archmage —/— (0%), Elomental —/— (0%)
+    median Elo by day: {"1":151,"3":240,"7":380,"14":526,"30":610,"60":627,"90":628,"180":628}  plateau p10/50/90 557/627/735
+    win rate days 1-30 68%, last 30 days 51%; tier at day 180: Novice 0%, Apprentice 35%, Adept 65%, Archmage 0%, Elomental 0%
+    rank-ups first 30 days 3 (all 15); Elo-losing games in first 14 days 8; protection ends day 4; days with Elo up/down: first 30 77%/20%, last 30 45%/48%; demotions in 180 days 14.8 (with a 50 grace 1.6)
+    average loss 9.9 Elo; worst run of losses (p90 of each player's largest) 90 Elo
+  Diehard (chains)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 5/5 (100%), Adept 13/16 (100%), Archmage 43/62 (100%), Elomental —/— (22%)
+    median Elo by day: {"1":153,"3":253,"7":423,"14":628,"30":878,"60":1117,"90":1228,"180":1348}  plateau p10/50/90 1146/1344/1496
+    win rate days 1-30 86%, last 30 days 66%; tier at day 180: Novice 0%, Apprentice 0%, Adept 1%, Archmage 81%, Elomental 18%
+    rank-ups first 30 days 2 (all 4); Elo-losing games in first 14 days 3; protection ends day 3; days with Elo up/down: first 30 89%/8%, last 30 51%/43%; demotions in 180 days 2.1 (with a 50 grace 0.0)
+    average loss 6.6 Elo; worst run of losses (p90 of each player's largest) 42 Elo
+  pooled tiers at day 180 (mix 50/35/12/3): Novice 57.5%, Apprentice 31.7%, Adept 7.8%, Archmage 2.4%, Elomental 0.5%
+  pooled share at or above: 900 3.0%, 1000 3.0%, 1300 2.1%, 1450 0.5%, 1500 0.3%, 1550 0.0%, 1600 0.0%
+
+== proposal, protected below 200 (owner)
+  Casual (singles only)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 4/5 (100%), Adept —/— (16%), Archmage —/— (0%), Elomental —/— (0%)
+    median Elo by day: {"1":167,"3":284,"7":421,"14":460,"30":466,"60":466,"90":466,"180":467}  plateau p10/50/90 420/466/507
+    win rate days 1-30 60%, last 30 days 50%; tier at day 180: Novice 0%, Apprentice 100%, Adept 0%, Archmage 0%, Elomental 0%
+    rank-ups first 30 days 1 (all 1), new techniques met 1; Elo-losing games in first 14 days 12; protection ends day 2; days with Elo up/down: first 30 62%/34%, last 30 48%/45%; demotions in 180 days 1.0 (with a 50 grace 0.3)
+    average loss 16.3 Elo; worst run of losses (p90 of each player's largest) 131 Elo
+  Newspaper medium (pointing, pairs)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 4/4 (100%), Adept 10/13 (100%), Archmage —/— (3%), Elomental —/— (0%)
+    median Elo by day: {"1":168,"3":294,"7":499,"14":705,"30":850,"60":868,"90":867,"180":867}  plateau p10/50/90 773/867/901
+    win rate days 1-30 72%, last 30 days 51%; tier at day 180: Novice 0%, Apprentice 0%, Adept 100%, Archmage 0%, Elomental 0%
+    rank-ups first 30 days 2 (all 2), new techniques met 3; Elo-losing games in first 14 days 6; protection ends day 2; days with Elo up/down: first 30 76%/18%, last 30 45%/43%; demotions in 180 days 0.8 (with a 50 grace 0.0)
+    average loss 13.5 Elo; worst run of losses (p90 of each player's largest) 121 Elo
+  Enthusiast (X-Wing, XY-Wing)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 3/4 (100%), Adept 9/10 (100%), Archmage 21/26 (100%), Elomental —/— (5%)
+    median Elo by day: {"1":169,"3":299,"7":525,"14":822,"30":1153,"60":1294,"90":1295,"180":1295}  plateau p10/50/90 1228/1295/1321
+    win rate days 1-30 84%, last 30 days 50%; tier at day 180: Novice 0%, Apprentice 0%, Adept 0%, Archmage 100%, Elomental 0%
+    rank-ups first 30 days 3 (all 3), new techniques met 4; Elo-losing games in first 14 days 2; protection ends day 2; days with Elo up/down: first 30 91%/6%, last 30 44%/41%; demotions in 180 days 1.3 (with a 50 grace 0.1)
+    average loss 10.3 Elo; worst run of losses (p90 of each player's largest) 90 Elo
+  Diehard (chains)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 3/4 (100%), Adept 9/10 (100%), Archmage 18/20 (100%), Elomental 36/42 (100%)
+    median Elo by day: {"1":170,"3":302,"7":538,"14":873,"30":1350,"60":1610,"90":1611,"180":1611}  plateau p10/50/90 1592/1612/1647
+    win rate days 1-30 93%, last 30 days 60%; tier at day 180: Novice 0%, Apprentice 0%, Adept 0%, Archmage 0%, Elomental 100%
+    rank-ups first 30 days 3 (all 4), new techniques met 5; Elo-losing games in first 14 days 1; protection ends day 2; days with Elo up/down: first 30 98%/1%, last 30 46%/53%; demotions in 180 days 0.8 (with a 50 grace 0.0)
+    average loss 9.7 Elo; worst run of losses (p90 of each player's largest) 64 Elo
+  pooled tiers at day 180 (mix 50/35/12/3): Novice 0.0%, Apprentice 49.8%, Adept 35.2%, Archmage 12.0%, Elomental 3.1%
+  pooled share at or above: 900 22.4%, 1000 15.0%, 1300 8.0%, 1450 3.1%, 1500 3.0%, 1550 3.0%, 1600 2.1%
+
+== proposal, gentle losses (0.5 x stake at 300, as live)
+  Casual (singles only)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 4/5 (100%), Adept —/— (36%), Archmage —/— (0%), Elomental —/— (0%)
+    median Elo by day: {"1":167,"3":288,"7":432,"14":494,"30":500,"60":501,"90":501,"180":501}  plateau p10/50/90 454/501/552
+    win rate days 1-30 52%, last 30 days 39%; tier at day 180: Novice 0%, Apprentice 96%, Adept 4%, Archmage 0%, Elomental 0%
+    rank-ups first 30 days 1 (all 1), new techniques met 1; Elo-losing games in first 14 days 14; protection ends day 4; days with Elo up/down: first 30 64%/35%, last 30 49%/50%; demotions in 180 days 4.3 (with a 50 grace 0.9)
+    average loss 9.9 Elo; worst run of losses (p90 of each player's largest) 115 Elo
+  Newspaper medium (pointing, pairs)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 4/4 (100%), Adept 10/12 (100%), Archmage —/— (9%), Elomental —/— (0%)
+    median Elo by day: {"1":168,"3":296,"7":505,"14":726,"30":889,"60":894,"90":894,"180":894}  plateau p10/50/90 839/893/916
+    win rate days 1-30 69%, last 30 days 42%; tier at day 180: Novice 0%, Apprentice 0%, Adept 100%, Archmage 0%, Elomental 0%
+    rank-ups first 30 days 2 (all 2), new techniques met 3; Elo-losing games in first 14 days 6; protection ends day 4; days with Elo up/down: first 30 82%/18%, last 30 54%/46%; demotions in 180 days 0.8 (with a 50 grace 0.2)
+    average loss 9.1 Elo; worst run of losses (p90 of each player's largest) 99 Elo
+  Enthusiast (X-Wing, XY-Wing)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 3/4 (100%), Adept 9/10 (100%), Archmage 20/24 (100%), Elomental —/— (6%)
+    median Elo by day: {"1":169,"3":300,"7":528,"14":832,"30":1174,"60":1298,"90":1298,"180":1299}  plateau p10/50/90 1262/1299/1329
+    win rate days 1-30 84%, last 30 days 48%; tier at day 180: Novice 0%, Apprentice 0%, Adept 0%, Archmage 99%, Elomental 1%
+    rank-ups first 30 days 3 (all 3), new techniques met 4; Elo-losing games in first 14 days 2; protection ends day 3; days with Elo up/down: first 30 94%/6%, last 30 55%/41%; demotions in 180 days 1.0 (with a 50 grace 0.1)
+    average loss 9.0 Elo; worst run of losses (p90 of each player's largest) 81 Elo
+  Diehard (chains)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 3/4 (100%), Adept 9/10 (100%), Archmage 18/20 (100%), Elomental 35/41 (100%)
+    median Elo by day: {"1":170,"3":302,"7":541,"14":879,"30":1360,"60":1610,"90":1611,"180":1611}  plateau p10/50/90 1592/1612/1647
+    win rate days 1-30 92%, last 30 days 60%; tier at day 180: Novice 0%, Apprentice 0%, Adept 0%, Archmage 0%, Elomental 100%
+    rank-ups first 30 days 3 (all 4), new techniques met 5; Elo-losing games in first 14 days 1; protection ends day 3; days with Elo up/down: first 30 99%/1%, last 30 46%/53%; demotions in 180 days 0.7 (with a 50 grace 0.0)
+    average loss 9.6 Elo; worst run of losses (p90 of each player's largest) 64 Elo
+  pooled tiers at day 180 (mix 50/35/12/3): Novice 0.0%, Apprentice 48.2%, Adept 36.6%, Archmage 12.1%, Elomental 3.1%
+  pooled share at or above: 900 28.8%, 1000 15.1%, 1300 8.9%, 1450 3.1%, 1500 3.0%, 1550 3.0%, 1600 2.1%
+
+== proposal + players learn the next technique
+  Casual (singles only)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 4/5 (100%), Adept 46/78 (100%), Archmage —/— (0%), Elomental —/— (0%)
+    median Elo by day: {"1":167,"3":288,"7":422,"14":471,"30":505,"60":583,"90":595,"180":601}  plateau p10/50/90 592/600/611
+    win rate days 1-30 61%, last 30 days 50%; tier at day 180: Novice 0%, Apprentice 47%, Adept 53%, Archmage 0%, Elomental 0%
+    rank-ups first 30 days 1 (all 98), new techniques met 2; Elo-losing games in first 14 days 12; protection ends day 4; days with Elo up/down: first 30 63%/32%, last 30 49%/42%; demotions in 180 days 94.1 (with a 50 grace 3.0)
+    average loss 16.1 Elo; worst run of losses (p90 of each player's largest) 115 Elo
+  Newspaper medium (pointing, pairs)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 4/4 (100%), Adept 10/13 (100%), Archmage —/— (35%), Elomental —/— (0%)
+    median Elo by day: {"1":168,"3":296,"7":500,"14":706,"30":850,"60":870,"90":873,"180":887}  plateau p10/50/90 773/877/1261
+    win rate days 1-30 72%, last 30 days 52%; tier at day 180: Novice 0%, Apprentice 0%, Adept 71%, Archmage 29%, Elomental 0%
+    rank-ups first 30 days 2 (all 3), new techniques met 3; Elo-losing games in first 14 days 5; protection ends day 4; days with Elo up/down: first 30 76%/18%, last 30 47%/41%; demotions in 180 days 3.1 (with a 50 grace 0.3)
+    average loss 13.3 Elo; worst run of losses (p90 of each player's largest) 121 Elo
+  Enthusiast (X-Wing, XY-Wing)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 3/4 (100%), Adept 9/10 (100%), Archmage 21/26 (100%), Elomental 155/— (59%)
+    median Elo by day: {"1":169,"3":300,"7":526,"14":823,"30":1153,"60":1296,"90":1305,"180":1503}  plateau p10/50/90 1228/1459/1595
+    win rate days 1-30 84%, last 30 days 55%; tier at day 180: Novice 0%, Apprentice 0%, Adept 0%, Archmage 44%, Elomental 56%
+    rank-ups first 30 days 3 (all 6), new techniques met 4; Elo-losing games in first 14 days 2; protection ends day 3; days with Elo up/down: first 30 91%/6%, last 30 45%/47%; demotions in 180 days 3.2 (with a 50 grace 0.1)
+    average loss 10.0 Elo; worst run of losses (p90 of each player's largest) 88 Elo
+  Diehard (chains)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 3/4 (100%), Adept 9/10 (100%), Archmage 18/20 (100%), Elomental 36/42 (100%)
+    median Elo by day: {"1":170,"3":302,"7":538,"14":874,"30":1350,"60":1613,"90":1628,"180":1663}  plateau p10/50/90 1603/1659/1700
+    win rate days 1-30 93%, last 30 days 70%; tier at day 180: Novice 0%, Apprentice 0%, Adept 0%, Archmage 0%, Elomental 100%
+    rank-ups first 30 days 3 (all 4), new techniques met 5; Elo-losing games in first 14 days 1; protection ends day 3; days with Elo up/down: first 30 98%/1%, last 30 50%/47%; demotions in 180 days 0.8 (with a 50 grace 0.0)
+    average loss 10.3 Elo; worst run of losses (p90 of each player's largest) 64 Elo
+  pooled tiers at day 180 (mix 50/35/12/3): Novice 0.0%, Apprentice 23.5%, Adept 51.3%, Archmage 15.4%, Elomental 9.7%
+  pooled share at or above: 900 30.6%, 1000 25.2%, 1300 13.5%, 1450 9.7%, 1500 9.0%, 1550 8.4%, 1600 4.2%
+
+== (a) comeback square: after 2 losses in a row, one stage lower until a win
+  Casual (singles only)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 4/5 (100%), Adept —/— (23%), Archmage —/— (0%), Elomental —/— (0%)
+    median Elo by day: {"1":167,"3":288,"7":424,"14":480,"30":490,"60":490,"90":490,"180":490}  plateau p10/50/90 441/491/525
+    win rate days 1-30 60%, last 30 days 50%; tier at day 180: Novice 0%, Apprentice 99%, Adept 1%, Archmage 0%, Elomental 0%
+    rank-ups first 30 days 1 (all 1), new techniques met 1; Elo-losing games in first 14 days 12; protection ends day 4; days with Elo up/down: first 30 62%/33%, last 30 47%/45%; demotions in 180 days 2.2 (with a 50 grace 0.6)
+    average loss 16.6 Elo; worst run of losses (p90 of each player's largest) 83 Elo; comeback squares 18% of games
+  Newspaper medium (pointing, pairs)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 4/4 (100%), Adept 10/13 (100%), Archmage —/— (6%), Elomental —/— (0%)
+    median Elo by day: {"1":168,"3":296,"7":500,"14":708,"30":861,"60":879,"90":879,"180":879}  plateau p10/50/90 793/880/907
+    win rate days 1-30 73%, last 30 days 51%; tier at day 180: Novice 0%, Apprentice 0%, Adept 100%, Archmage 0%, Elomental 0%
+    rank-ups first 30 days 2 (all 2), new techniques met 3; Elo-losing games in first 14 days 5; protection ends day 4; days with Elo up/down: first 30 77%/17%, last 30 45%/43%; demotions in 180 days 1.0 (with a 50 grace 0.1)
+    average loss 13.4 Elo; worst run of losses (p90 of each player's largest) 98 Elo; comeback squares 19% of games
+  Enthusiast (X-Wing, XY-Wing)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 3/4 (100%), Adept 9/10 (100%), Archmage 21/26 (100%), Elomental —/— (11%)
+    median Elo by day: {"1":169,"3":300,"7":526,"14":823,"30":1156,"60":1298,"90":1300,"180":1300}  plateau p10/50/90 1263/1299/1386
+    win rate days 1-30 84%, last 30 days 50%; tier at day 180: Novice 0%, Apprentice 0%, Adept 0%, Archmage 97%, Elomental 3%
+    rank-ups first 30 days 3 (all 4), new techniques met 4; Elo-losing games in first 14 days 2; protection ends day 3; days with Elo up/down: first 30 92%/6%, last 30 44%/41%; demotions in 180 days 2.9 (with a 50 grace 0.1)
+    average loss 10.2 Elo; worst run of losses (p90 of each player's largest) 70 Elo; comeback squares 17% of games
+  Diehard (chains)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 3/4 (100%), Adept 9/10 (100%), Archmage 18/20 (100%), Elomental 36/42 (100%)
+    median Elo by day: {"1":170,"3":302,"7":538,"14":874,"30":1350,"60":1613,"90":1615,"180":1615}  plateau p10/50/90 1595/1615/1652
+    win rate days 1-30 93%, last 30 days 61%; tier at day 180: Novice 0%, Apprentice 0%, Adept 0%, Archmage 0%, Elomental 100%
+    rank-ups first 30 days 3 (all 4), new techniques met 5; Elo-losing games in first 14 days 1; protection ends day 3; days with Elo up/down: first 30 98%/1%, last 30 45%/54%; demotions in 180 days 0.7 (with a 50 grace 0.0)
+    average loss 9.8 Elo; worst run of losses (p90 of each player's largest) 54 Elo; comeback squares 10% of games
+  pooled tiers at day 180 (mix 50/35/12/3): Novice 0.0%, Apprentice 49.5%, Adept 35.5%, Archmage 11.7%, Elomental 3.4%
+  pooled share at or above: 900 24.1%, 1000 15.1%, 1300 9.1%, 1450 3.4%, 1500 3.0%, 1550 3.0%, 1600 2.3%
+
+== (b1) losses 1.5x the stake from 500 (300 0.75, 500 1.5, 1600 1.75)
+  Casual (singles only)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 4/5 (100%), Adept —/— (7%), Archmage —/— (0%), Elomental —/— (0%)
+    median Elo by day: {"1":167,"3":288,"7":416,"14":433,"30":435,"60":436,"90":436,"180":436}  plateau p10/50/90 409/439/480
+    win rate days 1-30 64%, last 30 days 57%; tier at day 180: Novice 0%, Apprentice 100%, Adept 0%, Archmage 0%, Elomental 0%
+    rank-ups first 30 days 1 (all 1), new techniques met 1; Elo-losing games in first 14 days 11; protection ends day 4; days with Elo up/down: first 30 57%/41%, last 30 45%/52%; demotions in 180 days 0.3 (with a 50 grace 0.1)
+    average loss 22.3 Elo; worst run of losses (p90 of each player's largest) 139 Elo
+  Newspaper medium (pointing, pairs)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 4/4 (100%), Adept 10/14 (100%), Archmage —/— (1%), Elomental —/— (0%)
+    median Elo by day: {"1":168,"3":296,"7":495,"14":679,"30":784,"60":795,"90":795,"180":795}  plateau p10/50/90 690/796/873
+    win rate days 1-30 76%, last 30 days 61%; tier at day 180: Novice 0%, Apprentice 2%, Adept 98%, Archmage 0%, Elomental 0%
+    rank-ups first 30 days 3 (all 3), new techniques met 3; Elo-losing games in first 14 days 5; protection ends day 4; days with Elo up/down: first 30 72%/28%, last 30 50%/50%; demotions in 180 days 3.9 (with a 50 grace 0.4)
+    average loss 22.1 Elo; worst run of losses (p90 of each player's largest) 156 Elo
+  Enthusiast (X-Wing, XY-Wing)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 3/4 (100%), Adept 9/11 (100%), Archmage 22/31 (100%), Elomental —/— (0%)
+    median Elo by day: {"1":169,"3":300,"7":524,"14":809,"30":1091,"60":1222,"90":1236,"180":1237}  plateau p10/50/90 1073/1237/1295
+    win rate days 1-30 85%, last 30 days 62%; tier at day 180: Novice 0%, Apprentice 0%, Adept 4%, Archmage 96%, Elomental 0%
+    rank-ups first 30 days 3 (all 4), new techniques met 4; Elo-losing games in first 14 days 2; protection ends day 3; days with Elo up/down: first 30 85%/15%, last 30 52%/48%; demotions in 180 days 4.2 (with a 50 grace 0.5)
+    average loss 17.8 Elo; worst run of losses (p90 of each player's largest) 123 Elo
+  Diehard (chains)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 3/4 (100%), Adept 9/10 (100%), Archmage 18/21 (100%), Elomental 38/50 (100%)
+    median Elo by day: {"1":170,"3":302,"7":537,"14":866,"30":1320,"60":1593,"90":1599,"180":1599}  plateau p10/50/90 1551/1599/1624
+    win rate days 1-30 93%, last 30 days 65%; tier at day 180: Novice 0%, Apprentice 0%, Adept 0%, Archmage 3%, Elomental 97%
+    rank-ups first 30 days 3 (all 5), new techniques met 5; Elo-losing games in first 14 days 1; protection ends day 3; days with Elo up/down: first 30 94%/6%, last 30 51%/48%; demotions in 180 days 2.7 (with a 50 grace 0.2)
+    average loss 13.7 Elo; worst run of losses (p90 of each player's largest) 82 Elo
+  pooled tiers at day 180 (mix 50/35/12/3): Novice 0.0%, Apprentice 50.6%, Adept 34.9%, Archmage 11.6%, Elomental 2.9%
+  pooled share at or above: 900 17.1%, 1000 14.5%, 1300 4.7%, 1450 2.9%, 1500 2.8%, 1550 2.7%, 1600 1.5%
+
+== (b2) losses 2.0x the stake from 500 (300 0.75, 500 2.0, 1600 2.25)
+  Casual (singles only)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 4/5 (100%), Adept —/— (4%), Archmage —/— (0%), Elomental —/— (0%)
+    median Elo by day: {"1":167,"3":288,"7":412,"14":421,"30":421,"60":421,"90":421,"180":422}  plateau p10/50/90 403/425/460
+    win rate days 1-30 68%, last 30 days 62%; tier at day 180: Novice 0%, Apprentice 100%, Adept 0%, Archmage 0%, Elomental 0%
+    rank-ups first 30 days 1 (all 1), new techniques met 1; Elo-losing games in first 14 days 10; protection ends day 4; days with Elo up/down: first 30 58%/42%, last 30 48%/52%; demotions in 180 days 0.2 (with a 50 grace 0.0)
+    average loss 27.7 Elo; worst run of losses (p90 of each player's largest) 148 Elo
+  Newspaper medium (pointing, pairs)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 4/4 (100%), Adept 11/15 (100%), Archmage —/— (0%), Elomental —/— (0%)
+    median Elo by day: {"1":168,"3":296,"7":491,"14":654,"30":735,"60":742,"90":742,"180":743}  plateau p10/50/90 636/742/840
+    win rate days 1-30 78%, last 30 days 67%; tier at day 180: Novice 0%, Apprentice 7%, Adept 93%, Archmage 0%, Elomental 0%
+    rank-ups first 30 days 3 (all 7), new techniques met 3; Elo-losing games in first 14 days 5; protection ends day 4; days with Elo up/down: first 30 71%/27%, last 30 51%/46%; demotions in 180 days 10.3 (with a 50 grace 1.9)
+    average loss 29.8 Elo; worst run of losses (p90 of each player's largest) 183 Elo
+  Enthusiast (X-Wing, XY-Wing)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 3/4 (100%), Adept 9/11 (100%), Archmage 24/37 (100%), Elomental —/— (0%)
+    median Elo by day: {"1":169,"3":300,"7":521,"14":797,"30":1042,"60":1150,"90":1160,"180":1161}  plateau p10/50/90 985/1160/1278
+    win rate days 1-30 86%, last 30 days 67%; tier at day 180: Novice 0%, Apprentice 0%, Adept 14%, Archmage 86%, Elomental 0%
+    rank-ups first 30 days 4 (all 7), new techniques met 4; Elo-losing games in first 14 days 2; protection ends day 3; days with Elo up/down: first 30 83%/16%, last 30 49%/47%; demotions in 180 days 8.3 (with a 50 grace 1.6)
+    average loss 23.9 Elo; worst run of losses (p90 of each player's largest) 147 Elo
+  Diehard (chains)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 3/4 (100%), Adept 9/10 (100%), Archmage 18/21 (100%), Elomental 41/61 (100%)
+    median Elo by day: {"1":170,"3":302,"7":536,"14":860,"30":1299,"60":1562,"90":1584,"180":1585}  plateau p10/50/90 1457/1585/1612
+    win rate days 1-30 93%, last 30 days 69%; tier at day 180: Novice 0%, Apprentice 0%, Adept 0%, Archmage 10%, Elomental 90%
+    rank-ups first 30 days 3 (all 6), new techniques met 5; Elo-losing games in first 14 days 1; protection ends day 3; days with Elo up/down: first 30 93%/7%, last 30 47%/48%; demotions in 180 days 5.0 (with a 50 grace 0.6)
+    average loss 18.0 Elo; worst run of losses (p90 of each player's largest) 103 Elo
+  pooled tiers at day 180 (mix 50/35/12/3): Novice 0.0%, Apprentice 52.5%, Adept 34.1%, Archmage 10.6%, Elomental 2.7%
+  pooled share at or above: 900 15.5%, 1000 13.3%, 1300 3.8%, 1450 2.7%, 1500 2.5%, 1550 2.1%, 1600 0.9%
+
+== (c) comeback square + losses 1.5x
+  Casual (singles only)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 4/5 (100%), Adept —/— (9%), Archmage —/— (0%), Elomental —/— (0%)
+    median Elo by day: {"1":167,"3":288,"7":417,"14":445,"30":450,"60":450,"90":451,"180":451}  plateau p10/50/90 413/452/492
+    win rate days 1-30 65%, last 30 days 57%; tier at day 180: Novice 0%, Apprentice 100%, Adept 0%, Archmage 0%, Elomental 0%
+    rank-ups first 30 days 1 (all 1), new techniques met 1; Elo-losing games in first 14 days 11; protection ends day 4; days with Elo up/down: first 30 56%/42%, last 30 44%/54%; demotions in 180 days 0.3 (with a 50 grace 0.1)
+    average loss 22.8 Elo; worst run of losses (p90 of each player's largest) 99 Elo; comeback squares 13% of games
+  Newspaper medium (pointing, pairs)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 4/4 (100%), Adept 10/14 (100%), Archmage —/— (1%), Elomental —/— (0%)
+    median Elo by day: {"1":168,"3":296,"7":495,"14":681,"30":792,"60":806,"90":805,"180":806}  plateau p10/50/90 702/806/878
+    win rate days 1-30 76%, last 30 days 61%; tier at day 180: Novice 0%, Apprentice 1%, Adept 99%, Archmage 0%, Elomental 0%
+    rank-ups first 30 days 3 (all 3), new techniques met 3; Elo-losing games in first 14 days 5; protection ends day 4; days with Elo up/down: first 30 72%/28%, last 30 49%/51%; demotions in 180 days 2.9 (with a 50 grace 0.2)
+    average loss 22.0 Elo; worst run of losses (p90 of each player's largest) 133 Elo; comeback squares 12% of games
+  Enthusiast (X-Wing, XY-Wing)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 3/4 (100%), Adept 9/11 (100%), Archmage 22/30 (100%), Elomental —/— (0%)
+    median Elo by day: {"1":169,"3":300,"7":524,"14":809,"30":1094,"60":1234,"90":1250,"180":1251}  plateau p10/50/90 1096/1252/1298
+    win rate days 1-30 85%, last 30 days 62%; tier at day 180: Novice 0%, Apprentice 0%, Adept 3%, Archmage 97%, Elomental 0%
+    rank-ups first 30 days 4 (all 4), new techniques met 4; Elo-losing games in first 14 days 2; protection ends day 3; days with Elo up/down: first 30 85%/15%, last 30 51%/49%; demotions in 180 days 3.8 (with a 50 grace 0.4)
+    average loss 17.8 Elo; worst run of losses (p90 of each player's largest) 107 Elo; comeback squares 10% of games
+  Diehard (chains)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 3/4 (100%), Adept 9/10 (100%), Archmage 18/21 (100%), Elomental 38/50 (100%)
+    median Elo by day: {"1":170,"3":302,"7":537,"14":866,"30":1321,"60":1595,"90":1600,"180":1600}  plateau p10/50/90 1564/1601/1627
+    win rate days 1-30 93%, last 30 days 65%; tier at day 180: Novice 0%, Apprentice 0%, Adept 0%, Archmage 2%, Elomental 98%
+    rank-ups first 30 days 3 (all 5), new techniques met 5; Elo-losing games in first 14 days 1; protection ends day 3; days with Elo up/down: first 30 94%/6%, last 30 50%/48%; demotions in 180 days 2.5 (with a 50 grace 0.1)
+    average loss 13.7 Elo; worst run of losses (p90 of each player's largest) 72 Elo; comeback squares 8% of games
+  pooled tiers at day 180 (mix 50/35/12/3): Novice 0.0%, Apprentice 50.3%, Adept 35.1%, Archmage 11.7%, Elomental 3.0%
+  pooled share at or above: 900 17.4%, 1000 14.6%, 1300 5.0%, 1450 3.0%, 1500 2.9%, 1550 2.7%, 1600 1.6%
+
+== live + players learn the next technique
+  Casual (singles only)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 116/— (75%), Adept —/— (0%), Elementalist —/— (0%), Archmage —/— (0%)
+    median Elo by day: {"1":196,"3":306,"7":401,"14":474,"30":493,"60":498,"90":504,"180":506}  plateau p10/50/90 503/514/535
+    win rate days 1-30 20%, last 30 days 24%; tier at day 180: Novice 98%, Apprentice 2%, Adept 0%, Elementalist 0%, Archmage 0%
+    rank-ups first 30 days 2 (all 4); Elo-losing games in first 14 days 0; protection ends day 18; days with Elo up/down: first 30 38%/9%, last 30 38%/40%; demotions in 180 days 3.1 (with a 50 grace 1.9)
+    average loss 15.6 Elo; worst run of losses (p90 of each player's largest) 148 Elo
+  Newspaper medium (pointing, pairs)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 8/14 (100%), Adept —/— (16%), Elementalist —/— (0%), Archmage —/— (0%)
+    median Elo by day: {"1":206,"3":373,"7":562,"14":653,"30":678,"60":688,"90":692,"180":725}  plateau p10/50/90 580/706/1137
+    win rate days 1-30 50%, last 30 days 43%; tier at day 180: Novice 19%, Apprentice 75%, Adept 5%, Elementalist 0%, Archmage 0%
+    rank-ups first 30 days 6 (all 31); Elo-losing games in first 14 days 13; protection ends day 5; days with Elo up/down: first 30 64%/35%, last 30 52%/47%; demotions in 180 days 17.9 (with a 50 grace 4.4)
+    average loss 18.2 Elo; worst run of losses (p90 of each player's largest) 205 Elo
+  Enthusiast (X-Wing, XY-Wing)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 6/7 (100%), Adept 22/48 (99%), Elementalist —/— (25%), Archmage —/— (0%)
+    median Elo by day: {"1":209,"3":400,"7":703,"14":1025,"30":1218,"60":1277,"90":1325,"180":1608}  plateau p10/50/90 1122/1539/2154
+    win rate days 1-30 70%, last 30 days 58%; tier at day 180: Novice 0%, Apprentice 20%, Adept 56%, Elementalist 23%, Archmage 0%
+    rank-ups first 30 days 8 (all 26); Elo-losing games in first 14 days 7; protection ends day 5; days with Elo up/down: first 30 79%/19%, last 30 52%/46%; demotions in 180 days 10.9 (with a 50 grace 2.9)
+    average loss 18.9 Elo; worst run of losses (p90 of each player's largest) 180 Elo
+  Diehard (chains)
+    days to tier (median / worst 10%, reached by day 180): Apprentice 5/6 (100%), Adept 14/17 (100%), Elementalist 45/66 (100%), Archmage —/— (37%)
+    median Elo by day: {"1":211,"3":418,"7":777,"14":1214,"30":1727,"60":2202,"90":2448,"180":2839}  plateau p10/50/90 2282/2786/3103
+    win rate days 1-30 86%, last 30 days 70%; tier at day 180: Novice 0%, Apprentice 0%, Adept 1%, Elementalist 63%, Archmage 36%
+    rank-ups first 30 days 8 (all 16); Elo-losing games in first 14 days 3; protection ends day 4; days with Elo up/down: first 30 91%/8%, last 30 57%/41%; demotions in 180 days 2.1 (with a 50 grace 0.1)
+    average loss 13.3 Elo; worst run of losses (p90 of each player's largest) 88 Elo
+  pooled tiers at day 180 (mix 50/35/12/3): Novice 55.6%, Apprentice 30.1%, Adept 8.6%, Elementalist 4.6%, Archmage 1.1%
+  pooled share at or above: 900 26.9%, 1000 23.9%, 1300 11.6%, 1450 10.1%, 1500 9.8%, 1550 9.4%, 1600 9.0%
+
+Migration: new Elo of the same player, by live Elo (weighted by persona mix)
+  live   young (days 1-14) p25/median/p75     all days p25/median/p75
+    100             144/145/147                 144/145/147
+    200             148/168/186                 148/168/186
+    300             264/289/316                 264/289/316
+    400             306/400/432                 308/401/432
+    500             434/476/509                 431/472/504
+    600             496/546/671                 565/750/832
+    700             532/653/727                 729/835/887
+    800             541/669/760                 806/882/903
+   1000             783/819/857                813/883/1086
+   1200             819/858/893              1114/1246/1294
+   1400             851/882/914              1274/1298/1312
+   1600                       —              1304/1332/1379
+   2000                       —              1449/1585/1604
+   2400                       —              1599/1612/1631
+   3000                       —              1611/1629/1651

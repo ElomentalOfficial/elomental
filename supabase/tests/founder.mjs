@@ -57,10 +57,10 @@ export default async function () {
   await db.query(`select public.dev_action('unlock_all')`);
   const all = (await db.query(`select count(*)::int n from public.player_parts where player_id = $1`, [fo])).rows[0].n;
   check(all === 27, `unlock every part (${all})`);
-  await db.query(`select public.dev_action('elo', '2500')`);
+  await db.query(`select public.dev_action('elo', '1500')`);
   await db.query(`select public.dev_action('plate', '4')`);
-  const set = (await db.query(`select elo, plate from public.profiles where id = $1`, [fo])).rows[0];
-  check(set.elo === 2500 && set.plate === 4, `set Elo and plate (${JSON.stringify(set)})`);
+  const set = (await db.query(`select elo, rank_tier, plate from public.profiles where id = $1`, [fo])).rows[0];
+  check(set.elo === 1500 && set.rank_tier === 4 && set.plate === 4, `set Elo (and its rank) and plate (${JSON.stringify(set)})`);
   await db.query(`select public.dev_action('clear_parts')`);
   const none = (await db.query(`select count(*)::int n from public.player_parts where player_id = $1`, [fo])).rows[0].n;
   check(none === 0, 'remove every part');

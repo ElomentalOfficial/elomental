@@ -22,6 +22,10 @@ export interface Account {
   /** When the name may next be changed (ISO), or null if it can change now. */
   nextNameChange: string | null;
   elo: number;
+  /** The rank shown, 0 Novice … 4 Elomental (profiles.rank_tier; missing in old caches). */
+  tier?: number;
+  /** Ranked losses in a row (profiles.ranked_loss_run): from 2, the next square is a stage easier. */
+  lossRun?: number;
   rankedGames: number;
   stardust: number;
   spirits: number;
@@ -33,7 +37,7 @@ export interface Account {
   solved: number;
   /** Missed daily squares filled in with Stardust, keyed YYYY-MM-DD (missing in old caches). */
   mended?: Record<string, true>;
-  /** Name plate: 0 none, 1 Bronze … 4 Elomentalist. */
+  /** Name plate: 0 none, 1 Bronze … 4 Starforged. */
   plate?: number;
   /** The highest Elo after any game (the profile's peak). */
   bestElo?: number;
@@ -110,7 +114,7 @@ export async function refreshAccount(session?: Session | null): Promise<Account 
   const [{ data: profile, error }, { data: dailies }, { count: solved }, { data: mends }, { data: best }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('display_name, title, name_changed_at, elo, ranked_games, stardust, spirits, settings, affinity, plate, dev_mode, country, lb_hidden, card_stats, showcase, part_progress')
+      .select('display_name, title, name_changed_at, elo, rank_tier, ranked_loss_run, ranked_games, stardust, spirits, settings, affinity, plate, dev_mode, country, lb_hidden, card_stats, showcase, part_progress')
       .eq('id', s.user.id)
       .single(),
     supabase.from('games').select('date_key').eq('mode', 'daily').eq('won', true),
@@ -132,6 +136,8 @@ export async function refreshAccount(session?: Session | null): Promise<Account 
     title: profile.title ?? null,
     nextNameChange: nextChange(profile.name_changed_at),
     elo: profile.elo,
+    tier: profile.rank_tier ?? undefined,
+    lossRun: profile.ranked_loss_run ?? 0,
     rankedGames: profile.ranked_games,
     stardust: profile.stardust,
     spirits: profile.spirits,

@@ -118,6 +118,11 @@ export const PAIRS: Pair[] = [
   ['UI: same-number fill vs cell', '--same-bg', '--cell', 3],
   ['UI: action button vs page', '--action-bg', '--bg', 3],
   ['UI: modal border', '--modal-border', '--modal-bg', 3, '--modal-bg'],
+  ['UI: rank bar fill vs its track (result)', '--accent-text', '--surface', 3],
+  ['UI: top rank emblems on surface', '--accent-text', '--surface', 3],
+  ['UI: top rank emblems on surface-2 (Ranks sheet)', '--accent-text', '--surface-2', 3],
+  ['UI: top rank emblems on your Ranks row', '--accent-text', '--chosen-bg', 3, '--surface'],
+  ['UI: rank bar fill vs its track (Profile)', '--accent-text', '--surface-2', 3],
 ];
 
 /** Pairs that may stay under their ratio, and why. Anything else failing is a regression. */

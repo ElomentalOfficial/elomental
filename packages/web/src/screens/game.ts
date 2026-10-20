@@ -14,6 +14,7 @@ import {
   type Difficulty,
   type GeneratedPuzzle,
   type Move,
+  type TechniqueId,
 } from '@elomental/engine';
 import { ICONS } from '../icons.ts';
 import {
@@ -21,8 +22,10 @@ import {
   loadProfile,
   parMs,
   puzzleProfile,
+  rankedStageFor,
   rankedTarget,
   recordResult,
+  stageRating,
   type Mode,
   type Outcome,
 } from '../profile.ts';
@@ -67,6 +70,9 @@ export interface GameConfig {
   rating: number;
   /** Ranked: the rating the square aimed for; par goes by it (missing in older saved games). */
   target?: number;
+  /** Ranked: the stage it was dealt at, and the hardest technique it needs (missing in older saved games). */
+  stage?: number;
+  hardest?: TechniqueId | null;
   seed: string;
   dateKey?: string;
   /** Signed-in games: the server's game id; the server settles the result. */
@@ -200,9 +206,14 @@ export async function startGame(options: {
     }
   }
   try {
-    // Ranked aims at a rating (the player's Elo) rather than a tier.
+    // Ranked deals a stage of the ladder: the server's, or (a local guest) the Elo's own. A server
+    // from before the ladder gives no stage: then the square aims at its target rating.
+    const local = loadProfile();
+    const rankedStage =
+      options.mode !== 'ranked' ? undefined : server ? server.stage : rankedStageFor(local.elo, local.lossRun);
     const targetRating =
-      options.mode === 'ranked' ? (server?.targetRating ?? rankedTarget(loadProfile().elo)) : undefined;
+      options.mode !== 'ranked' ? undefined
+      : (server?.targetRating ?? (rankedStage !== undefined ? stageRating(rankedStage) : rankedTarget(local.elo)));
     const difficulty =
       server?.difficulty ?? (targetRating !== undefined ? difficultyForRating(targetRating) : options.difficulty);
     const p =
@@ -211,6 +222,7 @@ export async function startGame(options: {
         difficulty,
         profile: puzzleProfile(options.mode, difficulty, options.dateKey),
         targetRating,
+        rankedStage,
         seed: server?.seed ?? options.seed,
       }));
     const game: SavedGame = {
@@ -222,6 +234,8 @@ export async function startGame(options: {
         solution: p.solution,
         rating: p.rating,
         target: targetRating,
+        stage: p.stage ?? rankedStage,
+        hardest: p.hardest,
         seed: p.seed,
         dateKey: options.dateKey,
         clash: options.clash,
@@ -902,6 +916,7 @@ function gameScreen(game: SavedGame): Screen {
         difficulty: config.difficulty,
         rating: config.rating,
         target: config.target,
+        stage: config.stage,
         dateKey: config.dateKey,
         won,
         mistakes: game.mistakes,

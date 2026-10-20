@@ -83,11 +83,8 @@ Deno.serve(async (req) => {
     return reply({ error: 'bad_request' }, 400);
   }
 
-  const { data: game } = await admin
-    .from('games')
-    .select('id, user_id, mode, finished_at, seed, difficulty, rating, target_rating, started_at, paused_seconds')
-    .eq('id', body.gameId)
-    .maybeSingle();
+  // (all columns: ranked_stage only exists once ranked_ladder is applied, and this deploys first)
+  const { data: game } = await admin.from('games').select('*').eq('id', body.gameId).maybeSingle();
   if (!game || game.user_id !== auth.user.id) return reply({ error: 'no_game' }, 404);
   if (game.mode !== 'ranked' || game.finished_at) return reply({ error: 'not_open' }, 409);
   // Before any work: not audited yet, and at most 10 asks a minute (so this can't burn CPU).
@@ -95,11 +92,24 @@ Deno.serve(async (req) => {
   if (slotError) return reply({ error: slotError.message.includes('slow_down') ? 'slow_down' : 'save_failed' }, slotError.message.includes('slow_down') ? 429 : 500);
   if (!slot) return reply({ error: 'already_audited' }, 409);
 
-  // The puzzle this game dealt: same seed, same target, same puzzle (the engine is deterministic).
-  // If it can't be made here, nothing is saved: the win lands as not checked, not as scripted.
+  // The puzzle this game dealt: same seed, same stage (or, for a game started before ranked_ladder,
+  // same target), same puzzle (the engine is deterministic). If it can't be made here, nothing is
+  // saved: the win lands as not checked, not as scripted.
+  const difficulty = game.difficulty as Difficulty;
+  const target: number = game.target_rating ?? game.rating;
   let dealt: string;
   try {
-    dealt = generatePuzzle({ difficulty: game.difficulty as Difficulty, targetRating: game.target_rating ?? game.rating, seed: game.seed }).puzzle;
+    dealt =
+      game.ranked_stage == null
+        ? generatePuzzle({ difficulty, targetRating: target, seed: game.seed }).puzzle
+        : generatePuzzle({ difficulty, rankedStage: game.ranked_stage, seed: game.seed }).puzzle;
+    // A page loaded before the ladder shipped deals by the stage's target instead. That square is
+    // never accepted (a client could pick the easier of the two), but it isn't scripted either:
+    // nothing is saved, so the win lands as not checked. Remove after 2026-11-01.
+    if (body.givens !== dealt && game.ranked_stage != null &&
+        body.givens === generatePuzzle({ difficulty, targetRating: target, seed: game.seed }).puzzle) {
+      return reply({ error: 'stale_app' }, 409);
+    }
   } catch {
     return reply({ error: 'generate_failed' }, 500);
   }

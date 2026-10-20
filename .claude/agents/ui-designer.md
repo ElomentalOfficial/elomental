@@ -32,7 +32,7 @@ For each component, how it looks in every state (default, pressed, selected, dis
 error, empty) in both themes. Cover the board and cells (given, your number, selected, same
 number, conflict/mistake, note, hint, solved), keypad, buttons, tiles, cards, the reward strip,
 rarity tags, the Forge grid, avatars and frames (still and Alive), name plates (Bronze, Silver,
-Gold, Elomentalist), rank emblems, the affinity tug bar, leaderboard rows, the show-off card,
+Gold, Starforged), rank emblems, the affinity tug bar, leaderboard rows, the show-off card,
 modals, toasts and navigation.
 
 ## Rules for this audience

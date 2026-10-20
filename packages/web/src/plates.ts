@@ -2,7 +2,7 @@ import { h } from './ui.ts';
 
 /**
  * Name plates (bought with Stardust, forge.ts): an Art Deco border drawn around the name,
- * from a plain Bronze line to the Elomentalist's pointed cartouche with its sunburst crown.
+ * from a plain Bronze line to the Starforged plate's pointed cartouche with its sunburst crown.
  * The straight lines are CSS borders (styles.css `.plate-box`), so the border stretches to
  * any name; the ornaments are small SVGs pinned to the corners and the middles, mirrored
  * into place. Their (0, 0) is the outer line's corner. The outer `.plate-frame` is a little
@@ -40,12 +40,12 @@ const TOPS: Record<number, string> = {
 };
 
 /**
- * The Elomentalist: a cartouche with pointed ends, like an Art Deco nameplate. Each end is
+ * The Starforged plate: a cartouche with pointed ends, like an Art Deco nameplate. Each end is
  * two nested chevrons (the outer and inner lines) stretched to the name's height
  * (non-scaling strokes keep them 1px), with two slim pillars inside; a gem sits on each
  * tip, a sunburst crown rises from the top and a small gem hangs below.
  */
-function elomentalist(): string {
+function starforged(): string {
   const line = 'vector-effect="non-scaling-stroke"';
   const end = (cls: string) =>
     `<svg class="${cls}" viewBox="0 0 26 100" preserveAspectRatio="none" aria-hidden="true">` +
@@ -81,7 +81,7 @@ function elomentalist(): string {
 export function plateFrame(plate: number): HTMLElement | null {
   if (!plate) return null;
   const frame = (html: string) => h('span', { class: 'plate-frame', attrs: { 'aria-hidden': 'true' } }, h('span', { class: 'plate-box', html }));
-  if (plate === 4) return frame(elomentalist());
+  if (plate === 4) return frame(starforged());
   const parts: string[] = [];
   for (const c of ['tl', 'tr', 'bl', 'br']) parts.push(svg(`plate-corner c-${c}`, '-5 -5 21 21', [21, 21], CORNERS[plate]));
   if (TOPS[plate]) for (const c of ['t', 'b']) parts.push(svg(`plate-mid m-${c}`, '-10 -7 20 14', [20, 14], TOPS[plate]));

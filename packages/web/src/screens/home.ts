@@ -1,4 +1,4 @@
-import { difficultyForRating } from '@elomental/engine';
+import { difficultyForRating, rankedStage } from '@elomental/engine';
 import { avatarSvg } from '../avatar.ts';
 import { cachedAccount } from '../backend/account.ts';
 import { cachedLoadout, cachedPolish, loadLoadout } from '../backend/forge.ts';
@@ -13,7 +13,18 @@ import { affinityScreen } from './affinity.ts';
 import { addToHomeNote, countNoteVisit } from '../install.ts';
 import { openLazy, prefetch } from '../lazy.ts';
 import { enableTilt, turnstileIn, turnstileOut } from '../motion.ts';
-import { dailyKey, eloDelta, loadProfile, nextRank, parMs, rankTier, rankedOpponent, rankedTarget } from '../profile.ts';
+import {
+  dailyKey,
+  eloDelta,
+  loadProfile,
+  nextRank,
+  parMs,
+  rankTier,
+  rankedOpponent,
+  rankedStageFor,
+  stageIntroduces,
+  stageRating,
+} from '../profile.ts';
 import { closeButton, h, hiddenHeading, mount, navigatingBack, openModal, toast, type Screen } from '../ui.ts';
 import { handleEmailLink } from '../emailLink.ts';
 import { onAccountChange, refreshAccount, signedIn } from '../backend.ts';
@@ -77,7 +88,7 @@ export function homeScreen(): Screen {
     // on the name plate bought with Stardust (plates.ts), if any
     paintPlate(nameEl, p.name, cachedAccount()?.plate ?? 0);
     // The tier emblem beside the rank (or the player's title, which replaces the rank's name)
-    const tier = rankTier(p.elo);
+    const tier = rankTier(p.elo, p.tier);
     rankEl.replaceChildren(
       h('span', { class: `tier-emblem tier-${tier.tier}`, html: ICONS.tiers[tier.tier], attrs: { 'aria-hidden': 'true' } }),
       h('span', { text: p.title ?? tier.label }),
@@ -107,7 +118,7 @@ export function homeScreen(): Screen {
     }
     // the two nearest things to play for, so the line fits on one row: today's Daily if it's
     // still open, the next part, the next rank
-    const next = p.rankedGames > 0 && !p.title ? nextRank(p.elo) : null;
+    const next = p.rankedGames > 0 && !p.title ? nextRank(p.elo, p.tier) : null;
     const parts = [
       dailyDone ? null : copy.home.line.dailyOpen,
       account?.partProgress != null ? copy.home.line.toNextPart(3 - account.partProgress) : null,
@@ -273,16 +284,22 @@ function openRanked(leave: (go: () => void) => void) {
   const saved = loadSavedGame('ranked');
   if (saved?.config.mode === 'ranked') return leave(() => resumeGame(saved));
   const profile = loadProfile();
-  const target = rankedTarget(profile.elo);
+  // the stage the next game deals (the server decides; this is the same rule)
+  const stage = rankedStageFor(profile.elo, profile.lossRun);
+  const comeback = stage < rankedStage(profile.elo);
+  const target = stageRating(stage);
   const difficulty = difficultyForRating(target);
   // what a player 35–45 wants to know before starting: how long, and what's at stake
   const r = copy.home.ranked;
   const facts = [
-    r.rank(rankTier(profile.elo).label, profile.elo),
+    r.rank(rankTier(profile.elo, profile.tier).label, profile.elo),
     r.length(Math.round(parMs(target) / 60_000), Math.round((2 * parMs(target)) / 60_000)),
     r.stakes(eloDelta(profile.elo, rankedOpponent(profile.elo), true), -eloDelta(profile.elo, rankedOpponent(profile.elo), false)),
+    comeback ? r.comeback : null,
     r.pauses,
-  ];
+  ].filter((f): f is string => !!f);
+  // the first square from a stage that brings in a technique family: a word on it, once
+  const fresh = newTechnique(stage);
   const close = openModal(
     h(
       'div',
@@ -292,14 +309,41 @@ function openRanked(leave: (go: () => void) => void) {
       h('h2', { text: copy.home.ranked.title }),
       h('p', { class: 'ranked-copy', text: copy.home.ranked.text }),
       h('ul', { class: 'ranked-facts' }, ...facts.map((f) => h('li', { text: f }))),
+      fresh
+        ? h('div', { class: 'ranked-new' }, h('h3', { text: r.newTechnique.title }), h('p', { text: r.newTechnique[fresh] }))
+        : null,
       h('button', {
         class: 'btn btn-primary btn-start',
         text: copy.home.ranked.start,
         onclick: () => {
           close();
+          // told once: this family and every one before it
+          if (fresh) markTechniquesSeen(stage);
           leave(() => void startGame({ mode: 'ranked', difficulty }));
         },
       }),
     ),
   );
+}
+
+/** Technique families this phone has had the "new in your Ranked squares" word on. */
+const TECHNIQUES_SEEN_KEY = 'elomental:techniques-seen';
+
+/** The newest family a stage's squares can need, if this phone hasn't been told about it yet. */
+function newTechnique(stage: number): NonNullable<ReturnType<typeof stageIntroduces>> | null {
+  const seen = readJson<string[]>(TECHNIQUES_SEEN_KEY) ?? [];
+  for (let s = stage; s >= 0; s--) {
+    const family = stageIntroduces(s);
+    if (family) return seen.includes(family) ? null : family;
+  }
+  return null;
+}
+
+function markTechniquesSeen(stage: number): void {
+  const seen = new Set(readJson<string[]>(TECHNIQUES_SEEN_KEY) ?? []);
+  for (let s = stage; s >= 0; s--) {
+    const family = stageIntroduces(s);
+    if (family) seen.add(family);
+  }
+  writeJson(TECHNIQUES_SEEN_KEY, [...seen]);
 }

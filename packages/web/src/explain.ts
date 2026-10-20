@@ -28,7 +28,7 @@ const unitKind = (u: number) => (u < 9 ? 'row' : u < 18 ? 'column' : 'box');
 const uniq = (cells: number[]) => [...new Set(cells)];
 
 function priorStage(step: Step): Stage {
-  const name = TECHNIQUE_BY_ID[step.technique].name;
+  const name = copy.techniqueName(TECHNIQUE_BY_ID[step.technique].name);
   const d = step.digits ?? [];
   const pattern = step.pattern ?? [];
   const ruled = uniq(step.eliminations.map(([c]) => c));
@@ -102,7 +102,7 @@ function priorStage(step: Step): Stage {
  */
 export function explainHint(hint: Hint, values: ArrayLike<number>): Stage[] {
   const { cell: target, digit: D } = hint;
-  const name = TECHNIQUE_BY_ID[hint.technique].name;
+  const name = copy.techniqueName(TECHNIQUE_BY_ID[hint.technique].name);
   // The engine reports every elimination it made on the way; only explain the
   // ones that actually matter here: they rule out D inside the hint's unit, or
   // they rule out candidates of the target square itself.
@@ -112,7 +112,7 @@ export function explainHint(hint: Hint, values: ArrayLike<number>): Stage[] {
   );
   const stages = relevant
     .map(priorStage)
-    .map((stage, i) => (i === 0 ? stage : { ...stage, title: copy.hints.then(TECHNIQUE_BY_ID[relevant[i].technique].name) }));
+    .map((stage, i) => (i === 0 ? stage : { ...stage, title: copy.hints.then(copy.techniqueName(TECHNIQUE_BY_ID[relevant[i].technique].name)) }));
   const eliminatedByPrior = new Set(
     relevant.flatMap((s) => s.eliminations.filter(([, d]) => d === D).map(([c]) => c)),
   );

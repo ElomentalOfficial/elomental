@@ -29,15 +29,31 @@ it replaces the material-based design in §2, §3.2–3.3, §4.2–4.3, §9–11
   life around day 40 (worst 10%: day 56). **Call a Spirit** for Stardust: 15,000, then 5,000 more for each
   one called this season, only while an owned avatar has no Spirit to wake it.
 - **Stardust sinks, all a look or a convenience:** bring an avatar to life once (6000 Stardust
-  and a Spirit); name plates Bronze, Silver, Gold, Elomentalist (1000/2500/6000/12000, in order);
+  and a Spirit); name plates Bronze, Silver, Gold, Starforged (1000/2500/6000/12000, in order;
+  the top one was "Elomentalist" until the Elomental rank);
   fill in a missed Daily this month (300, up to 3 a month); Call a Spirit.
-- **Ranked (D5, `ranked_length`):** a square takes about 10–15 minutes at every level. Its rating
-  follows your Elo up to 1200, then climbs a third as fast, to 1800 at 3000 Elo (the engine's
-  hardest technique tops out around there). Elo is priced as an even match against your own Elo,
-  held to 150..3000, so gains fade above 3000 (a square easier than its target is discounted;
-  a harder one earns nothing extra). Par is 10 to 15 minutes, by the target; the slow cut is at 2× par.
-  Simulated: a regular reaches Elementalist around day 39; Archmage means "solves the hardest
-  square". Re-fit par to real solve times once there are about 200 real Ranked wins.
+- **Ranked ladder (`ranked_ladder`, 2026-10-21; design and simulation in
+  `docs/review/elo-ladder-2026-10-21-economy.md` and `-ux.md`):** five ranks, names only:
+  **Novice 0, Apprentice 300, Adept 600, Archmage 1000, Elomental 1450**. Fresh accounts start at
+  100; the best settle around 1600–1650 (the square is priced at 1600 at most, so gains fade
+  above it). **Squares go by stage, not by Elo:** the Elo picks one of 14 stages (engine
+  `RANKED_STAGES`, server `ranked_stage`) and each rank is one technique family: Novice singles
+  at 38 then 34 givens; Apprentice leaner singles, then one pointing step, then 2–3; Adept pairs,
+  then triples, its last stage one X-Wing or XY-Wing; Archmage fish and wings, its last stage one
+  chain; Elomental chains, then big finned fish from 1600. Elo is an even match against your own
+  Elo: K 40 at 100 down to 14 at 1600; **no Elo lost in Novice**; then a loss costs 0.75× the
+  stake at 300, 1.5× from 500, 1.75× at 1600, so a settled player wins about 3 in 5. **Comeback
+  square:** after two losses in a row (from 300), the next square is a stage easier until a win.
+  **Rank grace:** a rank is kept until Elo is 50 below its floor (`profiles.rank_tier`, shown
+  everywhere). In place of divisions: a bar to the next rank (result, Profile), a one-time
+  "new in your Ranked squares" note on the Ranked sheet per technique family, and "Key step:
+  X-Wing" on a win. Par stays 10 to 15 minutes by the stage's rating; the slow cut at 2× par.
+  Ranked influence 3, 3, 4, 5, 6 by rank. Existing Elo moved onto the new scale by one strictly
+  increasing map (order kept, nobody lower in rank position). Simulated (10,000 players per
+  persona, 180 days): a singles-only player reaches Apprentice on day 4 and settles there winning
+  57%; a newspaper-medium solver reaches Adept on day 10; an X-Wing solver Archmage on day 22; a
+  chain solver Elomental on day 38 (about 3% of players). Re-fit the personas and par to real
+  Ranked results once there are about 200 wins.
 - **Daily month:** 20 days solved or filled in earns that month's dated badge (`daily_month`).
 - **Affinities (§13):** chosen after 3 solves, switchable once in a season's first 7 days.
   A member counts once they have 5 solves in the month, each with up to 300 influence; the side
@@ -61,8 +77,8 @@ Decisions already made with the owner (2026-10-20):
   (Fire, Water, Earth, Air) are the schools every part belongs to.
 - **Affinities** (§13): every player joins one element; every solve adds to its
   monthly tug of war (added 2026-10-20).
-- Built on what exists: Elo (protected below 500; since D5 priced as an even match against your
-  own Elo up to 3000, squares rated up to 1800),
+- Built on what exists: Elo (since `ranked_ladder`: protected in Novice, an even match against
+  your own Elo up to 1600, squares by stage),
   Stardust, the Spirit, the five rank names, Daily Square, Clash, server-side
   `finish_game` and the solve audit.
 
@@ -123,6 +139,9 @@ at a cost (§3.3). The pairings match the existing Home icons: the flaming sword
 Ranked, the feather is Casual.
 
 ### 1.2 Ranked tiers and divisions
+
+*Superseded by the Ranked ladder (Revision section, `ranked_ladder`): five ranks with no
+divisions, Elomental at the top. Kept for the history.*
 
 Elo already runs to 4800, but today's titles stop at Archmage from 1200, so most
 serious players would sit in one tier forever. The tiers keep the five glossary

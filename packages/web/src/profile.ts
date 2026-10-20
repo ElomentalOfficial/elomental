@@ -1,7 +1,8 @@
-import type { Difficulty, ProfileId } from '@elomental/engine';
+import { RANKED_STAGES, rankedStage, type Difficulty, type ProfileId, type RankedStage } from '@elomental/engine';
 import { cachedAccount } from './backend.ts';
 import { readJson, writeJson } from './storage.ts';
 import * as copy from './copy/en.ts';
+import { PROTECTED_BELOW, along, eloDelta, rankedOpponent } from './elo.ts';
 
 /**
  * Player progress. With an account (guests get an anonymous one), every
@@ -20,6 +21,10 @@ export interface Profile {
   /** Shown instead of the Elo rank (e.g. "Founder"); null for most players. */
   title: string | null;
   elo: number;
+  /** The rank shown, 0 Novice … 4 Elomental (kept until Elo is 50 below it). */
+  tier: number;
+  /** Ranked losses in a row: from 2, the next square is a stage easier. */
+  lossRun: number;
   rankedGames: number;
   dust: number;
   /** Spirits (server only: a local guest earns none). */
@@ -31,8 +36,8 @@ export interface Profile {
 const KEY = 'elomental:profile';
 
 export const START_ELO = 100;
-/** Below this rating, losing a ranked match costs nothing. */
-export const PROTECTED_BELOW = 500;
+// The Elo maths lives in elo.ts (no browser imports, so the database tests can compare it)
+export { PROTECTED_BELOW, eloDelta, rankedOpponent } from './elo.ts';
 
 const DUST: Record<Difficulty | 'daily' | 'ranked', number> = { easy: 4, medium: 8, hard: 15, daily: 12, ranked: 20 };
 
@@ -74,6 +79,8 @@ export function loadProfile(): Profile {
       name: account.name || copy.common.guest,
       title: account.anonymous ? null : (account.title ?? null),
       elo: account.elo,
+      tier: account.tier ?? shownTier(account.elo),
+      lossRun: account.lossRun ?? 0,
       rankedGames: account.rankedGames,
       dust: account.stardust,
       spirits: account.spirits ?? 0,
@@ -81,9 +88,10 @@ export function loadProfile(): Profile {
       daily: { ...account.mended, ...account.daily },
     };
   }
-  return {
+  const local = {
     elo: START_ELO,
     rankedGames: 0,
+    lossRun: 0,
     dust: 0,
     spirits: 0,
     daily: {},
@@ -92,6 +100,15 @@ export function loadProfile(): Profile {
     name: copy.common.guest,
     title: null,
   };
+  // a guest profile from before the ladder (no rank stored) moves onto the new scale, as accounts did
+  if (local.tier === undefined) local.elo = ladderV2(local.elo);
+  return { ...local, tier: local.tier ?? shownTier(local.elo) };
+}
+
+/** The one-time move onto the ladder's scale (migration ranked_ladder's ladder_v2). */
+function ladderV2(old: number): number {
+  const points: [number, number][] = [[100, 100], [500, 460], [1000, 830], [2000, 1330], [3000, 1610], [4800, 1700]];
+  return old <= 100 ? old : Math.round(along(points, old));
 }
 
 export function saveProfile(profile: Profile): void {
@@ -117,123 +134,77 @@ export function puzzleProfile(mode: Mode, difficulty: Difficulty, dateKey?: stri
   return difficulty === 'easy' ? 'casualEasy' : difficulty === 'medium' ? 'casualMedium' : 'casualHard';
 }
 
-/** Lowest Elo a Ranked match is priced at, and the highest (Archmage): gains fade above it. */
-const MIN_TARGET = 150;
-const MAX_OPPONENT = 3000;
-/** Squares follow your Elo up to here, then climb a third as fast. */
-const KNEE = 1200;
+/** The run of losses after which the next Ranked square is a stage easier (the comeback square). */
+export const COMEBACK_AFTER = 2;
 
 /**
- * Who a Ranked game is priced against: an even match with your own Elo, held to 150..3000.
- * Mirrors private.ranked_opponent.
+ * The stage a Ranked game deals (engine RANKED_STAGES): the Elo's own, or one lower after two
+ * losses in a row where losses cost Elo, until a win. Mirrors start_game (signed-in players get
+ * it from there).
  */
-export function rankedOpponent(elo: number): number {
-  return Math.min(Math.max(Math.round(elo), MIN_TARGET), MAX_OPPONENT);
+export function rankedStageFor(elo: number, lossRun: number): number {
+  const stage = rankedStage(elo);
+  return lossRun >= COMEBACK_AFTER && elo >= PROTECTED_BELOW && stage > 0 ? stage - 1 : stage;
 }
+
+/** The engine rating a stage stands for: par goes by it. Mirrors private.stage_rating. */
+export const stageRating = (stage: number): number => RANKED_STAGES[stage].rating;
+
+/** The rating a Ranked square at this Elo stands for (its stage's). Mirrors private.ranked_target. */
+export const rankedTarget = (elo: number): number => stageRating(rankedStage(elo));
 
 /**
- * The rating a ranked puzzle aims for: your Elo up to 1200, then a third as fast, up to 1800
- * at 3000 Elo, so every square stays about 10–15 minutes (full review D5; the engine's
- * hardest technique tops out about there). Mirrors private.ranked_target on the server
- * (signed-in players get it from start_game).
+ * The five ranks by the Elo they start at, names only (docs/review/elo-ladder-2026-10-21-economy.md):
+ * each is one technique family of Ranked squares. Mirrors private.tier_floors.
  */
-export function rankedTarget(elo: number): number {
-  const e = rankedOpponent(elo);
-  return e <= KNEE ? e : KNEE + Math.floor((e - KNEE) / 3);
-}
-
-/** K by Elo, straight lines between these points: big gains while learning, small at the top. */
-const K_CURVE: [number, number][] = [
-  [600, 60],
-  [1600, 28],
-  [2400, 16],
-  [3200, 10],
-  [4800, 8],
-];
-
-/** What a loss costs relative to the stake: gentle right after the protection, double at the top. */
-const LOSS_CURVE: [number, number][] = [
-  [500, 0.5],
-  [1200, 1],
-  [1600, 1.25],
-  [2400, 1.5],
-  [3200, 2],
-];
-
-/** Straight lines between the points; flat before the first and after the last. */
-function along(points: [number, number][], x: number): number {
-  if (x <= points[0][0]) return points[0][1];
-  for (let i = 1; i < points.length; i++) {
-    const [x1, y1] = points[i];
-    const [x0, y0] = points[i - 1];
-    if (x <= x1) return y0 + ((y1 - y0) * (x - x0)) / (x1 - x0);
-  }
-  return points[points.length - 1][1];
-}
-
-/**
- * Puzzle-as-opponent Elo, mirroring elo_delta on the server (signed-in players
- * get theirs from there). Losses are free while protected, then cost more the
- * higher the player (LOSS_CURVE).
- */
-export function eloDelta(player: number, puzzle: number, won: boolean): number {
-  const expected = 1 / (1 + 10 ** ((puzzle - player) / 400));
-  const k = along(K_CURVE, player);
-  if (won) return Math.round(k * (1 - expected));
-  if (player < PROTECTED_BELOW) return 0;
-  return -Math.round(k * expected * along(LOSS_CURVE, player));
-}
-
-/**
- * Ranked tiers (docs/PROGRESSION_DESIGN.md §1.2): the five rank names spread over
- * the whole Elo range, each split into divisions III, II, I by the Elo they start
- * at. Archmage (3000+) has no divisions: its Elo speaks for itself.
- */
-const TIERS: { from: number; divisions: number[] }[] = [
-  { from: 0, divisions: [0, 200, 400] },
-  { from: 600, divisions: [600, 800, 1000] },
-  { from: 1200, divisions: [1200, 1450, 1700] },
-  { from: 2000, divisions: [2000, 2350, 2700] },
-  { from: 3000, divisions: [] },
-];
-const DIVISIONS = ['III', 'II', 'I'] as const;
+const TIERS = [0, 300, 600, 1000, 1450];
+/** A rank is kept until Elo is this far below its floor. Mirrors private.shown_tier. */
+export const RANK_GRACE = 50;
 
 export interface RankTier {
-  /** 0 Novice … 4 Archmage. */
+  /** 0 Novice … 4 Elomental. */
   tier: number;
-  /** 0 = III, 1 = II, 2 = I; null for Archmage. */
-  division: number | null;
-  name: string;
-  /** "Adept II", or "Archmage". */
+  /** "Adept". */
   label: string;
 }
 
-export function rankTier(elo: number): RankTier {
-  let tier = 0;
-  while (tier < TIERS.length - 1 && elo >= TIERS[tier + 1].from) tier++;
-  const { divisions } = TIERS[tier];
-  let division: number | null = null;
-  if (divisions.length) {
-    division = 0;
-    while (division < divisions.length - 1 && elo >= divisions[division + 1]) division++;
-  }
-  const name = copy.common.ranks[tier];
-  return { tier, division, name, label: division === null ? name : copy.common.rankDivision(name, DIVISIONS[division]) };
+/** The rank an Elo reaches, before any grace. */
+const tierOf = (elo: number): number => TIERS.filter((floor) => elo >= floor).length - 1;
+
+/**
+ * The rank shown: up as soon as Elo reaches a floor, down only once it is RANK_GRACE below the
+ * rank held. Mirrors private.shown_tier. Without the held rank (`prev`), the Elo's own.
+ */
+export function shownTier(elo: number, prev?: number | null): number {
+  const now = tierOf(elo);
+  if (prev == null || now >= prev) return now;
+  return elo >= TIERS[prev] - RANK_GRACE ? prev : now;
 }
 
-/** The next rank up from this Elo and how many Elo away it is; null for Archmage (the top). */
-export function nextRank(elo: number): { label: string; gap: number } | null {
-  const starts = TIERS.flatMap((t) => (t.divisions.length ? t.divisions : [t.from]));
-  const next = starts.find((s) => s > elo);
-  return next === undefined ? null : { label: rankTier(next).label, gap: next - Math.floor(elo) };
+/** The rank to show: the server's (the grace included) when it's known, else the Elo's own. */
+export function rankTier(elo: number, tier?: number | null): RankTier {
+  const t = tier == null ? tierOf(elo) : Math.min(Math.max(tier, 0), TIERS.length - 1);
+  return { tier: t, label: copy.common.ranks[t] };
 }
 
-/** A step up in tier or division, between two Elo ratings. */
-export function promoted(before: number, after: number): boolean {
-  const a = rankTier(before);
-  const b = rankTier(after);
-  return b.tier > a.tier || (b.tier === a.tier && (b.division ?? 0) > (a.division ?? 0));
+/**
+ * The next rank up and how far it is: `gap` Elo, and `share` of the way from the current rank's
+ * floor (0..1, for the bar). Null at Elomental, the top.
+ */
+export function nextRank(elo: number, tier?: number | null): { label: string; gap: number; share: number } | null {
+  const t = rankTier(elo, tier).tier;
+  if (t >= TIERS.length - 1) return null;
+  const from = TIERS[t];
+  const to = TIERS[t + 1];
+  const e = Math.floor(elo);
+  return { label: copy.common.ranks[t + 1], gap: to - e, share: Math.min(Math.max((e - from) / (to - from), 0), 1) };
 }
+
+/** A step up in rank, between the ranks shown before and after a game. */
+export const promoted = (before: number, after: number): boolean => after > before;
+
+/** Technique families a Ranked stage brings in, from the stage dealt: the first time, a note on the result. */
+export const stageIntroduces = (stage: number): RankedStage['introduces'] => RANKED_STAGES[stage]?.introduces;
 
 /** The daily square rolls over at 3 AM local time. */
 export function dailyKey(now = new Date()): string {
@@ -257,6 +228,8 @@ export interface ResultInput {
   rating: number;
   /** Ranked: the rating the square aimed for (par goes by it). */
   target?: number;
+  /** Ranked: the stage it was dealt at. */
+  stage?: number;
   dateKey?: string;
   won: boolean;
   mistakes: number;
@@ -273,7 +246,21 @@ export interface Outcome {
    * squares went in before they could be worked out ('copied') or the server
    * couldn't check the solve ('unchecked').
    */
-  elo?: { before: number; after: number; protectedLoss: boolean; bonus: number; hintCut: number; unrated?: Unrated | null };
+  elo?: {
+    before: number;
+    after: number;
+    protectedLoss: boolean;
+    bonus: number;
+    hintCut: number;
+    unrated?: Unrated | null;
+    /** The rank shown before and after the game (0 Novice … 4 Elomental). */
+    tierBefore?: number;
+    tier?: number;
+    /** The stage this game dealt, when it went by stage. */
+    stage?: number | null;
+    /** The next square is a stage easier: two losses in a row. */
+    comeback?: boolean;
+  };
   /** The Daily month: days done, its length, the days its badge needs; badgeNew on the solve that earns it (server only). */
   daily?: DailyMonth;
   /** A part dropped by this solve (every 3rd rated solve; signed-in players only; reward.ts shows it). */
@@ -337,12 +324,10 @@ export function recordResult(input: ResultInput): Outcome {
 
   if (input.mode === 'ranked') {
     const before = profile.elo;
-    // priced as an even match against your own Elo, discounted for a square easier than its
-    // target (a harder one earns nothing extra); par goes by the target. Mirrors finish_game.
+    // priced as an even match against your own Elo, whatever the square's rating; par goes by
+    // the stage's target. Mirrors finish_game (ranked_elo).
     const target = input.target ?? rankedTarget(before);
-    // (a win's rating is clamped to target ± 350, as the server's audit is; a loss isn't discounted)
-    const discount = input.won ? Math.min(Math.max(input.rating, target - 350) - target + 100, 0) : 0;
-    let delta = eloDelta(before, rankedOpponent(before) + discount, input.won);
+    let delta = eloDelta(before, rankedOpponent(before), input.won);
     const gained = input.won && delta > 0;
     const bonus = gained ? speedBonus(input.elapsedMs, target) : 0;
     // Speed bonus first, then the hint cut, so hints can't be "earned back" by speed alone.
@@ -350,7 +335,14 @@ export function recordResult(input: ResultInput): Outcome {
     delta = Math.round(delta * (1 + bonus) * (1 - hintCut));
     profile.elo = Math.max(0, before + delta);
     profile.rankedGames++;
-    outcome.elo = { before, after: profile.elo, protectedLoss: !input.won && delta === 0, bonus, hintCut };
+    const tierBefore = profile.tier;
+    profile.tier = shownTier(profile.elo, tierBefore);
+    profile.lossRun = input.won ? 0 : Math.min(profile.lossRun + 1, 9);
+    outcome.elo = {
+      before, after: profile.elo, protectedLoss: !input.won && delta === 0, bonus, hintCut,
+      tierBefore, tier: profile.tier, stage: input.stage ?? null,
+      comeback: rankedStageFor(profile.elo, profile.lossRun) < rankedStage(profile.elo),
+    };
   }
 
   if (input.mode === 'daily' && input.dateKey) {

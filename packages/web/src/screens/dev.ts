@@ -104,7 +104,7 @@ export function devPanel(section: DevSection, ctx: DevContext): { el: HTMLElemen
   } else if (section === 'account') {
     const eloField = h('input', {
       class: 'text-field',
-      attrs: { type: 'number', inputmode: 'numeric', min: '0', max: '4800', step: '1', 'aria-labelledby': 'dev-elo' },
+      attrs: { type: 'number', inputmode: 'numeric', min: '0', max: '2000', step: '1', 'aria-labelledby': 'dev-elo' },
     });
     const plateButtons = [0, 1, 2, 3, 4].map((n) => {
       const btn = tool(copy.forge.plates[n], 'plate', () => n);
@@ -116,7 +116,7 @@ export function devPanel(section: DevSection, ctx: DevContext): { el: HTMLElemen
         choice('dev-elo', t.elo, t.eloHelp,
           h('div', { class: 'dev-row' }, eloField, tool(t.setElo, 'elo', () => {
             const n = Number(eloField.value);
-            if (eloField.value === '' || !Number.isInteger(n) || n < 0 || n > 4800) {
+            if (eloField.value === '' || !Number.isInteger(n) || n < 0 || n > 2000) {
               toast(copy.refusals.dev.bad_request);
               return null;
             }

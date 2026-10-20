@@ -44,7 +44,7 @@ players get reassurance and no pressure. The same sentence should work for both.
 
 | We are | We are not |
 | --- | --- |
-| "No Elo lost: your rating is protected below 500." | "Don't worry, losing is okay!" |
+| "No Elo lost: losses cost nothing below 300 Elo." | "Don't worry, losing is okay!" |
 | "No pressure, no Elo." | "Casual mode for noobs" |
 
 ---
@@ -117,7 +117,7 @@ One name per concept. Player-facing text uses exactly these.
 | Difficulty (Casual, Clash) | **Easy**, **Medium**, **Hard** | Beginner, Expert | Ranked has no difficulty label: it uses Elo. |
 | Player strength | **Elo** | elo, ELO, MMR, score | Always capital E. |
 | Puzzle strength | **rating** | difficulty score, level | "rated 1840". |
-| Ranks | **Novice**, **Apprentice**, **Adept**, **Elementalist**, **Archmage** | | Shown under the name, with a division below Archmage: **Adept II** (III lowest, I highest). A step up is **Promoted: Adept II**. |
+| Ranks | **Novice**, **Apprentice**, **Adept**, **Archmage**, **Elomental** (the top) | divisions (Adept II), Elementalist | Names only, shown under the name. A step up is **Promoted: Archmage**. **Elomental** is a rank only when it names one ("Promoted: Elomental", "Elomental rank"); never a word for a player ("an Elomental"), so it never reads as the app's name. |
 | Currency | **Stardust** | dust, coins, points | |
 | Social | **Follow** / **Following**; the list is **Friends** | add friend, friend request, subscribe | One-way; nothing to accept. |
 | Leaderboard lists | **Friends**, **Everyone**, the player's element (e.g. **Fire**), **Season**, **Country** | global, world, ladder | "Season" ranks Elo gained since Season Alpha began. |
@@ -135,7 +135,7 @@ One name per concept. Player-facing text uses exactly these.
 | Buying a Spirit | **Call a Spirit**: "Call a Spirit · 15000 Stardust" | buy, summon, purchase | Stardust only, never money. |
 | A square that counts toward parts | **counted square** (the first 9 solved each day) | rated solve, valid solve | |
 | Animating an avatar | **bring to life** (polish, once): "Bring to life · 6000 Stardust and a Spirit"; it's then **Alive** | upgrade, level up, enhance, animate | A look only; never stronger. |
-| Behind the name | **name plate**: Bronze, Silver, Gold, Elomentalist | banner, badge, frame | "Frame" is an avatar slot. |
+| Behind the name | **name plate**: Bronze, Silver, Gold, Starforged | banner, badge, frame, Elomentalist | "Frame" is an avatar slot. The top plate was "Elomentalist" until the Elomental rank (2026-10-21): a bought look must never sound like an earned rank. |
 | Missed Daily | **fill in** a missed day: "Fill in October 12?" | mend, repair, buy back, streak freeze | "Mend" is only an internal word. |
 | Your page | **Profile** (from Home's avatar) | account, card | "Account" is sign-in and email (Setup). |
 | Avatar pieces | **part**; slots **Backdrop**, **Sigil**, **Frame**, **Crest**, **Aura** | item, cosmetic, skin | |
