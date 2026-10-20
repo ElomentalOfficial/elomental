@@ -185,7 +185,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
       const label = state === 'yours' ? t.plateYours
         : state === 'replaced' ? t.plateReplaced
         : state === 'ready' ? t.ready
-        : state === 'needs' ? t.needsMore
+        : state === 'needs' ? t.plateNeeds
         : t.plateAfter(t.plates[n - 1]);
       const price = state === 'yours' || state === 'replaced' ? null : t.price(PLATE_COST[n - 1]);
       const sample = h('span', { class: 'plate-sample' });

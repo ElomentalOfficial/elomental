@@ -272,6 +272,8 @@ export const forge = {
   plateCount: (n: number, total: number) => `${n} of ${total}`,
   plateA11y: (name: string) => `${name} name plate`,
   plateReplaced: 'Replaced',
+  /** On a plate card, above its price (so not 'Not enough Stardust yet'). */
+  plateNeeds: 'Not enough',
   plateAfter: (name: string) => `After ${name}`,
   plateReplaces: 'It replaces the plate you have now.',
   plateIntro: 'A border around your name on Home and your profile. Each one replaces the last.',
