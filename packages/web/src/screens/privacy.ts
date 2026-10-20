@@ -9,6 +9,15 @@ import * as copy from '../copy/en.ts';
 /** ISO 3166 alpha-2 codes offered in the country list (names come from the browser). */
 const CODES = 'AD AE AF AG AL AM AO AR AT AU AZ BA BB BD BE BF BG BH BI BJ BN BO BR BS BT BW BY BZ CA CD CF CG CH CI CL CM CN CO CR CU CV CY CZ DE DJ DK DM DO DZ EC EE EG ER ES ET FI FJ FM FR GA GB GD GE GH GM GN GQ GR GT GW GY HK HN HR HT HU ID IE IL IN IQ IR IS IT JM JO JP KE KG KH KI KM KN KR KW KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MG MH MK ML MM MN MO MR MT MU MV MW MX MY MZ NA NE NG NI NL NO NP NR NZ OM PA PE PG PH PK PL PS PT PW PY QA RO RS RU RW SA SB SC SD SE SG SI SK SL SM SN SO SR SS ST SV SY SZ TD TG TH TJ TL TM TN TO TR TT TV TW TZ UA UG US UY UZ VA VC VE VN VU WS XK YE ZA ZM ZW'.split(' ');
 
+/** Other names people search by (the list shows the browser's own names, e.g. "Türkiye"). */
+const ALIASES: Record<string, string[]> = {
+  TR: ['turkey'], CI: ['ivory coast', 'cote divoire'], GB: ['uk', 'united kingdom', 'britain', 'great britain', 'england', 'scotland', 'wales', 'northern ireland'],
+  US: ['usa', 'america', 'united states'], AE: ['uae', 'emirates'], KR: ['korea', 'south korea'], NL: ['holland'], CZ: ['czech republic', 'czechia'],
+  MM: ['burma'], SZ: ['swaziland'], CV: ['cape verde'], TL: ['east timor'], MK: ['macedonia'], VA: ['vatican'], PS: ['palestine'], CD: ['congo', 'drc'], CG: ['congo'],
+};
+/** Lower case, accents and apostrophes gone: "Côte d’Ivoire" → "cote divoire". */
+const fold = (s: string): string => s.normalize('NFD').replace(/\p{Diacritic}/gu, '').replace(/[’'`]/g, '').toLowerCase();
+
 /**
  * Setup > Leaderboard and card: the optional country (the Country list and the card), whether
  * you're listed at all, and whether your card shows your stats. Saved on the server.
@@ -72,8 +81,9 @@ function openCountryPicker(current: string | null, choose: (code: string | null)
   const list = h('ul', { class: 'picker-list', attrs: { 'aria-label': t.country } });
   const empty = h('p', { class: 'note', text: t.noMatch });
   const paint = () => {
-    const q = search.value.trim().toLocaleLowerCase('en-GB');
-    const shown = all.filter((c) => !q || c.name.toLocaleLowerCase('en-GB').includes(q) || (c.code ?? '').toLowerCase() === q);
+    const q = fold(search.value.trim());
+    const shown = all.filter((c) => !q || fold(c.name).includes(q) || (c.code ?? '').toLowerCase() === q
+      || (c.code !== null && (ALIASES[c.code] ?? []).some((a) => a.includes(q))));
     list.replaceChildren(...shown.map((c) => {
       const chosen = c.code === current;
       return h('li', {},

@@ -62,8 +62,8 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
         h('p', { class: 'forge-intro', text: copy.forge.intro }),
         h('button', { class: 'link-btn', text: copy.forge.oddsButton, attrs: { type: 'button' }, onclick: () => openOdds() }),
         f.affinity ? affinityLine(f.affinity) : null,
-        h('span', { class: 'balance' }, h('span', { html: ICONS.dust, attrs: { 'aria-hidden': 'true' } }), h('strong', { text: String(f.stardust) }), h('span', { text: copy.common.stardust })),
-        h('span', { class: 'balance' }, h('span', { html: ICONS.spirit, attrs: { 'aria-hidden': 'true' } }), h('strong', { text: String(f.spirits) }), h('span', { text: copy.common.spirits })),
+        h('span', { class: 'balance' }, h('span', { html: ICONS.dust, attrs: { 'aria-hidden': 'true' } }), h('strong', { text: copy.formatNumber(f.stardust) }), h('span', { text: copy.common.stardust })),
+        h('span', { class: 'balance' }, h('span', { html: ICONS.spirit, attrs: { 'aria-hidden': 'true' } }), h('strong', { text: copy.formatNumber(f.spirits) }), h('span', { text: copy.common.spiritsLabel(f.spirits) })),
       ),
     );
     const groups = SLOTS.map((slot) => {
@@ -121,7 +121,8 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
       h('span', { class: 'part-art', html: partSvg(p.id, f.owned.get(p.id)?.polish ?? 0), attrs: { 'aria-hidden': 'true' } }),
       h('strong', { class: 'part-name', text: name, attrs: { 'aria-hidden': 'true' } }),
       h('span', { attrs: { 'aria-hidden': 'true' } }, rarityTag(p.rarity)),
-      h('span', { class: 'part-state', text: label, attrs: { 'aria-hidden': 'true' } }),
+      h('span', { class: 'part-state', attrs: { 'aria-hidden': 'true' } },
+        alive ? h('span', { class: 'alive-glyph', html: ICONS.spirit }) : '', label),
     );
   }
 

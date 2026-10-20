@@ -1,5 +1,5 @@
 import type { Difficulty } from '@elomental/engine';
-import { fetchMyClashes, signedIn } from '../backend.ts';
+import { fetchClash, fetchMyClashes, signedIn } from '../backend.ts';
 import {
   CODE_LENGTH,
   difficultyOf,
@@ -35,9 +35,32 @@ export function openClash(leave: (go: () => void) => void, prefill = '') {
     leave(() => void startGame({ mode: 'clash', difficulty: difficultyOf(code), seed: seedOf(code), clash: { code, theirs: record.theirs } }));
   };
 
-  const join = h('button', { class: 'btn btn-primary', text: copy.clash.join, onclick: () => play(input.value()) });
-  const input = codeInput(prefill, (code) => {
+  // A typed code nobody has played yet may be a typo: say so once, and the second tap starts it.
+  // A link's or a pasted code can't be mistyped, and a friend's fresh code is often unplayed.
+  let unconfirmed: string | null = null;
+  let pasted = '';
+  const joinNote = h('p', { class: 'note clash-unknown', attrs: { 'aria-live': 'polite' } });
+  const join = h('button', { class: 'btn btn-primary', text: copy.clash.join, attrs: { type: 'button' } });
+  join.addEventListener('click', async () => {
+    const code = input.value();
+    const known = getClash(code);
+    if (code === unconfirmed || code === pasted || code === normalizeCode(prefill) || known.theirs || known.mine || !signedIn()) return play(code);
+    join.disabled = true;
+    const entries = await fetchClash(code);
+    join.disabled = false;
+    // offline (null), or someone has played it: just go
+    if (entries === null || entries.length) return play(code);
+    unconfirmed = code;
+    joinNote.textContent = copy.clash.unknownCode;
+    join.textContent = copy.clash.joinAnyway;
+  });
+  const input = codeInput(prefill, (text) => (pasted = text), (code) => {
     join.disabled = !isValidCode(code);
+    if (code !== unconfirmed) {
+      unconfirmed = null;
+      joinNote.textContent = '';
+      join.textContent = copy.clash.join;
+    }
   });
 
   const created = h('div', { class: 'clash-created' });
@@ -55,10 +78,56 @@ export function openClash(leave: (go: () => void) => void, prefill = '') {
   const picker = h(
     'div',
     { class: 'clash-picker' },
-    h('button', { class: 'btn', text: copy.common.difficulty.easy, onclick: () => create('easy') }),
-    h('button', { class: 'btn', text: copy.common.difficulty.medium, onclick: () => create('medium') }),
-    h('button', { class: 'btn', text: copy.common.difficulty.hard, onclick: () => create('hard') }),
+    ...(['easy', 'medium', 'hard'] as const).map((d) =>
+      h('button', { class: 'btn', text: copy.common.difficulty[d], attrs: { type: 'button' }, onclick: () => create(d) })),
   );
+  // A wrong first choice is one tap away from undone, not a close-and-reopen (B12 UX).
+  const backToChoice = () =>
+    h('button', { class: 'link-btn clash-back', text: copy.common.back, attrs: { type: 'button' }, onclick: () => show('choose') });
+  // Two jobs, one at a time: make a code for a friend, or join theirs (full review M20).
+  const joinPart = h(
+    'div',
+    { class: 'clash-join' },
+    h(
+      'div',
+      { class: 'clash-label-row' },
+      h('label', { class: 'clash-label', text: copy.clash.enterCode }),
+      // iOS's own long-press Paste is unreliable on a hidden field; this reads the clipboard directly.
+      input.pasteButton,
+    ),
+    input.el,
+    joinNote,
+    join,
+    prefill ? null : backToChoice(),
+  );
+  const createPart = h('div', { class: 'clash-create' }, h('p', { class: 'note', text: copy.clash.pickDifficulty }), picker, created, backToChoice());
+  const choose = h(
+    'div',
+    { class: 'clash-choose' },
+    h('button', { class: 'btn btn-primary', text: copy.clash.challengeFriend, attrs: { type: 'button' }, onclick: () => show('create') }),
+    h('button', { class: 'btn', text: copy.clash.haveCode, attrs: { type: 'button' }, onclick: () => show('join') }),
+  );
+  const log =
+    listClashes().length || signedIn()
+      ? h('button', {
+          class: 'btn clash-log-btn',
+          text: copy.clash.log,
+          onclick: () => {
+            close();
+            openClashLog(leave);
+          },
+        })
+      : null;
+  const show = (part: 'choose' | 'join' | 'create', focus = true) => {
+    choose.hidden = part !== 'choose';
+    joinPart.hidden = part !== 'join';
+    createPart.hidden = part !== 'create';
+    // the log only beside the choice, so each step shows its own buttons alone
+    if (log) log.hidden = part !== 'choose';
+    // the keyboard only once the player says they have a code
+    if (part === 'join' && focus) setTimeout(() => input.focus(), 60);
+    if (part === 'create' && focus) createPart.querySelector('button')?.focus();
+  };
 
   const resume = saved?.config.mode === 'clash' && saved.config.clash ? saved : null;
   const theirs = prefill ? getClash(prefill).theirs : undefined;
@@ -88,39 +157,18 @@ export function openClash(leave: (go: () => void) => void, prefill = '') {
           },
         })
       : null,
-    h(
-      'div',
-      { class: 'clash-join' },
-      h(
-        'div',
-        { class: 'clash-label-row' },
-        h('label', { class: 'clash-label', text: copy.clash.enterCode }),
-        // iOS's own long-press Paste is unreliable on a hidden field; this reads the clipboard directly.
-        input.pasteButton,
-      ),
-      input.el,
-      join,
-    ),
-    h('div', { class: 'divider', text: copy.clash.orCreate }),
-    picker,
-    created,
-    listClashes().length || signedIn()
-      ? h('button', {
-          class: 'btn clash-log-btn',
-          text: copy.clash.log,
-          onclick: () => {
-            close();
-            openClashLog(leave);
-          },
-        })
-      : null,
+    choose,
+    joinPart,
+    createPart,
+    log,
   );
   const close = openModal(sheet);
-  if (!prefill) setTimeout(() => input.focus(), 260);
+  // a friend's link already holds the code: straight to joining it, without the keyboard
+  show(prefill ? 'join' : 'choose', false);
 }
 
 /** Six boxes over one real text field: typing, backspace and paste all just work. */
-function codeInput(initial: string, onChange: (code: string) => void) {
+function codeInput(initial: string, onPaste: (code: string) => void, onChange: (code: string) => void) {
   const field = h('input', {
     class: 'code-field',
     attrs: {
@@ -158,6 +206,7 @@ function codeInput(initial: string, onChange: (code: string) => void) {
     const code = extractCode(text);
     if (!code) return toast(copy.clash.noCodeOnClipboard);
     field.value = code;
+    onPaste(code);
     paint();
   };
   // The system Paste (long-press) gets the same treatment as the button.
@@ -170,11 +219,23 @@ function codeInput(initial: string, onChange: (code: string) => void) {
   };
 }
 
-/** A bare code, or the code inside a whole shared message/link ("…#clash=K7P2QX.6z…"). */
-function extractCode(text: string): string {
+/**
+ * The code in a pasted text: a link's ("…#clash=K7P2QX.6z…"), else a six-letter word made only of
+ * code letters, in any case: the one after "code" if there is one, otherwise the last. A bare
+ * code with a space or dash in it ("K7P 2QX") counts too. Never the first six letters of a whole
+ * message (full review M8): '' when there's no code.
+ */
+export function extractCode(text: string): string {
   const fromLink = text.match(/#clash=([A-Za-z0-9]{6})/)?.[1];
-  const upperWord = text.match(/\b[A-Z0-9]{6}\b/)?.[0];
-  return normalizeCode(fromLink ?? upperWord ?? text);
+  if (fromLink) return normalizeCode(fromLink);
+  const words = text.split(/[^A-Za-z0-9]+/).filter(Boolean);
+  const isCode = (w: string) => w.length === CODE_LENGTH && isValidCode(w.toUpperCase());
+  const afterCode = words.findIndex((w, i) => i > 0 && /^code$/i.test(words[i - 1]) && isCode(w));
+  if (afterCode >= 0) return words[afterCode].toUpperCase();
+  const last = [...words].reverse().find(isCode);
+  if (last) return last.toUpperCase();
+  const bare = text.trim();
+  return bare.length <= CODE_LENGTH + 2 && isValidCode(normalizeCode(bare)) ? normalizeCode(bare) : '';
 }
 
 const STATUS_LABEL: Record<ClashStatus, string> = copy.clash.status;

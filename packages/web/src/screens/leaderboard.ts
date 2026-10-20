@@ -130,16 +130,15 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
           h(
             'span',
             { class: 'lb-sub' },
+            // one emblem per row (M31): the rank's; the side shows on the player's card
             h('span', { class: `tier-emblem tier-${tier.tier}`, html: ICONS.tiers[tier.tier] }),
             h('span', { text: rank }),
-            r.affinity ? h('span', { class: 'drop-element', html: ICONS.elements[r.affinity] }) : null,
-            r.affinity ? h('span', { class: 'sr-only', text: copy.forge.elements[r.affinity] }) : null,
           ),
         ),
         h(
           'span',
           { class: 'lb-score', attrs: { 'aria-hidden': 'true' } },
-          h('strong', { text: String(isSeason ? r.value : r.elo) }),
+          h('strong', { text: copy.formatNumber(isSeason ? r.value : r.elo) }),
           h('span', { text: isSeason ? `${t.best} ${t.elo}` : t.elo }),
         ),
       ),

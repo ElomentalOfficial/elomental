@@ -33,8 +33,12 @@ export function openSquareCode(leave: (go: () => void) => void) {
     const input = readSquareInput(field.value);
     play.disabled = busy || input.kind === 'partial';
     if (!typed) return;
+    // a full-length code that still won't read: it has a character codes never use (L13)
+    const raw = field.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
     status.textContent =
-      input.kind === 'grid' ? copy.squareCode.gridInfo(input.givens.replace(/0/g, '').length) : '';
+      input.kind === 'grid' ? copy.squareCode.gridInfo(input.givens.replace(/0/g, '').length)
+      : input.kind === 'partial' && raw.length >= 8 && raw.length < 81 && /[0O1IL]/.test(raw) ? copy.squareCode.lookalike
+      : '';
   };
   const fill = (text: string) => {
     const input = readSquareInput(text);

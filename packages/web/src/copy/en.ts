@@ -11,6 +11,8 @@
 export const plural = (n: number, one: string, many = `${one}s`): string => `${n} ${n === 1 ? one : many}`;
 /** "easy" → "Easy". */
 export const capitalize = (s: string): string => s[0].toUpperCase() + s.slice(1);
+/** Every Elo, Stardust and count in one style (L29): grouped from five digits, "12,480", "6400". */
+export const formatNumber = (n: number): string => (Math.abs(n) >= 10000 ? n.toLocaleString('en-GB') : String(n));
 /** "4, 7 and 9". */
 export const listOf = (items: (string | number)[]): string =>
   items.length <= 1 ? String(items[0] ?? '') : `${items.slice(0, -1).join(', ')} and ${items[items.length - 1]}`;
@@ -55,7 +57,9 @@ export const common = {
   stardust: 'Stardust',
   elo: 'Elo',
   spirits: 'Spirits',
-  plusStardust: (n: number) => `+${n} Stardust`,
+  /** The label after a Spirit count: 1 Spirit, 2 Spirits. */
+  spiritsLabel: (n: number) => (n === 1 ? 'Spirit' : 'Spirits'),
+  plusStardust: (n: number) => `+${formatNumber(n)} Stardust`,
   rareSpirit: 'Rare drop: a Spirit!',
   /** Shown under the player's name, by Elo (tiers and divisions: profile.ts rankTier). */
   ranks: ['Novice', 'Apprentice', 'Adept', 'Elementalist', 'Archmage'] as const,
@@ -150,7 +154,7 @@ export const daily = {
   nextIn: (hours: number, minutes: number) => `New square in ${hours}h ${minutes}m`,
   mendTitle: (date: string) => `Fill in ${date}?`,
   mendText: 'It counts as solved for this month’s Daily total. Your Elo doesn’t change.',
-  mendLeft: (left: number, stardust: number) => `${left} of 3 left this month · You have ${stardust} Stardust`,
+  mendLeft: (left: number, stardust: number) => `${left} of 3 left this month · You have ${formatNumber(stardust)} Stardust`,
   mend: (stardust: number) => `Fill in for ${stardust} Stardust`,
   mendNoneLeft: 'You’ve filled in 3 days this month: that’s the most.',
   mended: (date: string) => `${date} filled in.`,
@@ -287,7 +291,7 @@ export const forge = {
   owned: 'Owned',
   ready: 'Ready to forge',
   needsMore: 'Not enough Stardust yet',
-  price: (stardust: number) => `${stardust} Stardust`,
+  price: (stardust: number) => `${formatNumber(stardust)} Stardust`,
   forge: 'Forge',
   wear: 'Equip',
   takeOff: 'Unequip',
@@ -324,11 +328,11 @@ export const forge = {
   spiritIn: (n: number) => (n <= 1 ? 'A Spirit is guaranteed with your next counted square.' : `A Spirit is guaranteed within ${n} counted squares.`),
   callTitle: 'Call a Spirit',
   callNote: 'A Spirit for Stardust, to bring an avatar to life. Each one this season costs 5000 more.',
-  callButton: (stardust: number) => `Call a Spirit · ${stardust} Stardust`,
+  callButton: (stardust: number) => `Call a Spirit · ${formatNumber(stardust)} Stardust`,
   /** Every avatar you own is alive or has a Spirit waiting. */
   callNone: 'Every avatar you own is alive or has a Spirit waiting for it.',
   /** Under a greyed-out Call button: why. */
-  callShort: (have: number, cost: number) => `You have ${have} of ${cost} Stardust.`,
+  callShort: (have: number, cost: number) => `You have ${formatNumber(have)} of ${formatNumber(cost)} Stardust.`,
   called: 'A Spirit came. Bring an avatar to life with it.',
 
   // Polish (an avatar brought to life, once) and name plates: a look only
@@ -341,7 +345,7 @@ export const forge = {
   /** Under a cost the player can't cover yet. */
   lifeShort: (n: number) => `Need ${n} more`,
   /** The cost, read as one line by screen readers. */
-  a11yLifeCost: (stardust: number, haveDust: number, haveSpirits: number) => `Costs ${stardust} Stardust and 1 Spirit. You have ${haveDust} Stardust and ${plural(haveSpirits, 'Spirit')}.`,
+  a11yLifeCost: (stardust: number, haveDust: number, haveSpirits: number) => `Costs ${formatNumber(stardust)} Stardust and 1 Spirit. You have ${formatNumber(haveDust)} Stardust and ${plural(haveSpirits, 'Spirit')}.`,
   broughtToLife: (name: string) => `${name} is alive.`,
   plateTitle: 'Name plates',
   plates: ['No plate', 'Bronze', 'Silver', 'Gold', 'Elomentalist'] as const,
@@ -354,7 +358,7 @@ export const forge = {
   plateReplaces: 'It replaces the plate you have now.',
   plateIntro: 'A border around your name on Home and your profile. Each one replaces the last.',
   plateYours: 'Yours',
-  plateBuy: (name: string, stardust: number) => `Get ${name} · ${stardust} Stardust`,
+  plateBuy: (name: string, stardust: number) => `Get ${name} · ${formatNumber(stardust)} Stardust`,
   plateTop: 'You have the Elomentalist plate, the top one.',
   plateBought: (name: string) => `Your name now has the ${name} plate.`,
 };
@@ -566,8 +570,13 @@ export const clash = {
   challengeUnsolved: 'Your friend couldn’t crack this one. Can you?',
   resume: (code: string) => `Resume ${code}`,
   enterCode: 'Enter a code',
-  join: 'Join clash',
-  orCreate: 'or create one',
+  join: 'Join Clash',
+  /** The sheet's two jobs, chosen first. */
+  haveCode: 'I have a code',
+  pickDifficulty: 'How hard should the square be?',
+  /** A typed code nobody has played yet: fine if it's fresh, a typo otherwise. */
+  unknownCode: 'Nobody has played this code yet. That’s fine if your friend just made it. If you typed it, check it first.',
+  joinAnyway: 'Start this code',
   created: (difficulty: string) => `Your ${difficulty} code. Send it now or after you play: your time travels with the result.`,
   shareCode: 'Share code',
   log: 'Clash log',
@@ -623,6 +632,8 @@ export const squareCode = {
   gridInfo: (numbers: number) => `Sudoku string with ${numbers} numbers.`,
   finding: 'Finding the square…',
   notFound: 'No square has that code. Check it with your friend.',
+  /** A full-length code with a character codes never use. */
+  lookalike: 'Codes never use 0, O, 1, I or L. Check those characters.',
   offline: 'No connection. Square codes need the internet.',
   pasteBlocked: 'Paste blocked. Long-press the box instead.',
   a11yField: 'Square code or 81-digit sudoku string',
@@ -892,8 +903,8 @@ export const leaderboard = {
   showMe: 'Show me',
   showTop: 'Back to the top',
   you: 'You',
-  place: (n: number) => `#${n.toLocaleString('en-GB')}`,
-  ofTotal: (n: number) => `of ${n.toLocaleString('en-GB')}`,
+  place: (n: number) => `#${formatNumber(n)}`,
+  ofTotal: (n: number) => `of ${formatNumber(n)}`,
   ordinal: ORDINAL,
   notRated: 'Play a Ranked game to get your place.',
   /** A guest (no email yet) is never listed, however many games they've played. */
@@ -904,7 +915,7 @@ export const leaderboard = {
     rated
       ? 'Sign up with your email to appear on the leaderboard. Your Elo, Stardust and Daily progress come with you.'
       : 'Sign up with your email, then play Ranked to get your place. Your Stardust and Daily progress come with you.',
-  hiddenBar: (place: number | null) => (place ? `You’re hidden. Your place would be #${place.toLocaleString('en-GB')}.` : 'You’re hidden from the leaderboard.'),
+  hiddenBar: (place: number | null) => (place ? `You’re hidden. Your place would be #${formatNumber(place)}.` : 'You’re hidden from the leaderboard.'),
   restricted: 'Ranked is closed to you for now, so you aren’t listed.',
   notInView: {
     faction: 'Choose an affinity to see your place here.',
@@ -961,7 +972,7 @@ export const leaderboard = {
   sheetTitle: (month: string) => `Affinities in ${month}`,
   sheetIntro: 'Every square solved adds influence to its player’s affinity. Players count from their 5th square of the month, with up to 300 influence each. The side with the most influence per player wins the month; if sides tie, they all win.',
   members: (n: number) => (n === 1 ? '1 player' : `${n} players`),
-  influence: (n: number) => `${n.toLocaleString('en-GB')} influence`,
+  influence: (n: number) => `${formatNumber(n)} influence`,
   perPlayer: (n: number) => `${n} each`,
   topIn: (element: string) => `Top in ${element} this month`,
   topEmpty: 'Nobody yet.',
@@ -989,7 +1000,7 @@ export const leaderboard = {
   card: {
     peak: (n: number) => `Peak ${n}`,
     notRanked: 'Not ranked',
-    stats: (solved: number, ranked: number) => `${solved.toLocaleString('en-GB')} solved · ${ranked.toLocaleString('en-GB')} Ranked`,
+    stats: (solved: number, ranked: number) => `${formatNumber(solved)} solved · ${formatNumber(ranked)} Ranked`,
     follow: 'Follow',
     following: 'Following',
     a11yFollowing: (name: string) => `Following ${name}. Tap to stop following.`,

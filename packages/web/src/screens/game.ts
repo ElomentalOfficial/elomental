@@ -890,7 +890,8 @@ function gameScreen(game: SavedGame): Screen {
       render();
       finish(false, 'mistakes');
     };
-    el.append(
+    // under the status row, in the page's flow: never over the timer or Home (L15)
+    status.after(
       h('div', { class: 'dev-bar', attrs: { role: 'group', 'aria-label': copy.dev.a11yBar } },
         h('button', { class: 'btn', text: copy.dev.solveNow, attrs: { type: 'button' }, onclick: solveNow }),
         h('button', { class: 'btn', text: copy.dev.loseNow, attrs: { type: 'button' }, onclick: loseNow })),

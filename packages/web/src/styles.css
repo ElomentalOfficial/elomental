@@ -59,7 +59,9 @@
   --space-5: 24px;
   --space-6: 32px;
   --gutter: 12px;
+  /* Two corner radii: --radius for controls and small tiles, --radius-lg for cards, rows and sheets. */
   --radius: 6px;
+  --radius-lg: 12px;
 }
 
 /* Dark is the default theme. */
@@ -153,6 +155,14 @@
   --mistake-off: var(--c-highlight-2);
   --mistake-on: var(--c-lava);
   --eraser-shade: rgba(38, 39, 33, 0.45);
+  /* The selected option of a segmented control: a neutral fill, a ring and a check (one accent per screen). */
+  --seg-on-bg: var(--surface);
+  /* A button that can't be used yet: no fill, a dashed edge (.btn:disabled), muted text. */
+  --disabled-bg: transparent;
+  --disabled-text: var(--muted);
+  /* Drop shadows (toasts, cards over the page), and the tutorial's shade. */
+  --shadow: rgba(0, 0, 0, 0.3);
+  --coach-shade: rgba(20, 21, 17, 0.68);
 }
 
 :root[data-theme='light'] {
@@ -232,6 +242,11 @@
   --mistake-off: var(--c-mud);
   --mistake-on: var(--c-lava);
   --eraser-shade: rgba(255, 255, 229, 0.55);
+  --seg-on-bg: var(--surface);
+  --disabled-bg: transparent;
+  --disabled-text: var(--muted);
+  --shadow: rgba(121, 67, 65, 0.18);
+  --coach-shade: rgba(20, 21, 17, 0.68);
 }
 
 * {
@@ -347,6 +362,8 @@ html {
   --frost: rgba(64, 65, 60, 0.45);
   --scrim-top: #323330;
   --scrim-bottom: #323330;
+  /* The tutorial: the page under its 68% shade (a literal, for iOS's status-area sampling). */
+  --coach-page: #1a1b16;
 }
 html[data-theme='light'] {
   /* Frosted glass: a smoky Rock over the softly blurred page, a step darker than the
@@ -355,6 +372,7 @@ html[data-theme='light'] {
   /* Bright under that frost */
   --scrim-top: #dddec6;
   --scrim-bottom: #dddec6;
+  --coach-page: #5f5f55;
 }
 html.modal-open,
 html.modal-open body {
@@ -367,12 +385,7 @@ html.modal-open #status-tint {
 html.coach-open,
 html.coach-open body,
 html.coach-open #status-tint {
-  background: #1a1b16;
-}
-html[data-theme='light'].coach-open,
-html[data-theme='light'].coach-open body,
-html[data-theme='light'].coach-open #status-tint {
-  background: #5f5f55;
+  background: var(--coach-page);
 }
 /* Fades with the backdrop instead of jumping ahead of it. */
 html.standalone:not(.welcome-active) #status-tint {
@@ -1256,7 +1269,7 @@ html[data-large-text] .profile-stats.two {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 /* Sub-pages (ui.ts subPage): the header stays put, only the body below it scrolls. */
 .screen.sub {
@@ -1328,7 +1341,7 @@ html[data-large-text] .profile-stats.two {
   font-size: var(--fs-label);
 }
 .setup {
-  gap: 16px;
+  gap: var(--space-4);
 }
 .setup > * {
   flex: none;
@@ -1424,10 +1437,10 @@ html.standalone .screen.scrollable {
 .setting[hidden] {
   display: none;
 }
-.setting h2 {
-  font-size: var(--fs-body);
-  text-transform: uppercase;
-}
+/* The card-title role (M25): one style for a card's title on every settings page, in sentence
+   case, as Accessibility already wrote them. Page titles (.subbar h1) and group titles
+   (.setting-group > h2) are the other two roles. */
+.setting h2,
 .setting p {
   font-family: var(--serif);
   font-size: var(--fs-body);
@@ -1566,7 +1579,6 @@ html.standalone .screen.scrollable {
 .review-row-text strong {
   overflow: hidden;
   font-size: var(--fs-body);
-  text-transform: uppercase;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -1878,6 +1890,7 @@ html[data-large-text] .lb-me .lb-jump {
   grid-template-columns: repeat(4, 1fr);
 }
 .segment {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1889,10 +1902,23 @@ html[data-large-text] .lb-me .lb-jump {
   text-transform: uppercase;
   font-size: var(--fs-small);
 }
+/* Selected: a neutral fill, a ring and a check in the corner, so the screen's one accent stays
+   on its primary action (full review M24). The ring and the check, not colour, say "chosen". */
 .segment.on {
-  background: var(--primary-bg);
-  color: var(--primary-text);
+  background: var(--seg-on-bg);
+  color: var(--text);
   box-shadow: inset 0 0 0 2px var(--select);
+}
+.segment.on::after {
+  content: '';
+  position: absolute;
+  top: 7px;
+  right: 9px;
+  width: calc(5px * var(--text-scale));
+  height: calc(9px * var(--text-scale));
+  border: solid var(--select);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
 }
 .segment-icon {
   width: calc(20px * var(--text-scale));
@@ -2069,7 +2095,7 @@ html:not([data-large-text]) .daily-art {
   flex-direction: column;
   gap: 12px;
   padding: 16px 14px 14px;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   background: var(--surface);
 }
 .month-head {
@@ -2193,7 +2219,7 @@ html:not([data-large-text]) .daily-art {
   align-items: center;
   gap: 16px;
   padding: 16px 18px;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   background: var(--profile-bg);
   color: var(--profile-text);
 }
@@ -2279,12 +2305,13 @@ html.standalone .backdrop {
   position: relative;
   width: 100%;
   max-width: min(340px, calc(100vw - 64px));
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   /* A hairline edge so the panel never melts into the blurred page behind it. */
   border: 1px solid var(--modal-border);
   background: var(--modal-bg);
   color: var(--text);
-  padding: 34px 24px 26px;
+  /* spacing scale (L25): more room over the close button's row, then the card padding */
+  padding: var(--space-6) var(--space-5) var(--space-5);
   animation: rise 0.22s ease;
 }
 @keyframes fade {
@@ -2323,11 +2350,13 @@ html.standalone .backdrop {
 .sheet-icon.casual {
   background: var(--c-forest);
 }
+/* A sheet's badge takes its mode tile's colour (Casual Forest, Ranked Lava); the Casual
+   sub-sheets (Clash, Square code) are neutral, so the sheet's one accent is its button (L30). */
 .sheet-icon.clash {
   width: 64px;
   height: 64px;
   padding: 11px;
-  background: var(--accent);
+  background: var(--surface-2);
 }
 /* The fist bump spills over its badge, as it does in the Casual circle. */
 .sheet-icon.clash > .clash-live {
@@ -2343,14 +2372,6 @@ html.standalone .backdrop {
 }
 .sheet-icon.square .brush-art {
   transform: scale(1.75);
-}
-/* The light theme's Clash art is outlined in Crimson, the badge's own colour there: the
-   dark-ink version reads on it in both themes. */
-:root[data-theme='light'] .sheet-icon.clash .ic-light {
-  display: none;
-}
-:root[data-theme='light'] .sheet-icon.clash .ic-dark {
-  display: block;
 }
 .sheet-icon.ranked {
   width: 110px;
@@ -2374,7 +2395,8 @@ html.standalone .backdrop {
 }
 .sword-live .sword-flame {
   transform-origin: 62% 45%;
-  animation: flame-flicker 1.8s ease-in-out infinite;
+  /* decorative: twice, then rest (L27); only Alive loops, because it means something */
+  animation: flame-flicker 1.8s ease-in-out 2;
 }
 @keyframes flame-flicker {
   0%,
@@ -2448,7 +2470,7 @@ html[data-reduce-motion] .sword-live .sword-flame {
 .result {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: var(--space-4);
 }
 .result h2 {
   font-size: var(--fs-title);
@@ -2629,7 +2651,7 @@ html[data-reduce-motion] .avatar-face.alive {
   gap: var(--space-1);
   padding: var(--space-4) var(--space-3);
   border: 0;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: var(--surface);
   color: inherit;
   font: inherit;
@@ -2677,8 +2699,9 @@ html[data-reduce-motion] .avatar-face.alive {
   right: var(--space-2);
   padding: 2px 8px;
   border-radius: 999px;
-  background: var(--accent);
-  color: var(--on-accent);
+  /* ink on page colours, not the accent: the page's accent is for its button (M24) */
+  background: var(--text);
+  color: var(--bg);
   font-size: var(--fs-small);
   font-weight: 700;
 }
@@ -2762,7 +2785,7 @@ html[data-reduce-motion] .avatar-face.alive {
   align-items: center;
   gap: var(--space-4);
   padding: var(--space-4);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: var(--surface);
 }
 .forge-avatar {
@@ -2830,12 +2853,46 @@ html[data-large-text] .part-grid {
   gap: 4px;
   padding: var(--space-3) var(--space-2);
   border: 0;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: var(--surface);
   color: inherit;
   font: inherit;
   text-align: center;
   cursor: pointer;
+}
+/* Mythic looks it (M31): a still inner edge in its rarity colour and a folded corner. No motion. */
+.part-card.rarity-mythic::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  border: 1px solid var(--r-mythic);
+  border-radius: calc(var(--radius-lg) - 6px);
+  pointer-events: none;
+}
+.part-card.rarity-mythic::after {
+  content: '';
+  position: absolute;
+  /* inside the state ring, following its curve */
+  top: 2px;
+  right: 2px;
+  width: 14px;
+  height: 14px;
+  border-top-right-radius: calc(var(--radius-lg) - 2px);
+  background: linear-gradient(225deg, var(--r-mythic) 50%, transparent 50%);
+  pointer-events: none;
+}
+/* an avatar brought to life: the Spirit glyph beside "Alive" */
+.alive-glyph {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-right: 0.25em;
+  vertical-align: -0.15em;
+}
+.alive-glyph svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .part-art {
   display: block;
@@ -2868,9 +2925,10 @@ html[data-large-text] .part-grid {
 .part-card.state-wearing .part-state {
   color: var(--text);
 }
-/* ready: an accent outline; wearing: filled with a wash of the accent */
+/* ready: a neutral outline (the accent stays for the screen's primary action, M24); the words
+   "Ready to forge" carry it. wearing: filled with a wash of the accent */
 .part-card.state-ready {
-  box-shadow: inset 0 0 0 2px var(--accent);
+  box-shadow: inset 0 0 0 2px var(--field-border);
 }
 .part-card.state-wearing {
   background: var(--chosen-bg);
@@ -2944,7 +3002,7 @@ html[data-large-text] .part-grid {
   align-items: center;
   gap: 2px;
   padding: var(--space-3) var(--space-2);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   background: var(--surface-2);
 }
 .life-cost-item.short {
@@ -3041,7 +3099,7 @@ html[data-large-text] .part-grid {
   width: 100%;
   padding: var(--space-3);
   border: 0;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: var(--surface-2);
   box-shadow: inset 0 0 0 2px var(--rc);
   color: inherit;
@@ -3108,7 +3166,7 @@ html[data-large-text] .part-grid {
   animation: reveal-flare 1.3s ease-out calc(var(--start) + 0.3s) both;
 }
 .part-reveal.rarity-mythic {
-  animation: reveal-turn 0.55s cubic-bezier(0.2, 0.8, 0.3, 1.15) var(--start) both, reveal-shine 3.2s ease-in-out calc(var(--start) + 1.6s) infinite;
+  animation: reveal-turn 0.55s cubic-bezier(0.2, 0.8, 0.3, 1.15) var(--start) both, reveal-shine 3.2s ease-in-out calc(var(--start) + 1.6s) 2;
 }
 @keyframes reveal-glow {
   from { opacity: 0; }
@@ -3182,9 +3240,17 @@ html[data-reduce-motion] .part-reveal * {
   flex-direction: column;
   gap: 10px;
 }
-.btn:disabled {
-  opacity: 0.45;
+/* Not yet usable: a plain neutral button, never a faded primary (full review L24). */
+.btn:disabled,
+.btn-primary:disabled {
+  background: var(--disabled-bg);
+  color: var(--disabled-text);
+  box-shadow: none;
+  /* not colour alone: a dashed edge where an enabled button has a fill (it can't take focus) */
+  outline: 1.5px dashed var(--field-border);
+  outline-offset: -1.5px;
   transform: none;
+  cursor: default;
 }
 
 /* ---------- Casual ---------- */
@@ -3348,14 +3414,14 @@ html:not([data-large-text]) .casual-feather-art {
 .casual-card,
 .friend-option {
   position: relative;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: var(--surface);
 }
 .casual-card {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 20px 18px 18px;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-4);
 }
 /* The feather stands free above the tagline. It drifts down into place when the page
    opens, then floats gently; its shadow shrinks and fades as it lifts. */
@@ -3382,7 +3448,7 @@ html:not([data-large-text]) .casual-feather-art {
   inset: 0 0 18px;
   animation:
     feather-in 1.1s cubic-bezier(0.2, 0.7, 0.3, 1) both,
-    feather-float 4.2s ease-in-out 1.1s infinite;
+    feather-float 4.2s ease-in-out 1.1s 2;
 }
 .casual-feather-shadow {
   position: absolute;
@@ -3395,7 +3461,7 @@ html:not([data-large-text]) .casual-feather-art {
   filter: blur(2.5px);
   animation:
     feather-shadow-in 1.1s ease-out both,
-    feather-shadow-float 4.2s ease-in-out 1.1s infinite;
+    feather-shadow-float 4.2s ease-in-out 1.1s 2;
 }
 @keyframes feather-in {
   from {
@@ -3586,15 +3652,15 @@ html[data-reduce-motion] .casual-feather-shadow {
 /* Origins at the knuckle fronts, so the squash never pulls the fists apart. */
 .clash-live .clash-left {
   transform-origin: 48% 52%;
-  animation: clash-left 5s ease-in-out infinite;
+  animation: clash-left 5s ease-in-out 2 forwards;
 }
 .clash-live .clash-right {
   transform-origin: 52% 52%;
-  animation: clash-right 5s ease-in-out infinite;
+  animation: clash-right 5s ease-in-out 2 forwards;
 }
 .clash-live .clash-burst {
   transform-origin: 50% 50%;
-  animation: clash-burst 5s ease-out infinite;
+  animation: clash-burst 5s ease-out 2 forwards;
 }
 @keyframes clash-left {
   0%,
@@ -3722,9 +3788,27 @@ html[data-reduce-motion] .clash-live .brush-art {
   width: 100%;
 }
 .clash-sheet.has-code .clash-join,
-.clash-sheet.has-code .divider,
 .clash-sheet.has-code .clash-picker,
+.clash-sheet.has-code .clash-create > .note,
 .clash-sheet.has-code .clash-challenge {
+  display: none;
+}
+/* The sheet's two jobs (clashSheet.ts): choose first, then one of them. */
+.clash-choose,
+.clash-create {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+.clash-choose[hidden],
+.clash-create[hidden],
+.clash-join[hidden],
+.clash-log-btn[hidden],
+.clash-sheet.has-code .clash-back {
+  display: none;
+}
+.clash-unknown:empty {
   display: none;
 }
 .clash-label {
@@ -3792,11 +3876,13 @@ html[data-reduce-motion] .clash-live .brush-art {
 .clash-label-row {
   display: flex;
   align-items: center;
+  min-height: 44px;
   justify-content: space-between;
   width: 100%;
   margin-top: 4px;
 }
 .clash-label-row .clash-label {
+  align-self: center;
   margin-top: 0;
 }
 .paste-btn {
@@ -3827,15 +3913,12 @@ html[data-reduce-motion] .clash-live .brush-art {
   height: 1px;
   background: var(--line);
 }
+/* Easy, Medium and Hard under "How hard should the square be?", one a row. */
 .clash-picker {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  grid-template-columns: 1fr;
+  gap: var(--space-2);
   width: 100%;
-}
-.clash-picker .btn {
-  padding: 0;
-  font-size: var(--fs-label);
 }
 .clash-created {
   display: flex;
@@ -3977,7 +4060,7 @@ html[data-reduce-motion] .clash-live .brush-art {
   border-radius: var(--radius);
   background: var(--accent);
   color: var(--on-accent);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 6px 20px var(--shadow);
   font-weight: 700;
   font-size: var(--fs-small);
   text-align: center;
@@ -4221,7 +4304,8 @@ html[data-reduce-motion] :is(.loader-hop, .loader-icon) {
   animation: none;
 }/* ---------- Game ---------- */
 .game {
-  --key-h: clamp(46px, 8dvh, 68px);
+  /* taller keys on tall phones, into the band that sat empty above them (L33) */
+  --key-h: clamp(46px, 9dvh, 76px);
   --action-h: clamp(42px, 7dvh, 68px);
   gap: 10px;
   padding-top: max(16px, env(safe-area-inset-top));
@@ -4501,7 +4585,7 @@ html[data-reduce-motion] :is(.loader-hop, .loader-icon) {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: var(--space-3);
   border-radius: var(--radius);
   background: var(--surface);
   font-family: var(--serif);
@@ -4707,7 +4791,7 @@ html[data-reduce-motion] .key[data-digit] span {
   -webkit-backdrop-filter: blur(18px) saturate(1.6);
   backdrop-filter: blur(18px) saturate(1.6);
   box-shadow:
-    0 16px 40px rgba(0, 0, 0, 0.3),
+    0 16px 40px var(--shadow),
     inset 0 1px 0 var(--glass-border);
 }
 .wheel-ring {
@@ -4854,7 +4938,7 @@ html[data-reduce-motion] .key[data-digit] span {
 .coach-spot {
   position: fixed;
   border-radius: 8px;
-  box-shadow: 0 0 0 200vmax rgba(20, 21, 17, 0.68);
+  box-shadow: 0 0 0 200vmax var(--coach-shade);
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   transition: left 0.35s cubic-bezier(0.2, 0.9, 0.2, 1), top 0.35s cubic-bezier(0.2, 0.9, 0.2, 1),
@@ -4867,8 +4951,8 @@ html[data-reduce-motion] .key[data-digit] span {
   height: 26px;
   margin: -13px 0 0 -13px;
   border-radius: 50%;
-  background: rgba(255, 255, 229, 0.85);
-  box-shadow: 0 0 0 6px rgba(168, 91, 55, 0.45);
+  background: color-mix(in srgb, var(--c-bright) 85%, transparent);
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--c-lava) 45%, transparent);
   pointer-events: none;
 }
 .coach-finger.tap {
@@ -4884,22 +4968,22 @@ html[data-reduce-motion] .key[data-digit] span {
   }
   40% {
     transform: scale(0.7);
-    box-shadow: 0 0 0 14px rgba(168, 91, 55, 0);
+    box-shadow: 0 0 0 14px color-mix(in srgb, var(--c-lava) 0%, transparent);
   }
 }
 @keyframes coach-hold {
   0% {
     transform: none;
-    box-shadow: 0 0 0 0 rgba(168, 91, 55, 0.5);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--c-lava) 50%, transparent);
   }
   40% {
     transform: scale(0.85);
-    box-shadow: 0 0 0 16px rgba(168, 91, 55, 0.35);
+    box-shadow: 0 0 0 16px color-mix(in srgb, var(--c-lava) 35%, transparent);
   }
   75%,
   90% {
     transform: translate(46px, -8px) scale(0.85);
-    box-shadow: 0 0 0 4px rgba(168, 91, 55, 0.35);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--c-lava) 35%, transparent);
   }
   100% {
     transform: none;
@@ -4911,12 +4995,12 @@ html[data-reduce-motion] .key[data-digit] span {
   right: 0;
   margin: 0 auto;
   width: min(340px, calc(100vw - 48px));
-  padding: 18px 20px 16px;
-  border-radius: 10px;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--modal-border);
   background: var(--modal-bg);
   color: var(--text);
-  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 12px 34px var(--shadow);
 }
 /* Large text: wider, and never taller than the screen (it scrolls instead). */
 html[data-large-text] .coach-card {
@@ -4986,10 +5070,6 @@ html[data-large-text] .coach-actions {
   padding-top: var(--space-5);
   border-top: 1px solid var(--modal-border);
 }
-.choice h3 {
-  font-size: var(--fs-body);
-  font-weight: 700;
-}
 .choice p {
   font-size: var(--fs-small);
 }
@@ -5022,28 +5102,36 @@ html[data-large-text] .coach-actions {
 }
 
 /* Keyboard shortcuts panel. */
+/* Two columns (L36): the keys, kept together on one line, then what they do, left-aligned
+   right beside them. */
 .shortcut-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-2) var(--space-4);
+  align-items: center;
   width: 100%;
   text-align: left;
 }
 .shortcut {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  display: contents;
 }
 .shortcut dt {
   display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
+  flex-wrap: nowrap;
+  gap: var(--space-1);
 }
 .shortcut dd {
   font-family: var(--serif);
   font-size: var(--fs-body);
-  text-align: right;
+}
+.kbd-arrow {
+  display: inline-grid;
+  place-items: center;
+}
+.kbd-arrow svg {
+  display: block;
+  width: 1em;
+  height: 1em;
 }
 kbd {
   min-width: 28px;
@@ -5211,7 +5299,7 @@ html[data-large-text] .forge-avatar {
 html[data-large-text] .life-cost-short {
   white-space: normal;
   text-align: center;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
 }
 /* The hint count sits on the Hint button's corner, so the three actions keep one height. */
 html[data-large-text] .action {
@@ -5367,14 +5455,6 @@ html[data-large-text] .friend-option strong {
   white-space: normal;
 }
 /* Clash: the difficulty buttons wrap, Share and Play stack, the code's six boxes keep their numbers inside. */
-html[data-large-text] .clash-picker {
-  display: flex;
-  flex-wrap: wrap;
-}
-html[data-large-text] .clash-picker .btn {
-  flex: 1 1 auto;
-  padding-inline: 0.6em;
-}
 html[data-large-text] .clash-actions {
   grid-template-columns: 1fr;
 }
@@ -5391,17 +5471,13 @@ html[data-large-text] .log-times {
 html[data-large-text] .clash-row {
   font-size: min(var(--fs-label), 8cqi);
 }
-/* Keyboard shortcuts: the keys, then what they do underneath. */
-html[data-large-text] .shortcut {
-  flex-direction: column;
-  align-items: flex-start;
+/* Keyboard shortcuts at large text: the keys, then what they do underneath. */
+html[data-large-text] .shortcut-list {
+  grid-template-columns: 1fr;
   gap: var(--space-1);
 }
 html[data-large-text] .shortcut dd {
-  text-align: left;
-}
-html[data-large-text] .shortcut-list {
-  gap: var(--space-4);
+  margin-bottom: var(--space-3);
 }
 
 /* ---------- Wide layouts (tablet landscape, desktop) ----------
@@ -5899,7 +5975,8 @@ html[data-large-text] .shortcut-list {
 .plate-mid { top: -7px; left: calc(50% - 10px); }
 .plate-mid.m-b { top: auto; bottom: -7px; transform: scaleY(-1); }
 /* The Elomentalist: the straight lines stop where the pointed ends begin (26px in). */
-.plate-4 .plate-box {
+/* (not on leaderboard rows: there it was one prestige mark too many, M31) */
+.plate-4:not(.lb-name) .plate-box {
   filter: drop-shadow(0 0 2px var(--plate-glow));
 }
 .plate-4 .plate-box::before,
@@ -5976,7 +6053,7 @@ html[data-large-text] .shortcut-list {
   gap: var(--space-1);
   padding: var(--space-5) var(--space-2) var(--space-3);
   border: 0;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: var(--surface);
   color: inherit;
   font: inherit;
@@ -5991,7 +6068,7 @@ button.plate-card {
   padding-top: var(--space-6);
 }
 .plate-card.state-ready {
-  box-shadow: inset 0 0 0 2px var(--accent);
+  box-shadow: inset 0 0 0 2px var(--field-border);
 }
 .plate-card.state-yours {
   background: var(--chosen-bg);
@@ -6003,6 +6080,14 @@ button.plate-card {
 /* A plate you've moved past: its frame fades, the name stays at full contrast ("Replaced" says why). */
 .plate-card.state-replaced .plate-sample > :not(.plate-text) {
   opacity: 0.45;
+}
+/* Bronze's thin corners leave room for a narrower inset; Gold's and Elomentalist's art needs theirs */
+.plate-card-1 .plate-sample {
+  padding-inline: var(--space-3);
+}
+/* the cards name the plate ("Bronze"), one word that shouldn't break; the sheet shows long player names */
+.plate-card .plate-sample .plate-text {
+  overflow-wrap: normal;
 }
 .plate-sample {
   margin-bottom: var(--space-2);
@@ -6034,7 +6119,7 @@ button.plate-card {
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-5) var(--space-4);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: var(--surface);
   text-align: center;
 }
@@ -6060,7 +6145,7 @@ button.plate-card {
   flex-direction: column;
   gap: var(--space-3);
   padding: var(--space-4);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: var(--surface);
 }
 .profile-section h2 {
@@ -6124,15 +6209,13 @@ html[data-large-text] .profile-section h2 {
 /* In a game: two small buttons pinned to the top edge, outlined dashed so they never pass
    for part of the game. */
 .dev-bar {
-  position: fixed;
-  z-index: 30;
-  top: max(4px, env(safe-area-inset-top));
-  left: 50%;
-  transform: translateX(-50%);
   display: flex;
+  align-self: center;
+  justify-content: center;
   gap: var(--space-2);
+  margin-block: var(--space-1);
   padding: var(--space-1);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   outline: 2px dashed var(--accent);
   background: var(--surface);
 }
@@ -6149,7 +6232,7 @@ html[data-large-text] .profile-section h2 {
   width: 180px;
   height: 180px;
   padding: var(--space-2);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   /* the QR code stays dark on white in both themes, so every camera reads it */
   background: var(--c-bright);
 }
@@ -6214,7 +6297,7 @@ html[data-large-text] .profile-section h2 {
   flex-direction: column;
   gap: var(--space-2);
   padding: var(--space-4);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: var(--surface);
 }
 .lb-faction-head {
@@ -6245,7 +6328,7 @@ html[data-large-text] .profile-section h2 {
   place-items: center;
   width: 44px;
   height: 44px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: var(--el, var(--surface-2));
   color: var(--c-bright);
 }
@@ -6460,7 +6543,7 @@ html[data-large-text] .lb-tabs .segment:last-child {
   min-height: 64px;
   padding: var(--space-2) var(--space-3);
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   background: var(--surface);
   color: inherit;
   font: inherit;
@@ -6475,7 +6558,7 @@ html[data-large-text] .lb-tabs .segment:last-child {
 }
 .lb-row.placeholder {
   height: 64px;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   background: var(--surface);
   opacity: 0.6;
 }
@@ -6626,10 +6709,10 @@ html[data-large-text] .lb-leader-pct {
   gap: var(--space-3);
   margin-top: auto;
   padding: var(--space-3);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   background: var(--surface-2);
   /* the shade above, and a skirt of page colour below so no row peeks out under the bar */
-  box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.18), 0 var(--space-5) 0 var(--bg);
+  box-shadow: 0 -6px 16px var(--shadow), 0 var(--space-5) 0 var(--bg);
 }
 /* The pinned bar sits on the page's bottom edge (its skirt covers the rows below it). */
 html:not([data-large-text]) .screen.leaderboard > .sub-body {
@@ -6688,7 +6771,7 @@ html[data-large-text] .lb-me .lb-avatar {
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   background: var(--surface-2);
 }
 .faction-standings li.is-mine,
@@ -6792,9 +6875,11 @@ html[data-large-text] .lb-me .lb-avatar {
   width: 168px;
   height: 168px;
 }
+/* a player's name as they typed it (M25), not shouted like a sheet title */
 .card-name {
   margin-top: var(--space-2);
   font-size: var(--fs-title);
+  text-transform: none;
 }
 .card-facts {
   display: flex;
@@ -6864,7 +6949,7 @@ html[data-large-text] .lb-me .lb-avatar {
   gap: 4px;
   min-height: 112px;
   padding: var(--space-2);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   outline: 2px dashed var(--line);
   outline-offset: -2px;
   text-align: center;
@@ -6947,7 +7032,7 @@ html[data-large-text] .lb-me .lb-avatar {
   gap: 4px;
   padding: var(--space-2);
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   background: var(--surface-2);
   color: inherit;
   font: inherit;
@@ -6986,7 +7071,7 @@ html[data-large-text] .lb-me .lb-avatar {
   gap: 4px;
   padding: var(--space-2);
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   background: var(--surface-2);
   color: inherit;
   font: inherit;
@@ -7063,7 +7148,7 @@ html[data-large-text] .lb-me .lb-avatar {
   min-height: 48px;
   padding: var(--space-3) var(--space-4);
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   background: var(--surface-2);
   color: var(--text);
   font: var(--fs-body) var(--serif);

@@ -82,9 +82,10 @@ export function homeScreen(): Screen {
       h('span', { class: `tier-emblem tier-${tier.tier}`, html: ICONS.tiers[tier.tier], attrs: { 'aria-hidden': 'true' } }),
       h('span', { text: p.title ?? tier.label }),
     );
-    eloChip.querySelector('strong')!.textContent = String(p.elo);
-    dustChip.querySelector('strong')!.textContent = String(p.dust);
-    spiritChip.querySelector('strong')!.textContent = String(p.spirits);
+    eloChip.querySelector('strong')!.textContent = copy.formatNumber(p.elo);
+    dustChip.querySelector('strong')!.textContent = copy.formatNumber(p.dust);
+    spiritChip.querySelector('strong')!.textContent = copy.formatNumber(p.spirits);
+    spiritChip.lastElementChild!.textContent = copy.common.spiritsLabel(p.spirits);
     // Spirits are rare (months for most players): the chip shows once there's one (decision D6)
     spiritChip.hidden = p.spirits === 0;
     stats.classList.toggle('two', p.spirits === 0);
