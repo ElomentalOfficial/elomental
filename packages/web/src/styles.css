@@ -6235,11 +6235,13 @@ html[data-reduce-motion] .strength-seg {
   font-weight: 700;
 }
 .lb-faction-line,
+.lb-faction-side,
 .lb-faction-mine {
   font-family: var(--serif);
   font-size: var(--fs-small);
   color: var(--muted);
 }
+.lb-faction-side,
 .lb-faction-mine {
   color: var(--text);
 }
@@ -6254,18 +6256,57 @@ html[data-reduce-motion] .strength-seg {
 .lb-dim {
   display: none !important;
 }
-/* Which list: the segmented control scrolls sideways when the labels don't fit. */
+/* The five lists in balanced rows (3 + 2) rather than one hidden off the edge; two a row
+   (and the last across) when the labels are large or the phone is narrow. */
 .lb-tabs {
-  display: flex;
-  overflow-x: auto;
-  scrollbar-width: none;
-  /* room for a focused tab's ring (the row scrolls, so it would clip it) */
-  padding: var(--space-2);
-  margin: calc(-1 * var(--space-2));
+  grid-template-columns: repeat(6, 1fr);
 }
 .lb-tabs .segment {
-  flex: 1 0 auto;
-  padding-inline: var(--space-3);
+  grid-column: span 2;
+  min-width: 0;
+  padding-inline: var(--space-1);
+}
+.lb-tabs .segment:nth-child(n + 4) {
+  grid-column: span 3;
+}
+@media (max-width: 359px) {
+  .lb-tabs {
+    grid-template-columns: 1fr 1fr;
+  }
+  .lb-tabs .segment:nth-child(n) {
+    grid-column: auto;
+  }
+  .lb-tabs .segment:last-child {
+    grid-column: 1 / -1;
+  }
+}
+html[data-large-text] .lb-tabs {
+  grid-template-columns: 1fr 1fr;
+}
+html[data-large-text] .lb-tabs .segment:nth-child(n) {
+  grid-column: auto;
+}
+html[data-large-text] .lb-tabs .segment:last-child {
+  grid-column: 1 / -1;
+}
+/* Large labels on phones up to 389px: one a row, so no word is cut or crowded. */
+@media (max-width: 389px) {
+  html[data-large-text] .lb-tabs {
+    grid-template-columns: 1fr;
+  }
+}
+/* Phones: the affinity card stays short so the list shows sooner (the legend, the rule and
+   the prize are in its Details sheet). */
+@media (max-width: 699px) {
+  .lb-faction .wide-only {
+    display: none;
+  }
+}
+/* ... and your side's place stands in for the legend there. */
+@media (min-width: 700px) {
+  .lb-faction .narrow-only {
+    display: none;
+  }
 }
 .lb-meta-row {
   display: flex;
@@ -6428,6 +6469,7 @@ html[data-reduce-motion] .strength-seg {
   font-variant-numeric: tabular-nums;
 }
 .lb-score span {
+  white-space: nowrap;
   font-size: var(--fs-caption);
   font-weight: 700;
   color: var(--muted);

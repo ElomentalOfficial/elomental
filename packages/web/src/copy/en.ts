@@ -863,7 +863,7 @@ export const leaderboard = {
   notInView: {
     faction: 'Choose an affinity to see your place here.',
     country: 'Choose your country in Setup to see this list.',
-    season: 'Win a Ranked game this season to get a place here.',
+    season: 'Play 20 Ranked games this season to get a place here.',
     friends: 'Play a Ranked game to compare with your friends.',
     global: 'Play a Ranked game to get your place.',
   } as Record<string, string>,
@@ -871,7 +871,7 @@ export const leaderboard = {
     friends: 'Follow players to compare with them here. Find them with the search above.',
     faction: 'Nobody in this affinity has a place yet.',
     country: 'Nobody from this country has a place yet.',
-    season: 'Nobody has climbed this season yet.',
+    season: 'Nobody has played 20 Ranked games this season yet.',
     global: 'Nobody has a place yet.',
   } as Record<string, string>,
   chooseCountry: 'Choose your country',
@@ -880,9 +880,12 @@ export const leaderboard = {
   offline: 'The leaderboard needs a connection.',
   retry: 'Try again',
   elo: 'Elo',
-  gained: (n: number) => `+${n}`,
+  /** The Season list: best Elo this season, from 20 Ranked games (decision D8). */
+  seasonNote: 'Ranked by best Elo this season. Needs 20 Ranked games.',
+  seasonToGo: (left: number) => `${left} more Ranked ${left === 1 ? 'game' : 'games'} this season to get a place here.`,
+  best: 'Best',
   a11yRow: (place: number, name: string, rank: string, elo: number) => `${place}. ${name}, ${rank}, ${elo} Elo`,
-  a11ySeasonRow: (place: number, name: string, gain: number) => `${place}. ${name}, ${gain} Elo gained this season`,
+  a11ySeasonRow: (place: number, name: string, best: number) => `${place}. ${name}, best ${best} Elo this season`,
   a11yYou: (text: string) => `You: ${text}`,
 
   // Search
@@ -901,6 +904,8 @@ export const leaderboard = {
   yours: (n: number, place: number, element: string) => `You: +${n} influence · ${ORDINAL(place)} in ${element}`,
   yoursNotYet: (n: number, element: string) => `You: ${n} more ${n === 1 ? 'square' : 'squares'} and you count for ${element}`,
   yoursNone: (element: string) => `You: no influence yet for ${element} this month`,
+  /** Your side, when it isn't the one leading: its place and share. */
+  yourSide: (element: string, place: number, pct: number) => `${element} is ${ORDINAL(place)}, at ${pct}%`,
   joinIn: 'Choose an affinity to join in',
   leading: 'Leading',
   noLeader: 'Nobody yet',

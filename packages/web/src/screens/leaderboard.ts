@@ -139,8 +139,8 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
         h(
           'span',
           { class: 'lb-score', attrs: { 'aria-hidden': 'true' } },
-          h('strong', { text: isSeason ? t.gained(r.value) : String(r.elo) }),
-          h('span', { text: t.elo }),
+          h('strong', { text: String(isSeason ? r.value : r.elo) }),
+          h('span', { text: isSeason ? `${t.best} ${t.elo}` : t.elo }),
         ),
       ),
     );
@@ -152,6 +152,11 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
       showOnBoard: (c) => {
         // jump the Everyone list to the page holding this player
         focusId = c.id;
+        if (around) {
+          // leave your own window, so the button says Show me again
+          around = false;
+          if (view === 'global') void paintMe();
+        }
         if (view !== 'global') {
           view = 'global';
           paintTabs();
@@ -159,7 +164,8 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
         }
         searchField.value = '';
         showSearch(false);
-        void load(Math.floor(((c.place ?? 1) - 1) / 50), true);
+        // by position, not place: with ties, a shared place can sit on a later page
+        void load(Math.floor(((c.position ?? c.place ?? 1) - 1) / 50), true);
       },
       followChanged: () => view === 'friends' && void load(0),
     });
@@ -168,7 +174,8 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
   function paintMeta(updated: string | null) {
     if (!updated) return void (meta.textContent = '');
     const min = Math.max(0, Math.floor((Date.now() - new Date(updated).getTime()) / 60000));
-    meta.textContent = t.updated(min);
+    // the Season list says what it ranks
+    meta.textContent = view === 'season' ? `${t.seasonNote} ${t.updated(min)}.` : t.updated(min);
   }
 
   /** Empty and "you're not in this list" messages, with the way forward. */
@@ -230,6 +237,7 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
     if (me.restricted) text = t.restricted;
     else if (me.hidden) text = t.hiddenBar(me.place);
     else if (!me.rated) text = t.notRated;
+    else if (me.place == null && view === 'season') text = t.seasonToGo(Math.max(1, 20 - (me.seasonGames ?? 0)));
     else if (me.place == null) text = t.notInView[view];
     else {
       text = `${t.place(me.place)}${me.total ? ` ${t.ofTotal(me.total)}` : ''}`;
@@ -383,15 +391,24 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
           : t.yours(b.myInfluence, b.myPlace, name(b.mine))
         : t.yoursNone(name(b.mine))
       : null;
+    // Your side's place and share, unless it leads alone (the leader row says so); on phones
+    // this stands in for the legend, so the bar isn't colour only.
+    const minePct = b.mine ? pct.get(b.mine) : undefined;
+    const side = b.mine && minePct != null && (tied || first.affinity !== b.mine)
+      ? t.yourSide(name(b.mine), 1 + [...pct.values()].filter((v) => v > minePct).length, minePct)
+      : null;
+    // On phones the card is short (leader, bar, days left, yours) so the list shows sooner; the
+    // legend, the rule and the prize are in Details (styles.css .lb-faction .wide-only).
     return [
       h('div', { class: 'lb-faction-head' },
         h('h2', { text: t.affinitiesOf(monthName(b.month)) }),
         h('button', { class: 'link-btn', text: t.details, attrs: { type: 'button' }, onclick: () => openFaction(b) })),
       head,
       bar,
-      legend,
-      h('p', { class: 'lb-legend-note', text: t.strengthNote }),
-      h('p', { class: 'lb-faction-line', text: `${t.daysLeft(days)} · ${t.prize}` }),
+      h('div', { class: 'wide-only' }, legend),
+      h('p', { class: 'lb-legend-note wide-only', text: t.strengthNote }),
+      ...(side ? [h('p', { class: 'lb-faction-side narrow-only', text: side })] : []),
+      h('p', { class: 'lb-faction-line' }, h('span', { text: t.daysLeft(days) }), h('span', { class: 'wide-only', text: ` · ${t.prize}` })),
       mine
         ? h('p', { class: 'lb-faction-mine', text: mine })
         : h('button', { class: 'link-btn', text: t.joinIn, attrs: { type: 'button' }, onclick: () => mount(affinityScreen()) }),

@@ -17,7 +17,7 @@ export interface LbRow {
   name: string;
   title: string | null;
   elo: number;
-  /** What the view ranks by: Elo, or Elo gained this season. */
+  /** What the view ranks by: Elo, or the best Elo this season (Season). */
   value: number;
   plate: number;
   avatar: string | null;
@@ -55,6 +55,8 @@ export interface LbMe {
   restricted: boolean;
   listed: boolean;
   value: number | null;
+  /** Ranked games this season (the Season list needs 20). */
+  seasonGames?: number | null;
 }
 
 export interface LbTiers {
@@ -86,6 +88,8 @@ export interface PlayerCard {
   alive: boolean;
   peak: number;
   place: number | null;
+  /** Position on the Everyone list (ties broken), for opening the right page. */
+  position?: number | null;
   notRanked: boolean;
   affinity: Element | null;
   country: string | null;
