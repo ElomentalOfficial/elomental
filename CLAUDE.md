@@ -53,3 +53,32 @@
   (`--text-scale`), so never add a new fixed `font-size` in px, and check new UI at 200%.
 - Only sizes tied to geometry (board numbers, notes, the desktop game controls) and the
   wordmark are computed instead.
+
+## The game and its rules
+
+- What it is: a competitive sudoku web app (Casual, Daily Square, Ranked Elo against a rated
+  square, Clash with a friend, Square codes). Players earn parts, forge avatars and frames with
+  Stardust, join an affinity (Fire, Water, Earth, Air) and show off on the Profile and
+  leaderboard. Theme: the forge and the four elements.
+- Audience: players aged 35–45 in 5–15 minute sessions. Clear, calm and satisfying beats flashy;
+  every session should show progress.
+- Live design: the "Revision" section at the top of
+  [docs/PROGRESSION_DESIGN.md](docs/PROGRESSION_DESIGN.md) overrides the older sections below it.
+  Leaderboard: [docs/LEADERBOARD_DESIGN.md](docs/LEADERBOARD_DESIGN.md). Last audit:
+  [docs/AUDIT.md](docs/AUDIT.md).
+- The server settles everything: Elo, Stardust, parts, Spirits and influence are paid by
+  `finish_game` in Supabase. Clients never write tables and are never trusted.
+- No real money for now, and nothing ever gives an edge in Ranked: Stardust and parts buy looks
+  and conveniences only. Never add a new currency without asking.
+- Ask before applying a migration or deploying an Edge Function to the live project.
+
+## Specialists
+
+Subagents in `.claude/agents/`. Use them, and have the relevant one review work before calling it
+done:
+
+- `game-economy-designer`: drop rates, guarantees, Stardust earn and sinks, forge prices, Elo pace
+- `ui-designer`: colours, tokens, type, spacing, how every component looks in each state
+- `ux-reviewer`: flows, clarity and fun for the 35–45 audience
+- `qa-tester`: tests features end to end and reports bugs
+- `backend-security-reviewer`: Supabase functions, RLS, anti-cheat, data integrity
