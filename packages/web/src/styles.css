@@ -2907,13 +2907,6 @@ html[data-large-text] .part-grid {
   font-weight: 400;
   overflow-wrap: anywhere;
 }
-.part-rarity {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--fs-caption);
-  color: var(--muted);
-}
 .part-state {
   font-size: var(--fs-small);
   font-weight: 700;
@@ -3895,23 +3888,6 @@ html[data-reduce-motion] .clash-live .brush-art {
 }
 .paste-btn:active {
   transform: scale(0.96);
-}
-.divider {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  margin: 6px 0 2px;
-  font-family: var(--serif);
-  font-size: var(--fs-small);
-  color: var(--muted);
-}
-.divider::before,
-.divider::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--line);
 }
 /* Easy, Medium and Hard under "How hard should the square be?", one a row. */
 .clash-picker {
@@ -6419,9 +6395,6 @@ html[data-reduce-motion] .strength-seg {
   font-family: var(--serif);
   font-size: var(--fs-small);
   color: var(--muted);
-}.lb-lead {
-  font-size: var(--fs-label);
-  font-weight: 700;
 }
 .lb-faction-line,
 .lb-faction-side,
@@ -7056,30 +7029,6 @@ html[data-large-text] .lb-me .lb-avatar {
   flex-direction: column;
   gap: var(--space-4);
   padding-bottom: var(--space-5);
-}
-/* Choosing the showcase (profile.ts) */
-.showcase-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
-  gap: var(--space-2);
-  align-self: stretch;
-}
-.showcase-pick {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: var(--space-2);
-  border: 0;
-  border-radius: var(--radius-lg);
-  background: var(--surface-2);
-  color: inherit;
-  font: inherit;
-  cursor: pointer;
-}
-.showcase-pick.on {
-  background: var(--chosen-bg);
-  box-shadow: inset 0 0 0 2px var(--accent);
 }
 /* Wide screens: the list on the left, the affinities on the right. */
 @media (min-width: 900px) {

@@ -359,7 +359,6 @@ export const forge = {
   plateIntro: 'A border around your name on Home and your profile. Each one replaces the last.',
   plateYours: 'Yours',
   plateBuy: (name: string, stardust: number) => `Get ${name} · ${formatNumber(stardust)} Stardust`,
-  plateTop: 'You have the Elomentalist plate, the top one.',
   plateBought: (name: string) => `Your name now has the ${name} plate.`,
 };
 // --- Profile ---------------------------------------------------------------------
@@ -401,7 +400,6 @@ export const affinity = {
   place: (n: number) => ['1st', '2nd', '3rd', '4th'][n - 1] ?? `${n}th`,
   /** Players with 5+ squares on that side this month. */
   members: (n: number) => (n === 1 ? '1 player counted' : `${n} players counted`),
-  average: (n: number) => `${n} influence each`,
   needsYou: 'Needs you',
   /** The card, read in full by screen readers. */
   a11yCard: (element: string, line: string, place: string, needsYou = false) =>
@@ -905,7 +903,6 @@ export const leaderboard = {
   you: 'You',
   place: (n: number) => `#${formatNumber(n)}`,
   ofTotal: (n: number) => `of ${formatNumber(n)}`,
-  ordinal: ORDINAL,
   notRated: 'Play a Ranked game to get your place.',
   /** A guest (no email yet) is never listed, however many games they've played. */
   guestBar: 'Guests aren’t listed. Sign up to get your place.',
@@ -943,7 +940,6 @@ export const leaderboard = {
   best: 'Best',
   a11yRow: (place: number, name: string, rank: string, elo: number) => `${place}. ${name}, ${rank}, ${elo} Elo`,
   a11ySeasonRow: (place: number, name: string, best: number) => `${place}. ${name}, best ${best} Elo this season`,
-  a11yYou: (text: string) => `You: ${text}`,
 
   // Search
   search: 'Find a player',

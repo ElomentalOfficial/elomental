@@ -235,10 +235,6 @@ export function promoted(before: number, after: number): boolean {
   return b.tier > a.tier || (b.tier === a.tier && (b.division ?? 0) > (a.division ?? 0));
 }
 
-export function rankTitle(elo: number): string {
-  return rankTier(elo).label;
-}
-
 /** The daily square rolls over at 3 AM local time. */
 export function dailyKey(now = new Date()): string {
   const shifted = new Date(now.getTime() - 3 * 3_600_000);
