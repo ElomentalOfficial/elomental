@@ -1,22 +1,34 @@
 import { cachedAccount, onAccountChange } from '../backend.ts';
-import { devAction, foundersShown, setDevMode, setFoundersShown, type DevAction } from '../backend/dev.ts';
+import { devAction, setDevMode, setFoundersShown, type DevAction } from '../backend/dev.ts';
 import { loadFounderActivity } from '../backend/founder.ts';
 import { choice, segmented, settingGroup } from '../controls.ts';
 import { RARITIES, type Rarity } from '../profile.ts';
 import { rarityName } from '../reward.ts';
-import { goBack, h, mount, subPage, toast, type Screen } from '../ui.ts';
-import { reviewScreen } from './review.ts';
-import { setupScreen } from './setup.ts';
+import { h, toast } from '../ui.ts';
 import * as copy from '../copy/en.ts';
 
 /**
- * Setup > Dev mode (founders only; the server checks every call): the way into Review, a
- * switch, then the testing tools, grouped. They change the founder's own account for real. While dev mode
- * is on, games also show Solve now and Lose now (game.ts).
+ * The founder tools' own sections (founderConsole.ts lays them out; the server checks every
+ * call): the Dev mode switch, Show founders to players, the testing tools that change the
+ * founder's own account for real, and the founders' activity log. While dev mode is on, games
+ * also show Solve now and Lose now (game.ts).
  */
-export function devScreen(): Screen {
+export type DevSection = 'devmode' | 'show' | 'tools' | 'account' | 'activity';
+
+/** What the console shares with a section: the Show founders state, and "something changed". */
+export interface DevContext {
+  shown: () => boolean | null;
+  setShown: (value: boolean) => void;
+  changed: () => void;
+}
+
+export function devPanel(section: DevSection, ctx: DevContext): { el: HTMLElement; destroy: () => void } {
   const t = copy.dev;
   const tools: HTMLButtonElement[] = [];
+  const on = () => !!cachedAccount()?.devMode;
+  const group = (title: string, ...items: (HTMLElement | null)[]) => settingGroup(title, items);
+  // a section with one group: just its card (the section's own title names it)
+  const card = (...items: (HTMLElement | null)[]) => h('div', { class: 'setting choice-list' }, ...items);
 
   /** A tool button: runs the action, then says it's done (or why not). */
   const tool = (label: string, action: DevAction, value?: () => string | number | null, done?: () => string) => {
@@ -27,104 +39,104 @@ export function devScreen(): Screen {
       btn.disabled = true;
       void devAction(action, v).then((err) => {
         btn.disabled = !on();
-        loadActivity();
+        ctx.changed();
         toast(err ?? done?.() ?? t.done);
       });
     });
     tools.push(btn);
     return btn;
   };
-  const on = () => !!cachedAccount()?.devMode;
-  const activity = h('ul', { class: 'activity-list' }, h('li', { text: copy.common.loading }));
 
-  // the switch: On / Off (the account refresh repaints the page)
-  const devSwitch = segmented({
-    options: [{ value: true, label: copy.common.on }, { value: false, label: copy.common.off }],
-    current: on,
-    pick: (value) => {
-      if (value === on()) return;
-      return setDevMode(value).then((err) => (err ? toast(err) : loadActivity()));
-    },
-    labelledBy: 'dev-switch',
-    cols: true,
-  });
-
-  // Show founders to players: one switch for every founder, on or off whatever dev mode is (the
-  // server keeps the state; nothing is marked until it has answered)
-  let shown: boolean | null = null;
-  const showSwitch = segmented<boolean | null>({
-    options: [{ value: true, label: copy.common.on }, { value: false, label: copy.common.off }],
-    current: () => shown,
-    pick: (value) => {
-      if (value === null || value === shown) return;
-      return setFoundersShown(value).then((err) => {
-        if (err) return toast(err);
-        shown = value;
-        toast(value ? t.foundersShown : t.foundersHidden);
-        loadActivity();
-      });
-    },
-    labelledBy: 'dev-show',
-    cols: true,
-  });
-  void foundersShown().then((value) => {
-    shown = value;
-    showSwitch.paint();
-  });
-
-  const eloField = h('input', {
-    class: 'text-field',
-    attrs: { type: 'number', inputmode: 'numeric', min: '0', max: '4800', step: '1', 'aria-labelledby': 'dev-elo' },
-  });
-  const plateButtons = [0, 1, 2, 3, 4].map((n) => {
-    const btn = tool(copy.forge.plates[n], 'plate', () => n);
-    btn.classList.replace('btn', 'segment');
-    return btn;
-  });
-
-  const group = (title: string, ...items: (HTMLElement | null)[]) => settingGroup(title, items);
-
-  const el = subPage(
-    { className: 'setup dev', title: t.title, onBack: () => void goBack(setupScreen) },
-    h('p', { class: 'page-intro', text: t.intro }),
-    // Review works whether dev mode is on or off (it only needs the founder code)
-    group(copy.setup.review, h('p', { class: 'field-hint', text: copy.setup.reviewHelp }), h('button', { class: 'btn', text: copy.setup.openReview, attrs: { type: 'button' }, onclick: () => mount(reviewScreen()) })),
-    group(
-      t.switchTitle,
-      choice('dev-switch', t.switchTitle, t.switchHelp, devSwitch.el),
-    ),
-    group(t.groups.players, choice('dev-show', t.showFounders, t.showFoundersHelp, showSwitch.el)),
-    group(t.groups.resources, tool(t.fill, 'fill'), tool(t.empty, 'empty')),
-    group(t.groups.parts, tool(t.unlockAll, 'unlock_all'), tool(t.clearParts, 'clear_parts')),
-    group(
-      t.groups.next,
-      choice('dev-next', t.nextPart, t.nextPartHelp,
-        h('div', { class: 'segmented cols-2' }, ...RARITIES.map((r) => {
-          const btn = tool(rarityName(r), 'next_drop', () => r, () => t.nextPartSet(rarityName(r)));
-          btn.classList.replace('btn', 'segment');
-          return btn;
-        }))),
-      tool(t.nextSpirit, 'next_spirit'),
-    ),
-    group(
-      t.groups.account,
-      choice('dev-elo', t.elo, t.eloHelp,
-        h('div', { class: 'dev-row' }, eloField, tool(t.setElo, 'elo', () => {
-          const n = Number(eloField.value);
-          if (eloField.value === '' || !Number.isInteger(n) || n < 0 || n > 4800) {
-            toast(copy.refusals.dev.bad_request);
-            return null;
-          }
-          return n;
-        }))),
-      choice('dev-plate', t.plate, null, h('div', { class: 'segmented cols-3', attrs: { role: 'group', 'aria-labelledby': 'dev-plate' } }, ...plateButtons)),
-      choice('dev-affinity', t.forgetAffinity, t.forgetAffinityHelp, tool(t.forgetAffinity, 'forget_affinity')),
-    ),
+  let el: HTMLElement;
+  let paint = () => {};
+  if (section === 'devmode') {
+    // the switch: On / Off (the account refresh repaints it)
+    const devSwitch = segmented({
+      options: [{ value: true, label: copy.common.on }, { value: false, label: copy.common.off }],
+      current: on,
+      pick: (value) => {
+        if (value === on()) return;
+        return setDevMode(value).then((err) => (err ? toast(err) : ctx.changed()));
+      },
+      labelledBy: 'dev-switch',
+      cols: true,
+    });
+    el = h('div', { class: 'console-section' },
+      h('p', { class: 'page-intro', text: t.intro }),
+      card(choice('dev-switch', t.switchTitle, t.switchHelp, devSwitch.el)));
+    paint = () => devSwitch.paint();
+  } else if (section === 'show') {
+    // one switch for every founder, on or off whatever dev mode is (the server keeps the state;
+    // nothing is marked until it has answered)
+    const showSwitch = segmented<boolean | null>({
+      options: [{ value: true, label: copy.common.on }, { value: false, label: copy.common.off }],
+      current: ctx.shown,
+      pick: (value) => {
+        if (value === null || value === ctx.shown()) return;
+        return setFoundersShown(value).then((err) => {
+          if (err) return toast(err);
+          ctx.setShown(value);
+          toast(value ? t.foundersShown : t.foundersHidden);
+        });
+      },
+      labelledBy: 'dev-show',
+      cols: true,
+    });
+    el = h('div', { class: 'console-section' }, card(choice('dev-show', t.showFounders, t.showFoundersHelp, showSwitch.el)));
+    paint = () => showSwitch.paint();
+  } else if (section === 'tools') {
+    el = h('div', { class: 'console-section' },
+      group(t.groups.resources, tool(t.fill, 'fill'), tool(t.empty, 'empty')),
+      group(t.groups.parts, tool(t.unlockAll, 'unlock_all'), tool(t.clearParts, 'clear_parts')),
+      group(
+        t.groups.next,
+        choice('dev-next', t.nextPart, t.nextPartHelp,
+          h('div', { class: 'segmented cols-2' }, ...RARITIES.map((r) => {
+            const btn = tool(rarityName(r), 'next_drop', () => r, () => t.nextPartSet(rarityName(r)));
+            btn.classList.replace('btn', 'segment');
+            return btn;
+          }))),
+        tool(t.nextSpirit, 'next_spirit'),
+      ));
+    paint = () => {
+      for (const b of tools) b.disabled = !on();
+    };
+  } else if (section === 'account') {
+    const eloField = h('input', {
+      class: 'text-field',
+      attrs: { type: 'number', inputmode: 'numeric', min: '0', max: '4800', step: '1', 'aria-labelledby': 'dev-elo' },
+    });
+    const plateButtons = [0, 1, 2, 3, 4].map((n) => {
+      const btn = tool(copy.forge.plates[n], 'plate', () => n);
+      btn.classList.replace('btn', 'segment');
+      return btn;
+    });
+    el = h('div', { class: 'console-section' },
+      card(
+        choice('dev-elo', t.elo, t.eloHelp,
+          h('div', { class: 'dev-row' }, eloField, tool(t.setElo, 'elo', () => {
+            const n = Number(eloField.value);
+            if (eloField.value === '' || !Number.isInteger(n) || n < 0 || n > 4800) {
+              toast(copy.refusals.dev.bad_request);
+              return null;
+            }
+            return n;
+          }))),
+        choice('dev-plate', t.plate, null, h('div', { class: 'segmented cols-3', attrs: { role: 'group', 'aria-labelledby': 'dev-plate' } }, ...plateButtons)),
+        choice('dev-affinity', t.forgetAffinity, t.forgetAffinityHelp, tool(t.forgetAffinity, 'forget_affinity')),
+      ));
+    paint = () => {
+      const isOn = on();
+      for (const b of tools) b.disabled = !isOn;
+      eloField.disabled = !isOn;
+      if (!eloField.value) eloField.value = String(cachedAccount()?.elo ?? '');
+      const plate = cachedAccount()?.plate ?? 0;
+      plateButtons.forEach((b, n) => b.classList.toggle('on', n === plate));
+    };
+  } else {
     // what founders did lately (Dev mode and Review), to spot anything that wasn't you
-    group(copy.founder.activity, h('p', { class: 'field-hint', text: copy.founder.activityHelp }), activity),
-  );
-  const when = (iso: string) => new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-  const loadActivity = () =>
+    const activity = h('ul', { class: 'activity-list' }, h('li', { text: copy.common.loading }));
+    const when = (iso: string) => new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
     void loadFounderActivity(30).then((rows) => {
       if (!rows) return;
       activity.replaceChildren(
@@ -136,21 +148,13 @@ export function devScreen(): Screen {
           : [h('li', { text: copy.founder.activityEmpty })]),
       );
     });
-  loadActivity();
+    el = h('div', { class: 'console-section' }, card(h('p', { class: 'field-hint', text: copy.founder.activityHelp }), activity));
+  }
 
-  const paint = () => {
-    const isOn = on();
-    devSwitch.paint();
-    for (const b of tools) b.disabled = !isOn;
-    eloField.disabled = !isOn;
-    if (!eloField.value) eloField.value = String(cachedAccount()?.elo ?? '');
-    const plate = cachedAccount()?.plate ?? 0;
-    plateButtons.forEach((b, n) => b.classList.toggle('on', n === plate));
-  };
   paint();
   const stop = onAccountChange(() => {
-    if (!el.isConnected) return stop();
+    if (!el.isConnected) return;
     paint();
   });
-  return { el, title: t.title, destroy: stop };
+  return { el, destroy: stop };
 }

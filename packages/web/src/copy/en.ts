@@ -876,12 +876,9 @@ export const setup = {
     resetYes: 'Reset',
     resetDone: 'Accessibility settings are back to their defaults.',
   },
-  review: 'Review',
-  reviewHelp: 'Players flagged for copying answers in Ranked.',
-  openReview: 'Open review',
-  dev: 'Dev mode',
-  devHelp: (on: boolean) => (on ? 'Review, and testing tools (on).' : 'Review, and testing tools (off).'),
-  openDev: 'Open dev mode',
+  dev: 'Founder tools',
+  devHelp: (on: boolean) => (on ? 'Players to review, and testing tools (dev mode on).' : 'Players to review, and testing tools (dev mode off).'),
+  openDev: 'Open founder tools',
 };
 
 // --- Leaderboard (screens/leaderboard.ts, playerCard.ts) ------------------------
@@ -1088,18 +1085,30 @@ export const founder = {
     forget_affinity: 'Forgot affinity', show_founders: 'Founders shown', hide_founders: 'Founders hidden', review_clear: 'Review: cleared', review_restrict: 'Review: restricted', review_lift: 'Review: lifted',
   } as Record<string, string>,
 };
+// --- Founder tools (screens/founderConsole.ts; plain, literal) -----------------
+
+export const founderConsole = {
+  title: 'Founder tools',
+  groups: { players: 'Players', account: 'My account', activity: 'Activity' },
+  sections: {
+    open: 'To review', banned: 'Banned', history: 'History', search: 'Search',
+    devmode: 'Dev mode', show: 'Show founders', tools: 'Stardust and parts', account: 'Account',
+    activity: 'Founder activity',
+  } as Record<string, string>,
+};
+
 // --- Dev mode (founders only; plain, literal) --------------------------------
 // screens/dev.ts: testing tools that change the founder's own account for real.
 
 export const dev = {
   title: 'Dev mode',
-  intro: 'Founders only: Review, and testing tools that change this account for real, so you can test every screen without grinding.',
+  intro: 'Testing tools that change this account for real, so you can test every screen without grinding.',
   switchTitle: 'Dev mode',
-  switchHelp: 'While it’s on, games show Solve now and Lose now, solves have no daily limit, and the tools below work.',
+  switchHelp: 'While it’s on, games show Solve now and Lose now, solves have no daily limit, and the Stardust and parts and Account tools work.',
   groups: { players: 'Leaderboard', resources: 'Stardust and Spirits', parts: 'Parts', next: 'Next solve', account: 'Account' },
   /** One switch for every founder account (they're test accounts, off the lists by default). */
   showFounders: 'Show founders to players',
-  showFoundersHelp: 'On: founder accounts appear on the leaderboard, in search and on player cards, for everyone. They still earn no influence or month rewards. Elo and Stardust set with the tools below show too.',
+  showFoundersHelp: 'On: founder accounts appear on the leaderboard, in search and on player cards, for everyone. They still earn no influence or month rewards. Elo and Stardust set with the dev tools show too.',
   foundersShown: 'Founders are on the leaderboard.',
   foundersHidden: 'Founders are hidden from players.',
   fill: 'Fill up: 999999 Stardust, 99 Spirits',
@@ -1125,9 +1134,6 @@ export const dev = {
 // --- Review (founders only; neutral, no jokes) ------------------------------
 
 export const review = {
-  title: 'Review',
-  tabs: { open: 'To review', banned: 'Banned', history: 'History' },
-  a11yTabs: 'Show',
   searchPlaceholder: 'Search name, email or ID',
   a11ySearch: 'Search players',
   a11yClearSearch: 'Clear search',
@@ -1151,9 +1157,9 @@ export const review = {
   flaggedGames: (n: number) => `Flagged games (${n})`,
   flaggedGamesOpen: (n: number, open: number) => `Flagged games (${n}${open ? `, ${open} open` : ''})`,
   decisions: (n: number) => `Decisions (${n})`,
-  actions: { clear: 'It was a mistake', banUntilLifted: 'Ban until lifted', ban30Instead: 'Ban 30 days instead', ban30: 'Ban from Ranked 30 days', lift: 'Lift ban' },
+  actions: { clear: 'Clear flags', banUntilLifted: 'Ban until lifted', ban30Instead: 'Ban 30 days instead', ban30: 'Ban from Ranked 30 days', lift: 'Lift ban' },
   confirm: {
-    clear: (name: string) => `${name}’s flags are marked as a mistake, and any Ranked ban is lifted.`,
+    clear: (name: string) => `${name}’s flags are cleared, and any Ranked ban is lifted.`,
     restrict: (name: string, days: number | null) =>
       `${name} can’t play Ranked ${days ? `for ${days} days` : 'until you lift the ban'} and is off the leaderboard meanwhile. Nothing else changes: Elo, Stardust, Casual, Daily and Clash all stay.`,
     lift: (name: string) => `${name} can play Ranked again and returns to the leaderboard.`,
@@ -1188,9 +1194,11 @@ export const review = {
     leaps: (leaps: number | null, placements: number | null) => `${leaps} of ${placements} cells were filled in before they could be worked out.`,
   },
   until: (day: string) => `until ${day}`,
+  /** A ban with an end date, and how long it has to run. */
+  untilDays: (day: string, days: number) => `until ${day}, ${plural(days, 'day')} left`,
   untilLifted: 'until lifted',
   decision: {
-    clear: 'Cleared as a mistake',
+    clear: 'Flags cleared',
     lift: 'Ban lifted',
     restrict: (days: number | null) => (days ? `Banned from Ranked for ${days} days` : 'Banned from Ranked until lifted'),
   },

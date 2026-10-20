@@ -213,14 +213,14 @@ function openSetUp(): void {
   });
 }
 
-/** Founders only: the way into Dev mode (screens/dev.ts; the server checks every tool). */
+/** Founders only: the way into the founder tools (screens/founderConsole.ts; the server checks every tool). */
 function devSection(): HTMLElement {
   const help = h('p');
   const section = h(
     'section',
     { class: 'setting' },
     h('div', {}, h('h2', { text: copy.setup.dev }), help),
-    h('button', { class: 'btn', text: copy.setup.openDev, onclick: () => openLazy(() => import('./dev.ts'), (m) => mount(m.devScreen())) }),
+    h('button', { class: 'btn', text: copy.setup.openDev, onclick: () => openLazy(() => import('./founderConsole.ts'), (m) => mount(m.founderConsole())) }),
   );
   const paint = () => {
     section.hidden = !founderUnlocked();

@@ -187,11 +187,7 @@ html.standalone .screen.scrollable {
 .setting :is(h2, h3) + p {
   margin-top: var(--space-1);
 }
-/* Review dashboard (founders only, screens/review.ts): compact rows, one open at a time. */
-.segmented.review-tabs {
-  grid-template-columns: repeat(3, 1fr);
-}
-.segmented.review-tabs[hidden],
+/* Review lists (founders only, screens/review.ts in founderConsole.ts): compact rows, one open at a time. */
 .review-search-clear[hidden],
 .review-results:empty {
   display: none;
@@ -201,7 +197,8 @@ html.standalone .screen.scrollable {
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 52px;
+  /* grows with Text size, so the placeholder never clips */
+  min-height: 52px;
   padding: 0 6px 0 16px;
   border-radius: var(--radius);
   background: var(--surface);
@@ -210,7 +207,7 @@ html.standalone .screen.scrollable {
 .review-search-icon {
   display: flex;
   flex: none;
-  width: 20px;
+  width: calc(20px * var(--text-scale));
   color: var(--muted);
 }
 .review-search-icon svg,
@@ -262,19 +259,6 @@ html.standalone .screen.scrollable {
 }
 .review-log.inline.restrict {
   box-shadow: inset 4px 0 0 var(--accent);
-}
-.review-tabs .segment.segment {
-  flex-direction: column;
-  gap: 1px;
-  height: 56px;
-  font-size: var(--fs-small);
-}
-.review-count:empty {
-  display: none;
-}
-.review-count {
-  font-size: var(--fs-body);
-  opacity: 0.75;
 }
 .review-list {
   display: flex;

@@ -11,8 +11,7 @@ import {
   type ReviewView,
 } from '../backend.ts';
 import { ICONS } from '../icons.ts';
-import { formatSeconds, goBack, h, openModal, subPage, toast, type Screen } from '../ui.ts';
-import { devScreen } from './dev.ts';
+import { formatSeconds, h, openModal, toast } from '../ui.ts';
 import * as copy from '../copy/en.ts';
 
 type Item = ReviewPlayer | ReviewDecision;
@@ -21,19 +20,14 @@ interface Sources {
   search: (query: string) => Promise<ReviewPlayer[]>;
 }
 
-const VIEWS: { view: ReviewView; label: string }[] = [
-  { view: 'open', label: copy.review.tabs.open },
-  { view: 'banned', label: copy.review.tabs.banned },
-  { view: 'history', label: copy.review.tabs.history },
-];
-
 /** Typing pauses this long before a search goes out. */
 const SEARCH_DELAY = 250;
 /** The most results a search returns (admin_search's default limit). */
 const SEARCH_LIMIT = 20;
 
 /**
- * Review dashboard (founders only; the server enforces it), made for a long
+ * One Review list in the founder tools (founderConsole.ts picks which: To review, Banned,
+ * History, or a search). Founders only; the server enforces it. Made for a long
  * queue: one compact row per player, worst first, 25 at a time. Opening a row
  * shows why and the buttons; once decided, the player leaves the queue (into
  * History, and Banned if banned) and the next row opens by itself.
@@ -42,12 +36,22 @@ const SEARCH_LIMIT = 20;
  * it sits: open flags, ban, and every decision so far.
  * Nothing here ever deletes an account or its progress.
  */
-export function reviewScreen(sources: Sources = { page: fetchReviewPage, search: searchReview }): Screen {
-  let view: ReviewView = 'open';
+export function reviewPanel(options: {
+  view: ReviewView;
+  /** A search to run at once (from the console's own search field). */
+  query?: string;
+  /** The search was cleared (a search panel only): the console leaves the Search section. */
+  onClear?: () => void;
+  /** The latest counts of each list, for the console's sidebar. */
+  onCounts?: (counts: Record<ReviewView, number>) => void;
+  sources?: Sources;
+}): { el: HTMLElement; destroy: () => void } {
+  const sources = options.sources ?? { page: fetchReviewPage, search: searchReview };
+  const view: ReviewView = options.view;
   let items: Item[] = [];
   let counts: Record<ReviewView, number> = { open: 0, banned: 0, history: 0 };
   let expanded = -1;
-  /** The search in effect (2+ characters); '' shows the tabs. */
+  /** The search in effect (2+ characters); '' shows the list. */
   let query = '';
   let searchTimer = 0;
   let searchRun = 0;
@@ -80,42 +84,10 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
   });
   const searchBox = h('label', { class: 'review-search' }, h('span', { class: 'review-search-icon', html: ICONS.search }), input, clear);
 
-  const tabs = VIEWS.map(({ view: value, label }) => {
-    const count = h('span', { class: 'review-count' });
-    const tab = h(
-      'button',
-      {
-        class: 'segment',
-        attrs: { role: 'radio' },
-        onclick: () => {
-          if (view === value) return;
-          view = value;
-          items = [];
-          void load();
-        },
-      },
-      h('span', { text: label }),
-      count,
-    );
-    return { value, tab, count };
-  });
-  const tabBar = h('div', { class: 'segmented review-tabs', attrs: { role: 'radiogroup', 'aria-label': copy.review.a11yTabs } }, ...tabs.map((t) => t.tab));
-
   const searching = () => query !== '';
 
-  function paintTabs() {
-    for (const { value, tab, count } of tabs) {
-      const on = value === view;
-      tab.classList.toggle('on', on);
-      tab.setAttribute('aria-checked', String(on));
-      count.textContent = value === 'history' ? '' : String(counts[value]);
-    }
-  }
-
   function paint() {
-    tabBar.hidden = searching();
     clear.hidden = !input.value;
-    paintTabs();
     if (searching()) {
       resultsNote.textContent = items.length
         ? copy.review.matches(items.length, query, SEARCH_LIMIT)
@@ -144,12 +116,12 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
     if (searching()) return runSearch(open);
     const keep = Math.min(Math.max(items.length, REVIEW_PAGE), 100);
     const viewNow = view;
-    paintTabs();
     if (!items.length || open < 0) list.replaceChildren(h('p', { class: 'review-empty', text: copy.common.loading }));
     try {
       const page = await sources.page(viewNow, 0, open >= 0 ? keep : REVIEW_PAGE);
       if (viewNow !== view || searching()) return; // moved on meanwhile
       counts = page.counts;
+      options.onCounts?.(counts);
       items = page.items;
       expanded = open >= 0 && view !== 'history' ? Math.min(open, items.length - 1) : -1;
       paint();
@@ -185,6 +157,7 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
     clear.hidden = !input.value;
     if (term.length < 2) {
       if (!searching()) return;
+      if (options.query && options.onClear) return options.onClear();
       query = '';
       searchRun++;
       items = [];
@@ -198,7 +171,6 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
       query = term;
       if (!wasSearching) {
         items = [];
-        tabBar.hidden = true;
         more.hidden = true;
         list.replaceChildren(h('p', { class: 'review-empty', text: copy.common.searching }));
       }
@@ -223,6 +195,7 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
     try {
       const page = await sources.page(view, items.length, REVIEW_PAGE);
       counts = page.counts;
+      options.onCounts?.(counts);
       items = items.concat(page.items);
       paint();
     } catch {
@@ -354,18 +327,15 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
     });
   }
 
-  const el = subPage(
-    { className: 'setup review', title: copy.review.title, onBack: () => void goBack(devScreen) },
-    searchBox,
-    tabBar,
-    resultsNote,
-    list,
-    more,
-  );
+  // the console's own search finds anyone, so a list shows no field; a search keeps one to refine it
+  const el = h('div', { class: 'review-panel' }, options.query ? searchBox : null, resultsNote, list, more);
   clear.hidden = true;
   more.hidden = true;
-  void load();
-  return { el, title: copy.review.title, destroy: () => clearTimeout(searchTimer) };
+  if (options.query && options.query.trim().length >= 2) {
+    input.value = options.query;
+    onQuery(true);
+  } else void load();
+  return { el, destroy: () => clearTimeout(searchTimer) };
 }
 
 const EMPTY: Record<ReviewView, string> = copy.review.empty;
@@ -423,7 +393,9 @@ function why(game: ReviewGame): string {
 }
 
 function banLength(player: ReviewPlayer): string {
-  return player.restrictedUntil ? copy.review.until(day(player.restrictedUntil)) : copy.review.untilLifted;
+  if (!player.restrictedUntil) return copy.review.untilLifted;
+  const left = Math.max(0, Math.ceil((Date.parse(player.restrictedUntil) - Date.now()) / 86_400_000));
+  return copy.review.untilDays(day(player.restrictedUntil), left);
 }
 
 function decisionText(action: ModerationAction, days: number | null): string {

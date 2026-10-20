@@ -149,7 +149,7 @@ export function labelByHeading(dialog: HTMLElement): void {
  * A scrolling page fades out at an edge while more content lies past it
  * (styles.css .fade-top / .fade-bottom), instead of cutting off hard.
  */
-function watchEdges(area: HTMLElement): void {
+export function watchEdges(area: HTMLElement): void {
   const update = () => {
     area.classList.toggle('fade-top', area.scrollTop > 1);
     area.classList.toggle('fade-bottom', area.scrollTop + area.clientHeight < area.scrollHeight - 1);

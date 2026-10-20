@@ -1,0 +1,154 @@
+/* ---------- Founder tools (screens/founderConsole.ts) ---------- */
+/* The section list: groups of rows, the phone's first view and the wide screens' sidebar. */
+.console-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+.console-nav > .review-search {
+  flex: none;
+}
+.console-rows {
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-1);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+/* One row: the section's name, its count or state, and (phones) a chevron to say it opens. */
+.console-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 52px;
+  padding: var(--space-3) var(--space-4);
+  border-radius: calc(var(--radius-lg) - var(--space-1));
+  background: transparent;
+  color: var(--text);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  text-align: left;
+}
+/* a hairline between rows, inset like the text */
+.console-row + .console-row {
+  background: linear-gradient(var(--modal-border), var(--modal-border)) center top / calc(100% - 2 * var(--space-4)) 1px no-repeat;
+}
+.console-label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+/* The count or the state: a pill, in text weight only when it asks for something (to review). */
+.console-detail {
+  flex: none;
+  padding: var(--space-1) var(--space-2);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: var(--fs-small);
+  font-variant-numeric: tabular-nums;
+}
+.console-detail:empty {
+  display: none;
+}
+.console-detail.strong {
+  color: var(--text);
+  font-weight: 800;
+}
+.console-chevron {
+  flex: none;
+  display: flex;
+}
+.console-chevron svg {
+  width: calc(20px * var(--text-scale));
+  height: calc(20px * var(--text-scale));
+  color: var(--muted);
+  transform: scaleX(-1);
+}
+/* The open section in the sidebar: the app's selected style, a fill and a ring (not colour alone). */
+.console-row.on {
+  background: var(--seg-on-bg);
+  box-shadow: inset 0 0 0 2px var(--select);
+  font-weight: 800;
+}
+.console-row.on + .console-row {
+  background: transparent;
+}
+html[data-contrast='high'] .console-row.on {
+  box-shadow: inset 0 0 0 3px var(--select);
+}
+@media (forced-colors: active) {
+  .console-row.on {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+}
+/* card titles (Elo, Name plate…) a step under the section's name, not level with it */
+.console .choice h3 {
+  font-size: var(--fs-body);
+  font-weight: 700;
+}
+.console-section,
+.review-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.console-section > .setting-group + .setting-group {
+  margin-top: calc(var(--space-6) - var(--space-4));
+}
+
+/* Wide screens (founderConsole.ts decides: 900px and up, not at large text): the list on the
+   left, the open section on the right, each scrolling on its own under the fixed header. */
+.screen.console.is-wide {
+  max-width: calc(960px * var(--text-scale, 1));
+}
+.screen.console.is-wide > .sub-body {
+  overflow: hidden;
+}
+.console-grid {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: 280px minmax(0, 640px);
+  justify-content: center;
+  gap: var(--space-6);
+  min-height: 0;
+}
+.sub-body > .console-grid {
+  flex: 1 1 auto;
+}
+.console-side,
+.console-pane {
+  min-height: 0;
+  padding-inline: var(--space-2);
+  padding-bottom: var(--space-5);
+}
+.console-pane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.console-pane > * {
+  flex: none;
+}
+/* The open section's name: one clear step under the page title (sentence case, not the page
+   title's capitals), with room before the section's own small group titles. */
+.console-pane-title {
+  margin-bottom: var(--space-3);
+  font-size: var(--fs-label);
+  font-weight: 800;
+  text-transform: none;
+}
+.is-wide .console-chevron {
+  display: none;
+}
+/* wide: the page title sits beside Back, as the page's header, so the pane's own title starts it */
+.screen.console.is-wide > .subbar {
+  justify-content: flex-start;
+}
+.screen.console.is-wide > .subbar > h1 {
+  flex: 0 1 auto;
+  text-align: start;
+}
+.screen.console.is-wide > .subbar > .icon-btn-spacer {
+  display: none;
+}
