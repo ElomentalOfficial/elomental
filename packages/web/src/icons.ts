@@ -6,11 +6,11 @@
  * whatever is behind the icon, which keeps them right in both themes.
  */
 
-import handCupDark from './art/hand-cup-dark.png';
-import handCupLight from './art/hand-cup-light.png';
-import feather from './art/feather.png';
-import cogDark from './art/cog-dark.png';
-import cogLight from './art/cog-light.png';
+import handCupDark from './art/hand-cup-dark.webp';
+import handCupLight from './art/hand-cup-light.webp';
+import feather from './art/feather.webp';
+import cogDark from './art/cog-dark.webp';
+import cogLight from './art/cog-light.webp';
 import calendar from './art/calendar.png';
 import calendarBack from './art/calendar-back.webp';
 import calendarUnder from './art/calendar-under.webp';
@@ -21,7 +21,7 @@ import walletDark from './art/wallet-dark.png';
 import walletLight from './art/wallet-light.png';
 import sword from './art/sword.png';
 import swordFlame from './art/sword-flame.png';
-import swordBody from './art/sword-body.png';
+import swordBody from './art/sword-body.webp';
 import swordHeat from './art/sword-heat.png';
 import clashLeftDark from './art/clash-dark-left.png';
 import clashLeftLight from './art/clash-light-left.png';

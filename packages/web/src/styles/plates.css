@@ -3,7 +3,7 @@
    square corners, Silver a double line with stepped corners, Gold sunburst fans and gems,
    the Elomentalist a pointed cartouche with a sunburst crown and a soft glow. The name
    keeps its own colour; the border is decoration in the plate's metal (--plate), a little
-   see-through and worn in specks and patches like the tiles' frames (art/plate-wear.png,
+   see-through and worn in specks and patches like the tiles' frames (art/plate-wear.webp,
    icons/make-plate-wear.mjs; a plain image mask, which Firefox draws as crisply). */
 .name-plate {
   position: relative;
@@ -36,8 +36,8 @@
   color: var(--plate);
   opacity: var(--plate-opacity, 1);
   pointer-events: none;
-  -webkit-mask: url('../art/plate-wear.png') 0 0 / 128px 128px repeat;
-  mask: url('../art/plate-wear.png') 0 0 / 128px 128px repeat;
+  -webkit-mask: url('../art/plate-wear.webp') 0 0 / 128px 128px repeat;
+  mask: url('../art/plate-wear.webp') 0 0 / 128px 128px repeat;
 }
 .plate-box {
   position: absolute;
