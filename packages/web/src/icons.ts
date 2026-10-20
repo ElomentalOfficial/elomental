@@ -140,6 +140,7 @@ export const ICONS = {
   play: fill('M8 5.2v13.6a.6.6 0 0 0 .9.5l10.6-6.8a.6.6 0 0 0 0-1L8.9 4.7a.6.6 0 0 0-.9.5Z'),
   close: stroke('<path d="M6 6l12 12M18 6 6 18"/>', 2.4),
   back: stroke('<path d="M15 5l-7 7 7 7"/>', 2.4),
+  chevronDown: stroke('<path d="M6 9l6 6 6-6"/>', 2.4),
   search: stroke('<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/>', 2.2),
   copy: stroke('<rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5"/>', 1.8),
   /** Square code (a puzzle's shareable code): a brush-style megaphone calling it out (icons/build_megaphone.py), one image per theme. */

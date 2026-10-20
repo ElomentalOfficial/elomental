@@ -1,7 +1,8 @@
 import { cachedAccount, onAccountChange } from '../backend.ts';
 import { setCardPrivacy, setCountry } from '../backend/leaderboard.ts';
 import { countryName } from '../playerCard.ts';
-import { goBack, h, subPage, toast, type Screen } from '../ui.ts';
+import { ICONS } from '../icons.ts';
+import { closeButton, goBack, h, openModal, subPage, toast, type Screen } from '../ui.ts';
 import { setupScreen } from './setup.ts';
 import * as copy from '../copy/en.ts';
 
@@ -15,12 +16,22 @@ const CODES = 'AD AE AF AG AL AM AO AR AT AU AZ BA BB BD BE BF BG BH BI BJ BN BO
 export function privacyScreen(back: () => Screen = setupScreen): Screen {
   const t = copy.privacy;
   const account = cachedAccount();
-  const select = h('select', { class: 'text-field', attrs: { 'aria-labelledby': 'privacy-country' } },
-    h('option', { text: t.noCountry, attrs: { value: '' } }),
-    ...CODES.map((c) => ({ c, name: countryName(c) })).sort((a, b) => a.name.localeCompare(b.name, 'en-GB'))
-      .map(({ c, name }) => h('option', { text: name, attrs: { value: c } })));
-  select.value = account?.country ?? '';
-  select.addEventListener('change', () => void setCountry(select.value || null).then((err) => toast(err ?? t.saved)));
+  // the country: a field that opens a picker sheet (search, then a padded list)
+  const countryField = h('button', { class: 'text-field picker-field', attrs: { type: 'button', 'aria-haspopup': 'dialog' } });
+  const paintCountry = () => {
+    const code = cachedAccount()?.country ?? null;
+    const label = code ? countryName(code) : t.noCountry;
+    countryField.replaceChildren(h('span', { text: label }), h('span', { class: 'picker-chevron', html: ICONS.chevronDown, attrs: { 'aria-hidden': 'true' } }));
+    countryField.setAttribute('aria-label', t.a11yCountry(label));
+  };
+  paintCountry();
+  onAccountChange(paintCountry);
+  countryField.addEventListener('click', () => openCountryPicker(cachedAccount()?.country ?? null, (code) => {
+    void setCountry(code).then((err) => {
+      toast(err ?? t.saved);
+      paintCountry();
+    });
+  }));
 
   const onOff = (id: string, get: () => boolean, set: (v: boolean) => Promise<string | null>) => {
     const buttons = [true, false].map((v) => h('button', {
@@ -44,9 +55,35 @@ export function privacyScreen(back: () => Screen = setupScreen): Screen {
     h('p', { class: 'page-intro', text: account?.anonymous ? t.guest : t.intro }),
     h('section', { class: 'setting-group' }, h('h2', { text: t.group }),
       h('div', { class: 'setting choice-list' },
-        choice('privacy-country', t.country, t.countryHelp, select),
+        choice('privacy-country', t.country, t.countryHelp, countryField),
         choice('privacy-listed', t.listed, t.listedHelp, onOff('privacy-listed', () => !cachedAccount()?.lbHidden, (v) => setCardPrivacy(!v, null))),
         choice('privacy-stats', t.stats, t.statsHelp, onOff('privacy-stats', () => cachedAccount()?.cardStats !== false, (v) => setCardPrivacy(null, v))))),
   );
   return { el, title: t.title };
+}
+
+/** The country list as a sheet: a search field, then every country, the chosen one ticked. */
+function openCountryPicker(current: string | null, choose: (code: string | null) => void): void {
+  const t = copy.privacy;
+  const all = [{ code: null as string | null, name: t.noCountry }, ...CODES.map((c) => ({ code: c as string | null, name: countryName(c) })).sort((a, b) => a.name.localeCompare(b.name, 'en-GB'))];
+  const search = h('input', { class: 'text-field picker-search', attrs: { type: 'search', placeholder: t.countrySearch, 'aria-label': t.countrySearch, autocomplete: 'off' } });
+  const list = h('ul', { class: 'picker-list', attrs: { 'aria-label': t.country } });
+  const empty = h('p', { class: 'note', text: t.noMatch });
+  const paint = () => {
+    const q = search.value.trim().toLocaleLowerCase('en-GB');
+    const shown = all.filter((c) => !q || c.name.toLocaleLowerCase('en-GB').includes(q) || (c.code ?? '').toLowerCase() === q);
+    list.replaceChildren(...shown.map((c) => {
+      const chosen = c.code === current;
+      return h('li', {},
+        h('button', { class: `picker-option${chosen ? ' on' : ''}`, attrs: chosen ? { type: 'button', 'aria-current': 'true' } : { type: 'button' }, onclick: () => { close(); choose(c.code); } },
+          h('span', { text: c.name }),
+          chosen ? h('span', { class: 'picker-check', html: ICONS.check, attrs: { 'aria-hidden': 'true' } }) : null));
+    }));
+    empty.hidden = shown.length > 0;
+  };
+  search.addEventListener('input', paint);
+  paint();
+  const close = openModal(h('div', { class: 'sheet picker-sheet' }, closeButton(() => close()), h('h2', { text: t.countryPick }), search, empty, list));
+  // start at the chosen country
+  requestAnimationFrame(() => list.querySelector('.picker-option.on')?.scrollIntoView({ block: 'center' }));
 }
