@@ -56,12 +56,12 @@ async function play(uid, mode, difficulty, opts = {}) {
   const rating = opts.rating ?? 400;
   const { rows } = await db.query(
     `insert into public.games (user_id, mode, difficulty, seed, rating, started_at, date_key, audit)
-     values ($1, $2, $3, 's', $4, now() - interval '20 minutes', $5, $6) returning id`,
+     values ($1, $2, $3, 's', $4, now() - ($7 || ' seconds')::interval, $5, $6) returning id`,
     [uid, mode, difficulty, rating, mode === 'daily' ? opts.date : null,
-     mode === 'ranked' ? JSON.stringify({ copied: false, solution: SOLVED, rating }) : null]);
+     mode === 'ranked' && !opts.noAudit ? JSON.stringify({ copied: false, solution: SOLVED, rating }) : null, opts.instant ? '2' : '1200']);
   await as(uid);
-  const r = await db.query(`select public.finish_game($1, $2, $3, $4, 1200, $5, $6) as j`,
-    [rows[0].id, opts.won ?? true, opts.mistakes ?? 0, opts.hints ?? 0, rating, SOLVED]);
+  const r = await db.query(`select public.finish_game($1, $2, $3, $4, $7, $5, $6) as j`,
+    [rows[0].id, opts.won ?? true, opts.mistakes ?? 0, opts.hints ?? 0, rating, SOLVED, opts.instant ? 2 : 1200]);
   return r.rows[0].j;
 }
 const fails = [];
@@ -207,6 +207,50 @@ await db.exec(`set role authenticated`);
 err = null; try { await db.exec(`update public.player_parts set part_id = part_id`); } catch (e) { err = e.message; }
 check(!!err, `players cannot write their parts (${err?.slice(0, 40)})`);
 await db.exec(`reset role`);
+
+// --- 10. dev mode: founders only, and only while it's on
+const plain = await newPlayer();
+await as(plain);
+err = null; try { await db.query(`select public.dev_set_mode(true)`); } catch (e) { err = e.message; }
+check(err?.includes('not_admin'), 'dev mode: not for players who aren\'t founders');
+const fo = (await db.query(`insert into auth.users (email, email_confirmed_at) values ('founder@example.test', now()) returning id`)).rows[0].id;
+await db.exec(`insert into private.founders (email) values ('founder@example.test')`);
+await as(fo);
+err = null; try { await db.query(`select public.dev_action('fill')`); } catch (e) { err = e.message; }
+check(err?.includes('dev_off'), 'dev tools need dev mode on');
+let quick = null; try { await play(fo, 'casual', 'medium', { instant: true }); } catch (e) { quick = e.message; }
+check(quick?.includes('too_fast'), 'an instant solve is refused while dev mode is off');
+await as(fo);
+await db.query(`select public.dev_set_mode(true)`);
+await db.query(`select public.dev_action('fill')`);
+const filled = (await db.query(`select stardust, spirits from public.profiles where id = $1`, [fo])).rows[0];
+check(filled.stardust === 999999 && filled.spirits === 99, `fill: 999999 Stardust and 99 Spirits (${JSON.stringify(filled)})`);
+await db.query(`select public.dev_action('next_drop', 'mythic')`);
+const forced = await play(fo, 'casual', 'medium', { instant: true });
+check(forced.drop?.rarity === 'mythic', `next part Mythic, on an instant solve (${forced.drop?.rarity})`);
+await as(fo);
+await db.query(`select public.dev_action('next_spirit')`);
+const spiritNow = await play(fo, 'casual', 'medium', { instant: true });
+check(spiritNow.spirit === true, 'next solve brings a Spirit');
+let counted = 0;
+for (let i = 0; i < 12; i++) { const j = await play(fo, 'casual', 'medium', { instant: true }); if (j.progress) counted++; }
+check(counted === 12, `no daily limit in dev mode (${counted} of 12 counted)`);
+const rankedDev = await play(fo, 'ranked', 'medium', { instant: true, noAudit: true });
+check(rankedDev.elo?.unrated === null && rankedDev.elo.after > rankedDev.elo.before, `Ranked instant solve counts as rated (${JSON.stringify(rankedDev.elo)})`);
+await as(fo);
+await db.query(`select public.dev_action('unlock_all')`);
+const all = (await db.query(`select count(*)::int n from public.player_parts where player_id = $1`, [fo])).rows[0].n;
+check(all === 23, `unlock every part (${all})`);
+await db.query(`select public.dev_action('elo', '2500')`);
+await db.query(`select public.dev_action('plate', '4')`);
+const set = (await db.query(`select elo, plate from public.profiles where id = $1`, [fo])).rows[0];
+check(set.elo === 2500 && set.plate === 4, `set Elo and plate (${JSON.stringify(set)})`);
+await db.query(`select public.dev_action('clear_parts')`);
+const none = (await db.query(`select count(*)::int n from public.player_parts where player_id = $1`, [fo])).rows[0].n;
+check(none === 0, 'remove every part');
+await db.query(`select public.dev_set_mode(false)`);
+err = null; try { await db.query(`select public.dev_action('fill')`); } catch (e) { err = e.message; }
+check(err?.includes('dev_off'), 'dev tools stop when dev mode is off');
 
 console.log(fails.length ? `\n${fails.length} FAILED` : '\nall checks passed');
 process.exit(fails.length ? 1 : 0);

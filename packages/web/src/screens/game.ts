@@ -56,6 +56,7 @@ import {
 } from '../backend.ts';
 import { signUpForm } from '../accountForm.ts';
 import { addToHomeResultNote } from '../install.ts';
+import { devOn } from '../backend/dev.ts';
 import { runHintCoach } from '../hintCoach.ts';
 import { runTutorial, tutorialDone, type TutorialStep } from '../tutorial.ts';
 import { formatSeconds, formatTime, goBack, h, hiddenHeading, mount, openModal, toast, type Screen } from '../ui.ts';
@@ -784,6 +785,32 @@ function gameScreen(game: SavedGame): Screen {
   }
   const clock = setInterval(tick, 250);
   const autosave = setInterval(save, 2000);
+
+  // --- Dev mode (founders only; backend/dev.ts) ------------------------------
+  // Solve now fills in the answer and wins; Lose now ends it as three mistakes. The
+  // server accepts an instant solve only while dev mode is on.
+  if (devOn() && config.serverId) {
+    const solveNow = () => {
+      if (finished) return;
+      const changes: Change[] = [];
+      for (let c = 0; c < 81; c++) if (game.values[c] !== solution[c]) changes.push({ cell: c, value: solution[c], notes: 0 });
+      commit(changes);
+      render();
+      save();
+      finish(true, 'solved');
+    };
+    const loseNow = () => {
+      if (finished) return;
+      game.mistakes = MAX_MISTAKES;
+      render();
+      finish(false, 'mistakes');
+    };
+    el.append(
+      h('div', { class: 'dev-bar', attrs: { role: 'group', 'aria-label': copy.dev.a11yBar } },
+        h('button', { class: 'btn', text: copy.dev.solveNow, attrs: { type: 'button' }, onclick: solveNow }),
+        h('button', { class: 'btn', text: copy.dev.loseNow, attrs: { type: 'button' }, onclick: loseNow })),
+    );
+  }
 
   // --- Finish --------------------------------------------------------------
   function finish(won: boolean, reason: 'solved' | 'mistakes' | 'concede') {

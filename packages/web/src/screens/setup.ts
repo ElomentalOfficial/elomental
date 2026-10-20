@@ -18,6 +18,7 @@ import { deviceInfo } from '../viewport.ts';
 import { goBack, h, mount, subPage, toast, type Screen } from '../ui.ts';
 import { accessibilityScreen } from './accessibility.ts';
 import { homeScreen } from './home.ts';
+import { devScreen } from './dev.ts';
 import { reviewScreen } from './review.ts';
 import * as copy from '../copy/en.ts';
 
@@ -96,6 +97,7 @@ export function setupScreen(): Screen {
     { className: 'setup', title, onBack: () => void goBack(homeScreen) },
     accountSection(),
     reviewSection(),
+    devSection(),
     h(
       'section',
       { class: 'setting' },
@@ -160,6 +162,27 @@ function reviewSection(): HTMLElement {
     h('button', { class: 'btn', text: copy.setup.openReview, onclick: () => mount(reviewScreen()) }),
   );
   const paint = () => (section.hidden = !isFounder() || !!cachedAccount()?.anonymous);
+  paint();
+  const stop = onAccountChange(() => {
+    if (!section.isConnected) return stop();
+    paint();
+  });
+  return section;
+}
+
+/** Founders only: the way into Dev mode (screens/dev.ts; the server checks every tool). */
+function devSection(): HTMLElement {
+  const help = h('p');
+  const section = h(
+    'section',
+    { class: 'setting' },
+    h('div', {}, h('h2', { text: copy.setup.dev }), help),
+    h('button', { class: 'btn', text: copy.setup.openDev, onclick: () => mount(devScreen()) }),
+  );
+  const paint = () => {
+    section.hidden = !isFounder() || !!cachedAccount()?.anonymous;
+    help.textContent = copy.setup.devHelp(!!cachedAccount()?.devMode);
+  };
   paint();
   const stop = onAccountChange(() => {
     if (!section.isConnected) return stop();

@@ -5795,3 +5795,43 @@ button.plate-card {
 .profile-forge {
   align-self: stretch;
 }
+
+/* ---------- Dev mode (founders only; screens/dev.ts, game.ts) ---------- */
+.dev-row {
+  display: flex;
+  gap: var(--space-2);
+}
+.dev-row .text-field {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+}
+.dev-row .btn {
+  flex: none;
+  width: auto;
+}
+/* the Spirit button under the rarity choices */
+.dev .choice + .btn {
+  margin-top: var(--space-2);
+}
+/* In a game: two small buttons pinned to the top edge, outlined dashed so they never pass
+   for part of the game. */
+.dev-bar {
+  position: fixed;
+  z-index: 30;
+  top: max(4px, env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: var(--space-2);
+  padding: var(--space-1);
+  border-radius: 12px;
+  outline: 2px dashed var(--accent);
+  background: var(--surface);
+}
+.dev-bar .btn {
+  min-height: 36px;
+  padding: 4px 12px;
+  font-size: var(--fs-small);
+  white-space: nowrap;
+}

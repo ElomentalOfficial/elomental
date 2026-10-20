@@ -35,6 +35,8 @@ export interface Account {
   plate?: number;
   /** The highest Elo after any game (the profile's peak). */
   bestElo?: number;
+  /** Dev mode is on (founders only; the server checks every tool). */
+  devMode?: boolean;
 }
 
 const ACCOUNT_KEY = 'elomental:account';
@@ -71,7 +73,7 @@ export async function refreshAccount(session?: Session | null): Promise<Account 
   const [{ data: profile, error }, { data: dailies }, { count: solved }, { data: mends }, { data: best }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('display_name, title, name_changed_at, elo, ranked_games, stardust, spirits, settings, affinity, plate')
+      .select('display_name, title, name_changed_at, elo, ranked_games, stardust, spirits, settings, affinity, plate, dev_mode')
       .eq('id', s.user.id)
       .single(),
     supabase.from('games').select('date_key').eq('mode', 'daily').eq('won', true),
@@ -96,6 +98,7 @@ export async function refreshAccount(session?: Session | null): Promise<Account 
     solved: solved ?? 0,
     mended: Object.fromEntries((mends ?? []).map((d) => [d.date_key as string, true as const])),
     plate: profile.plate ?? 0,
+    devMode: !!profile.dev_mode,
     bestElo: Math.max(profile.elo, (best?.[0]?.elo_after as number | undefined) ?? 0),
   };
   writeJson(ACCOUNT_KEY, account);

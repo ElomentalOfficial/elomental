@@ -620,6 +620,13 @@ export const refusals = {
     not_signed_in: 'Sign in again to use the Forge.',
   } as Record<string, string>,
   forgeOffline: 'No connection. Nothing was spent; try again in a moment.',
+  /** Dev mode (founders only). */
+  dev: {
+    not_admin: 'Only founders can use dev mode.',
+    dev_off: 'Turn dev mode on first.',
+    bad_request: 'That value isn’t allowed.',
+  } as Record<string, string>,
+  devOffline: 'No connection. Nothing changed.',
   /** choose_affinity */
   affinity: {
     too_soon: 'Solve 3 squares first, then choose your affinity.',
@@ -751,8 +758,40 @@ export const setup = {
   review: 'Review',
   reviewHelp: 'Players flagged for copying answers in Ranked.',
   openReview: 'Open review',
+  dev: 'Dev mode',
+  devHelp: (on: boolean) => (on ? 'On. Testing tools for this account.' : 'Off. Testing tools for founders.'),
+  openDev: 'Open dev mode',
 };
 
+// --- Dev mode (founders only; plain, literal) --------------------------------
+// screens/dev.ts: testing tools that change the founder's own account for real.
+
+export const dev = {
+  title: 'Dev mode',
+  intro: 'Founders only. These tools change this account for real, so you can test every screen without grinding.',
+  switchTitle: 'Dev mode',
+  switchHelp: 'While it’s on, games show Solve now and Lose now, solves have no daily limit, and the tools below work.',
+  groups: { resources: 'Stardust and Spirits', parts: 'Parts', next: 'Next solve', account: 'Account' },
+  fill: 'Fill up: 999999 Stardust, 99 Spirits',
+  empty: 'Empty both to 0',
+  unlockAll: 'Unlock every part',
+  clearParts: 'Remove every part',
+  nextPart: 'Rarity of the next part',
+  nextPartHelp: 'Your next solve brings a part of this rarity.',
+  nextSpirit: 'Next solve brings a Spirit',
+  elo: 'Elo',
+  eloHelp: 'From 0 to 4800. Set it to see each rank and promotion.',
+  setElo: 'Set Elo',
+  plate: 'Name plate',
+  forgetAffinity: 'Forget my affinity',
+  forgetAffinityHelp: 'You’re asked to choose again on Home.',
+  done: 'Done.',
+  nextPartSet: (rarity: string) => `Your next solve brings a ${rarity} part.`,
+  // in a game
+  solveNow: 'Solve now',
+  loseNow: 'Lose now',
+  a11yBar: 'Dev mode tools',
+};
 // --- Review (founders only; neutral, no jokes) ------------------------------
 
 export const review = {
