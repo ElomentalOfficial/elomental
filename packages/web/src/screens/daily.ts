@@ -10,63 +10,54 @@ const WEEKDAYS = copy.daily.weekdays;
 
 /** Where each curl strip's top edge sits, in % of the drawing's height (styles.css `.curl-*`). */
 const CURL_TOPS = [34, 46, 57, 67, 76, 85];
-/** How far each strip is bent, in total, at the strongest gust: more and more towards the bottom. */
+/** How far each strip is bent, in total, at the strongest breath: more and more towards the bottom. */
 const CURL_MAX = [6, 15, 27, 42, 58, 75];
-/** How far the whole page tips up from the rings at the strongest gust. */
+/** How far the whole page tips up from the rings at the strongest breath of wind. */
 const LIFT_MAX = 18;
-const rand = (lo: number, hi: number) => lo + Math.random() * (hi - lo);
+/** One rise and settle of the page, in seconds: the same slow pace as the Casual feather's float. */
+const BREATH_S = 4.2;
 
 /**
- * The breeze: gusts at random times (every 4 to 6s), each with its own strength, length and
- * flutter, so it never repeats like a loop. Most are a clear lift and curl, some stronger.
- * Each gust tips the page from the rings and curls its strips; every strip is moved up by
- * how much the ones above it shortened, so the page stays in one piece (styles.css).
+ * The breeze: the page never stops, it rises and settles once every 4.2s, as slow and soft
+ * as the feather's float. Underneath, the strength drifts on two long, out-of-step waves
+ * (19s and 31s), so most breaths barely lift the corner and now and then one builds into a
+ * full curl, never on a pattern you can hear ticking. Each frame tips the page from the
+ * rings and curls its strips; every strip is moved up by how much the ones above it
+ * shortened, so the page stays in one piece (styles.css). Still with Reduce motion.
  */
 function breeze(art: HTMLElement): void {
   const turn = art.querySelector<HTMLElement>('.calendar-turn')!;
   const strips = [...art.querySelectorAll<HTMLElement>('.curl')];
   const lengths = CURL_TOPS.slice(1).map((top, i) => top - CURL_TOPS[i]);
-  const gust = () => {
-    if (!art.isConnected) return;
-    if (!reducedMotion() && !document.hidden) {
-      const strength = Math.random() < 0.75 ? rand(0.75, 1) : rand(1, 1.2);
-      // the gust's shape over time: a lift, then a few flutters that die away
-      const shape = [{ offset: 0, f: 0 }];
-      const rise = rand(0.18, 0.32);
-      shape.push({ offset: rise, f: 1 });
-      const flutters = Math.floor(rand(1, 4));
-      let high = 1;
-      for (let i = 0; i < flutters; i++) {
-        const low = high * rand(0.15, 0.5);
-        high *= rand(0.4, 0.8);
-        const step = (1 - rise) / (flutters * 2 + 1);
-        shape.push({ offset: rise + step * (i * 2 + 1), f: low }, { offset: rise + step * (i * 2 + 2), f: high });
-      }
-      shape.push({ offset: 1, f: 0 });
-      const options = { duration: rand(1100, 2200), easing: 'linear' };
-      const keyframe = (offset: number, transform: string, extra = {}) => ({ offset, transform, easing: 'ease-in-out', ...extra });
-      turn.animate(shape.map(({ offset, f }) => keyframe(offset, `perspective(1400px) rotate(-6deg) rotateX(${LIFT_MAX * strength * f}deg) rotate(6deg)`)), options);
-      strips.forEach((strip, k) => {
-        strip.animate(
-          shape.map(({ offset, f }) => {
-            const bend = (j: number) => (CURL_MAX[j] * strength * f * Math.PI) / 180;
-            let shift = 0;
-            for (let j = 0; j < k; j++) shift += lengths[j] * (Math.cos(bend(j)) - 1);
-            const angle = CURL_MAX[k] * strength * f;
-            return keyframe(offset, `perspective(1400px) translateY(${shift.toFixed(2)}%) rotateX(${angle.toFixed(1)}deg)`, { filter: `brightness(${(1 - (0.16 * angle) / 90).toFixed(3)})` });
-          }),
-          options,
-        );
-      });
-    }
-    setTimeout(gust, rand(4000, 6000));
+  const start = Math.random() * 600; // each visit starts somewhere else in the drift
+  const wave = (t: number, period: number, phase = 0) => Math.sin((2 * Math.PI * t) / period + phase);
+  const pose = (f: number) => {
+    turn.style.transform = f ? `perspective(1400px) rotate(-6deg) rotateX(${(LIFT_MAX * f).toFixed(2)}deg) rotate(6deg)` : '';
+    strips.forEach((strip, k) => {
+      let shift = 0;
+      for (let j = 0; j < k; j++) shift += lengths[j] * (Math.cos((CURL_MAX[j] * f * Math.PI) / 180) - 1);
+      const angle = CURL_MAX[k] * f;
+      strip.style.transform = f ? `perspective(1400px) translateY(${shift.toFixed(2)}%) rotateX(${angle.toFixed(2)}deg)` : '';
+      strip.style.filter = f ? `brightness(${(1 - (0.16 * angle) / 90).toFixed(3)})` : '';
+    });
   };
-  setTimeout(gust, rand(800, 2200));
+  const frame = (now: number) => {
+    if (!art.isConnected) return;
+    if (reducedMotion()) pose(0);
+    else {
+      const t = now / 1000 + start;
+      // mostly a whisper (0.15), sometimes all the way (1), always changing smoothly
+      const drift = (wave(t, 19) + wave(t, 31, 1.3)) / 2;
+      const strength = 0.15 + 0.85 * Math.max(0, drift) ** 2;
+      pose((strength * (1 - Math.cos((2 * Math.PI * t) / BREATH_S))) / 2);
+    }
+    requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
 }
-
 /**
- * The page's calendar, like the Casual feather: its front page lifts in a breeze now and
- * then (`breeze`), and taps tear it off along its zig-zag perforation. The first two taps or
+ * The page's calendar, like the Casual feather: its front page lifts and curls in a slow,
+ * endless breeze (`breeze`), and taps tear it off along its zig-zag perforation. The first two taps or
  * clicks only rip it further from the right, and it stays hanging by its left corner;
  * the third tears it free and it drops away, showing the next day's page, while the stub
  * stays on the rings. Then today's page settles back in place. Purely decorative: no

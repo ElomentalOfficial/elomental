@@ -1794,8 +1794,8 @@ html:not([data-large-text]) .daily-art {
 .calendar-fall {
   transform-origin: 6% 36.5%;
 }
-/* The breeze (gusts in daily.ts, each its own strength, length and flutter, at random
-   times): the whole page flips up a little from the rings, and the torn part curls up
+/* The breeze (daily.ts: endless and slow, its strength drifting from a whisper to a full
+   curl): the whole page flips up a little from the rings, and the torn part curls up
    from the bottom. It is six strips of one image (icons.ts), each bent to its own total
    angle about its top edge and moved up by exactly how much the strips above it
    shortened, so their edges stay joined and the bends add up like paper. (Nesting them,
