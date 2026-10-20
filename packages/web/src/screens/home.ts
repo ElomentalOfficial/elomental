@@ -1,8 +1,9 @@
 import { difficultyForRating } from '@elomental/engine';
 import { avatarSvg } from '../avatar.ts';
-import { cachedLoadout, loadLoadout } from '../backend/forge.ts';
+import { cachedAccount } from '../backend/account.ts';
+import { cachedLoadout, cachedPolish, loadLoadout } from '../backend/forge.ts';
 import { ICONS } from '../icons.ts';
-import { forgeScreen } from './forge.ts';
+import { profileScreen } from './profile.ts';
 import { affinityDue } from '../backend/affinity.ts';
 import { affinityScreen } from './affinity.ts';
 import { addToHomeNote, countNoteVisit } from '../install.ts';
@@ -45,16 +46,16 @@ export function homeScreen(): Screen {
   );
   enableTilt(setupTile);
 
-  // The avatar: the player's forged loadout (avatar.ts), and the way into the Forge.
-  const avatarBtn = h('button', { class: 'avatar avatar-btn', attrs: { type: 'button', 'aria-label': copy.forge.a11yAvatar } });
+  // The avatar: the player's forged loadout (avatar.ts), and the way into their profile.
+  const avatarBtn = h('button', { class: 'avatar avatar-btn', attrs: { type: 'button', 'aria-label': copy.profile.a11yAvatar } });
   const paintAvatar = (loadout = cachedLoadout()) => {
     const worn = loadout && Object.values(loadout).some(Boolean);
-    avatarBtn.innerHTML = worn ? avatarSvg(loadout) : '';
+    avatarBtn.innerHTML = worn ? avatarSvg(loadout, cachedPolish()) : '';
     avatarBtn.classList.toggle('worn', !!worn);
   };
   paintAvatar();
   if (signedIn()) void loadLoadout().then((l) => l && el.isConnected && paintAvatar(l));
-  avatarBtn.addEventListener('click', () => leave(profileCard, () => mount(forgeScreen())));
+  avatarBtn.addEventListener('click', () => leave(profileCard, () => mount(profileScreen())));
   enableTilt(avatarBtn, 6);
 
   const nameEl = h('strong', { class: 'profile-name' });
@@ -66,6 +67,8 @@ export function homeScreen(): Screen {
   const paintProfile = () => {
     const p = loadProfile();
     nameEl.textContent = p.name;
+    // the name plate bought with Stardust (forge.ts), if any
+    nameEl.className = `profile-name name-plate plate-${cachedAccount()?.plate ?? 0}`;
     // The tier emblem beside the rank (or the player's title, which replaces the rank's name)
     const tier = rankTier(p.elo);
     rankEl.replaceChildren(

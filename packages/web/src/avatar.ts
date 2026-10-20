@@ -1,4 +1,4 @@
-import type { Loadout, Slot } from './backend/forge.ts';
+import type { Loadout, Polish, Slot } from './backend/forge.ts';
 import { ELEMENT_PATHS } from './icons.ts';
 import type { Element } from './profile.ts';
 
@@ -32,11 +32,12 @@ const around = (count: number, r: number, draw: (x: number, y: number, a: number
     return draw(50 + r * Math.cos(a), 50 + r * Math.sin(a), a);
   }).join('');
 
-function layer(slot: Slot, id: string | null | undefined): string {
+function layer(slot: Slot, id: string | null | undefined, polish: Polish = {}): string {
   const part = parse(id);
   if (!part) return '';
   const { element: e, n } = part;
-  const cls = `avatar-layer layer-${slot} el-${e}`;
+  const lvl = id ? polish[id] ?? 0 : 0;
+  const cls = `avatar-layer layer-${slot} el-${e}${lvl ? ` polish-${lvl}` : ''}`;
   switch (slot) {
     case 'backdrop':
       // a field in the element's colour: a ring, then a dotted ring, then rays
@@ -66,19 +67,19 @@ function layer(slot: Slot, id: string | null | undefined): string {
   }
 }
 /** The full avatar as an SVG string; an empty loadout is a plain disc. */
-export function avatarSvg(loadout: Loadout | null | undefined): string {
+export function avatarSvg(loadout: Loadout | null | undefined, polish: Polish = {}): string {
   const l = loadout ?? {};
   // no backdrop yet: the plain disc with its ring, as before anything was forged
   return `<svg class="avatar-art${l.backdrop ? ' has-backdrop' : ''}" viewBox="0 0 100 100" aria-hidden="true">
     <circle class="avatar-base" cx="50" cy="50" r="44"/>${l.backdrop ? '' : '<circle class="avatar-ring" cx="50" cy="50" r="41" fill="none"/>'}
-    ${layer('aura', l.aura)}${layer('backdrop', l.backdrop)}${layer('sigil', l.sigil)}${layer('frame', l.frame)}${layer('crest', l.crest)}
+    ${layer('aura', l.aura, polish)}${layer('backdrop', l.backdrop, polish)}${layer('sigil', l.sigil, polish)}${layer('frame', l.frame, polish)}${layer('crest', l.crest, polish)}
   </svg>`;
 }
 
 /** One part alone, as it looks on its own (the Forge's cards). */
-export function partSvg(id: string): string {
+export function partSvg(id: string, polish = 0): string {
   const slot = id.split('-')[1] as Slot;
   const solo: Loadout = { [slot]: id };
   // sigils, crests and auras read better on a quiet field
-  return avatarSvg(solo);
+  return avatarSvg(solo, { [id]: polish });
 }

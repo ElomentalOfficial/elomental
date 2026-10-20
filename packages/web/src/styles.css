@@ -21,6 +21,14 @@
   --el-water: #386f71;
   --el-earth: #636945;
   --el-air: #867137;
+  /* Name plates (Stardust): the same depth, so Bright names read at 4.5:1 or better. */
+  --p-bronze: #8a5a34;
+  --p-silver: #5d6670;
+  --p-gold: #8a6d1f;
+  --p-starlit: #3f3f7a;
+  --p-starlit-2: #5c4483;
+  /* Polish (a look only): the glint on polished parts. */
+  --polish-glint: #ffe9a8;
   --c-forest-highlight: #c9d09d;
   --c-crimson: #794341;
 
@@ -493,6 +501,7 @@ h2 {
 .screen.daily,
 .screen.casual,
 .screen.forge,
+.screen.profile-page,
 .screen.affinity,
 .screen.setup,
 .screen.game,
@@ -514,6 +523,7 @@ h2 {
 .screen.daily.from-back,
 .screen.casual.from-back,
 .screen.forge.from-back,
+.screen.profile-page.from-back,
 .screen.affinity.from-back,
 .screen.setup.from-back {
   animation-name: page-back-in;
@@ -1984,6 +1994,13 @@ html:not([data-large-text]) .daily-art {
   background: var(--accent);
   color: var(--on-accent);
 }
+/* Filled-in days (Stardust): the check without the fill, on a dashed outline. */
+.day.mended {
+  background: transparent;
+  color: var(--accent);
+  outline: 2px dashed var(--accent);
+  outline-offset: -2px;
+}
 /* Missed days stay quiet: just a dimmed number. */
 .day.missed {
   position: relative;
@@ -2296,10 +2313,13 @@ html[data-reduce-motion] .sword-live .sword-flame {
 .stat strong {
   font-weight: normal;
 }
+/* One strip for everything earned (game.ts): it wraps onto a second line when narrow. */
 .rewards {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
 }
 .reward {
   display: flex;
@@ -5252,6 +5272,7 @@ html[data-large-text] .shortcut-list {
   .screen.daily,
   .screen.casual,
   .screen.forge,
+  .screen.profile-page,
   .screen.affinity,
   .screen.setup,
   .screen.loading {
@@ -5481,4 +5502,149 @@ html[data-large-text] .shortcut-list {
   .game .brand-ribbon path {
     fill: var(--accent); /* Lava in dark, Crimson in light, as on the splash */
   }
+}
+
+/* ---------- Name plates and polish (Stardust; a look only) ---------- */
+/* A plate sits behind the player's name; the name always reads in Bright on it. */
+.name-plate.plate-1,
+.name-plate.plate-2,
+.name-plate.plate-3,
+.name-plate.plate-4 {
+  padding: 2px 12px;
+  border-radius: 8px;
+  color: var(--c-bright);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 229, 0.22);
+}
+.name-plate.plate-1 { background: var(--p-bronze); }
+.name-plate.plate-2 { background: var(--p-silver); }
+.name-plate.plate-3 { background: var(--p-gold); }
+.name-plate.plate-4 { background: linear-gradient(120deg, var(--p-starlit), var(--p-starlit-2)); }
+.plate-sheet,
+.mend-sheet {
+  text-align: center;
+}
+/* titles clear of the close button */
+.plate-sheet h2,
+.mend-sheet h2 {
+  padding: 0 44px;
+}
+.plate-list {
+  align-self: stretch;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: 0;
+}
+.plate-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+}
+.plate-list li.is-yours {
+  font-weight: 700;
+}
+.plate-list .name-plate {
+  font-family: var(--font);
+  font-weight: 700;
+}
+/* Polish I–V on a part: a soft sheen, then a gilt glow, then a slow glint at V. */
+.avatar-layer.polish-1 { filter: drop-shadow(0 0 0.6px var(--polish-glint)); }
+.avatar-layer.polish-2 { filter: drop-shadow(0 0 1.2px var(--polish-glint)); }
+.avatar-layer.polish-3 { filter: drop-shadow(0 0 1.6px var(--polish-glint)) saturate(1.15); }
+.avatar-layer.polish-4 { filter: drop-shadow(0 0 2.4px var(--polish-glint)) saturate(1.25); }
+.avatar-layer.polish-5 {
+  filter: drop-shadow(0 0 2.4px var(--polish-glint)) saturate(1.3);
+  animation: polish-glint 3.6s ease-in-out infinite;
+}
+@keyframes polish-glint {
+  50% {
+    filter: drop-shadow(0 0 4px var(--polish-glint)) saturate(1.3) brightness(1.12);
+  }
+}
+html[data-reduce-motion] .avatar-layer.polish-5 {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .avatar-layer.polish-5 {
+    animation: none;
+  }
+}
+
+/* ---------- Profile (screens/profile.ts) ---------- */
+.profile-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-bottom: var(--space-5);
+}
+.profile-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-4);
+  border-radius: 12px;
+  background: var(--surface);
+  text-align: center;
+}
+.profile-avatar {
+  width: 144px;
+  height: 144px;
+  margin-bottom: var(--space-2);
+}
+.profile-plate {
+  font-size: var(--fs-title);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+.profile-tier {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+}
+.profile-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.profile-section h2 {
+  font-size: var(--fs-label);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.profile-stats-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+.profile-stat dt {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.profile-stat dd {
+  margin: 0;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.profile-collection-line {
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+}
+.profile-forge {
+  align-self: stretch;
 }

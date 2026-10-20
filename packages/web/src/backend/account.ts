@@ -29,6 +29,12 @@ export interface Account {
   affinity: Element | null;
   /** Squares solved, all modes. */
   solved: number;
+  /** Missed daily squares filled in with Stardust, keyed YYYY-MM-DD (missing in old caches). */
+  mended?: Record<string, true>;
+  /** Name plate: 0 none, 1 Bronze … 4 Starlit. */
+  plate?: number;
+  /** The highest Elo after any game (the profile's peak). */
+  bestElo?: number;
 }
 
 const ACCOUNT_KEY = 'elomental:account';
@@ -62,14 +68,16 @@ export async function refreshAccount(session?: Session | null): Promise<Account 
     }
     return null;
   }
-  const [{ data: profile, error }, { data: dailies }, { count: solved }] = await Promise.all([
+  const [{ data: profile, error }, { data: dailies }, { count: solved }, { data: mends }, { data: best }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('display_name, title, name_changed_at, elo, ranked_games, stardust, crowns, settings, affinity')
+      .select('display_name, title, name_changed_at, elo, ranked_games, stardust, crowns, settings, affinity, plate')
       .eq('id', s.user.id)
       .single(),
     supabase.from('games').select('date_key').eq('mode', 'daily').eq('won', true),
     supabase.from('games').select('id', { count: 'exact', head: true }).eq('won', true),
+    supabase.from('daily_mends').select('date_key'),
+    supabase.from('games').select('elo_after').not('elo_after', 'is', null).order('elo_after', { ascending: false }).limit(1),
   ]);
   if (error || !profile) return cachedAccount();
   syncSettings(profile.settings);
@@ -86,6 +94,9 @@ export async function refreshAccount(session?: Session | null): Promise<Account 
     daily: Object.fromEntries((dailies ?? []).map((d) => [d.date_key as string, true as const])),
     affinity: (profile.affinity ?? null) as Element | null,
     solved: solved ?? 0,
+    mended: Object.fromEntries((mends ?? []).map((d) => [d.date_key as string, true as const])),
+    plate: profile.plate ?? 0,
+    bestElo: Math.max(profile.elo, (best?.[0]?.elo_after as number | undefined) ?? 0),
   };
   writeJson(ACCOUNT_KEY, account);
   notify();

@@ -1,7 +1,9 @@
 import { reducedMotion } from '../a11y.ts';
 import { ICONS } from '../icons.ts';
 import { dailyKey, dateKey, loadProfile, nextResetIn } from '../profile.ts';
-import { goBack, h, subPage, toast, type Screen } from '../ui.ts';
+import { cachedAccount, refreshAccount } from '../backend/account.ts';
+import { MEND_COST, MENDS_A_MONTH, mendDaily } from '../backend/forge.ts';
+import { closeButton, goBack, h, mount, openModal, subPage, toast, type Screen } from '../ui.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
 import { homeScreen } from './home.ts';
 import * as copy from '../copy/en.ts';
@@ -125,6 +127,43 @@ function tearOffCalendar(): HTMLElement {
   });
   return el;
 }
+/** A missed day this month: fill it in for Stardust (3 a month), or say why not. */
+function openMend(key: string, label: string, left: number): void {
+  const account = cachedAccount();
+  if (!account) {
+    toast(copy.daily.mendOffline);
+    return;
+  }
+  let action: HTMLElement;
+  if (left <= 0) action = h('p', { class: 'note', text: copy.daily.mendNoneLeft });
+  else {
+    const btn = h('button', { class: 'btn btn-primary', text: copy.daily.mend(MEND_COST) });
+    if (account.stardust < MEND_COST) btn.disabled = true;
+    else btn.addEventListener('click', () => {
+      btn.disabled = true;
+      void mendDaily(key).then(async (err) => {
+        close();
+        if (err) return toast(err);
+        toast(copy.daily.mended(label));
+        await refreshAccount();
+        mount(dailyScreen());
+      });
+    });
+    action = btn;
+  }
+  const close = openModal(
+    h(
+      'div',
+      { class: 'sheet mend-sheet' },
+      closeButton(() => close()),
+      h('h2', { text: copy.daily.mendTitle(label) }),
+      h('p', { text: copy.daily.mendText }),
+      h('p', { class: 'note', text: copy.daily.mendLeft(Math.max(0, left), account.stardust) }),
+      action,
+    ),
+  );
+}
+
 export function dailyScreen(): Screen {
   const profile = loadProfile();
   const today = dailyKey();
@@ -137,13 +176,16 @@ export function dailyScreen(): Screen {
   for (const w of WEEKDAYS) calendar.append(h('span', { class: 'weekday', text: w }));
   for (let i = 0; i < firstWeekday; i++) calendar.append(h('span'));
 
+  const mended = cachedAccount()?.mended ?? {};
+  const prefix = today.slice(0, 8);
+  const mendsLeft = MENDS_A_MONTH - Object.keys(mended).filter((k) => k.startsWith(prefix)).length;
   let done = 0;
   for (let d = 1; d <= days; d++) {
     const key = dateKey(year, month - 1, d);
     const completed = !!profile.daily[key];
     if (completed) done++;
-    const state = completed ? 'done' : d < day ? 'missed' : d === day ? 'today' : 'future';
-    const icon = state === 'done' ? ICONS.check : state === 'missed' ? ICONS.close : '';
+    const state = completed ? (mended[key] ? 'mended' : 'done') : d < day ? 'missed' : d === day ? 'today' : 'future';
+    const icon = state === 'done' || state === 'mended' ? ICONS.check : state === 'missed' ? ICONS.close : '';
     calendar.append(
       h(
         'button',
@@ -151,11 +193,11 @@ export function dailyScreen(): Screen {
           class: `day ${state}`,
           attrs: { 'aria-label': copy.daily.a11yDay(monthName, d, state) },
           onclick: () => {
-            if (state === 'missed') toast(copy.daily.missedLater);
+            if (state === 'missed') openMend(key, `${monthName} ${d}`, mendsLeft);
           },
         },
         // Done days show a check instead of the number; every other day shows its number.
-        state === 'done' ? h('span', { class: 'day-icon', html: icon }) : h('span', { class: 'day-num', text: String(d) }),
+        state === 'done' || state === 'mended' ? h('span', { class: 'day-icon', html: icon }) : h('span', { class: 'day-num', text: String(d) }),
       ),
     );
   }

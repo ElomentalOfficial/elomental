@@ -79,7 +79,8 @@ export function loadProfile(): Profile {
       dust: account.stardust,
       crowns: account.crowns,
       pity: 0,
-      daily: account.daily,
+      // filled-in days count for the month, like solved ones (the server counts them too)
+      daily: { ...account.mended, ...account.daily },
     };
   }
   return {

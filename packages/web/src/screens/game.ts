@@ -917,7 +917,7 @@ function gameScreen(game: SavedGame): Screen {
           ),
         );
       }
-      // Only encouragement here: what went well, or one tip for a bigger gain next time.
+      // Only what went well here; no coaching tips (docs/AUDIT.md: a quieter result).
       if (outcome.elo.unrated) {
         rows.push(
           h('p', {
@@ -927,8 +927,6 @@ function gameScreen(game: SavedGame): Screen {
           }),
         );
       } else if (outcome.elo.bonus > 0) rows.push(h('p', { class: 'note good', text: copy.result.speedBonus(Math.round(outcome.elo.bonus * 100)) }));
-      else if (won && game.hints > 0) rows.push(h('p', { class: 'note', text: copy.result.tipNoHints }));
-      else if (won && outcome.elo.bonus < 0) rows.push(h('p', { class: 'note', text: copy.result.tipFaster }));
       if (outcome.elo.protectedLoss) rows.push(h('p', { class: 'note', text: copy.result.protectedLoss }));
     }
     if (outcome.daily) {
@@ -943,6 +941,11 @@ function gameScreen(game: SavedGame): Screen {
       rewards.append(h('div', { class: 'reward' }, h('span', { html: ICONS.dust }), amount));
     }
     if (outcome.crown) rewards.append(h('div', { class: 'reward rare', html: `${ICONS.crown}<span>${copy.common.rareCrown}</span>` }));
+
+    // One strip for everything earned: Stardust, a Crown, influence, and (between parts)
+    // how close the next part is.
+    if (outcome.influence) rewards.append(influenceLine(outcome.influence));
+    if (outcome.progress && !outcome.drop) rewards.append(progressLine(outcome.progress));
 
     // A failed Daily can be retried (same square) until it's solved; only a solve marks the day.
     const retryDaily = config.mode === 'daily' && !won;
@@ -971,9 +974,6 @@ function gameScreen(game: SavedGame): Screen {
         rewards.childElementCount ? rewards : null,
         // last beat: the drop cools out of the forge, then the affinity's share
         outcome.drop ? dropReveal(outcome.drop, () => void goBack(forgeScreen)) : null,
-        // (after a part the counter starts again: shown only between parts)
-        outcome.progress && !outcome.drop ? progressLine(outcome.progress) : null,
-        outcome.influence ? influenceLine(outcome.influence) : null,
         addToHomeResultNote(won),
         signupPrompt(),
         h('div', { class: 'actions' }, again, h('button', { class: 'btn', text: copy.common.home, onclick: () => void goBack(homeScreen) })),
@@ -1254,13 +1254,20 @@ function gameScreen(game: SavedGame): Screen {
   };
 }
 
+const RESULTS_KEY = 'elomental:results';
+/** Every 5th result (3rd, 8th, 13th…), so it never shares a result with the install note (1st, 6th…). */
+const SIGNUP_EVERY = 5;
+
 /**
- * Guests only: a sign-up box at the end of every result. A guest account
+ * Guests only: a sign-up box at the end of every 5th result. A guest account
  * (anonymous) keeps everything it earned when an email is added; a local
  * guest saves from the next game on.
  */
 function signupPrompt(): HTMLElement | null {
   if (registered()) return null;
+  const results = (readJson<number>(RESULTS_KEY) ?? 0) + 1;
+  writeJson(RESULTS_KEY, results);
+  if (results % SIGNUP_EVERY !== 3) return null;
   const keeps = signedIn(); // anonymous account: this game is already on the server
   const box = signUpForm({
     collapsed: true,

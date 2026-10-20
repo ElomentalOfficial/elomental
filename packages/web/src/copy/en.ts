@@ -104,7 +104,7 @@ export const home = {
 
 // --- Daily Square ----------------------------------------------------------
 
-const DAY_STATE = { done: 'solved', missed: 'not solved', today: 'today', future: 'coming up' } as const;
+const DAY_STATE = { done: 'solved', mended: 'filled in', missed: 'not solved', today: 'today', future: 'coming up' } as const;
 
 export const daily = {
   title: 'Daily Square',
@@ -117,7 +117,13 @@ export const daily = {
   avatarUnlocked: 'Unlocked. Well played.',
   avatarLocked: 'Solve every square this month to unlock it.',
   nextIn: (hours: number, minutes: number) => `New square in ${hours}h ${minutes}m`,
-  missedLater: 'Filling in missed days is coming soon.',
+  mendTitle: (date: string) => `Fill in ${date}?`,
+  mendText: 'It counts as solved for this month’s Daily total. Your Elo doesn’t change.',
+  mendLeft: (left: number, stardust: number) => `${left} of 3 left this month · You have ${stardust} Stardust`,
+  mend: (stardust: number) => `Fill in for ${stardust} Stardust`,
+  mendNoneLeft: 'You’ve filled in 3 days this month: that’s the most.',
+  mended: (date: string) => `${date} filled in.`,
+  mendOffline: 'Filling in a day needs a connection and an account.',
   a11yDay: (month: string, day: number, state: keyof typeof DAY_STATE) => `${month} ${day}, ${DAY_STATE[state]}`,
 };
 
@@ -216,8 +222,6 @@ export const forge = {
 
   // The Forge page (screens/forge.ts)
   title: 'Forge',
-  /** Home's avatar button: literal. */
-  a11yAvatar: 'Your avatar. Opens the Forge.',
   intro: 'Every 3rd square you solve brings a part. Forge any part you’re missing with Stardust.',
   parts: 'Parts',
   collected: (n: number, total: number) => `${n} of ${total} collected`,
@@ -247,9 +251,50 @@ export const forge = {
   oddsForgeTitle: 'Forging',
   oddsForge: 'Any part you’re missing can be forged: 100 Stardust for Common, 250 Rare, 600 Epic, and 1200 with a Rusted Crown for Mythic.',
   oddsPaceTitle: 'Each day',
-  oddsPace: 'Your first 30 solved squares each day count toward parts.',
+  oddsPace: 'Your first 9 solved squares each day count toward parts: up to 3 parts a day.',
   oddsCrownTitle: 'Rusted Crown',
   oddsCrown: '3% on every rated solve, and one is guaranteed within 40.',
+  oddsSpendTitle: 'Spending Stardust',
+  oddsSpend: [
+    'Polish a part you own: 5 levels, from 200 to 3200 Stardust. It only changes the look.',
+    'Name plates: Bronze 1000, Silver 2500, Gold 6000, Starlit 12000.',
+    'Fill in a missed Daily Square: 300 Stardust, up to 3 days a month.',
+  ],
+
+  // Polish and name plates (Stardust sinks; a look only)
+  numerals: ['', 'I', 'II', 'III', 'IV', 'V'] as const,
+  polishLevel: (n: number) => `Polish ${forge.numerals[n]}`,
+  polishTo: (n: number, stardust: number) => `Polish to ${forge.numerals[n]} · ${stardust} Stardust`,
+  fullyPolished: 'Fully polished',
+  polished: (name: string, n: number) => `${name} polished to ${forge.numerals[n]}.`,
+  plateTitle: 'Name plate',
+  plates: ['No plate', 'Bronze', 'Silver', 'Gold', 'Starlit'] as const,
+  plateButton: (name: string) => `Name plate: ${name}`,
+  plateIntro: 'A plate sits behind your name on Home and your profile. Each one replaces the last.',
+  plateYours: 'Yours',
+  plateBuy: (name: string, stardust: number) => `Get ${name} · ${stardust} Stardust`,
+  plateTop: 'You have the Starlit plate, the top one.',
+  plateBought: (name: string) => `Your name now has the ${name} plate.`,
+};
+// --- Profile ---------------------------------------------------------------------
+// Opened from Home's avatar: who you are, how you're doing, and the way into the Forge.
+
+export const profile = {
+  title: 'Profile',
+  /** Home's avatar button: literal. */
+  a11yAvatar: 'Your avatar. Opens your profile.',
+  stats: 'Stats',
+  elo: 'Elo',
+  bestElo: 'Best Elo',
+  solved: 'Squares solved',
+  ranked: 'Ranked games',
+  dailyMonth: (month: string) => `Daily in ${month}`,
+  dailyCount: (done: number, days: number) => `${done} of ${days}`,
+  collection: 'Collection',
+  season: (n: number, total: number) => `Season 0: ${n} of ${total} parts`,
+  collectionOffline: 'Your parts show here when you’re online.',
+  forge: 'Forge',
+  guestNote: 'Make an account to keep your avatar, parts and Elo on any device.',
 };
 // --- Affinities ----------------------------------------------------------------
 // docs/PROGRESSION_DESIGN.md §13: each player fights for one element in a monthly war.
@@ -309,8 +354,6 @@ export const result = {
   unratedCopied: 'Unrated: cells were filled before they could be worked out.',
   unratedUnchecked: 'Unrated: this solve couldn’t be checked. Check your connection.',
   speedBonus: (percent: number) => `Speed bonus +${percent}%`,
-  tipNoHints: 'Solve it without hints for the full Elo gain.',
-  tipFaster: 'A little faster next time earns a speed bonus.',
   protectedLoss: 'No Elo lost: your rating is protected below 500.',
   /** A step up in tier or division; demotions get no line. */
   promoted: (label: string) => `Promoted: ${label}`,
@@ -549,6 +592,11 @@ export const refusals = {
     already_owned: 'That part is already yours.',
     vaulted: 'That part’s season has ended. It can’t be forged any more.',
     not_owned: 'You don’t own that part yet.',
+    fully_polished: 'That part is polished all the way.',
+    top_plate: 'You already have the Starlit plate.',
+    no_mends_left: 'You’ve filled in 3 days this month: that’s the most.',
+    already_solved: 'That day is already done.',
+    bad_date: 'Only missed days earlier this month can be filled in.',
     not_signed_in: 'Sign in again to use the Forge.',
   } as Record<string, string>,
   forgeOffline: 'No connection. Nothing was spent; try again in a moment.',

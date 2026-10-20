@@ -127,6 +127,10 @@ One name per concept. Player-facing text uses exactly these.
 | Part names | element word + slot: **Ember** (Fire), **Tide** (Water), **Stone** (Earth), **Gale** (Air): "Tide Frame II" | | |
 | Bad-luck cap | **guarantee**: "Epic or better within 6 parts." | pity, pity timer | "Pity" is only an internal word. |
 | Making parts | **Forge** (the page and the verb): any missing part, for Stardust | craft, buy, upgrade | Mythic also takes a Rusted Crown. |
+| A part's shine | **polish**, levels **I** to **V**: "Polish to III" | upgrade, level up, enhance | A look only; never stronger. |
+| Behind the name | **name plate**: Bronze, Silver, Gold, Starlit | banner, badge, frame | "Frame" is an avatar slot. |
+| Missed Daily | **fill in** a missed day: "Fill in October 12?" | mend, repair, buy back, streak freeze | "Mend" is only an internal word. |
+| Your page | **Profile** (from Home's avatar) | account, card | "Account" is sign-in and email (Setup). |
 | Avatar pieces | **part**; slots **Backdrop**, **Sigil**, **Frame**, **Crest**, **Aura** | item, cosmetic, skin | |
 | A part you already have | "Already yours: +50 Stardust instead." | dupe, duplicate (in UI), junk | || Player's side | **affinity**: **Fire**, **Water**, **Earth**, **Air** | faction, team, clan | "Join Water." |
 | Affinity points | **influence** | score, war points | "+5 influence for Fire". |
