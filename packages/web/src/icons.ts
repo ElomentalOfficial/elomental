@@ -86,7 +86,7 @@ export const ICONS = {
   dailyLive:
     '<span class="calendar-live">' +
     brush(calendarBack) +
-    brush(calendarUnder) +
+    brush(calendarUnder, 'calendar-under') +
     `<span class="calendar-turn">${brush(calendarStub)}<span class="calendar-fall">` +
     [1, 2, 3, 4, 5, 6].map((n) => brush(calendarFall, `curl curl-${n}`)).join('') +
     '</span></span>' +

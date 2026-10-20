@@ -18,10 +18,11 @@ const LIFT_MAX = 18;
 const BREATH_S = 4.2;
 
 /**
- * The breeze: the page never stops, it rises and settles once every 4.2s, as slow and soft
- * as the feather's float. Underneath, the strength drifts on two long, out-of-step waves
- * (19s and 31s), so most breaths barely lift the corner and now and then one builds into a
- * full curl, never on a pattern you can hear ticking. Each frame tips the page from the
+ * The breeze: the page never stops and never lies flat. It sways up and down once every
+ * 4.2s, as slow and soft as the feather's float, with a faint quicker flutter on top.
+ * Underneath, the strength drifts on two long, out-of-step waves (19s and 31s), so most of
+ * the time it's a clear, gentle curl and now and then it builds into a full one, never on a
+ * pattern you can hear ticking. Each frame tips the page from the
  * rings and curls its strips; every strip is moved up by how much the ones above it
  * shortened, so the page stays in one piece (styles.css). Still with Reduce motion.
  */
@@ -46,10 +47,14 @@ function breeze(art: HTMLElement): void {
     if (reducedMotion()) pose(0);
     else {
       const t = now / 1000 + start;
-      // mostly a whisper (0.15), sometimes all the way (1), always changing smoothly
+      // a clear curl most of the time (0.4), sometimes all the way (1), always changing smoothly
       const drift = (wave(t, 19) + wave(t, 31, 1.3)) / 2;
-      const strength = 0.15 + 0.85 * Math.max(0, drift) ** 2;
-      pose((strength * (1 - Math.cos((2 * Math.PI * t) / BREATH_S))) / 2);
+      const strength = 0.4 + 0.6 * Math.max(0, drift) ** 2;
+      // it never lies flat: it sways between a third and all of that strength, with a faint
+      // quicker flutter on top so it feels like moving air, not a metronome
+      const sway = (1 - Math.cos((2 * Math.PI * t) / BREATH_S)) / 2;
+      const flutter = 0.06 * wave(t, 1.7, 0.4) + 0.04 * wave(t, 2.9, 2.1);
+      pose(Math.max(0, strength * (0.32 + 0.68 * sway + flutter)));
     }
     requestAnimationFrame(frame);
   };
@@ -73,10 +78,13 @@ function tearOffCalendar(): HTMLElement {
   let taps = 0;
   let falling = false;
   // only the drawing takes taps, not the empty row around it (like the feather's own box)
-  el.querySelector('.calendar-live')!.addEventListener('pointerdown', () => {
+  const drawing = el.querySelector<HTMLElement>('.calendar-live')!;
+  drawing.addEventListener('pointerdown', () => {
     if (reducedMotion() || falling) return;
     const from = HANGING[taps];
     taps++;
+    // tomorrow's page shows through the tear only once there is one (styles.css)
+    drawing.classList.add('tearing');
     page.getAnimations().forEach((a) => a.cancel());
     if (taps < 3) {
       // a jerk past the new tear, then it sags back and stays there
@@ -105,6 +113,7 @@ function tearOffCalendar(): HTMLElement {
     const done = () => {
       taps = 0;
       falling = false;
+      drawing.classList.remove('tearing');
     };
     void rip.finished.then(
       () => {

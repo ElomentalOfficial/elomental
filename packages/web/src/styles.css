@@ -1790,6 +1790,15 @@ html:not([data-large-text]) .daily-art {
   position: absolute;
   inset: 0;
 }
+/* Tomorrow's page, right under today's: hidden while the breeze lifts today's page (its
+   edges would peek out as a ghost outline, only the plate behind shows), seen once a tap
+   starts tearing (daily.ts). */
+.calendar-live .calendar-under {
+  visibility: hidden;
+}
+.calendar-live.tearing .calendar-under {
+  visibility: visible;
+}
 /* Torn off (daily.ts), the page swings on the left end of its zig-zag tear before it drops. */
 .calendar-fall {
   transform-origin: 6% 36.5%;
