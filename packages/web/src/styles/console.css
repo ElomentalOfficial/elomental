@@ -116,11 +116,16 @@ html[data-contrast='high'] .console-row.on {
 .sub-body > .console-grid {
   flex: 1 1 auto;
 }
+/* Each pane scrolls on its own, so it clips at its edges: room on every side for the focus ring
+   of its first and last controls (the search field at the top), given back by the grid's negative
+   margin so nothing moves. */
+.console-grid {
+  margin-top: calc(-1 * var(--space-2));
+}
 .console-side,
 .console-pane {
   min-height: 0;
-  padding-inline: var(--space-2);
-  padding-bottom: var(--space-5);
+  padding: var(--space-2) var(--space-2) var(--space-5);
 }
 .console-pane {
   display: flex;

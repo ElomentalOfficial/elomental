@@ -40,5 +40,11 @@ first so you build on the last review instead of repeating it.
 ## How to work
 - Actually use it: run `npm run dev` and walk the flows at 375px, in both themes and at 200%
   text, or read the screen code in `packages/web/src`. Don't assume.
+- **The top of every screen (the owner's standing request).** On anything new or changed, check
+  the top edge before anything else: the fixed header and Back, the status bar and its fade in the
+  installed app (iPhone, black-translucent), and the first thing under the header. Nothing may be cut
+  off or hidden there, the first control's focus ring included (a scrolling area clips at its edges:
+  it needs 6px of room), and nothing may need a scroll to be seen when the page doesn't scroll.
+  Check on a phone and on a wide screen, at 100% and 200% text, with the first control focused.
 - Be honest and specific; hard truths now beat bad reviews later.
 - For each problem: evidence, proposed fix, impact vs. effort. Return a prioritised list.

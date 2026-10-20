@@ -41,6 +41,12 @@ modals, toasts and navigation.
   mistakes get a shape or icon too. Check colour-blind simulations.
 - One accent per screen, for its primary action.
 - Check every change at 375px wide and at 200% text size.
+- **The top of every screen (the owner's standing request).** On anything new or changed, check
+  the top edge before anything else: the fixed header and Back, the status bar and its fade in the
+  installed app (iPhone, black-translucent), and the first thing under the header. Nothing may be cut
+  off or hidden there, the first control's focus ring included (a scrolling area clips at its edges:
+  it needs 6px of room), and nothing may need a scroll to be seen when the page doesn't scroll.
+  Check on a phone and on a wide screen, at 100% and 200% text, with the first control focused.
 - Motion is short and has a purpose; big moments only for rare ones (Epic, Mythic, a Spirit),
   always skippable, and off with reduced motion.
 - Prestige without clutter: Mythic and Alive should look clearly special, Common should still

@@ -41,6 +41,26 @@ export async function axe(page: Page) {
   return result.violations.map((v) => `${v.impact} ${v.id}: ${v.nodes.map((n) => n.target.join(' ')).slice(0, 3).join(' | ')}`);
 }
 
+/**
+ * The top edge of every scrolling area (the owner's standing check): at the top of its scroll,
+ * the first control in it must start at least 6px below the area's top edge, or its focus ring
+ * (a 4px double outline, 2px out) is cut off by the area, as happened on Founder tools.
+ */
+export async function topEdgeProblems(page: Page, where: string): Promise<string[]> {
+  return page.evaluate((where) => {
+    const out: string[] = [];
+    for (const area of document.querySelectorAll<HTMLElement>('.scrollable')) {
+      if (area.scrollTop > 0 || !area.offsetParent) continue;
+      const first = area.querySelector<HTMLElement>('button, [href], input, textarea, select, [tabindex]:not([tabindex="-1"])');
+      if (!first) continue;
+      const box = (first.closest('.review-search') ?? first).getBoundingClientRect();
+      const top = area.getBoundingClientRect().top;
+      if (box.top - 6 < top - 0.5) out.push(`${where}: the first control's focus ring is cut at the top of .${area.className.split(' ').join('.')} (${Math.round(box.top - top)}px of room, needs 6)`);
+    }
+    return out;
+  }, where);
+}
+
 /** Waits until no animation on the page is still running (page turns, tile entries). */
 export async function settled(page: Page) {
   await page.waitForFunction(() => document.getAnimations().every((a) => a.playState !== 'running' || a.effect?.getTiming().iterations === Infinity));

@@ -32,6 +32,10 @@ Report every failure with its output.
    - Affinity: choosing after the third solve, the one switch in a season's first 7 days,
      month end
 4. Empty, loading and error states; both themes; 200% text.
+   The top of every screen (the owner's standing request): the header, Back, the installed app's
+   status bar, and the first thing under the header, on a phone and wide, at 100% and 200%, with the
+   first control focused. Nothing cut off or hidden there; `topEdgeProblems` in `e2e/fixtures.ts`
+   checks the focus-ring room automatically, so add a new page to `e2e/top-edge.spec.ts`.
 5. Add an automated test for anything important that isn't covered.
 
 ## Bug reports

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { axe, settled, signedIn } from './fixtures.ts';
+import { axe, settled, signedIn, topEdgeProblems } from './fixtures.ts';
 
 /**
  * Founder tools (screens/founderConsole.ts): phones get the section list first, a section opens
@@ -52,6 +52,7 @@ test('phone: the section list, a section, and Back step by step', async ({ page 
   await expect(page.getByRole('button', { name: /^To review 2/ })).toBeVisible();
   await expect(page.getByRole('button', { name: /^Banned 1/ })).toBeVisible();
   expect(await axe(page)).toEqual([]);
+  expect(await topEdgeProblems(page, 'Founder tools')).toEqual([]);
 
   // by keyboard: a row is a real button
   await page.getByRole('button', { name: /^Banned/ }).focus();
@@ -91,4 +92,5 @@ test('wide: a sidebar beside the open section', async ({ page }) => {
   await expect(page.getByRole('button', { name: /^Stardust and parts/ })).toHaveAttribute('aria-current', 'page');
   await settled(page);
   expect(await axe(page)).toEqual([]);
+  expect(await topEdgeProblems(page, 'Founder tools, wide')).toEqual([]);
 });
