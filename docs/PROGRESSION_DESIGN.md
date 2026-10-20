@@ -26,7 +26,7 @@ material-based design in §2, §3.2–3.3, §4.2–4.3, §9–11 below:
 - **After the audit (docs/AUDIT.md, migration `stardust_sinks`):** parts count on the first
   **9** solves a day (3 parts). Stardust sinks, all a look or a convenience, never power:
   **polish** an owned part I–V (200/400/800/1600/3200), **name plates** Bronze, Silver,
-  Gold, Starlit (1000/2500/6000/12000, in order), and **fill in** a missed Daily this month
+  Gold, Elomentalist (1000/2500/6000/12000, in order), and **fill in** a missed Daily this month
   (300, up to 3 a month; counts toward the month's total). Home's avatar now opens the
   **Profile** (avatar, name on its plate, rank, best Elo, stats, "Season 0: n of 48 parts")
   with one way on: the Forge. The result shows one reward strip and no coaching tips.

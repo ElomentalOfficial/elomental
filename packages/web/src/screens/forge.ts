@@ -2,6 +2,7 @@ import { avatarSvg, partSvg } from '../avatar.ts';
 import { loadStandings, type Standing } from '../backend/affinity.ts';
 import { FORGE_COST, MAX_PLATE, MAX_POLISH, PLATE_COST, POLISH_COST, SLOTS, buyPlate, equipPart, forgePart, loadForge, needsCrown, polishPart, type Forge, type Part } from '../backend/forge.ts';
 import { ICONS } from '../icons.ts';
+import { paintPlate } from '../plates.ts';
 import { ELEMENTS, RARITIES, type Element, type Rarity } from '../profile.ts';
 import { partName, rarityName } from '../reward.ts';
 import { closeButton, goBack, h, openModal, subPage, toast, type Screen } from '../ui.ts';
@@ -25,6 +26,12 @@ function stateOf(f: Forge, p: Part): State {
 }
 
 const price = (r: Rarity) => (needsCrown(r) ? copy.forge.priceCrown(FORGE_COST[r]) : copy.forge.price(FORGE_COST[r]));
+/** A plate's name on that plate, for the plate sheet. */
+const plateSample = (n: number) => {
+  const el = h('span');
+  paintPlate(el, copy.forge.plates[n], n);
+  return el;
+};
 const rarityTag = (r: Rarity) => h('span', { class: `rarity-tag rarity-${r}`, text: rarityName(r) });
 
 export function forgeScreen(back: () => Screen = homeScreen): Screen {
@@ -204,7 +211,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
           { class: 'plate-list' },
           ...[1, 2, 3, 4].map((n) =>
             h('li', { class: n === f.plate ? 'is-yours' : '' },
-              h('span', { class: `name-plate plate-${n}`, text: copy.forge.plates[n] }),
+              plateSample(n),
               h('span', { text: n === f.plate ? copy.forge.plateYours : copy.forge.price(PLATE_COST[n - 1]) })),
           ),
         ),

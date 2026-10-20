@@ -27,7 +27,7 @@ export const needsCrown = (rarity: Rarity): boolean => rarity === 'mythic';
 /** Polish levels I–V for an owned part (polish_part), each a look only. */
 export const POLISH_COST = [200, 400, 800, 1600, 3200];
 export const MAX_POLISH = 5;
-/** Name plates Bronze, Silver, Gold, Starlit (buy_plate), bought in order. */
+/** Name plates Bronze, Silver, Gold, Elomentalist (buy_plate), bought in order. */
 export const PLATE_COST = [1000, 2500, 6000, 12000];
 export const MAX_PLATE = 4;
 /** Polish level per owned part id. */
@@ -40,7 +40,7 @@ export interface Forge {
   /** Owned part ids, with a first-edition number and polish level. */
   owned: Map<string, { edition: number | null; polish: number }>;
   polish: Polish;
-  /** Name plate: 0 none, 1 Bronze … 4 Starlit. */
+  /** Name plate: 0 none, 1 Bronze … 4 Elomentalist. */
   plate: number;
   loadout: Loadout;
   stardust: number;

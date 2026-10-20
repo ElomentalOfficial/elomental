@@ -257,7 +257,7 @@ export const forge = {
   oddsSpendTitle: 'Spending Stardust',
   oddsSpend: [
     'Polish a part you own: 5 levels, from 200 to 3200 Stardust. It only changes the look.',
-    'Name plates: Bronze 1000, Silver 2500, Gold 6000, Starlit 12000.',
+    'Name plates: Bronze 1000, Silver 2500, Gold 6000, Elomentalist 12000.',
     'Fill in a missed Daily Square: 300 Stardust, up to 3 days a month.',
   ],
 
@@ -268,12 +268,12 @@ export const forge = {
   fullyPolished: 'Fully polished',
   polished: (name: string, n: number) => `${name} polished to ${forge.numerals[n]}.`,
   plateTitle: 'Name plate',
-  plates: ['No plate', 'Bronze', 'Silver', 'Gold', 'Starlit'] as const,
+  plates: ['No plate', 'Bronze', 'Silver', 'Gold', 'Elomentalist'] as const,
   plateButton: (name: string) => `Name plate: ${name}`,
-  plateIntro: 'A plate sits behind your name on Home and your profile. Each one replaces the last.',
+  plateIntro: 'A border around your name on Home and your profile. Each one replaces the last.',
   plateYours: 'Yours',
   plateBuy: (name: string, stardust: number) => `Get ${name} · ${stardust} Stardust`,
-  plateTop: 'You have the Starlit plate, the top one.',
+  plateTop: 'You have the Elomentalist plate, the top one.',
   plateBought: (name: string) => `Your name now has the ${name} plate.`,
 };
 // --- Profile ---------------------------------------------------------------------
@@ -593,7 +593,7 @@ export const refusals = {
     vaulted: 'That part’s season has ended. It can’t be forged any more.',
     not_owned: 'You don’t own that part yet.',
     fully_polished: 'That part is polished all the way.',
-    top_plate: 'You already have the Starlit plate.',
+    top_plate: 'You already have the Elomentalist plate.',
     no_mends_left: 'You’ve filled in 3 days this month: that’s the most.',
     already_solved: 'That day is already done.',
     bad_date: 'Only missed days earlier this month can be filled in.',

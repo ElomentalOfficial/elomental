@@ -3,6 +3,7 @@ import { avatarSvg } from '../avatar.ts';
 import { cachedAccount } from '../backend/account.ts';
 import { cachedLoadout, cachedPolish, loadLoadout } from '../backend/forge.ts';
 import { ICONS } from '../icons.ts';
+import { paintPlate } from '../plates.ts';
 import { profileScreen } from './profile.ts';
 import { affinityDue } from '../backend/affinity.ts';
 import { affinityScreen } from './affinity.ts';
@@ -66,9 +67,8 @@ export function homeScreen(): Screen {
   /** Signed in, the numbers come from the server cache and update when it refreshes. */
   const paintProfile = () => {
     const p = loadProfile();
-    nameEl.textContent = p.name;
-    // the name plate bought with Stardust (forge.ts), if any
-    nameEl.className = `profile-name name-plate plate-${cachedAccount()?.plate ?? 0}`;
+    // on the name plate bought with Stardust (plates.ts), if any
+    paintPlate(nameEl, p.name, cachedAccount()?.plate ?? 0);
     // The tier emblem beside the rank (or the player's title, which replaces the rank's name)
     const tier = rankTier(p.elo);
     rankEl.replaceChildren(

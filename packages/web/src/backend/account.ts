@@ -31,7 +31,7 @@ export interface Account {
   solved: number;
   /** Missed daily squares filled in with Stardust, keyed YYYY-MM-DD (missing in old caches). */
   mended?: Record<string, true>;
-  /** Name plate: 0 none, 1 Bronze … 4 Starlit. */
+  /** Name plate: 0 none, 1 Bronze … 4 Elomentalist. */
   plate?: number;
   /** The highest Elo after any game (the profile's peak). */
   bestElo?: number;

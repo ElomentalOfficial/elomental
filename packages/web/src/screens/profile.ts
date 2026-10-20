@@ -2,6 +2,7 @@ import { avatarSvg } from '../avatar.ts';
 import { cachedAccount, refreshAccount } from '../backend/account.ts';
 import { cachedLoadout, cachedPolish, loadForge } from '../backend/forge.ts';
 import { ICONS } from '../icons.ts';
+import { paintPlate } from '../plates.ts';
 import { dailyKey, loadProfile, rankTier } from '../profile.ts';
 import { goBack, h, mount, subPage, type Screen } from '../ui.ts';
 import { forgeScreen } from './forge.ts';
@@ -24,6 +25,9 @@ export function profileScreen(): Screen {
   const dailyDone = Object.keys(p.daily).filter((k) => k.startsWith(today.slice(0, 8))).length;
   const plate = account?.plate ?? 0;
 
+  const nameEl = h('h2', { class: 'profile-plate' });
+  paintPlate(nameEl, p.name, plate);
+
   const loadout = cachedLoadout();
   const worn = loadout && Object.values(loadout).some(Boolean);
   const avatar = h('span', { class: `avatar profile-avatar${worn ? ' worn' : ''}`, html: worn ? avatarSvg(loadout, cachedPolish()) : '', attrs: { 'aria-hidden': 'true' } });
@@ -44,7 +48,7 @@ export function profileScreen(): Screen {
         'section',
         { class: 'profile-hero' },
         avatar,
-        h('h2', { class: `profile-plate name-plate plate-${plate}`, text: p.name }),
+        nameEl,
         h(
           'p',
           { class: 'profile-tier' },

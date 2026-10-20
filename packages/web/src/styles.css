@@ -21,12 +21,6 @@
   --el-water: #386f71;
   --el-earth: #636945;
   --el-air: #867137;
-  /* Name plates (Stardust): the same depth, so Bright names read at 4.5:1 or better. */
-  --p-bronze: #8a5a34;
-  --p-silver: #5d6670;
-  --p-gold: #8a6d1f;
-  --p-starlit: #3f3f7a;
-  --p-starlit-2: #5c4483;
   /* Polish (a look only): the glint on polished parts. */
   --polish-glint: #ffe9a8;
   --c-forest-highlight: #c9d09d;
@@ -136,6 +130,12 @@
   --glass-divider: rgba(255, 255, 229, 0.2);
   --glass-hub: rgba(38, 39, 33, 0.35);
   --modal-bg: var(--c-highlight);
+  /* Name plate borders (plates.ts): metals bright enough for 3:1 on the dark surfaces. */
+  --plate-bronze: #c4875a;
+  --plate-silver: #b3bac1;
+  --plate-gold: #c9a54e;
+  --plate-elo: #ecd38c;
+  --plate-glow: rgba(236, 211, 140, 0.55);
   --modal-border: rgba(255, 255, 229, 0.12);
   --primary-bg: var(--accent);
   --primary-text: var(--on-accent);
@@ -204,6 +204,12 @@
   --glass-divider: rgba(121, 67, 65, 0.16);
   --glass-hub: rgba(255, 255, 229, 0.55);
   --modal-bg: var(--c-bright);
+  /* Name plate borders: the same metals, deep enough for 3:1 on the light surfaces. */
+  --plate-bronze: #8a5a34;
+  --plate-silver: #5d6670;
+  --plate-gold: #7d6219;
+  --plate-elo: #6b4f12;
+  --plate-glow: rgba(201, 165, 78, 0.45);
   --modal-border: rgba(121, 67, 65, 0.18);
   --primary-bg: var(--accent);
   --primary-text: var(--c-bright);
@@ -5505,21 +5511,71 @@ html[data-large-text] .shortcut-list {
 }
 
 /* ---------- Name plates and polish (Stardust; a look only) ---------- */
-/* A plate sits behind the player's name; the name always reads in Bright on it. */
-.name-plate.plate-1,
-.name-plate.plate-2,
+/* A plate is an Art Deco border around the name (plates.ts): Bronze a single line with
+   square corners, Silver a double line with stepped corners, Gold adds sunburst fans and
+   gems, the Elomentalist a crown, chevrons and a soft glow. The name keeps its own colour;
+   the border is decoration in the plate's metal (--plate, 3:1 on every surface it sits on). */
+.name-plate {
+  position: relative;
+  display: inline-block;
+  padding: 7px 22px;
+  /* the border takes no more room than the name did */
+  margin: -7px 0;
+}
+/* gems and the crown reach past the lines: room so they don't touch the line below */
 .name-plate.plate-3,
 .name-plate.plate-4 {
-  padding: 2px 12px;
-  border-radius: 8px;
-  color: var(--c-bright);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 229, 0.22);
+  margin: -4px 0 4px;
 }
-.name-plate.plate-1 { background: var(--p-bronze); }
-.name-plate.plate-2 { background: var(--p-silver); }
-.name-plate.plate-3 { background: var(--p-gold); }
-.name-plate.plate-4 { background: linear-gradient(120deg, var(--p-starlit), var(--p-starlit-2)); }
-.plate-sheet,
+.plate-1 { --plate: var(--plate-bronze); }
+.plate-2 { --plate: var(--plate-silver); }
+.plate-3 { --plate: var(--plate-gold); }
+.plate-4 { --plate: var(--plate-elo); }
+.plate-frame {
+  position: absolute;
+  inset: 0;
+  color: var(--plate);
+  pointer-events: none;
+}
+.plate-frame::before,
+.plate-frame::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid currentColor;
+}
+.plate-1 .plate-frame::after {
+  content: none;
+}
+.plate-frame::after {
+  inset: 3px;
+}
+.plate-4 .plate-frame {
+  filter: drop-shadow(0 0 2px var(--plate-glow));
+}
+.plate-frame svg {
+  position: absolute;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+}
+.plate-frame svg .solid {
+  fill: currentColor;
+  stroke: none;
+}
+/* (sizes set here too: other rules stretch icons to their box) */
+.plate-frame .plate-corner { width: 21px; height: 21px; }
+.plate-frame .plate-mid { width: 20px; height: 14px; }
+.plate-frame .plate-side { width: 14px; height: 20px; }
+.plate-corner { top: -5px; left: -5px; }
+.plate-corner.c-tr { left: auto; right: -5px; transform: scaleX(-1); }
+.plate-corner.c-bl { top: auto; bottom: -5px; transform: scaleY(-1); }
+.plate-corner.c-br { top: auto; left: auto; bottom: -5px; right: -5px; transform: scale(-1); }
+.plate-mid { top: -7px; left: calc(50% - 10px); }
+.plate-mid.m-b { top: auto; bottom: -7px; transform: scaleY(-1); }
+.plate-side { left: -7px; top: calc(50% - 10px); }
+.plate-side.s-r { left: auto; right: -7px; transform: scaleX(-1); }.plate-sheet,
 .mend-sheet {
   text-align: center;
 }
@@ -5541,7 +5597,7 @@ html[data-large-text] .shortcut-list {
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  padding: var(--space-2) 0;
+  padding: var(--space-4) var(--space-2);
   border-bottom: 1px solid var(--line);
   font-family: var(--serif);
   font-size: var(--fs-small);
@@ -5551,6 +5607,7 @@ html[data-large-text] .shortcut-list {
 }
 .plate-list .name-plate {
   font-family: var(--font);
+  font-size: var(--fs-body);
   font-weight: 700;
 }
 /* Polish I–V on a part: a soft sheen, then a gilt glow, then a slow glint at V. */

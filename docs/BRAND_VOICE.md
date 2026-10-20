@@ -128,7 +128,7 @@ One name per concept. Player-facing text uses exactly these.
 | Bad-luck cap | **guarantee**: "Epic or better within 6 parts." | pity, pity timer | "Pity" is only an internal word. |
 | Making parts | **Forge** (the page and the verb): any missing part, for Stardust | craft, buy, upgrade | Mythic also takes a Rusted Crown. |
 | A part's shine | **polish**, levels **I** to **V**: "Polish to III" | upgrade, level up, enhance | A look only; never stronger. |
-| Behind the name | **name plate**: Bronze, Silver, Gold, Starlit | banner, badge, frame | "Frame" is an avatar slot. |
+| Behind the name | **name plate**: Bronze, Silver, Gold, Elomentalist | banner, badge, frame | "Frame" is an avatar slot. |
 | Missed Daily | **fill in** a missed day: "Fill in October 12?" | mend, repair, buy back, streak freeze | "Mend" is only an internal word. |
 | Your page | **Profile** (from Home's avatar) | account, card | "Account" is sign-in and email (Setup). |
 | Avatar pieces | **part**; slots **Backdrop**, **Sigil**, **Frame**, **Crest**, **Aura** | item, cosmetic, skin | |
