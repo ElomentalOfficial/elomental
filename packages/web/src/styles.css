@@ -2542,6 +2542,12 @@ html[data-reduce-motion] .sword-live .sword-flame {
   stroke: var(--el);
   stroke-width: 4;
 }
+/* The Mythic frame's gems (avatar.ts frame, IV): the element's colour, edged in cream. */
+.layer-frame .gem {
+  fill: var(--el);
+  stroke: var(--c-bright);
+  stroke-width: 1.6;
+}
 /* An element's crest (avatar.ts crestSvg): its mark in cream on a disc of its colour. */
 .crest circle {
   fill: var(--el);
@@ -5933,6 +5939,29 @@ html[data-large-text] .shortcut-list {
 }
 .forge-plates .forge-heading-row {
   margin-top: var(--space-3);
+}
+/* Spirits (forge.ts spiritsSection): how close the next one is, and Call a Spirit. */
+.forge-spirits {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.forge-spirits .forge-heading-row {
+  margin-top: var(--space-3);
+}
+.forge-spirits .forge-subheading {
+  margin-top: var(--space-2);
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+  font-weight: 400;
+  color: var(--muted);
+}
+.forge-spirits .btn {
+  align-self: flex-start;
+}
+.sheet-icon.spirit {
+  background: var(--surface-2);
+  color: var(--text);
 }
 .plate-grid {
   display: grid;

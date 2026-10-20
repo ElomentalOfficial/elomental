@@ -8,41 +8,43 @@ leaderboards. Status: **proposal, not built**. Numbers come from a season simula
 
 Sudoku and casual-puzzle players skew 35+, play short daily sessions as "me time", and are
 driven most by completion and personal stats; managing materials or recipes is friction.
-So the system was simplified (migration `simple_economy`), and this replaces the
-material-based design in §2, §3.2–3.3, §4.2–4.3, §9–11 below:
+This section is the **current state of the code** (rewritten in the full review, batch B10);
+it replaces the material-based design in §2, §3.2–3.3, §4.2–4.3, §9–11 below.
 
-- **Rarities: Common, Rare, Epic, Mythic**, the names players know from other games, each on
-  its own colour tag (tokens `--r-*`), with Bright text at 4.5:1 or better.
-- **No materials, refining or swapping.** Two currencies only: Stardust and Rusted Crowns.
-- **A whole part every 3rd rated solve** (first 30 solves a day). Rarity 62/28/8/2%; Epic or
-  better within 10 parts, Mythic within 25. A part you own already → Stardust (20/50/120/300).
-- **Forge any missing part with Stardust**: 100 / 250 / 600 / 1200 + a Rusted Crown.
-- **Seasons: two a year** (Jan–Jun, Jul–Dec); Season 0 runs to 1 July 2027. Only the season
-  board resets; Elo never does. **Monthly: only the affinity result.**
-- **Season sets: 48 parts** (16/16/10/6). Simulated: 1 solve a day collects ~42/48; 3 a day
-  finish around month 3; 12 a day in about 3 weeks.
-- **Element colours** (tokens `--el-*`): Fire and Earth are the Lava and Forest tiles; Water
-  sea teal; Air lit-cloud gold. Parts are named Ember, Tide, Stone and Gale.
-- **After the audit (docs/AUDIT.md, migration `stardust_sinks`):** parts count on the first
-  **9** solves a day (3 parts). Stardust sinks, all a look or a convenience, never power:
-  **polish** an owned part I–V (200/400/800/1600/3200), **name plates** Bronze, Silver,
-  Gold, Elomentalist (1000/2500/6000/12000, in order), and **fill in** a missed Daily this month
-  (300, up to 3 a month; counts toward the month's total). Home's avatar now opens the
-  **Profile** (avatar, name on its plate, rank, best Elo, stats, "Season 0: n of 48 parts")
-  with one way on: the Forge. The result shows one reward strip and no coaching tips.
-
-- **Whole avatars (migration `whole_avatars`, 2026-10-20):** the layered avatar is gone.
-  Two slots: the **Avatar** (one whole picture) and its **Frame**. Backdrop, Sigil and Aura
-  parts were paid back at their forge price; the Crest is no longer a part. Season 0's set
-  is 11 avatars (5 Common, 3 Rare, 2 Epic, 1 Mythic; placeholder faces) and the 12 frames,
-  23 parts. **Happy** is every player's avatar from the start. **Polish** now brings an
-  avatar to life once (still → animated) for 6000 Stardust and a **Spirit**. The Rusted
-  Crown became the Spirit (Crowns held carried over): 0.15% on each solve that counts
-  toward parts, guaranteed within 700 (about one every 7–8 weeks for a regular player).
-  Mythic forging needs Stardust only. Affinity switching (first 7 days of a season, once)
-  is reached from the Profile's Change button.
-
-- **Name:** players see the first season as **Season Alpha** (2026-10-20); `Season 0` and the `s0-` ids stay internal.
+- **Currencies:** Stardust, and the rare **Spirit**. Nothing gives an edge in Ranked.
+- **Parts:** two slots, the **Avatar** (one whole picture) and its **Frame**. Rarities Common,
+  Rare, Epic, Mythic, each on its own colour tag (tokens `--r-*`).
+- **Season Alpha's set (27 parts):** 11 avatars (5 Common, 3 Rare, 2 Epic, 1 Mythic;
+  placeholder faces) and 16 frames (Ember, Tide, Stone and Gale I–III, plus a Mythic IV of
+  each, added in `economy_pace`). **Happy** is every player's avatar from the start.
+- **Drops:** a whole part every 3rd rated solve, counting the first **9** solves a day (3
+  parts). Rarity 62/28/8/2%; Epic or better within 10 parts, Mythic within 25. A part you
+  don't own is picked well ahead of one you do (`drop_part` ranks `rand × 3` for missing parts,
+  `× 2` for your element: in practice a missing Common wins about 70% of the time, not "three
+  times likelier"). A part you own already turns into Stardust (20/50/120/300). Once you own
+  every part of a rarity, the result says its guarantee brings Stardust.
+- **Forge any missing part with Stardust:** 100 / 250 / 600 / 1200.
+- **Spirits:** 0.2% on each counted solve, guaranteed within 500 (`private.spirit_roll`); the
+  Forge shows how close the guarantee is. Simulated: a regular player's first avatar brought to
+  life around day 40 (worst 10%: day 56). **Call a Spirit** for Stardust: 15,000, then 5,000 more for each
+  one called this season, only while an owned avatar has no Spirit to wake it.
+- **Stardust sinks, all a look or a convenience:** bring an avatar to life once (6000 Stardust
+  and a Spirit); name plates Bronze, Silver, Gold, Elomentalist (1000/2500/6000/12000, in order);
+  fill in a missed Daily this month (300, up to 3 a month); Call a Spirit.
+- **Daily month:** 20 days solved or filled in earns that month's dated badge (`daily_month`).
+- **Affinities (§13):** chosen after 3 solves, switchable once in a season's first 7 days.
+  A member counts once they have 5 solves in the month, each with up to 300 influence; the side
+  with the most influence per counted member wins the month (ties: all win), and its members with 5+
+  solves get 300 Stardust and a dated badge.
+- **Seasons:** two a year (Jan–Jun, Jul–Dec) from Season 1. **Season Alpha** (`Season 0`, `s0-`
+  ids internal) runs to **1 July 2027**; the Profile shows the date. Only the season board
+  resets; Elo never does.
+- **Season rollover, to plan:** `private.current_season()` falls back to 0 when no season row
+  matches, so nothing breaks on 1 July 2027, but nothing rolls over either. A migration must add
+  the Season 1 row and its parts before then (D3: end Season Alpha on 1 January 2027 instead,
+  if Season 1's art is ready).
+- **Profile:** opened from Home's avatar: avatar, name on its plate, rank and the distance to
+  the next, the Forge button, stats, the season's set, badges.
 
 Decisions already made with the owner (2026-10-20):
 
@@ -53,11 +55,12 @@ Decisions already made with the owner (2026-10-20):
 - **Affinities** (§13): every player joins one element; every solve adds to its
   monthly tug of war (added 2026-10-20).
 - Built on what exists: Elo (puzzle-as-opponent, protected below 500, up to 4800),
-  Stardust, the Rusted Crown, the five rank names, Daily Square, Clash, server-side
+  Stardust, the Spirit, the five rank names, Daily Square, Clash, server-side
   `finish_game` and the solve audit.
 
-New player-facing terms (Ember, Scrap, Forged, Tempered, Runed, Starforged, Sigil,
-Season Path…) go into the glossary in `docs/BRAND_VOICE.md` when they ship.
+New player-facing terms go into the glossary in `docs/BRAND_VOICE.md` when they ship. (The older
+sections below still name things that never shipped or were removed: Scrap, Tempered, Runed,
+Starforged, Sigil, the Season Path, Rusted Crowns. The list above is what's live.)
 
 ---
 

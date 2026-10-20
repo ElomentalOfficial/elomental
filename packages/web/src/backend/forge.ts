@@ -32,6 +32,11 @@ export const ALIVE_COST = 6000;
 /** Name plates Bronze, Silver, Gold, Elomentalist (buy_plate), bought in order. */
 export const PLATE_COST = [1000, 2500, 6000, 12000];
 export const MAX_PLATE = 4;
+/** A Spirit is guaranteed within this many counted solves (private.spirit_roll). */
+export const SPIRIT_GUARANTEE = 500;
+/** Call a Spirit (call_spirit): this, then CALL_STEP more for each one called this season. */
+export const CALL_COST = 15000;
+export const CALL_STEP = 5000;
 /** Polish per owned part id: 1 when brought to life. */
 export type Polish = Record<string, number>;
 
@@ -48,6 +53,19 @@ export interface Forge {
   stardust: number;
   spirits: number;
   affinity: Element | null;
+  /** Counted solves until a Spirit is guaranteed. */
+  spiritIn: number;
+  /** What the next Spirit called costs this season. */
+  callCost: number;
+  /** When the season ends (ISO), or null. */
+  seasonEnds: string | null;
+}
+
+/** Avatars you own (Happy too) that have no Spirit to wake them yet, counting the Spirits you hold. */
+export function avatarsToWake(f: Forge, parts = f.parts): number {
+  const avatars = parts.filter((p) => p.slot === 'avatar' && f.owned.has(p.id));
+  const alive = avatars.filter((p) => f.owned.get(p.id)?.polish === 1).length;
+  return avatars.length - alive - f.spirits;
 }
 
 /** Everything the Forge page shows, in one go; null when offline or signed out. */
@@ -55,13 +73,17 @@ export async function loadForge(): Promise<Forge | null> {
   const { data: session } = await supabase.auth.getSession();
   const uid = session.session?.user.id;
   if (!uid) return null;
-  const [parts, owned, loadout, profile] = await Promise.all([
+  const now = new Date().toISOString();
+  const [parts, owned, loadout, profile, season] = await Promise.all([
     supabase.from('parts').select('id, slot, element, rarity, source'),
     supabase.from('player_parts').select('part_id, edition, polish'),
     supabase.from('avatar_loadouts').select('avatar, frame').maybeSingle(),
-    supabase.from('profiles').select('stardust, spirits, affinity, plate').eq('id', uid).single(),
+    supabase.from('profiles').select('stardust, spirits, affinity, plate, spirit_pity, spirits_called, spirits_called_season').eq('id', uid).single(),
+    supabase.from('seasons').select('id, ends_at').lte('starts_at', now).gt('ends_at', now).maybeSingle(),
   ]);
   if (parts.error || owned.error || profile.error) return null;
+  const seasonId = season.data?.id ?? 0;
+  const calledThisSeason = profile.data.spirits_called_season === seasonId ? (profile.data.spirits_called ?? 0) : 0;
   const polish: Polish = Object.fromEntries((owned.data ?? []).filter((o) => o.polish).map((o) => [o.part_id as string, o.polish as number]));
   writeJson(LOADOUT_KEY, loadout.data ?? {});
   writeJson(POLISH_KEY, polish);
@@ -74,6 +96,9 @@ export async function loadForge(): Promise<Forge | null> {
     stardust: profile.data.stardust,
     spirits: profile.data.spirits,
     affinity: (profile.data.affinity ?? null) as Element | null,
+    spiritIn: Math.max(1, SPIRIT_GUARANTEE - (profile.data.spirit_pity ?? 0)),
+    callCost: CALL_COST + CALL_STEP * calledThisSeason,
+    seasonEnds: season.data?.ends_at ?? null,
   };
 }
 
@@ -88,6 +113,8 @@ async function call(fn: string, args: Record<string, unknown>): Promise<string |
 export const forgePart = (part: string) => call('forge_part', { p_part: part });
 export const equipPart = (slot: Slot, part: string | null) => call('equip_part', { p_slot: slot, p_part: part });
 export const polishPart = (part: string) => call('polish_part', { p_part: part });
+/** Calls a Spirit for Stardust (call_spirit): the price is checked on the server. */
+export const callSpirit = () => call('call_spirit', {});
 /** Buys plate n, the next one (a repeated tap can't buy two). */
 export const buyPlate = (n: number) => call('buy_plate', { p_plate: n });
 /**

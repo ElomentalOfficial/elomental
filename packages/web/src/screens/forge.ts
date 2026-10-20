@@ -1,6 +1,6 @@
 import { avatarSvg, partSvg } from '../avatar.ts';
 import { loadStandings, type Standing } from '../backend/affinity.ts';
-import { ALIVE_COST, DEFAULT_AVATAR, FORGE_COST, MAX_PLATE, PLATE_COST, SLOTS, buyPlate, equipPart, forgePart, loadForge, polishPart, type Forge, type Part } from '../backend/forge.ts';
+import { ALIVE_COST, DEFAULT_AVATAR, FORGE_COST, MAX_PLATE, PLATE_COST, SLOTS, avatarsToWake, buyPlate, callSpirit, equipPart, forgePart, loadForge, polishPart, type Forge, type Part } from '../backend/forge.ts';
 import { ICONS } from '../icons.ts';
 import { paintPlate } from '../plates.ts';
 import { ELEMENTS, RARITIES, loadProfile, type Element, type Rarity } from '../profile.ts';
@@ -76,6 +76,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
     body.replaceChildren(
       head,
       platesSection(f),
+      spiritsSection(f),
       h(
         'div',
         { class: 'forge-heading-row' },
@@ -259,6 +260,54 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
       ),
     );
   }
+  /**
+   * Spirits: how close the next one is, and Call a Spirit for Stardust (full review M2, M3).
+   * The button opens a sheet to confirm; it's off while every avatar you own has its Spirit.
+   */
+  function spiritsSection(f: Forge): HTMLElement {
+    const t = copy.forge;
+    const toWake = avatarsToWake(f) > 0;
+    const short = toWake && f.stardust < f.callCost;
+    const btn = h('button', { class: 'btn', text: t.callButton(f.callCost), attrs: { type: 'button' }, onclick: () => openCall() });
+    btn.disabled = !toWake || short;
+    return h(
+      'section',
+      { class: 'forge-spirits' },
+      h('div', { class: 'forge-heading-row' }, h('h2', { class: 'forge-heading', text: t.spiritsTitle }), h('span', { class: 'forge-count', text: String(f.spirits) })),
+      h('p', { class: 'forge-intro', text: t.spiritIn(f.spiritIn) }),
+      h('h3', { class: 'forge-subheading', text: t.callTitle }),
+      h('p', { class: 'forge-intro', text: toWake ? t.callNote : t.callNone }),
+      btn,
+      // a greyed-out button says why, in text a screen reader reaches too
+      short ? h('p', { class: 'forge-intro', text: t.callShort(f.stardust, f.callCost) }) : '',
+    );
+  }
+
+  /** Call a Spirit: its price, and Call. */
+  function openCall() {
+    const f = forge!;
+    const btn = h('button', { class: 'btn btn-primary', text: copy.forge.callButton(f.callCost) });
+    btn.addEventListener('click', () => {
+      btn.disabled = true;
+      void callSpirit().then(async (err) => {
+        close();
+        toast(err ?? copy.forge.called);
+        await refresh();
+      });
+    });
+    const close = openModal(
+      h(
+        'div',
+        { class: 'sheet plate-sheet' },
+        closeButton(() => close()),
+        h('span', { class: 'sheet-icon spirit', html: ICONS.spirit, attrs: { 'aria-hidden': 'true' } }),
+        h('h2', { text: copy.forge.callTitle }),
+        h('p', { class: 'note', text: copy.forge.callNote }),
+        btn,
+      ),
+    );
+  }
+
   function openOdds() {
     const ODDS: [Rarity, string][] = [['common', '62%'], ['rare', '28%'], ['epic', '8%'], ['mythic', '2%']];
     const section = (title: string, ...lines: string[]) => h('section', { class: 'odds-section' }, h('h3', { text: title }), ...lines.map((t) => h('p', { text: t })));

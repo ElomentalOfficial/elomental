@@ -308,6 +308,8 @@ export interface Drop {
   pity: 'epic' | 'mythic' | null;
   /** Parts left until each guarantee. */
   guarantee: { epic: number; mythic: number };
+  /** Every part of that rarity is owned (economy_pace): its guarantee only brings Stardust. */
+  complete?: { epic: boolean; mythic: boolean };
 }
 export function recordResult(input: ResultInput): Outcome {
   const profile = loadProfile();

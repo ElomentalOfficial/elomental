@@ -254,8 +254,8 @@ export const forge = {
     happy: 'Happy', upset: 'Upset', angry: 'Angry', silly: 'Silly', sad: 'Sad', bored: 'Bored',
     excited: 'Excited', scared: 'Scared', calm: 'Calm', tired: 'Tired', disappointed: 'Disappointed', shocked: 'Shocked',
   } as Record<string, string>,
-  /** "Ember Frame", "Ember Frame II", "Ember Frame III". */
-  part: (name: string, slot: string, n: number) => `${name} ${slot}${n > 1 ? ` ${'I'.repeat(n)}` : ''}`,
+  /** "Ember Frame", "Ember Frame II", "Ember Frame III", "Ember Frame IV" (the Mythic one). */
+  part: (name: string, slot: string, n: number) => `${name} ${slot}${n > 1 ? ` ${['', '', 'II', 'III', 'IV'][n] ?? n}` : ''}`,
 
   // The result pop-up (reward.ts)
   newPart: 'New part',
@@ -269,6 +269,8 @@ export const forge = {
   guarantee: (rarity: string, n: number) => (n <= 1 ? `${rarity} or better next part.` : `${rarity} or better within ${n} parts.`),
   /** Mythic is the top rarity: nothing is better. */
   guaranteeTop: (rarity: string, n: number) => (n <= 1 ? `${rarity} next part.` : `${rarity} within ${n} parts.`),
+  /** Once you own every part of that rarity, its guarantee only brings Stardust: say so. */
+  guaranteeOwned: (rarity: string, stardust: number) => `You own every ${rarity} part: the next one brings ${stardust} Stardust.`,
   influence: (n: number, element: string) => `+${n} influence for ${element}`,
   /** Screen readers hear the part as one literal line. */
   a11yDrop: (name: string, rarity: string) => `New part: ${name}, ${rarity}.`,
@@ -298,19 +300,33 @@ export const forge = {
   oddsPityTitle: 'Guarantees',
   oddsPity: ['Epic or better within 10 parts.', 'Mythic within 25 parts.'],
   oddsDupeTitle: 'Parts you already have',
-  oddsDupe: 'Most parts are ones you don’t have yet. One you already own turns into Stardust: 20 for Common, 50 Rare, 120 Epic, 300 Mythic.',
+  oddsDupe: 'A part you don’t have is much likelier than one you already own. One you already own turns into Stardust: 20 for Common, 50 Rare, 120 Epic, 300 Mythic.',
   oddsForgeTitle: 'Forging',
   oddsForge: 'Any part you’re missing can be forged: 100 Stardust for Common, 250 Rare, 600 Epic, 1200 Mythic.',
   oddsPaceTitle: 'Each day',
   oddsPace: 'Your first 9 solved squares each day count toward parts: up to 3 parts a day.',
   oddsSpiritTitle: 'Spirit',
-  oddsSpirit: 'The rarest drop: a 0.15% chance on each square that counts toward parts, and one is guaranteed within 700 of them. A Spirit brings one avatar to life.',
+  oddsSpirit: 'The rarest drop: a 0.2% chance on each square that counts toward parts, and one is guaranteed within 500 of them. A Spirit brings one avatar to life.',
   oddsSpendTitle: 'Spending Stardust',
   oddsSpend: [
     'Bring an avatar to life: 6000 Stardust and a Spirit, once per avatar.',
     'Name plates: Bronze 1000, Silver 2500, Gold 6000, Elomentalist 12000.',
     'Fill in a missed Daily Square: 300 Stardust, up to 3 days a month.',
+    'Call a Spirit: 15000 Stardust, then 5000 more for each one called this season.',
   ],
+
+  // Spirits on the Forge page: how close the next one is, and calling one for Stardust
+  spiritsTitle: 'Spirits',
+  /** Counted squares: the first 9 solved each day. */
+  spiritIn: (n: number) => (n <= 1 ? 'A Spirit is guaranteed with your next counted square.' : `A Spirit is guaranteed within ${n} counted squares.`),
+  callTitle: 'Call a Spirit',
+  callNote: 'A Spirit for Stardust, to bring an avatar to life. Each one this season costs 5000 more.',
+  callButton: (stardust: number) => `Call a Spirit · ${stardust} Stardust`,
+  /** Every avatar you own is alive or has a Spirit waiting. */
+  callNone: 'Every avatar you own is alive or has a Spirit waiting for it.',
+  /** Under a greyed-out Call button: why. */
+  callShort: (have: number, cost: number) => `You have ${have} of ${cost} Stardust.`,
+  called: 'A Spirit came. Bring an avatar to life with it.',
 
   // Polish (an avatar brought to life, once) and name plates: a look only
   alive: 'Alive',
@@ -355,6 +371,8 @@ export const profile = {
   dailyCount: (done: number, days: number) => `${done} of ${days}`,
   collection: 'Collection',
   season: (n: number, total: number) => `Season Alpha: ${n} of ${total} parts`,
+  /** When the season ends (L23): "until 1 July 2027". */
+  seasonUntil: (date: string) => `Season Alpha ends on ${date}.`,
   collectionOffline: 'Your parts show here when you’re online.',
   forge: 'Forge',
   guestNote: 'Sign up to keep your avatar, parts and Elo on any device.',
@@ -692,6 +710,7 @@ export const refusals = {
     vaulted: 'That part’s season has ended. It can’t be forged any more.',
     not_owned: 'You don’t own that part yet.',
     already_alive: 'That avatar is already alive.',
+    no_avatar_to_wake: 'Every avatar you own is alive or has a Spirit waiting for it.',
     top_plate: 'You already have the Elomentalist plate.',
     plate_owned: 'You already have that plate.',
     plate_order: 'Plates are bought in order. Get the one before it first.',

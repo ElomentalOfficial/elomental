@@ -26,14 +26,20 @@ const around = (count: number, r: number, draw: (x: number, y: number, a: number
     return draw(50 + r * Math.cos(a), 50 + r * Math.sin(a), a);
   }).join('');
 
-/** A frame: its ring (a second, thin one at III) studded round the avatar. */
+/**
+ * A frame: its ring (a second, thin one at III) studded round the avatar. IV, the Mythic
+ * one, sets four gems in the element's colour at the quarters, the studs between them.
+ */
 function frame(id: string | null | undefined): string {
   const part = parse(id);
   if (!part) return '';
   const { element: e, n } = part;
+  const gems = n >= 4
+    ? around(4, 46, (x, y) => `<rect class="gem" x="${x - 4.6}" y="${y - 4.6}" width="9.2" height="9.2" rx="1.2" transform="rotate(45 ${x} ${y})"/>`, -Math.PI / 2)
+    : '';
   return `<g class="avatar-layer layer-frame el-${e}"><circle class="ring" cx="50" cy="50" r="46" fill="none"/>${
     n >= 3 ? '<circle class="ring thin" cx="50" cy="50" r="41.5" fill="none"/>' : ''
-  }${around(n >= 2 ? 8 : 4, 46, (x, y) => `<circle class="stud" cx="${x}" cy="${y}" r="${n >= 2 ? 2.8 : 3.4}"/>`, -Math.PI / 4)}</g>`;
+  }${around(n >= 2 ? 8 : 4, 46, (x, y) => `<circle class="stud" cx="${x}" cy="${y}" r="${n >= 2 ? 2.8 : 3.4}"/>`, n >= 4 ? -Math.PI / 8 : -Math.PI / 4)}${gems}</g>`;
 }
 
 /** The face picture; brought to life (polished), it moves (styles.css `.avatar-face.alive`). */

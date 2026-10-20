@@ -145,6 +145,11 @@ export function profileScreen(start?: { at?: 'badges' }): Screen {
       const have = craftable.filter((x) => f.owned.has(x.id)).length;
       collection.textContent = copy.profile.season(have, craftable.length);
       bar.firstElementChild!.setAttribute('style', `width:${(have / Math.max(1, craftable.length)) * 100}%`);
+      // when the season (and its set) ends
+      if (f.seasonEnds) {
+        const until = new Date(f.seasonEnds).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+        bar.after(h('p', { class: 'note profile-season-end', text: copy.profile.seasonUntil(until) }));
+      }
       avatar.innerHTML = avatarSvg(f.loadout, f.polish);
     });
   } else bar.remove();

@@ -124,7 +124,7 @@ check(drops === 300 && progressOk, 'exactly every 3rd solve drops a part, and th
 check(maxGapEpic <= 9, `Epic or better within 10 parts (longest wait ${maxGapEpic})`);
 check(maxGapMythic <= 24, `Mythic within 25 parts (longest wait ${maxGapMythic})`);
 const owned = (await db.query(`select count(*)::int n from public.player_parts where player_id = $1`, [a])).rows[0].n;
-check(owned === 23, `300 parts collect the whole 23-part set (${owned})`);
+check(owned === 27, `300 parts collect the whole 27-part set (${owned})`);
 const dupDust = (await db.query(`select coalesce(sum(stardust),0)::int s from public.drops where player_id = $1 and duplicate`, [a])).rows[0].s;
 check(dupDust > 0, `duplicates paid Stardust (${dupDust})`);
 
@@ -171,7 +171,7 @@ check(sd === 1900, `forging a Common costs 100 Stardust (${2000 - sd})`);
 err = null; try { await db.query(`select public.forge_part($1)`, [common]); } catch (e) { err = e.message; }
 check(err?.includes('already_owned'), 'cannot forge it twice');
 const mythic = (await db.query(`select id from public.parts where rarity = 'mythic' limit 1`)).rows[0].id;
-// (the only Mythic: one of the 3 solves above may have dropped it)
+// (one of the 3 solves above may have dropped it)
 await db.exec(`delete from public.player_parts where player_id = '${e0}' and part_id = '${mythic}'`);
 await db.exec(`update public.profiles set stardust = 1000 where id = '${e0}'`);
 err = null; try { await db.query(`select public.forge_part($1)`, [mythic]); } catch (e) { err = e.message; }
@@ -231,18 +231,18 @@ check(err?.includes('bad_date'), 'an older month cannot be filled in');
 // --- 7. catalogue and access
 const cat = (await db.query(`select rarity, count(*)::int n from public.parts where source = 'craft' group by rarity order by rarity`)).rows;
 console.log('  catalogue', cat.map((r) => `${r.rarity}:${r.n}`).join(' '));
-check(JSON.stringify(cat) === JSON.stringify([{ rarity: 'common', n: 9 }, { rarity: 'epic', n: 6 }, { rarity: 'mythic', n: 1 }, { rarity: 'rare', n: 7 }]), 'Season 0: 11 avatars and 12 frames, 9 Common, 7 Rare, 6 Epic, 1 Mythic');
+check(JSON.stringify(cat) === JSON.stringify([{ rarity: 'common', n: 9 }, { rarity: 'epic', n: 6 }, { rarity: 'mythic', n: 5 }, { rarity: 'rare', n: 7 }]), 'Season 0: 11 avatars and 16 frames, 9 Common, 7 Rare, 6 Epic, 5 Mythic (B10: four Mythic frames)');
 
-// --- 8. the Spirit: rolled on solves that count toward parts, guaranteed within 700
+// --- 8. the Spirit: rolled on solves that count toward parts, guaranteed within 500 (B10; was 700)
 const sp = await newPlayer();
-await db.exec(`update public.profiles set spirit_pity = 698 where id = '${sp}'`);
+await db.exec(`update public.profiles set spirit_pity = 498 where id = '${sp}'`);
 const s1 = await play(sp, 'casual', 'medium');
 const s2 = await play(sp, 'casual', 'medium');
-check(s2.spirit === true || s1.spirit === true, 'the 700th counted solve brings a Spirit');
+check(s2.spirit === true || s1.spirit === true, 'the 500th counted solve brings a Spirit');
 const spirits = (await db.query(`select spirits, spirit_pity from public.profiles where id = $1`, [sp])).rows[0];
 check(spirits.spirits >= 1, `Spirits held: ${spirits.spirits}`);
 for (let i = 0; i < 7; i++) await play(sp, 'casual', 'medium');
-await db.exec(`update public.profiles set spirit_pity = 699 where id = '${sp}'`);
+await db.exec(`update public.profiles set spirit_pity = 499 where id = '${sp}'`);
 const s10 = await play(sp, 'casual', 'medium');
 check(s10.spirit === false, 'the 10th solve of a day rolls no Spirit');
 
@@ -311,7 +311,7 @@ check(rankedDev.elo?.unrated === null && rankedDev.elo.after > rankedDev.elo.bef
 await as(fo);
 await db.query(`select public.dev_action('unlock_all')`);
 const all = (await db.query(`select count(*)::int n from public.player_parts where player_id = $1`, [fo])).rows[0].n;
-check(all === 23, `unlock every part (${all})`);
+check(all === 27, `unlock every part (${all})`);
 await db.query(`select public.dev_action('elo', '2500')`);
 await db.query(`select public.dev_action('plate', '4')`);
 const set = (await db.query(`select elo, plate from public.profiles where id = $1`, [fo])).rows[0];
@@ -671,6 +671,45 @@ check(steadyMe.seasonGames === 0 && steadyMe.place === null, `M5 the restricted 
 await db.query(`insert into public.games (user_id, mode, difficulty, seed, rating, finished_at, won, elo_before, elo_after)
   values ($1, 'ranked', 'medium', 's', 1500, now() + interval '1 minute', true, 1490, 1500)`, [steady]);
 check((await one(`select public.lb_me('season') j`)).j.seasonGames === 1, 'M5 the season games count is live, before the next refresh');
+
+// --- 15. economy pace (docs/FULL_REVIEW.md, batch B10): Call a Spirit, a complete rarity
+const cs = await newPlayer();
+await db.exec(`update public.profiles set stardust = 40000, spirits = 0 where id = '${cs}'`);
+await as(cs);
+const call1 = (await one(`select public.call_spirit() j`)).j;
+check(call1.cost === 15000 && call1.next === 20000 && call1.spirits === 1, `M3 the first Spirit called costs 15,000 (${JSON.stringify(call1)})`);
+err = null; try { await db.query(`select public.call_spirit()`); } catch (e) { err = e.message; }
+check(err?.includes('no_avatar_to_wake'), 'M3 not while every avatar you own has a Spirit waiting (Happy alone, one Spirit held)');
+await db.exec(`insert into public.player_parts (player_id, part_id, how) values ('${cs}', 's0-avatar-calm', 'drop')`);
+const call2 = (await one(`select public.call_spirit() j`)).j;
+check(call2.cost === 20000, `M3 the next one this season costs 5,000 more (${call2.cost})`);
+await db.exec(`insert into public.player_parts (player_id, part_id, how) values ('${cs}', 's0-avatar-sad', 'drop')`);
+err = null; try { await db.query(`select public.call_spirit()`); } catch (e) { err = e.message; }
+check(err?.includes('not_enough_stardust'), 'M3 25,000 with 5,000 held is refused');
+await db.exec(`update public.profiles set stardust = 15000, spirits_called_season = spirits_called_season - 1 where id = '${cs}'`);
+const call3 = (await one(`select public.call_spirit() j`)).j;
+check(call3.cost === 15000, `M3 a new season starts the price again (${call3.cost})`);
+const csLedger = (await one(`select count(*)::int n, sum(stardust)::int s, sum(spirits)::int k from private.ledger where player_id = $1 and reason = 'call_spirit'`, [cs]));
+const csNow = await one(`select stardust, spirits from public.profiles where id = $1`, [cs]);
+check(csLedger.n === 3 && csLedger.s === -50000 && csLedger.k === 3 && csNow.stardust === 0 && csNow.spirits === 3,
+  `M3 each call is in the ledger (${JSON.stringify(csLedger)}, ${JSON.stringify(csNow)})`);
+
+// an avatar already brought to life counts as having its Spirit
+await db.exec(`update public.profiles set stardust = 50000, spirits = 0 where id = '${cs}';
+  update public.player_parts set polish = 1 where player_id = '${cs}' and part_id in ('s0-avatar-calm', 's0-avatar-sad');
+  insert into public.player_parts (player_id, part_id, how, polish) values ('${cs}', 's0-avatar-happy', 'starter', 1)`);
+err = null; try { await db.query(`select public.call_spirit()`); } catch (e) { err = e.message; }
+check(err?.includes('no_avatar_to_wake'), 'M3 avatars already alive need no Spirit');
+
+// every Mythic part owned: the drop says so, so the guarantee line can be honest
+const full = await newPlayer();
+await db.exec(`insert into public.player_parts (player_id, part_id, how)
+  select '${full}', id, 'forge' from public.parts where source = 'craft' and rarity in ('epic', 'mythic')`);
+let fullDrop = null;
+for (let i = 0; i < 3; i++) fullDrop = (await play(full, 'casual', 'medium')).drop ?? fullDrop;
+check(fullDrop?.complete?.mythic === true && fullDrop.complete.epic === true, `M6 a drop says every Epic and Mythic part is owned (${JSON.stringify(fullDrop?.complete)})`);
+const partial = (await play(a, 'ranked', 'medium', { rating: 500 }));
+check(partial.drop === null || typeof partial.drop.complete?.mythic === 'boolean', 'M6 every drop says it');
 
 console.log(fails.length ? `\n${fails.length} FAILED` : '\nall checks passed');
 process.exit(fails.length ? 1 : 0);

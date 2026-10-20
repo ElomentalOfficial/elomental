@@ -129,9 +129,11 @@ One name per concept. Player-facing text uses exactly these.
 | What a solve brings | a **part** (every 3rd solved, rated square) | loot, drop box, chest, item, skin | Parts are always earned, never bought. |
 | Rarity | **Common**, **Rare**, **Epic**, **Mythic** | Legendary, Scrap, Forged | Familiar from other games on purpose. Always written, on its colour tag; never colour alone. |
 | Part names | element word + slot: **Ember** (Fire), **Tide** (Water), **Stone** (Earth), **Gale** (Air): "Tide Frame II" | | |
-| Bad-luck cap | **guarantee**: "Epic or better within 6 parts." | pity, pity timer | "Pity" is only an internal word. |
+| Bad-luck cap | **guarantee**: "Epic or better within 10 parts." | pity, pity timer | "Pity" is only an internal word. |
 | Making parts | **Forge** (the page and the verb): any missing part, for Stardust | craft, buy, upgrade | Parts are **avatars** (whole pictures) and **frames**. |
 | Putting a part on | **Equip** (button), **Equipped** (state), **Unequip** | wear, wearing, take off | Same words for avatars and frames. |
+| Buying a Spirit | **Call a Spirit**: "Call a Spirit · 15000 Stardust" | buy, summon, purchase | Stardust only, never money. |
+| A square that counts toward parts | **counted square** (the first 9 solved each day) | rated solve, valid solve | |
 | Animating an avatar | **bring to life** (polish, once): "Bring to life · 6000 Stardust and a Spirit"; it's then **Alive** | upgrade, level up, enhance, animate | A look only; never stronger. |
 | Behind the name | **name plate**: Bronze, Silver, Gold, Elomentalist | banner, badge, frame | "Frame" is an avatar slot. |
 | Missed Daily | **fill in** a missed day: "Fill in October 12?" | mend, repair, buy back, streak freeze | "Mend" is only an internal word. |
