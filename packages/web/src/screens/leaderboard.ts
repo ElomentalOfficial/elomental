@@ -1,6 +1,8 @@
 import { cachedAccount, onAccountChange } from '../backend.ts';
+import { cachedLoadout, cachedPolish } from '../backend/forge.ts';
 import {
   factionBoard,
+  followingCount,
   lbAroundMe,
   lbMe,
   lbPage,
@@ -12,7 +14,6 @@ import {
   type LbView,
   type SearchHit,
 } from '../backend/leaderboard.ts';
-import { supabase } from '../backend/client.ts';
 import { signUpForm } from '../accountForm.ts';
 import { ICONS } from '../icons.ts';
 import { paintPlate } from '../plates.ts';
@@ -280,8 +281,8 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
     );
   }
   const meLoadout = () => {
-    const l = readJson<{ avatar?: string | null; frame?: string | null }>('elomental:loadout') ?? {};
-    const polish = readJson<Record<string, number>>('elomental:polish') ?? {};
+    const l = cachedLoadout() ?? {};
+    const polish = cachedPolish();
     const avatar = l.avatar ?? null;
     return { avatar, frame: l.frame ?? null, alive: !!polish[avatar ?? 's0-avatar-happy'] };
   };
@@ -480,8 +481,7 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
   // ---- start: Friends first once you follow someone (comparing with people you know)
   void (async () => {
     if (!start?.view && !readJson<LbView>(VIEW_KEY)) {
-      const { count } = await supabase.from('follows').select('followee', { count: 'exact', head: true });
-      if (count) view = 'friends';
+      if (await followingCount()) view = 'friends';
     }
     paintTabs();
     void paintFaction();

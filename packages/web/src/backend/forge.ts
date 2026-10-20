@@ -1,7 +1,7 @@
 import type { Element, Rarity } from '../profile.ts';
 import { readJson, writeJson } from '../storage.ts';
 import { refreshAccount } from './account.ts';
-import { knownError, supabase } from './client.ts';
+import { knownError, rpcCall, supabase } from './client.ts';
 import * as copy from '../copy/en.ts';
 
 /**
@@ -104,10 +104,9 @@ export async function loadForge(): Promise<Forge | null> {
 
 /** Null when it worked, otherwise the reason to show. */
 async function call(fn: string, args: Record<string, unknown>): Promise<string | null> {
-  const { error } = await supabase.rpc(fn, args);
-  if (error) return knownError(error, copy.refusals.forge) ?? copy.refusals.forgeOffline;
-  void refreshAccount();
-  return null;
+  const refused = await rpcCall(fn, args, copy.refusals.forge, copy.refusals.forgeOffline);
+  if (!refused) void refreshAccount();
+  return refused;
 }
 
 export const forgePart = (part: string) => call('forge_part', { p_part: part });
@@ -131,8 +130,8 @@ export async function mendDaily(date: string): Promise<{ error: string | null; b
 export const MEND_COST = 300;
 export const MENDS_A_MONTH = 3;
 
-const LOADOUT_KEY = 'elomental:loadout';
-const POLISH_KEY = 'elomental:polish';
+export const LOADOUT_KEY = 'elomental:loadout';
+export const POLISH_KEY = 'elomental:polish';
 /** The last known polish (which avatars are alive), for Home's avatar. */
 export const cachedPolish = (): Polish => readJson<Polish>(POLISH_KEY) ?? {};
 /** The last known loadout, for Home's avatar to paint at once. */

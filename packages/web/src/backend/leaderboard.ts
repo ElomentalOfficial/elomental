@@ -1,6 +1,6 @@
 import type { Element } from '../profile.ts';
 import { refreshAccount } from './account.ts';
-import { knownError, supabase } from './client.ts';
+import { knownError, rpcCall, rpcData as rpc, supabase } from './client.ts';
 import * as copy from '../copy/en.ts';
 
 /**
@@ -114,12 +114,6 @@ export interface FactionBoard {
   lastWinner: { month: string; winner: Element | null; winners?: Element[] | null } | null;
 }
 
-async function rpc<T>(fn: string, args: Record<string, unknown> = {}): Promise<T | null> {
-  const { data, error } = await supabase.rpc(fn, args);
-  if (error) return null;
-  return data as T;
-}
-
 export const lbPage = (view: LbView, page = 0, scope?: string) => rpc<LbPage>('lb_page', { p_view: view, p_page: page, p_scope: scope ?? null });
 export const lbAroundMe = (view: LbView, scope?: string) => rpc<LbAround>('lb_around_me', { p_view: view, p_scope: scope ?? null });
 export const lbMe = (view: LbView, scope?: string) => rpc<LbMe>('lb_me', { p_view: view, p_scope: scope ?? null });
@@ -135,10 +129,12 @@ export async function searchPlayers(query: string): Promise<SearchHit[] | string
 }
 
 /** Null when it worked, otherwise the reason to show. */
-async function act(fn: string, args: Record<string, unknown>): Promise<string | null> {
-  const { error } = await supabase.rpc(fn, args);
-  if (error) return knownError(error, copy.leaderboard.errors) ?? copy.leaderboard.offline;
-  return null;
+const act = (fn: string, args: Record<string, unknown>) => rpcCall(fn, args, copy.leaderboard.errors, copy.leaderboard.offline);
+
+/** How many players you follow; 0 offline. */
+export async function followingCount(): Promise<number> {
+  const { count } = await supabase.from('follows').select('followee', { count: 'exact', head: true });
+  return count ?? 0;
 }
 
 export const follow = (id: string) => act('follow', { p_player: id });

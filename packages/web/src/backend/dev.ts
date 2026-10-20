@@ -1,6 +1,6 @@
 import { cachedAccount, refreshAccount } from './account.ts';
 import { founderUnlocked } from './founder.ts';
-import { knownError, supabase } from './client.ts';
+import { rpcCall } from './client.ts';
 import * as copy from '../copy/en.ts';
 
 /**
@@ -15,10 +15,9 @@ export type DevAction = 'fill' | 'empty' | 'unlock_all' | 'clear_parts' | 'plate
 export const devOn = (): boolean => founderUnlocked() && !!cachedAccount()?.devMode;
 
 async function call(fn: string, args: Record<string, unknown>): Promise<string | null> {
-  const { error } = await supabase.rpc(fn, args);
-  if (error) return knownError(error, copy.refusals.dev) ?? copy.refusals.devOffline;
-  await refreshAccount();
-  return null;
+  const refused = await rpcCall(fn, args, copy.refusals.dev, copy.refusals.devOffline);
+  if (!refused) await refreshAccount();
+  return refused;
 }
 
 export const setDevMode = (on: boolean) => call('dev_set_mode', { p_on: on });
