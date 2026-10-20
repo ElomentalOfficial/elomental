@@ -308,7 +308,7 @@ export const profile = {
   dailyMonth: (month: string) => `Daily in ${month}`,
   dailyCount: (done: number, days: number) => `${done} of ${days}`,
   collection: 'Collection',
-  season: (n: number, total: number) => `Season 0: ${n} of ${total} parts`,
+  season: (n: number, total: number) => `Season Alpha: ${n} of ${total} parts`,
   collectionOffline: 'Your parts show here when you’re online.',
   forge: 'Forge',
   guestNote: 'Make an account to keep your avatar, parts and Elo on any device.',

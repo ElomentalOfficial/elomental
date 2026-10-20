@@ -42,6 +42,8 @@ material-based design in §2, §3.2–3.3, §4.2–4.3, §9–11 below:
   Mythic forging needs Stardust only. Affinity switching (first 7 days of a season, once)
   is reached from the Profile's Change button.
 
+- **Name:** players see the first season as **Season Alpha** (2026-10-20); `Season 0` and the `s0-` ids stay internal.
+
 Decisions already made with the owner (2026-10-20):
 
 - Ranked stays **solo against a rated puzzle**. Live 1v1 races are a later phase.

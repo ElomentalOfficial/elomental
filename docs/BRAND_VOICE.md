@@ -119,6 +119,7 @@ One name per concept. Player-facing text uses exactly these.
 | Puzzle strength | **rating** | difficulty score, level | "rated 1840". |
 | Ranks | **Novice**, **Apprentice**, **Adept**, **Elementalist**, **Archmage** | | Shown under the name, with a division below Archmage: **Adept II** (III lowest, I highest). A step up is **Promoted: Adept II**. |
 | Currency | **Stardust** | dust, coins, points | |
+| The first season | **Season Alpha** | Season 0, Season 1 | Internal ids stay `s0-`; players only ever see the name. |
 | Rarest drop | **Spirit**; plural **Spirits** | Rusted Crown (retired) | It brings an avatar to life. |
 | Monthly Daily progress | **this month** / **monthly Daily progress** | streak (there is no day-to-day streak counter) | *Proposal.* Today's copy says "Daily streak" for the month count. |
 | Speed reward | **speed bonus** | | |
