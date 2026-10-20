@@ -2,6 +2,11 @@ import type { Loadout, Slot } from './backend/forge.ts';
 import { ELEMENT_PATHS } from './icons.ts';
 import type { Element } from './profile.ts';
 
+/** Brush art for parts that have it (art/parts/<part id>.webp, icons/build_sigil.py…); the rest use the vector stand-ins below. */
+const ART: Record<string, string> = Object.fromEntries(
+  Object.entries(import.meta.glob<string>('./art/parts/*.webp', { eager: true, import: 'default' })).map(([path, url]) => [path.split('/').pop()!.replace('.webp', ''), url]),
+);
+
 /**
  * The player's avatar, drawn from the five layers of their loadout
  * (docs/PROGRESSION_DESIGN.md §4.1): backdrop, sigil, frame, crest and aura. Each part
@@ -38,6 +43,7 @@ function layer(slot: Slot, id: string | null | undefined): string {
           : '<circle class="line" cx="50" cy="50" r="34" fill="none"/>'
       }</g>`;
     case 'sigil':
+      if (ART[id!]) return `<g class="${cls}"><image href="${ART[id!]}" x="8" y="8" width="84" height="84"/></g>`;
       // the centrepiece: the element's mark, large; the Runed one ringed with rune ticks
       return `<g class="${cls}">${second ? Array.from({ length: 8 }, (_, i) => {
         const a = (i * Math.PI) / 4 + Math.PI / 8;
