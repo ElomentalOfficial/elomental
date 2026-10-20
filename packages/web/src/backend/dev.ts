@@ -1,6 +1,6 @@
 import { cachedAccount, refreshAccount } from './account.ts';
 import { founderUnlocked } from './founder.ts';
-import { rpcCall } from './client.ts';
+import { rpcCall, rpcData } from './client.ts';
 import * as copy from '../copy/en.ts';
 
 /**
@@ -23,3 +23,10 @@ async function call(fn: string, args: Record<string, unknown>): Promise<string |
 export const setDevMode = (on: boolean) => call('dev_set_mode', { p_on: on });
 export const devAction = (action: DevAction, value?: string | number) =>
   call('dev_action', { p_action: action, p_value: value === undefined ? null : String(value) });
+
+/**
+ * Whether players see the founders' (test) accounts on the leaderboard, in search and on cards
+ * (migration show_founders): one switch for all founders. They still earn no influence or prizes.
+ */
+export const foundersShown = () => rpcData<boolean>('founders_shown');
+export const setFoundersShown = (on: boolean) => rpcCall('dev_show_founders', { p_on: on }, copy.refusals.dev, copy.refusals.devOffline);

@@ -1085,7 +1085,7 @@ export const founder = {
   actions: {
     dev_on: 'Dev mode on', dev_off: 'Dev mode off', fill: 'Filled up', empty: 'Emptied', unlock_all: 'Unlocked every part',
     clear_parts: 'Removed every part', plate: 'Name plate', elo: 'Elo', next_drop: 'Next part', next_spirit: 'Next Spirit',
-    forget_affinity: 'Forgot affinity', review_clear: 'Review: cleared', review_restrict: 'Review: restricted', review_lift: 'Review: lifted',
+    forget_affinity: 'Forgot affinity', show_founders: 'Founders shown', hide_founders: 'Founders hidden', review_clear: 'Review: cleared', review_restrict: 'Review: restricted', review_lift: 'Review: lifted',
   } as Record<string, string>,
 };
 // --- Dev mode (founders only; plain, literal) --------------------------------
@@ -1096,7 +1096,12 @@ export const dev = {
   intro: 'Founders only: Review, and testing tools that change this account for real, so you can test every screen without grinding.',
   switchTitle: 'Dev mode',
   switchHelp: 'While it’s on, games show Solve now and Lose now, solves have no daily limit, and the tools below work.',
-  groups: { resources: 'Stardust and Spirits', parts: 'Parts', next: 'Next solve', account: 'Account' },
+  groups: { players: 'Leaderboard', resources: 'Stardust and Spirits', parts: 'Parts', next: 'Next solve', account: 'Account' },
+  /** One switch for every founder account (they're test accounts, off the lists by default). */
+  showFounders: 'Show founders to players',
+  showFoundersHelp: 'On: founder accounts appear on the leaderboard, in search and on player cards, for everyone. They still earn no influence or month rewards. Elo and Stardust set with the tools below show too.',
+  foundersShown: 'Founders are on the leaderboard.',
+  foundersHidden: 'Founders are hidden from players.',
   fill: 'Fill up: 999999 Stardust, 99 Spirits',
   empty: 'Empty both to 0',
   unlockAll: 'Unlock every part',

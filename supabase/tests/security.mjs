@@ -57,6 +57,56 @@ export default async function () {
     await db.exec(`select set_config('test.aal', 'aal1', false); select set_config('test.session', '', false)`);
   }
 
+  // Show founders to players (show_founders): off by default, founders only, and "seen, not competing".
+  {
+    const shownF = await player({ email: 'sec-shown@t.test' });
+    await db.exec(`insert into private.founders (email) values ('sec-shown@t.test')`);
+    await db.query(`update public.profiles set display_name = 'Seraphina', elo = 1700, ranked_games = 5, affinity = 'air', test_account = true where id = $1`, [shownF]);
+    const viewer = await player({ email: 'sec-viewer@t.test' });
+    await db.query(`update public.profiles set display_name = 'Viewer', elo = 900, ranked_games = 3 where id = $1`, [viewer]);
+    await db.exec(`select private.refresh_lb()`);
+    const seen = async () => {
+      await as(viewer);
+      await db.exec(`delete from private.search_hits`);
+      return {
+        listed: (await one(`select public.lb_page('global') j`)).j.rows.some((r) => r.name === 'Seraphina'),
+        found: (await one(`select public.lb_search('seraph') j`)).j.length === 1,
+        card: !(await one(`select public.player_card($1) j`, [shownF])).j.hidden,
+        follow: !(await tryq(`select public.follow($1)`, [shownF])).err,
+      };
+    };
+    const off = await seen();
+    check(!off.listed && !off.found && !off.card && !off.follow, `founders hidden by default (${JSON.stringify(off)})`);
+    await as(viewer);
+    check((await tryq(`select public.dev_show_founders(true)`)).err?.includes('not_admin'), 'only a founder with their code can show founders');
+    const anonCan = (await one(`select has_function_privilege('anon', 'public.dev_show_founders(boolean)', 'execute') a, has_function_privilege('anon', 'public.founders_shown()', 'execute') b`));
+    check(!anonCan.a && !anonCan.b, "signed-out visitors can't call the switch or read it");
+    // the founder, unlocked as founders are
+    const factor = (await one(`insert into auth.mfa_factors (user_id, status) values ($1, 'verified') returning id`, [shownF])).id;
+    await db.query(`select private.pin_founder_factor('sec-shown@t.test', $1)`, [factor]);
+    const sess = (await one(`insert into auth.sessions (user_id, factor_id, aal) values ($1, $2, 'aal2') returning id`, [shownF, factor])).id;
+    await as(shownF);
+    await db.exec(`select set_config('test.aal', 'aal2', false); select set_config('test.session', '${sess}', false)`);
+    check((await one(`select public.founders_shown() s`)).s === false, 'the switch starts off');
+    await db.query(`select public.dev_show_founders(true)`);
+    check((await one(`select public.founders_shown() s`)).s === true, 'a founder turns it on');
+    // a solve while shown still adds no influence
+    const g = (await one(`insert into public.games (user_id, mode, difficulty, seed, rating, started_at) values ($1, 'casual', 'easy', 's', 100, now() - interval '600 seconds') returning id`, [shownF])).id;
+    const win = (await one(`select public.finish_game($1, true, 0, 0, 600, 100, $2) j`, [g, SOLVED])).j;
+    await db.exec(`select set_config('test.aal', 'aal1', false); select set_config('test.session', '', false)`);
+    const on = await seen();
+    check(on.listed && on.found && on.card && on.follow, `shown founders are on the list, in search, on cards and followable (${JSON.stringify(on)})`);
+    check(!win.influence, 'a shown founder still earns no influence');
+    await as(shownF);
+    await db.exec(`select set_config('test.aal', 'aal2', false); select set_config('test.session', '${sess}', false)`);
+    await db.query(`select public.dev_show_founders(false)`);
+    const log = (await one(`select public.founder_activity(5) j`)).j.map((r) => r.action);
+    check(log[0] === 'hide_founders' && log[1] === 'show_founders', `the switch is in the founder log (${log.slice(0, 2).join(', ')})`);
+    await db.exec(`select set_config('test.aal', 'aal1', false); select set_config('test.session', '', false)`);
+    const again = await seen();
+    check(!again.listed && !again.found && !again.card, `turned off, founders leave the lists at once (${JSON.stringify(again)})`);
+  }
+
   // SEC-7: hiding takes effect at once, not at the next snapshot.
   {
     const v = await player({ email: 'sec-v@t.test' }), w = await player({ email: 'sec-w@t.test' });

@@ -1,5 +1,5 @@
 import { cachedAccount, onAccountChange } from '../backend.ts';
-import { devAction, setDevMode, type DevAction } from '../backend/dev.ts';
+import { devAction, foundersShown, setDevMode, setFoundersShown, type DevAction } from '../backend/dev.ts';
 import { loadFounderActivity } from '../backend/founder.ts';
 import { choice, segmented, settingGroup } from '../controls.ts';
 import { RARITIES, type Rarity } from '../profile.ts';
@@ -49,6 +49,29 @@ export function devScreen(): Screen {
     cols: true,
   });
 
+  // Show founders to players: one switch for every founder, on or off whatever dev mode is (the
+  // server keeps the state; nothing is marked until it has answered)
+  let shown: boolean | null = null;
+  const showSwitch = segmented<boolean | null>({
+    options: [{ value: true, label: copy.common.on }, { value: false, label: copy.common.off }],
+    current: () => shown,
+    pick: (value) => {
+      if (value === null || value === shown) return;
+      return setFoundersShown(value).then((err) => {
+        if (err) return toast(err);
+        shown = value;
+        toast(value ? t.foundersShown : t.foundersHidden);
+        loadActivity();
+      });
+    },
+    labelledBy: 'dev-show',
+    cols: true,
+  });
+  void foundersShown().then((value) => {
+    shown = value;
+    showSwitch.paint();
+  });
+
   const eloField = h('input', {
     class: 'text-field',
     attrs: { type: 'number', inputmode: 'numeric', min: '0', max: '4800', step: '1', 'aria-labelledby': 'dev-elo' },
@@ -70,6 +93,7 @@ export function devScreen(): Screen {
       t.switchTitle,
       choice('dev-switch', t.switchTitle, t.switchHelp, devSwitch.el),
     ),
+    group(t.groups.players, choice('dev-show', t.showFounders, t.showFoundersHelp, showSwitch.el)),
     group(t.groups.resources, tool(t.fill, 'fill'), tool(t.empty, 'empty')),
     group(t.groups.parts, tool(t.unlockAll, 'unlock_all'), tool(t.clearParts, 'clear_parts')),
     group(
