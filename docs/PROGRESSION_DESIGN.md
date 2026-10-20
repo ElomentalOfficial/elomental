@@ -10,6 +10,8 @@ Decisions already made with the owner (2026-10-20):
 - **No real money** for now. Everything is earned; the design stays store-ready (§8.3).
 - Theme: **the forge and the four elements**. You *forge* things; the elements
   (Fire, Water, Earth, Air) are the schools every part belongs to.
+- **Affinities** (§13): every player joins one element; every solve adds to its
+  monthly tug of war (added 2026-10-20).
 - Built on what exists: Elo (puzzle-as-opponent, protected below 500, up to 4800),
   Stardust, the Rusted Crown, the five rank names, Daily Square, Clash, server-side
   `finish_game` and the solve audit.
@@ -38,6 +40,7 @@ thing you own tells everyone how far you've climbed.
 - **Forge**: drops and Stardust become avatar parts. Choices matter: which element, which part.
 - **Flex**: the avatar, rank emblem, peak and titles show on the profile and every leaderboard row.
 - **Climb**: Elo serves harder squares, harder squares drop better, seasons reward the peak.
+- **Together**: every solve also pulls for your affinity in the monthly war (§13).
 
 What we deliberately avoid (the "not exploited" rules):
 
@@ -283,7 +286,7 @@ long goal (save up for the Starforged forge) alive.
 ```
 
 Every part has an element and a rarity. A full avatar mixes elements freely.
-Crests are given (one per element, free) so everyone can show an affinity on day 1.
+Your affinity's crest is free from the moment you choose it (§13.2); other crests are forged.
 The art pipeline already exists: brush icons (`icons/build_*.py`), the Art Deco
 frame generator, and CSS animation for auras. Sigils are the expensive art, so
 each season has few of them.
@@ -343,6 +346,7 @@ season frame a real flex, so it must hold.
 | Item | Why |
 | --- | --- |
 | Avatar, large, with aura | The forged identity, the reason to craft |
+| Affinity crest + war wins | Which side you fight for (§13.6) |
 | Name + equipped title | Chosen flex ("S1 Archmage #37", "Clean Hands") |
 | Rank emblem, tier and division, current Elo | Now |
 | Peak Elo (all-time) + peak tier this season | Proof of the best day |
@@ -397,6 +401,7 @@ the rest right). Everything uses the type and spacing tokens and works at 200% t
 
 | Board | Ranked by | Resets | Phase |
 | --- | --- | --- | --- |
+| **Affinities** | Monthly war standing (§13.4) | Monthly | 2 |
 | **Global** | Elo (active in 14 days) | Never | 2 |
 | **Season** | Peak proven tier, then Elo | Each season | 2 |
 | **Daily Square** | Fastest clean solve of today's square (audited) | Daily | 2 |
@@ -822,7 +827,145 @@ Runed or better within 12 drops." (`announce`, never mid-animation).
 
 ---
 
-## 13. Roadmap
+## 13. Affinities: the elemental tug of war
+
+Every player belongs to one element. Every square they solve, in any mode, adds
+**influence** to that element worldwide. Each month the four elements pull against
+each other, and members of the winner get the best rewards. Inspired by team
+affinities in location games, with their known flaws fixed (below).
+
+### 13.1 The four affinities
+
+**Fire, Water, Earth, Air**, named plainly. Other systems were considered:
+
+| Option | Why not |
+| --- | --- |
+| Five, with Aether/Spirit | The "special" fifth pulls a crowd and unbalances teams |
+| Wu Xing (Wood, Fire, Earth, Metal, Water) | Needs explaining; Metal and Wood don't match the brand |
+| Modern sets (Lightning, Ice, Shadow, Light) | Endless; dilutes teams |
+
+Four classical elements need no explanation, already shape the drops and avatar
+parts, and make "Elomental" literal. Each affinity's character (one line, shown at
+the choice): Fire: *speed and nerve*; Water: *patience, the long line*; Earth:
+*steady, every day*; Air: *light touch, many squares*. They are flavour only:
+no affinity plays differently.
+
+### 13.2 Choosing
+
+- **When:** right after the player's **third solved square** (guest or signed in),
+  as a one-screen ceremony: four crests, the line for each, and the current month's
+  standings so a player can join an underdog if they like. Not at sign-up: guests
+  play instantly, and by the third solve the choice means something.
+- **Lock:** chosen for the season. One switch per season, during its first 7 days;
+  your past influence stays with your old element. Prevents bandwagoning mid-war
+  without trapping anyone forever.
+- **What it gives:** your affinity's crest is your free avatar crest (§4.1),
+  drops lean slightly toward your element (+10% of the non-mode share), and your
+  crest shows next to your name on every leaderboard row and the profile.
+
+### 13.3 Influence
+
+Earned on every **audited, solved** square, any mode:
+
+| Solve | Influence |
+| --- | --- |
+| Casual Easy / Medium / Hard | 1 / 2 / 3 |
+| Daily Square | 4 |
+| Ranked | 3, + 1 per 1000 of the square's rating (max +3) |
+| Clash (either side, solved) | 3; +1 for the win |
+| Clean solve | +1 |
+
+- **Daily cap:** influence counts on the first 25 solves of the day, the same pace as
+  drops (§2.5). A bot farm or a 10-hour binge can't carry an element.
+- Unrated or flagged games earn none. Accounts start contributing after 3 solved games.
+
+### 13.4 How a war is won
+
+A **war lasts one calendar month** (matching the Daily Square month), so a season
+holds two wars.
+
+**Standing = an element's total influence ÷ its active members** (members with at
+least one contributing solve that month). Not the raw total: in team games the
+biggest team won by headcount and the others gave up. With the average, a small,
+dedicated element can win, and every member's play visibly moves the bar.
+
+Shown as a four-way tug bar of each element's share of the summed averages, plus
+"your contribution this month" and the gap to the element above.
+
+### 13.5 Rewards
+
+At the end of each month, for members with **10+ contributing solves** that month
+(stops freeloading):
+
+| Place | Stardust | Components of your element | Cosmetic |
+| --- | --- | --- | --- |
+| 1st | 800 | 2 Tempered | **Victor crest** for that month (vaulted) + war badge |
+| 2nd | 500 | 4 Forged | War badge |
+| 3rd | 350 | 3 Forged | War badge |
+| 4th | 250 | 2 Forged | War badge |
+
+Everyone who took part gets something, so a losing month still pays. Top 10
+contributors per element (by capped influence) get a "Standard-bearer" title for
+the month: a flex that rewards consistency, not hours, because of the cap.
+
+**Season champion:** the element with the most monthly wins (tie: total standing)
+gets a season banner on every member's profile for the next season.
+
+### 13.6 Where it lives
+
+- **Leaderboards:** a dedicated **Affinities** tab first in the list, with the tug bar,
+  this month's standings, days left, past months' winners, and each element's top
+  standard-bearers. The other boards show each player's crest on their row.
+- **Result screen:** one line after the drop: "+5 influence for Fire".
+- **Home:** the profile card shows the player's crest; on the last 3 days of a war,
+  a slim "Fire leads Water by 3%" strip under the profile card.
+- **Profile:** affinity crest, lifetime influence, war wins, standard-bearer titles.
+
+### 13.7 Data
+
+```sql
+alter table public.profiles
+  add column affinity text check (affinity in ('fire','water','earth','air')),
+  add column affinity_switched_season smallint;
+
+create table public.affinity_months (
+  month date not null,                        -- first day of the month
+  player_id uuid references public.profiles(id) on delete cascade,
+  affinity text not null,
+  influence int not null default 0,
+  solves int not null default 0,
+  primary key (month, player_id)
+);
+-- standings: avg(influence) per affinity over players with solves > 0, cached
+-- every few minutes into a small table the Affinities tab reads
+create table public.affinity_standings (
+  month date not null,
+  affinity text not null,
+  members int not null,
+  influence bigint not null,
+  standing numeric not null,
+  updated_at timestamptz not null default now(),
+  primary key (month, affinity)
+);
+```
+
+`finish_game` adds influence (respecting the daily cap) in the same transaction as
+the drop. A scheduled function (pg_cron) refreshes `affinity_standings` every 5
+minutes and settles rewards on the 1st of each month.
+
+### 13.8 Watch-outs
+
+- **Lopsided membership:** show live member counts at the choice; if one element
+  passes 40% of new choices for a month, its crest in the picker gets no extra
+  promotion (no "recommended" badge), and the underdog gets the "needs you" tag.
+- **Colour:** Water needs a blue the palette doesn't have yet. A new token (a muted
+  slate-teal) needs design sign-off and a contrast check in `scripts/contrast.ts`.
+  Elements are always shown with crest shape plus name, never colour alone.
+- **Toxicity:** there's no chat, so no team trash talk; standings speak in numbers only.
+
+---
+
+## 14. Roadmap
 
 ### Phase 1: MVP, 2–3 weeks (Season 0)
 
@@ -832,6 +975,8 @@ Runed or better within 12 drops." (`announce`, never mid-animation).
 - Result screen drop reveal (§12.1) with Reduce motion and screen-reader text.
 - The Forge page and avatar loadout; the profile avatar shows the loadout.
 - New tier thresholds and emblems; promotion moment.
+- Affinity choice after the third solve; the affinity crest on the avatar.
+  (Influence is recorded from day 1, so the first war can start in phase 2 with history.)
 - "Drop odds" sheet. Economy sim moved into `scripts/`.
 - Brand voice glossary updated with the new terms.
 
@@ -839,7 +984,7 @@ Runed or better within 12 drops." (`announce`, never mid-animation).
 
 - Seasons, placement, proof wins, season rewards and vaulting.
 - Profile page v1 (§5) with showcase, season history, stats.
-- Leaderboards: Global, Season, Daily Square.
+- Leaderboards: **Affinities** (the monthly war, rewards on the 1st), Global, Season, Daily Square.
 - Titles and badges.
 - Season Path (free track) and Mend a missed Daily.
 - Integrity: human floor times, move-timing flags, rate limits.
