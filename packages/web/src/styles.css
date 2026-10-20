@@ -1241,6 +1241,22 @@ html[data-reduce-motion] .promotion .tier-emblem {
   font-size: var(--fs-title);
   text-transform: uppercase;
 }
+/* the title between Back and its spacer: kept clear of both, centred, and a step smaller
+   when it's long, so a two-line title still reads as one heading */
+.subbar {
+  gap: var(--space-3);
+}
+.subbar > h1 {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: center;
+  line-height: 1.15;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+.subbar > h1.long {
+  font-size: var(--fs-label);
+}
 .setup {
   gap: 16px;
 }

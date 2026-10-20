@@ -53,7 +53,8 @@ export function mount(screen: Screen): void {
  * reach. `className` keeps each page's own styles and entry animation.
  */
 export function subPage(options: { className: string; title: string | HTMLElement; onBack: () => void }, ...body: Child[]): HTMLElement {
-  const title = typeof options.title === 'string' ? h('h1', { text: options.title }) : options.title;
+  // long titles ("Leaderboard and card") take the smaller size, so they fit in two short lines
+  const title = typeof options.title === 'string' ? h('h1', { class: options.title.length > 16 ? 'long' : '', text: options.title }) : options.title;
   return h(
     'div',
     { class: `screen sub ${options.className}` },

@@ -57,7 +57,7 @@ export function cardBody(c: PlayerCard, opts: { large?: boolean } = {}): HTMLEle
   };
   const badges = shown.length || c.me
     ? h('section', { class: 'card-badges' },
-        h('h3', { text: opts.large && c.badges.length ? `${copy.badges.title} · ${copy.badges.count(c.badges.length)}` : copy.badges.title }),
+        h('h3', { text: opts.large && c.badges.length ? `${copy.badges.title} · ${c.badges.length}` : copy.badges.title }),
         h('ul', { class: opts.large ? 'badge-grid' : '' },
           ...(opts.large ? shown.map(badgeTile) : [0, 1, 2].map((i) => (shown[i] ? badgeTile(shown[i]) : h('li', { class: 'badge-slot', attrs: { 'aria-hidden': 'true' } }))))),
         !shown.length ? h('p', { class: 'note', text: c.me ? copy.badges.none : copy.badges.noneOther }) : null)
