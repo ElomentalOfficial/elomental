@@ -122,14 +122,13 @@ One name per concept. Player-facing text uses exactly these.
 | Rare drop | **Rusted Crown**; plural **Crowns** | | |
 | Monthly Daily progress | **this month** / **monthly Daily progress** | streak (there is no day-to-day streak counter) | *Proposal.* Today's copy says "Daily streak" for the month count. |
 | Speed reward | **speed bonus** | | |
-| What a solve drops | **drop**; a material is a **component** | loot, reward box, chest | Drops are always earned, never bought. |
-| Rarity | **Scrap**, **Forged**, **Tempered**, **Runed**, **Starforged** | common, rare, epic, legendary | Always written, with pips; never colour alone. |
-| Element materials | **Ember** (Fire), **Tideglass** (Water), **Ore** (Earth), **Plume** (Air) | | A drop reads "Tempered Ember". |
-| Bad-luck cap | **guarantee**: "Runed or better within 12 drops." | pity, pity timer | "Pity" is only an internal word. |
-| Making parts | **Forge** (the page and the verb), **refine** (5 up one tier), **swap** (3 across elements) | craft, upgrade, convert | |
-| Avatar pieces | **part**; slots **Backdrop**, **Sigil**, **Frame**, **Crest**, **Aura** | item, cosmetic, skin | A part that drops whole: "A whole part". |
-| A duplicate part | **smelted** into Stardust and a material | dupe, junk | |
-| Player's side | **affinity**: **Fire**, **Water**, **Earth**, **Air** | faction, team, clan | "Join Water." |
+| What a solve brings | a **part** (every 3rd solved, rated square) | loot, drop box, chest, item, skin | Parts are always earned, never bought. |
+| Rarity | **Common**, **Rare**, **Epic**, **Mythic** | Legendary, Scrap, Forged | Familiar from other games on purpose. Always written, on its colour tag; never colour alone. |
+| Part names | element word + slot: **Ember** (Fire), **Tide** (Water), **Stone** (Earth), **Gale** (Air): "Tide Frame II" | | |
+| Bad-luck cap | **guarantee**: "Epic or better within 6 parts." | pity, pity timer | "Pity" is only an internal word. |
+| Making parts | **Forge** (the page and the verb): any missing part, for Stardust | craft, buy, upgrade | Mythic also takes a Rusted Crown. |
+| Avatar pieces | **part**; slots **Backdrop**, **Sigil**, **Frame**, **Crest**, **Aura** | item, cosmetic, skin | |
+| A part you already have | "Already yours: +50 Stardust instead." | dupe, duplicate (in UI), junk | || Player's side | **affinity**: **Fire**, **Water**, **Earth**, **Air** | faction, team, clan | "Join Water." |
 | Affinity points | **influence** | score, war points | "+5 influence for Fire". |
 | The monthly contest | **this month** / **the month's standings** | war (in UI), battle | "War" stays in docs only: violent slang rule. |
 | Sharing a puzzle | **Square code** | puzzle ID, import code | "Copy", "Play square". |

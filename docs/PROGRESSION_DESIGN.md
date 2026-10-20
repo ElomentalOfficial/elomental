@@ -4,6 +4,25 @@ Design spec for seasons, ranked tiers, drops, crafting, avatars, the profile pag
 leaderboards. Status: **proposal, not built**. Numbers come from a season simulation
 (see §2.6); the code in §10 and §11 is the shape of the real migrations, not yet applied.
 
+## Revision, 2026-10-20 (live): simpler for sudoku players
+
+Sudoku and casual-puzzle players skew 35+, play short daily sessions as "me time", and are
+driven most by completion and personal stats; managing materials or recipes is friction.
+So the system was simplified (migration `simple_economy`), and this replaces the
+material-based design in §2, §3.2–3.3, §4.2–4.3, §9–11 below:
+
+- **Rarities: Common, Rare, Epic, Mythic**, the names players know from other games, each on
+  its own colour tag (tokens `--r-*`), with Bright text at 4.5:1 or better.
+- **No materials, refining or swapping.** Two currencies only: Stardust and Rusted Crowns.
+- **A whole part every 3rd rated solve** (first 30 solves a day). Rarity 62/28/8/2%; Epic or
+  better within 10 parts, Mythic within 25. A part you own already → Stardust (20/50/120/300).
+- **Forge any missing part with Stardust**: 100 / 250 / 600 / 1200 + a Rusted Crown.
+- **Seasons: two a year** (Jan–Jun, Jul–Dec); Season 0 runs to 1 July 2027. Only the season
+  board resets; Elo never does. **Monthly: only the affinity result.**
+- **Season sets: 48 parts** (16/16/10/6). Simulated: 1 solve a day collects ~42/48; 3 a day
+  finish around month 3; 12 a day in about 3 weeks.
+- **Element colours** (tokens `--el-*`): Fire and Earth are the Lava and Forest tiles; Water
+  sea teal; Air lit-cloud gold. Parts are named Ember, Tide, Stone and Gale.
 Decisions already made with the owner (2026-10-20):
 
 - Ranked stays **solo against a rated puzzle**. Live 1v1 races are a later phase.

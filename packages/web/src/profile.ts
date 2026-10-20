@@ -259,33 +259,31 @@ export interface Outcome {
    */
   elo?: { before: number; after: number; protectedLoss: boolean; bonus: number; hintCut: number; unrated?: 'copied' | 'unchecked' | null };
   daily?: { done: number; days: number; monthComplete: boolean };
-  /** The server's drop roll for a rated solve (signed-in players only; reward.ts shows it). */
+  /** A part dropped by this solve (every 3rd rated solve; signed-in players only; reward.ts shows it). */
   drop?: Drop;
+  /** Rated solves toward the next part: count of every (e.g. 1 of 3). */
+  progress?: { count: number; every: number };
   /** Influence added to the player's affinity this solve. */
   influence?: { affinity: Element; amount: number };
 }
 
 export type Element = 'fire' | 'water' | 'earth' | 'air';
-export type Rarity = 'scrap' | 'forged' | 'tempered' | 'runed' | 'starforged';
-export const RARITIES: Rarity[] = ['scrap', 'forged', 'tempered', 'runed', 'starforged'];
+export type Rarity = 'common' | 'rare' | 'epic' | 'mythic';
+export const RARITIES: Rarity[] = ['common', 'rare', 'epic', 'mythic'];
 export const ELEMENTS: Element[] = ['fire', 'water', 'earth', 'air'];
 
 export interface Drop {
   rarity: Rarity;
-  element: Element;
-  /** A finished part instead of a component (a quarter of Tempered+ drops). */
-  part: string | null;
-  /** That part was already yours: smelted into `smelted` Stardust plus one component. */
+  /** The part's id ("s0-sigil-fire-2"). */
+  part: string;
+  /** Already yours: turned into `stardust` instead. */
   duplicate: boolean;
-  smelted: number;
-  /** How the game was played heated it up one tier. */
-  upgraded: boolean;
-  /** Which guarantee fired, if any. */
-  pity: 'tempered' | 'runed' | 'starforged' | null;
-  /** Drops left until each guarantee (null on Casual Easy, which doesn't count). */
-  pityLeft: { tempered: number; runed: number; starforged: number } | null;
+  stardust: number;
+  /** Which guarantee brought it, if any. */
+  pity: 'epic' | 'mythic' | null;
+  /** Parts left until each guarantee. */
+  guarantee: { epic: number; mythic: number };
 }
-
 export function recordResult(input: ResultInput): Outcome {
   const profile = loadProfile();
   const outcome: Outcome = { dust: 0, crown: false };

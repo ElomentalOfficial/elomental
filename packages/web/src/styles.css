@@ -10,6 +10,17 @@
   --c-lava: #a85b37; /* was #b1613c; Bright on it reaches 4.91:1 (WCAG AA) */
   --c-lava-highlight: #413226;
   --c-forest: #636945;
+  /* Rarities and elements (parts, drops, affinities): deep fills at the tiles' own depth
+     (lightness 33–44%), so Bright text reads on each at 4.5:1 or better, in both themes.
+     Fire and Earth are the Lava and Forest tiles. Always shown with the name, never alone. */
+  --r-common: #6d6d5f;
+  --r-rare: #41668b;
+  --r-epic: #6f4b81;
+  --r-mythic: #9b3b3e;
+  --el-fire: #a85b37;
+  --el-water: #386f71;
+  --el-earth: #636945;
+  --el-air: #867137;
   --c-forest-highlight: #c9d09d;
   --c-crimson: #794341;
 
@@ -2322,13 +2333,10 @@ html[data-reduce-motion] .sword-live .sword-flame {
   stroke: var(--avatar-ring);
   stroke-width: 6;
 }
-.avatar-art .el-fire { --el: var(--c-lava); }
-.avatar-art .el-earth { --el: var(--c-forest); }
-.avatar-art .el-air { --el: var(--c-mud); }
-.avatar-art .el-water { --el: var(--c-rock); }
-/* On the light theme's pale cards Air and Water need more ink to show at all. */
-:root[data-theme='light'] .avatar-art .el-air { --el: color-mix(in srgb, var(--c-mud) 45%, var(--c-bg)); }
-:root[data-theme='light'] .avatar-art .el-water { --el: color-mix(in srgb, var(--c-rock) 55%, var(--c-bg)); }
+.avatar-art .el-fire { --el: var(--el-fire); }
+.avatar-art .el-water { --el: var(--el-water); }
+.avatar-art .el-earth { --el: var(--el-earth); }
+.avatar-art .el-air { --el: var(--el-air); }
 .layer-backdrop .fill {
   fill: var(--el);
 }
@@ -2337,6 +2345,22 @@ html[data-reduce-motion] .sword-live .sword-flame {
   stroke: color-mix(in srgb, var(--c-bright) 40%, transparent);
   stroke-width: 1.6;
   stroke-linecap: round;
+}
+.layer-backdrop .dot {
+  fill: color-mix(in srgb, var(--c-bright) 45%, transparent);
+}
+.layer-frame .ring.thin {
+  stroke-width: 1.6;
+}
+.layer-aura .aura.dotted {
+  stroke-dasharray: 1 6;
+  stroke-width: 3.4;
+}
+.layer-aura .aura.outer {
+  stroke-width: 1.6;
+  stroke-dasharray: 2 10;
+  animation-direction: reverse;
+  animation-duration: 20s;
 }
 .layer-sigil .ink {
   fill: none;
@@ -2494,6 +2518,8 @@ html[data-reduce-motion] .layer-aura .aura {
   align-self: stretch;
 }
 .odds-sheet h2 {
+  /* clear of the close button */
+  padding: 0 44px;
   text-align: center;
 }
 .odds {
@@ -2648,8 +2674,7 @@ html[data-reduce-motion] .layer-aura .aura {
 }
 /* (labels stay in the text colour for contrast; the outline and wash carry the accent) */
 .part-card.state-ready .part-state,
-.part-card.state-wearing .part-state,
-.part-card.state-wearing .part-rarity {
+.part-card.state-wearing .part-state {
   color: var(--text);
 }
 /* ready: an accent outline; wearing: filled with a wash of the accent */
@@ -2665,22 +2690,22 @@ html[data-reduce-motion] .layer-aura .aura {
   opacity: 0.4;
   filter: grayscale(0.6);
 }
-/* Rarity pips: the count is the rarity (1 Scrap … 5 Starforged). */
-.pips {
-  display: inline-flex;
-  gap: 2px;
+/* Rarity tag: the rarity's name on its own colour (Bright text, 4.5:1 or better). */
+.rarity-tag {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--rc);
+  color: var(--c-bright);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
 }
-.pips i {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: currentColor;
-}
-.pips.rarity-tempered,
-.pips.rarity-runed,
-.pips.rarity-starforged {
-  color: var(--accent);
-}
+.rarity-common { --rc: var(--r-common); }
+.rarity-rare { --rc: var(--r-rare); }
+.rarity-epic { --rc: var(--r-epic); }
+.rarity-mythic { --rc: var(--r-mythic); }
 .part-sheet {
   text-align: center;
 }
@@ -2699,128 +2724,38 @@ html[data-reduce-motion] .layer-aura .aura {
   font-size: var(--fs-small);
   color: var(--muted);
 }
-.recipe {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  text-align: left;
-}
-.recipe h3 {
-  font-size: var(--fs-small);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-}
-.recipe-row {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding: 6px 0;
-  border-bottom: 1px solid var(--line);
+.part-price {
   font-family: var(--serif);
-}
-.recipe-row.enough strong {
-  color: var(--accent);
-}
-.recipe-row.short strong {
-  color: var(--muted);
-}
-.forge-materials {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding: var(--space-4);
-  border-radius: 12px;
-  background: var(--surface);
-}
-.materials {
-  width: 100%;
-  border-collapse: collapse;
-  font-variant-numeric: tabular-nums;
-}
-.materials th,
-.materials td {
-  padding: 6px 2px;
-  text-align: center;
-}
-.materials thead th {
-  vertical-align: bottom;
-}
-.materials tbody th {
-  text-align: left;
-  font-family: var(--serif);
-  font-weight: 400;
-  white-space: nowrap;
-}
-.materials tbody th .drop-element {
-  margin-right: 6px;
-  vertical-align: -2px;
-}
-.materials td {
-  font-weight: 700;
-}
-.materials td.none {
-  color: var(--muted);
-  font-weight: 400;
-  opacity: 0.6;
-}
-.materials-tier {
-  display: block;
-  font-size: var(--fs-caption);
-  font-weight: 600;
-  color: var(--muted);
-}
-/* On narrow screens the column heads are pips only; the tier name is still read out. */
-@media (max-width: 479px) {
-  .materials-tier {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-  }
-}
-.materials-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-3);
-}
-.forge-field {
-  align-self: stretch;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  text-align: left;
-  font-size: var(--fs-small);
-  color: var(--muted);
-}
-.forge-field select {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--surface-2);
-  color: var(--text);
-  font: inherit;
   font-size: var(--fs-body);
 }
-
-/* The drop (reward.ts): an ingot comes out glowing Lava-hot and cools into its rarity's
-   colour (--ingot); the rarer, the longer (--cool). Rarity colours, by palette token:
-   Scrap Rock, Forged Forest, Tempered Crimson, Runed Lava, Starforged Bright. The pips and
-   the written rarity carry the meaning; colour only adds to it. Tap to skip. */
+.forge-heading-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+}
+.forge-heading-row .forge-heading {
+  margin-top: 0;
+}
+.forge-count {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+/* A new part on the result (reward.ts): its card turns over in its rarity's colour. Epic
+   glows, Mythic flares; the rarer, the longer. Tap to skip. The rarity is always written. */
 .drop {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
 }
-.drop-card {
-  --start: 0.7s;
-  --cool: 0.35s;
+.part-reveal {
+  --start: 0.6s;
   position: relative;
   overflow: hidden;
   display: grid;
-  grid-template-columns: 76px 1fr;
+  grid-template-columns: 72px 1fr;
   align-items: center;
   gap: var(--space-3);
   width: 100%;
@@ -2828,165 +2763,86 @@ html[data-reduce-motion] .layer-aura .aura {
   border: 0;
   border-radius: 12px;
   background: var(--surface-2);
+  box-shadow: inset 0 0 0 2px var(--rc);
   color: inherit;
   font: inherit;
   text-align: left;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  transform-origin: 50% 50%;
+  animation: reveal-turn 0.55s cubic-bezier(0.2, 0.8, 0.3, 1.15) var(--start) both;
 }
-.drop-card.rarity-scrap { --ingot: var(--c-rock); --pip: var(--c-bg); }
-.drop-card.rarity-forged { --ingot: var(--c-forest); --pip: var(--c-bright); --cool: 0.7s; }
-.drop-card.rarity-tempered { --ingot: var(--c-crimson); --pip: var(--c-bright); --cool: 1.1s; }
-.drop-card.rarity-runed { --ingot: var(--c-lava); --pip: var(--c-bright); --cool: 1.5s; }
-.drop-card.rarity-starforged { --ingot: var(--c-bright); --pip: var(--c-lava); --cool: 2.2s; }
-.drop-art {
-  position: relative;
+@keyframes reveal-turn {
+  from {
+    transform: perspective(600px) rotateY(-90deg);
+    opacity: 0;
+  }
+}
+.reveal-art {
   display: block;
+  width: 72px;
+  height: 72px;
 }
-.ingot {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
+.reveal-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  min-width: 0;
 }
-.ingot-body {
-  fill: var(--ingot);
-  stroke: color-mix(in srgb, var(--text) 35%, transparent);
-  stroke-width: 1.5;
-  stroke-linejoin: round;
-  animation: ingot-cool var(--cool) cubic-bezier(0.4, 0, 0.6, 1) var(--start) both;
+.reveal-rarity {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--rc);
+  color: var(--c-bright);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
-.ingot-top {
-  fill: color-mix(in srgb, var(--ingot) 70%, var(--c-bright));
-  /* only the glow: blending a fill into a color-mix() strays out of the palette */
-  animation: ingot-top-cool var(--cool) cubic-bezier(0.4, 0, 0.6, 1) var(--start) both;
+.reveal-name {
+  font-family: var(--serif);
+  font-size: var(--fs-label);
+  font-weight: 400;
 }
-@keyframes ingot-top-cool {
-  from {
-    opacity: 0.35;
-  }
+.reveal-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-small);
+  color: var(--muted);
 }
-.ingot-pips {
-  fill: var(--pip);
-}
-@keyframes ingot-cool {
-  from {
-    fill: var(--c-lava);
-    filter: brightness(1.25) drop-shadow(0 0 7px var(--c-lava));
-  }
-  60% {
-    filter: brightness(1.08) drop-shadow(0 0 3px var(--c-lava));
-  }
-}
-/* Runed and Starforged light their pips one by one as they cool. */
-.rarity-runed .pip,
-.rarity-starforged .pip {
-  animation: pip-light 0.3s ease-out calc(var(--start) + var(--cool) * 0.4 + var(--i) * 0.22s) both;
-}
-@keyframes pip-light {
-  from {
-    opacity: 0.15;
-    transform: scale(0.6);
-  }
-  70% {
-    transform: scale(1.35);
-  }
-  to {
-    opacity: 1;
-  }
-}
-.pip {
-  transform-box: fill-box;
-  transform-origin: center;
-}
-/* Starforged: the card flares, and the ingot keeps a slow glint after. */
-.drop-flare {
-  /* across the whole card (in a grid, an absolute child is held to its grid area) */
+.reveal-flare {
   position: absolute;
   grid-area: 1 / 1 / -1 / -1;
   inset: calc(var(--space-3) * -1);
   pointer-events: none;
   opacity: 0;
 }
-.rarity-tempered .drop-flare {
-  /* a puff of steam as it's quenched */
-  background: radial-gradient(60% 80% at 15% 50%, color-mix(in srgb, var(--text) 25%, transparent), transparent 70%);
-  animation: drop-steam calc(var(--cool) * 0.9) ease-out calc(var(--start) + var(--cool) * 0.3) both;
+.part-reveal.rarity-epic .reveal-flare {
+  background: radial-gradient(circle at 20% 50%, color-mix(in srgb, var(--rc) 70%, transparent), transparent 65%);
+  animation: reveal-glow 1.4s ease-out calc(var(--start) + 0.3s) both;
 }
-.rarity-starforged .drop-flare {
-  background: radial-gradient(circle at 15% 50%, var(--c-bright), color-mix(in srgb, var(--c-lava) 60%, transparent) 35%, transparent 70%);
-  animation: drop-flare 1.1s ease-out var(--start) both;
+.part-reveal.rarity-mythic .reveal-flare {
+  background: radial-gradient(circle at 20% 50%, var(--c-bright), color-mix(in srgb, var(--rc) 70%, transparent) 30%, transparent 70%);
+  animation: reveal-flare 1.3s ease-out calc(var(--start) + 0.3s) both;
 }
-.rarity-starforged .ingot {
-  animation: ingot-glint 3.2s ease-in-out calc(var(--start) + var(--cool)) infinite;
+.part-reveal.rarity-mythic {
+  animation: reveal-turn 0.55s cubic-bezier(0.2, 0.8, 0.3, 1.15) var(--start) both, reveal-shine 3.2s ease-in-out calc(var(--start) + 1.6s) infinite;
 }
-@keyframes drop-steam {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  30% {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
+@keyframes reveal-glow {
+  from { opacity: 0; }
+  30% { opacity: 1; }
+  to { opacity: 0.35; }
 }
-@keyframes drop-flare {
-  from {
-    opacity: 0;
-    transform: scale(0.4);
-  }
-  25% {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-    transform: scale(1.8);
-  }
+@keyframes reveal-flare {
+  from { opacity: 0; transform: scale(0.4); }
+  25% { opacity: 1; }
+  to { opacity: 0; transform: scale(1.8); }
 }
-@keyframes ingot-glint {
-  0%,
-  70%,
-  100% {
-    filter: none;
-  }
-  80% {
-    filter: brightness(1.25) drop-shadow(0 0 4px var(--c-lava));
-  }
-}
-.drop-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-  animation: drop-text-in 0.35s ease-out calc(var(--start) + var(--cool) * 0.7) both;
-}
-@keyframes drop-text-in {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-}
-.drop-label {
-  font-size: var(--fs-caption);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-}
-.drop-name {
-  font-family: var(--serif);
-  font-size: var(--fs-label);
-  font-weight: 400;
-}
-.drop-meta {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: var(--fs-small);
-  color: var(--muted);
+@keyframes reveal-shine {
+  0%, 70%, 100% { box-shadow: inset 0 0 0 2px var(--rc); }
+  82% { box-shadow: inset 0 0 0 2px var(--rc), 0 0 14px color-mix(in srgb, var(--rc) 70%, transparent); }
 }
 .drop-element {
   display: inline-block;
@@ -3001,7 +2857,8 @@ html[data-reduce-motion] .layer-aura .aura {
 }
 .drop-note,
 .drop-pity,
-.influence-line {
+.influence-line,
+.part-progress {
   font-family: var(--serif);
   font-size: var(--fs-small);
   color: var(--muted);
@@ -3010,17 +2867,33 @@ html[data-reduce-motion] .layer-aura .aura {
 .drop-note.good {
   color: var(--accent);
 }
-.influence-line {
+.influence-line,
+.part-progress {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
 }
-html[data-reduce-motion] .drop-card *,
-html[data-reduce-motion] .drop-card {
+/* Toward the next part: three steps, filled as squares are solved. */
+.part-steps {
+  display: inline-flex;
+  gap: 4px;
+}
+.part-steps i {
+  width: 18px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.part-steps i.done {
+  background: var(--accent);
+  box-shadow: none;
+}
+html[data-reduce-motion] .part-reveal,
+html[data-reduce-motion] .part-reveal * {
   animation: none !important;
-}
-.actions {
+}.actions {
   display: flex;
   flex-direction: column;
   gap: 10px;

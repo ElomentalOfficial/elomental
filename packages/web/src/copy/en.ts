@@ -186,88 +186,70 @@ export const game = {
   },
 };
 
-// --- Drops and the forge -------------------------------------------------------
-// docs/PROGRESSION_DESIGN.md §2–4. A drop is a component ("Tempered Ember") or now
-// and then a finished part. Rarity is always written, never shown by colour alone.
+// --- Parts and the forge ---------------------------------------------------------
+// docs/PROGRESSION_DESIGN.md (revised 2026-10-20): every 3rd solved, rated square drops a
+// whole avatar part; Stardust forges any part still missing. Rarity is always written,
+// never shown by colour alone.
 
 export const forge = {
-  rarities: { scrap: 'Scrap', forged: 'Forged', tempered: 'Tempered', runed: 'Runed', starforged: 'Starforged' },
+  rarities: { common: 'Common', rare: 'Rare', epic: 'Epic', mythic: 'Mythic' },
   elements: { fire: 'Fire', water: 'Water', earth: 'Earth', air: 'Air' },
-  /** Each element's material: what its components are made of. */
-  materials: { fire: 'Ember', water: 'Tideglass', earth: 'Ore', air: 'Plume' },
+  /** Each element's part names start with this: "Ember Sigil", "Tide Frame". */
+  names: { fire: 'Ember', water: 'Tide', earth: 'Stone', air: 'Gale' },
   slots: { backdrop: 'Backdrop', sigil: 'Sigil', frame: 'Frame', crest: 'Crest', aura: 'Aura' },
-  /** "Tempered Ember". */
-  component: (rarity: string, material: string) => `${rarity} ${material}`,
-  /** A part's name from its element and slot: "Ember Sigil", the rarer of two "Ember Sigil II". */
-  part: (material: string, slot: string, second: boolean) => `${material} ${slot}${second ? ' II' : ''}`,
-  dropLabel: 'Drop',
-  partLabel: 'A whole part',
-  upgraded: 'Heated up a tier by how you played.',
-  duplicate: (stardust: number, component: string) => `Already yours: smelted into ${stardust} Stardust and a ${component}.`,
-  /** The nearest guarantee still ahead. */
-  pityLeft: (rarity: string, n: number) => (n <= 1 ? `${rarity} or better next drop.` : `${rarity} or better within ${n} drops.`),
+  /** "Ember Sigil", "Ember Sigil II", "Ember Sigil III". */
+  part: (name: string, slot: string, n: number) => `${name} ${slot}${n > 1 ? ` ${'I'.repeat(n)}` : ''}`,
+
+  // The result pop-up (reward.ts)
+  newPart: 'New part',
+  duplicate: (stardust: number) => `Already yours: +${stardust} Stardust instead.`,
   pityHit: (rarity: string) => `${rarity} guaranteed: your luck came due.`,
+  /** The counter toward the next part. */
+  progress: (count: number, every: number) => `Next part: ${count} of ${every} squares`,
+  progressDone: 'A new part with your next 3 squares.',
+  /** The nearest guarantee still ahead. */
+  guarantee: (rarity: string, n: number) => (n <= 1 ? `${rarity} or better next part.` : `${rarity} or better within ${n} parts.`),
   influence: (n: number, element: string) => `+${n} influence for ${element}`,
-  /** Screen readers hear the drop as one literal line. */
-  a11yDrop: (name: string) => `Drop: ${name}.`,
-  skipReveal: 'Show the drop',
+  /** Screen readers hear the part as one literal line. */
+  a11yDrop: (name: string, rarity: string) => `New part: ${name}, ${rarity}.`,
 
   // The Forge page (screens/forge.ts)
   title: 'Forge',
   /** Home's avatar button: literal. */
   a11yAvatar: 'Your avatar. Opens the Forge.',
-  intro: 'Forge avatar parts from your drops and Stardust.',
+  intro: 'Every 3rd square you solve brings a part. Forge any part you’re missing with Stardust.',
   parts: 'Parts',
-  materialsTitle: 'Materials',
+  collected: (n: number, total: number) => `${n} of ${total} collected`,
   wearing: 'Wearing',
   owned: 'Owned',
   ready: 'Ready to forge',
-  needsMore: 'Needs more',
+  needsMore: 'Not enough Stardust yet',
   withAffinity: 'Comes with your affinity',
-  recipe: 'Recipe',
-  have: (have: number, need: number) => `${have} / ${need}`,
+  price: (stardust: number) => `${stardust} Stardust`,
+  priceCrown: (stardust: number) => `${stardust} Stardust and a Rusted Crown`,
   forge: 'Forge',
   wear: 'Wear',
   takeOff: 'Take off',
   forged: (name: string) => `Forged: ${name}.`,
   edition: (n: number) => `No. ${n}`,
-  refine: 'Refine',
-  refineHint: 'Five of one tier make one of the next.',
-  swap: 'Swap',
-  swapHint: 'Three of one element make one of another.',
-  element: 'Element',
-  from: 'From',
-  to: 'To',
-  tier: 'Tier',
-  refineCost: (stardust: number, result: string) => `Makes 1 ${result} for ${stardust} Stardust.`,
-  swapCost: (stardust: number, result: string) => `Makes 1 ${result} for ${stardust} Stardust.`,
-  refined: (result: string) => `Refined: 1 ${result}.`,
-  swapped: (result: string) => `Swapped: 1 ${result}.`,
-  offline: 'The Forge needs a connection. Your parts and materials are safe on your account.',
-  // The drop odds sheet: plain and exact, no jokes.
-  oddsButton: 'Drop odds',
-  oddsTitle: 'Drop odds',
-  oddsIntro: 'Every solved, rated square drops one material. These are the exact odds before luck.',
-  oddsChance: 'Chance',
-  oddsLuckTitle: 'Luck',
-  oddsLuck: 'How you play can heat a drop up one tier: Ranked and the Daily Square, harder Casual squares, clean solves, speed bonuses and solving in a row all add to the chance. Hints and mistakes take a little away. At most 30%, at most one tier.',
+  offline: 'The Forge needs a connection. Your parts are safe on your account.',
+  loading: 'Opening the Forge…',
+
+  // The odds sheet: plain and exact, no jokes.
+  oddsButton: 'How parts work',
+  oddsTitle: 'How parts work',
+  oddsIntro: 'Every 3rd solved, rated square brings one part. These are the odds of its rarity.',
   oddsPityTitle: 'Guarantees',
-  oddsPity: [
-    'Tempered or better within 10 drops.',
-    'Runed or better within 40 drops.',
-    'Starforged within 160 drops.',
-  ],
+  oddsPity: ['Epic or better within 10 parts.', 'Mythic within 25 parts.'],
+  oddsDupeTitle: 'Parts you already have',
+  oddsDupe: 'Most parts are ones you don’t have yet. One you already own turns into Stardust: 20 for Common, 50 Rare, 120 Epic, 300 Mythic.',
+  oddsForgeTitle: 'Forging',
+  oddsForge: 'Any part you’re missing can be forged: 100 Stardust for Common, 250 Rare, 600 Epic, and 1200 with a Rusted Crown for Mythic.',
   oddsPaceTitle: 'Each day',
-  oddsPace: 'The first 25 solves each drop. Solves 26 to 50 drop one time in three. After that, Stardust only. Casual Easy drops Scrap or Forged and doesn’t count toward guarantees.',
-  oddsPartsTitle: 'Whole parts',
-  oddsParts: 'A quarter of Tempered or better drops are a whole part, most often one you don’t own yet. One you already own is smelted into Stardust and a material.',
+  oddsPace: 'Your first 30 solved squares each day count toward parts.',
   oddsCrownTitle: 'Rusted Crown',
   oddsCrown: '3% on every rated solve, and one is guaranteed within 40.',
-  loading: 'Opening the Forge…',
-  /** Materials table cell, read in full: "Tempered Ember: 4". */
-  a11yCount: (name: string, n: number) => `${name}: ${n}`,
 };
-
 // --- Affinities ----------------------------------------------------------------
 // docs/PROGRESSION_DESIGN.md §13: each player fights for one element in a monthly war.
 
@@ -562,7 +544,6 @@ export const refusals = {
   finishOffline: 'No connection. This game wasn’t saved to your account.',
   /** The Forge (forge_part, refine_components, swap_components, equip_part). */
   forge: {
-    not_enough_components: 'Not enough components for that yet.',
     not_enough_stardust: 'Not enough Stardust or Crowns for that yet.',
     already_owned: 'That part is already yours.',
     vaulted: 'That part’s season has ended. It can’t be forged any more.',

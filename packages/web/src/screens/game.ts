@@ -16,7 +16,7 @@ import {
   type Move,
 } from '@elomental/engine';
 import { ICONS } from '../icons.ts';
-import { dropReveal, influenceLine } from '../reward.ts';
+import { dropReveal, influenceLine, progressLine } from '../reward.ts';
 import {
   HINT_ELO_PENALTY,
   loadProfile,
@@ -970,6 +970,8 @@ function gameScreen(game: SavedGame): Screen {
         rewards.childElementCount ? rewards : null,
         // last beat: the drop cools out of the forge, then the affinity's share
         outcome.drop ? dropReveal(outcome.drop) : null,
+        // (after a part the counter starts again: shown only between parts)
+        outcome.progress && !outcome.drop ? progressLine(outcome.progress) : null,
         outcome.influence ? influenceLine(outcome.influence) : null,
         addToHomeResultNote(won),
         signupPrompt(),

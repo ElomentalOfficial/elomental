@@ -111,6 +111,7 @@ export async function finishServerGame(input: {
     elo: { before: number; after: number; protectedLoss: boolean; bonus: number; hintCut: number; unrated?: 'copied' | 'unchecked' | null } | null;
     daily: { done: number; days: number; monthComplete: boolean } | null;
     drop?: Drop | null;
+    progress?: { count: number; every: number } | null;
     influence?: { affinity: Element; amount: number } | null;
   };
   void refreshAccount();
@@ -122,6 +123,7 @@ export async function finishServerGame(input: {
       elo: d.elo ? { ...d.elo, bonus: Number(d.elo.bonus), hintCut: Number(d.elo.hintCut) } : undefined,
       daily: d.daily ?? undefined,
       drop: d.drop ?? undefined,
+      progress: d.progress ?? undefined,
       influence: d.influence ?? undefined,
     },
   };
