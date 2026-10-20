@@ -130,8 +130,8 @@ export async function mendDaily(date: string): Promise<{ error: string | null; b
 export const MEND_COST = 300;
 export const MENDS_A_MONTH = 3;
 
-export const LOADOUT_KEY = 'elomental:loadout';
-export const POLISH_KEY = 'elomental:polish';
+const LOADOUT_KEY = 'elomental:loadout';
+const POLISH_KEY = 'elomental:polish';
 /** The last known polish (which avatars are alive), for Home's avatar. */
 export const cachedPolish = (): Polish => readJson<Polish>(POLISH_KEY) ?? {};
 /** The last known loadout, for Home's avatar to paint at once. */

@@ -42,7 +42,7 @@ export interface ClashRecord {
   updated?: number;
 }
 
-export const STORE_KEY = 'elomental:clashes';
+const STORE_KEY = 'elomental:clashes';
 
 export const normalizeCode = (text: string): string =>
   text

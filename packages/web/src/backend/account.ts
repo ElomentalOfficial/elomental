@@ -2,11 +2,8 @@ import type { Session } from '@supabase/supabase-js';
 import type { Element } from '../profile.ts';
 import { applySettings, cleanSettings, localSettings, type Settings } from '../settings.ts';
 import { readJson, removeKey, removeKeysStartingWith, writeJson } from '../storage.ts';
-import { STORE_KEY as CLASHES_KEY } from '../clash.ts';
 import { captchaToken } from './captcha.ts';
 import { supabase } from './client.ts';
-import { LOADOUT_KEY, POLISH_KEY } from './forge.ts';
-import { PENDING_KEY } from './pending.ts';
 import * as copy from '../copy/en.ts';
 
 // --- Account cache ------------------------------------------------------------
@@ -60,12 +57,14 @@ const ACCOUNT_KEY = 'elomental:account';
  * account signs in (full review L14): its avatar and polish, its clash log, games in progress
  * (one per mode, game.ts SAVE_PREFIX) and results waiting to be sent (pending.ts PENDING_KEY).
  */
-// screens/game.ts SAVE_PREFIX; not imported, so the account cache doesn't pull in the game screen
+// Written out, not imported: forge.ts, pending.ts and game.ts all import this module, and an
+// import back would make a cycle (see signOut). Their owners: forge.ts LOADOUT_KEY and POLISH_KEY,
+// clash.ts STORE_KEY, pending.ts PENDING_KEY, game.ts SAVE_PREFIX.
+const ACCOUNT_DATA_KEYS = ['elomental:loadout', 'elomental:polish', 'elomental:clashes', 'elomental:pending-results'];
 const SAVED_GAMES_PREFIX = 'elomental:game';
 
 function clearAccountData(): void {
-  // read at call time: forge.ts and pending.ts import this module too
-  for (const key of [LOADOUT_KEY, POLISH_KEY, CLASHES_KEY, PENDING_KEY]) removeKey(key);
+  for (const key of ACCOUNT_DATA_KEYS) removeKey(key);
   removeKeysStartingWith(SAVED_GAMES_PREFIX);
 }
 
