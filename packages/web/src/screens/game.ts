@@ -1,4 +1,4 @@
-import { a11yPrefs, haptic, onA11yChange, reducedMotion } from '../a11y.ts';
+import { a11yPrefs, haptic, onA11yChange } from '../a11y.ts';
 import { openShortcuts } from '../shortcuts.ts';
 import { playSound } from '../sound.ts';
 import {
@@ -16,21 +16,12 @@ import {
   type Move,
 } from '@elomental/engine';
 import { ICONS } from '../icons.ts';
-import { dropReveal, influenceLine, progressLine } from '../reward.ts';
-import { badgeMonth } from '../badges.ts';
-import { forgeScreen } from './forge.ts';
-import { affinityScreen } from './affinity.ts';
-import { affinityDue } from '../backend/affinity.ts';
 import {
   HINT_ELO_PENALTY,
-  dailyGoal,
   loadProfile,
-  nextRank,
   parMs,
-  promoted,
   puzzleProfile,
   rankedTarget,
-  rankTier,
   recordResult,
   type Mode,
   type Outcome,
@@ -38,21 +29,17 @@ import {
 import { importPuzzle, requestPuzzle } from '../puzzles.ts';
 import { formatSquareCode } from '../squareCode.ts';
 import { copyText } from '../clipboard.ts';
-import { openNotesWheel, type NotesWheel } from '../radial.ts';
 import { RIBBON_BOX, RIBBON_PATH } from '../ribbon.ts';
 import { notesWheelOn } from '../settings.ts';
 import { readJson, removeKey, writeJson } from '../storage.ts';
 import { explainHint, type Marks } from '../explain.ts';
 import { getClash, saveClash, type ClashResult } from '../clash.ts';
-import { clashTable, clashVerdict, shareButton } from '../clashView.ts';
 import {
   GameRefused,
   auditServerGame,
-  cachedAccount,
   fetchClash,
   finishServerGame,
   pauseServerGame,
-  registered,
   resumeServerGame,
   saveSettings,
   signedIn,
@@ -60,14 +47,15 @@ import {
   startServerGame,
   type ServerStart,
 } from '../backend.ts';
-import { signUpForm } from '../accountForm.ts';
-import { addToHomeResultNote } from '../install.ts';
 import { devOn } from '../backend/dev.ts';
 import { dropPending, flushPending, keepPending, markSending, pendingResults } from '../backend/pending.ts';
 import { runHintCoach } from '../hintCoach.ts';
 import { runTutorial, tutorialDone, type TutorialStep } from '../tutorial.ts';
 import { formatSeconds, formatTime, goBack, h, hiddenHeading, mount, openModal, toast, type Screen } from '../ui.ts';
 import { dailyScreen } from './daily.ts';
+import { showClashResult, showResult, type FinishReason } from './result.ts';
+import { boardGestures } from './wheel.ts';
+import { devBar } from './devBar.ts';
 import { homeScreen } from './home.ts';
 import * as copy from '../copy/en.ts';
 
@@ -133,10 +121,6 @@ const saveKey = (mode: Mode) => `${SAVE_PREFIX}:${mode}`;
 const MAX_MISTAKES = 3;
 /** Hints per game, in every mode. Each one trims Stardust; in Ranked it also costs Elo (profile.ts). */
 const MAX_HINTS = 3;
-/** Hold this long to open the notes wheel; quick taps stay well under it. */
-const LONG_PRESS_MS = 230;
-/** Or drag this far from the square to open it immediately (swipe-to-note). */
-const SWIPE_START = 14;
 
 /** The game of this mode in progress on this phone, if any. */
 export function loadSavedGame(mode: Mode): SavedGame | null {
@@ -871,9 +855,7 @@ function gameScreen(game: SavedGame): Screen {
   const clock = setInterval(tick, 250);
   const autosave = setInterval(save, 2000);
 
-  // --- Dev mode (founders only; backend/dev.ts) ------------------------------
-  // Solve now fills in the answer and wins; Lose now ends it as three mistakes. The
-  // server accepts an instant solve only while dev mode is on.
+  // --- Dev mode (founders only; devBar.ts) ------------------------------------
   if (devOn() && config.serverId) {
     const solveNow = () => {
       if (finished) return;
@@ -890,16 +872,11 @@ function gameScreen(game: SavedGame): Screen {
       render();
       finish(false, 'mistakes');
     };
-    // under the status row, in the page's flow: never over the timer or Home (L15)
-    status.after(
-      h('div', { class: 'dev-bar', attrs: { role: 'group', 'aria-label': copy.dev.a11yBar } },
-        h('button', { class: 'btn', text: copy.dev.solveNow, attrs: { type: 'button' }, onclick: solveNow }),
-        h('button', { class: 'btn', text: copy.dev.loseNow, attrs: { type: 'button' }, onclick: loseNow })),
-    );
+    status.after(devBar(solveNow, loseNow));
   }
 
   // --- Finish --------------------------------------------------------------
-  function finish(won: boolean, reason: 'solved' | 'mistakes' | 'concede') {
+  function finish(won: boolean, reason: FinishReason) {
     if (finished) return;
     finished = true;
     tick();
@@ -913,7 +890,7 @@ function gameScreen(game: SavedGame): Screen {
     void settle(won).then(async ({ outcome, notice }) => {
       await shown;
       if (clash) await showClash(won, outcome, notice);
-      else showResult(won, reason, outcome, notice);
+      else showResult(game, won, reason, outcome, { max: MAX_MISTAKES, on: mistakeLimit() }, notice);
     });
   }
 
@@ -972,155 +949,6 @@ function gameScreen(game: SavedGame): Screen {
     showClashResult(code, mine, theirs, outcome, notice, !!config.serverId);
   }
 
-  function showClashResult(code: string, mine: ClashResult, theirs: ClashResult | null, outcome: Outcome, notice?: string, online = false) {
-    const verdict = clashVerdict(mine, theirs);
-    const rewards = h('div', { class: 'rewards' });
-    if (outcome.dust) rewards.append(h('div', { class: 'reward' }, h('span', { html: ICONS.dust }), h('span', { text: copy.common.plusStardust(outcome.dust) })));
-    if (outcome.spirit) rewards.append(h('div', { class: 'reward rare', html: `${ICONS.spirit}<span>${copy.common.rareSpirit}</span>` }));
-    rewards.append(...capLines(outcome));
-    openModal(
-      h(
-        'div',
-        { class: 'result clash-result' },
-        h('h2', { class: verdict.tone, text: verdict.title }),
-        notice ? h('p', { class: 'note', text: notice }) : null,
-        h('p', {
-          class: 'note',
-          text: online
-            ? theirs
-              ? copy.clash.resultNote.onlineAnswered
-              : copy.clash.resultNote.onlineWaiting
-            : theirs
-              ? copy.clash.resultNote.offlineAnswered
-              : copy.clash.resultNote.offlineWaiting,
-        }),
-        clashTable(code, mine, theirs),
-        rewards.childElementCount ? rewards : null,
-        resultExtra(mine.solved, !!outcome.drop),
-        h(
-          'div',
-          { class: 'actions' },
-          shareButton(code, mine, theirs ? copy.clash.sendResult : copy.clash.challengeFriend),
-          h('button', { class: 'btn', text: copy.common.home, onclick: () => void goBack(homeScreen) }),
-        ),
-      ),
-      { dismissible: false },
-    );
-  }
-
-  function showResult(won: boolean, reason: string, outcome: Outcome, notice?: string) {
-    const titles = copy.result.titles;
-    // One line on how it went: a win line that fits the game, or a kind word after a loss
-    // (a failed Daily has its own retry note below instead).
-    const line = won
-      ? copy.result.winLine({ mistakes: game.mistakes, hints: game.hints, maxMistakes: MAX_MISTAKES }, config.seed)
-      : config.mode === 'daily'
-        ? null
-        : copy.result.lossLine(reason === 'mistakes' ? 'mistakes' : 'concede');
-    const rows: (HTMLElement | null)[] = [
-      notice ? h('p', { class: 'note', text: notice }) : null,
-      line ? h('p', { class: 'note result-line', text: line }) : null,
-      statRow(copy.result.time, formatTime(game.elapsedMs)),
-      statRow(copy.result.mistakes, copy.result.mistakesOf(game.mistakes, mistakeLimit() ? MAX_MISTAKES : null)),
-    ];
-    if (game.hints) rows.push(statRow(copy.result.hints, String(game.hints)));
-    let promotedNow = false;
-    if (outcome.elo) {
-      const delta = outcome.elo.after - outcome.elo.before;
-      const eloRow = statRow(copy.result.elo, copy.result.eloChange(outcome.elo.before, outcome.elo.after), delta > 0 ? 'good' : '');
-      // The new rating counts up from the old one.
-      countUp(eloRow.querySelector('strong')!, outcome.elo.before, outcome.elo.after, (n) => copy.result.eloChange(outcome.elo!.before, n, delta));
-      // a speed bonus is a small line inside the Elo row, not a block of its own; cuts (a slow
-      // solve, hints) are said there too, never applied in silence
-      const sub = (text: string, cls = 'stat-sub') => eloRow.append(h('span', { class: cls, text }));
-      if (!outcome.elo.unrated && outcome.elo.bonus > 0) sub(copy.result.speedBonus(Math.round(outcome.elo.bonus * 100)));
-      else if (!outcome.elo.unrated && outcome.elo.bonus < 0) sub(copy.result.slowCut(Math.round((2 * parMs(config.target ?? config.rating)) / 60_000)), 'stat-sub plain');
-      if (!outcome.elo.unrated && outcome.elo.hintCut > 0) sub(copy.game.hintEloCut(Math.round(outcome.elo.hintCut * 100)), 'stat-sub plain');
-      rows.push(eloRow);
-      // how far the next rank is now (at the top there's no next); after a promotion, below it
-      const next = nextRank(outcome.elo.after);
-      const nextLine = next ? h('p', { class: 'note result-next-rank', text: copy.common.toNextRank(next.gap, next.label) }) : null;
-      // A step up in tier or division gets its moment: the new emblem stamps in.
-      promotedNow = !outcome.elo.unrated && promoted(outcome.elo.before, outcome.elo.after);
-      if (!promotedNow && nextLine) sub(nextLine.textContent!, 'stat-sub muted');
-      if (promotedNow) {
-        const tier = rankTier(outcome.elo.after);
-        rows.push(
-          h(
-            'p',
-            { class: 'promotion good' },
-            h('span', { class: `tier-emblem tier-${tier.tier}`, html: ICONS.tiers[tier.tier], attrs: { 'aria-hidden': 'true' } }),
-            h('span', { text: copy.result.promoted(tier.label) }),
-          ),
-          nextLine,
-        );
-      }
-      // Only what went well here; no coaching tips (docs/AUDIT.md: a quieter result).
-      if (outcome.elo.unrated) {
-        rows.push(
-          h('p', {
-            class: 'note',
-            text:
-              copy.result.unrated[outcome.elo.unrated],
-          }),
-        );
-      }
-      if (outcome.elo.protectedLoss) rows.push(h('p', { class: 'note', text: copy.result.protectedLoss }));
-    }
-    if (outcome.daily) {
-      rows.push(statRow(copy.result.thisMonth, copy.result.monthOf(outcome.daily.done, dailyGoal(outcome.daily.done, outcome.daily.days))));
-      if (outcome.daily.badgeNew && outcome.daily.badge) rows.push(h('p', { class: 'note good', text: copy.result.monthBadgeEarned(badgeMonth(outcome.daily.badge)) }));
-    }
-
-    const rewards = h('div', { class: 'rewards' });
-    if (outcome.dust) {
-      const amount = h('span', { text: copy.common.plusStardust(outcome.dust) });
-      countUp(amount, 0, outcome.dust, copy.common.plusStardust);
-      rewards.append(h('div', { class: 'reward' }, h('span', { html: ICONS.dust }), amount));
-    }
-    if (outcome.spirit) rewards.append(h('div', { class: 'reward rare', html: `${ICONS.spirit}<span>${copy.common.rareSpirit}</span>` }));
-
-    // One strip for everything earned: Stardust, a Spirit, influence, and (between parts)
-    // how close the next part is.
-    if (outcome.influence) rewards.append(influenceLine(outcome.influence));
-    if (outcome.progress && !outcome.drop) rewards.append(progressLine(outcome.progress));
-    // the day's counted solves are used up: say so, rather than the strip just going quiet
-    rewards.append(...capLines(outcome));
-
-    // A failed Daily can be retried (same square) until it's solved; only a solve marks the day.
-    const retryDaily = config.mode === 'daily' && !won;
-    if (retryDaily) rows.push(h('p', { class: 'note', text: copy.result.dailyRetry }));
-    const again =
-      retryDaily
-        ? h('button', {
-            class: 'btn btn-primary',
-            text: copy.result.tryAgain,
-            onclick: () => void startGame({ mode: 'daily', difficulty: config.difficulty, seed: config.seed, dateKey: config.dateKey }),
-          })
-        : config.mode === 'daily'
-        ? h('button', { class: 'btn btn-primary', text: copy.result.calendar, onclick: () => void goBack(dailyScreen) })
-        : h('button', {
-            class: 'btn btn-primary',
-            text: ranked ? copy.result.nextRanked : copy.result.newSquare,
-            onclick: () => void startGame({ mode: config.mode, difficulty: config.difficulty }),
-          });
-
-    openModal(
-      h(
-        'div',
-        { class: 'result' },
-        h('h2', { class: won ? 'good' : '', text: titles[reason] }),
-        h('div', { class: 'stats' }, ...rows),
-        rewards.childElementCount ? rewards : null,
-        // last beat: the drop cools out of the forge, then the affinity's share
-        outcome.drop ? dropReveal(outcome.drop, () => void goBack(forgeScreen)) : null,
-        resultExtra(won, !!outcome.drop || promotedNow || !!outcome.daily?.badgeNew),
-        h('div', { class: 'actions' }, again, h('button', { class: 'btn', text: copy.common.home, onclick: () => void goBack(homeScreen) })),
-      ),
-      { dismissible: false },
-    );
-  }
-
   function concede() {
     const close = openModal(
       h(
@@ -1145,25 +973,17 @@ function gameScreen(game: SavedGame): Screen {
     );
   }
 
-  // --- Board gestures: tap selects, long-press opens the notes wheel --------
-  let press: { id: number; x: number; y: number; cell: number; timer: number } | null = null;
-  let wheel: NotesWheel | null = null;
-
+  // --- Board gestures: tap selects, long-press opens the notes wheel (wheel.ts) --
+  const gestures = boardGestures({
+    board,
+    cells,
+    useWheel,
+    select,
+    canNote: (cell) => editable(cell) && !game.values[cell],
+    notes: (cell) => game.notes[cell],
+    toggleNote,
+  });
   const cellFrom = (target: EventTarget | null) => (target as HTMLElement | null)?.closest<HTMLElement>('[data-cell]');
-
-  function openWheel(cell: number, x: number, y: number) {
-    // No extra cue on the cell or the keypad: the open wheel already shows it's notes.
-    endPressFeedback();
-    wheel = openNotesWheel({
-      x,
-      y,
-      notes: game.notes[cell],
-      onToggle: (digit) => toggleNote(cell, digit),
-      onClose: () => {
-        wheel = null;
-      },
-    });
-  }
 
   // iOS runs its own long-press (text selection, magnifier, callout) off the touch
   // events and then cancels our pointer mid-gesture. Cancelling touchstart keeps the
@@ -1175,70 +995,6 @@ function gameScreen(game: SavedGame): Screen {
     const target = cellFrom(event.target);
     if (target && Number(target.dataset.cell) !== selected) select(Number(target.dataset.cell));
   });
-
-  board.addEventListener('pointerdown', (event) => {
-    const target = cellFrom(event.target);
-    if (!target) return;
-    wheel?.close(); // never let a half-finished wheel block the board
-    event.preventDefault();
-    const cell = Number(target.dataset.cell);
-    select(cell);
-    if (!useWheel || !editable(cell) || game.values[cell]) return;
-    if (event.button === 2) return openWheel(cell, event.clientX, event.clientY); // right-click on desktop
-    try {
-      // Keep receiving moves while the finger slides off the board toward a wheel digit.
-      board.setPointerCapture(event.pointerId);
-    } catch {
-      // Synthetic or already-released pointers can't be captured; the gesture still works on the board.
-    }
-    // Immediate feedback while the hold builds up (a ring fills around the square).
-    cells[cell].classList.add('pressing');
-    press = {
-      id: event.pointerId,
-      x: event.clientX,
-      y: event.clientY,
-      cell,
-      timer: window.setTimeout(() => {
-        if (press) openWheel(press.cell, press.x, press.y);
-      }, LONG_PRESS_MS),
-    };
-  });
-  const endPressFeedback = () => {
-    for (const c of board.querySelectorAll('.cell.pressing')) c.classList.remove('pressing');
-  };
-  // Move/up/cancel are tracked on the window, not the board: once the wheel opens it
-  // covers the board, and iOS doesn't reliably honour pointer capture for touch, so
-  // the lift can land on the wheel's overlay instead. Missing it is what left the
-  // wheel stuck open with no way to close it.
-  const onPressMove = (event: PointerEvent) => {
-    if (!press || event.pointerId !== press.id) return;
-    if (!wheel && Math.hypot(event.clientX - press.x, event.clientY - press.y) > SWIPE_START) {
-      // Swipe shortcut: dragging off a square means "note", so open at once
-      // instead of waiting for the long-press. Nothing else uses drags on the board.
-      clearTimeout(press.timer);
-      endPressFeedback();
-      openWheel(press.cell, press.x, press.y);
-    }
-    wheel?.move(event.clientX, event.clientY);
-  };
-  const onPressUp = (event: PointerEvent) => {
-    if (!press || event.pointerId !== press.id) return;
-    clearTimeout(press.timer);
-    endPressFeedback();
-    press = null;
-    wheel?.release(event.clientX, event.clientY);
-  };
-  const onPressCancel = (event: PointerEvent) => {
-    if (!press || event.pointerId !== press.id) return;
-    clearTimeout(press.timer);
-    endPressFeedback();
-    press = null;
-    // The system took the touch away: drop the wheel without adding anything.
-    wheel?.close();
-  };
-  window.addEventListener('pointermove', onPressMove, true);
-  window.addEventListener('pointerup', onPressUp, true);
-  window.addEventListener('pointercancel', onPressCancel, true);
 
   /**
    * Touch and mouse act on pointerdown, with no tap delay. Keyboards, switch
@@ -1279,8 +1035,8 @@ function gameScreen(game: SavedGame): Screen {
   const onKey = (event: KeyboardEvent) => {
     if (coaching) return; // tutorial or hint explanation on screen
     if (document.querySelector('body > .backdrop')) return; // a pop-up has the keyboard
-    if (wheel) {
-      if (event.key === 'Escape') wheel.close();
+    if (gestures.wheelOpen()) {
+      if (event.key === 'Escape') gestures.closeWheel();
       return;
     }
     const digitKey = event.code.startsWith('Digit') ? Number(event.code.slice(5)) : NaN;
@@ -1382,113 +1138,14 @@ function gameScreen(game: SavedGame): Screen {
     title: typeLabel,
     destroy() {
       save();
-      wheel?.close();
+      gestures.destroy();
       for (const { timer } of fading.values()) clearTimeout(timer);
       clearInterval(clock);
       clearInterval(autosave);
       window.removeEventListener('keydown', onKey);
       stopA11y();
-      window.removeEventListener('pointermove', onPressMove, true);
-      window.removeEventListener('pointerup', onPressUp, true);
-      window.removeEventListener('pointercancel', onPressCancel, true);
       document.removeEventListener('visibilitychange', onHide);
     },
   };
 }
 
-/**
- * At most one optional block on a result (full review H9), and none when the result already
- * has its moment (a part, a promotion, the month's badge): the install note when it's due,
- * otherwise, for guests, the sign-up line. Each counts only the results it was offered on,
- * so the two never land together.
- */
-function resultExtra(won: boolean, busy: boolean): HTMLElement | null {
-  if (busy) return null;
-  return firstWinLine(won) ?? sideLine(won) ?? addToHomeResultNote(won) ?? signupPrompt();
-}
-
-const SIDE_ASKED_KEY = 'elomental:affinity-result';
-
-/** Once, when it's time to choose a side: the way to it on any screen (Home's line can't fit everywhere). */
-function sideLine(won: boolean): HTMLElement | null {
-  if (!won || !affinityDue() || readJson<boolean>(SIDE_ASKED_KEY)) return null;
-  writeJson(SIDE_ASKED_KEY, true);
-  return h(
-    'div',
-    { class: 'first-win' },
-    h('p', { text: copy.result.chooseSide }),
-    h('button', { class: 'link-btn', text: copy.home.line.chooseSide, attrs: { type: 'button' }, onclick: () => void goBack(affinityScreen) }),
-  );
-}
-
-const FIRST_WIN_KEY = 'elomental:first-win';
-
-/** Once, on a signed-in player's first solve: what parts and Stardust are for, and the way to the Forge. */
-function firstWinLine(won: boolean): HTMLElement | null {
-  const account = cachedAccount();
-  if (!won || !account || account.solved > 1 || readJson<boolean>(FIRST_WIN_KEY)) return null;
-  writeJson(FIRST_WIN_KEY, true);
-  return h(
-    'div',
-    { class: 'first-win' },
-    h('p', { text: copy.result.firstWin }),
-    h('button', { class: 'link-btn', text: copy.forge.openForge, attrs: { type: 'button' }, onclick: () => void goBack(forgeScreen) }),
-  );
-}
-
-const RESULTS_KEY = 'elomental:results';
-/** Every 5th result it's offered on (3rd, 8th, 13th…). */
-const SIGNUP_EVERY = 5;
-
-/**
- * Guests only: one line ("Keep this on any device. Sign up") that opens the sign-up form.
- * A guest account (anonymous) keeps everything it earned when an email is added; a local
- * guest saves from the next game on.
- */
-function signupPrompt(): HTMLElement | null {
-  if (registered()) return null;
-  const results = (readJson<number>(RESULTS_KEY) ?? 0) + 1;
-  writeJson(RESULTS_KEY, results);
-  if (results % SIGNUP_EVERY !== 3) return null;
-  const keeps = signedIn(); // anonymous account: this game is already on the server
-  const box = signUpForm({
-    collapsed: true,
-    line: keeps ? copy.account.keepLine : copy.account.saveLine,
-    title: keeps ? copy.account.keepRewards : copy.account.saveProgress,
-    text: keeps ? copy.account.keepRewardsText : copy.account.saveProgressText,
-    // saved to this guest (everything kept), or signed in to another account (this guest stays behind)
-    onDone: (kind) => box.replaceChildren(h('p', { class: 'signup-done', text: kind === 'email_change' ? copy.account.signedUp : copy.account.signedInSwitched })),
-  });
-  return box;
-}
-
-/** The day's limits, when this result met one: Stardust after 20 squares, parts after 3. */
-function capLines(outcome: Outcome): HTMLElement[] {
-  const lines: HTMLElement[] = [];
-  if (outcome.dustCapped) lines.push(h('p', { class: 'part-progress', text: copy.result.dustCapped }));
-  if (outcome.partsCapped) lines.push(h('p', { class: 'part-progress', text: copy.result.partsCapped }));
-  return lines;
-}
-
-function statRow(label: string, value: string, valueClass = ''): HTMLElement {
-  return h('div', { class: 'stat' }, h('span', { text: label }), h('strong', { class: valueClass, text: value }));
-}
-
-/**
- * Count a number up in `target` (ease-out, ~0.7s, after the modal settles).
- * The final text is set immediately for screen readers and reduced motion.
- */
-function countUp(target: HTMLElement, from: number, to: number, format: (n: number) => string): void {
-  target.textContent = format(to);
-  if (from === to || reducedMotion()) return;
-  target.textContent = format(from);
-  const duration = 700;
-  let start = 0;
-  const step = (now: number) => {
-    start ||= now;
-    const t = Math.min(1, (now - start) / duration);
-    target.textContent = format(Math.round(from + (to - from) * (1 - (1 - t) ** 3)));
-    if (t < 1) requestAnimationFrame(step);
-  };
-  setTimeout(() => requestAnimationFrame(step), 250);
-}
