@@ -8,6 +8,10 @@
     "dev": "npm run dev -w @elomental/web",
     "build": "npm run build -w @elomental/web",
     "test": "npm test --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present"
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test:db": "node supabase/tests/economy.mjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.3.11"
   }
 }
