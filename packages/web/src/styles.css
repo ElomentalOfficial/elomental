@@ -204,12 +204,12 @@
   --glass-divider: rgba(121, 67, 65, 0.16);
   --glass-hub: rgba(255, 255, 229, 0.55);
   --modal-bg: var(--c-bright);
-  /* Name plate borders: the same metals, deep enough for 3:1 on the light surfaces. */
-  --plate-bronze: #8a5a34;
-  --plate-silver: #5d6670;
-  --plate-gold: #7d6219;
-  --plate-elo: #6b4f12;
-  --plate-glow: rgba(201, 165, 78, 0.45);
+  /* Name plate borders: the same metals, polished bright (decoration; the name carries it). */
+  --plate-bronze: #c48b5c;
+  --plate-silver: #9aa4ae;
+  --plate-gold: #c9a24a;
+  --plate-elo: #d4ad4f;
+  --plate-glow: rgba(240, 205, 120, 0.7);
   --modal-border: rgba(121, 67, 65, 0.18);
   --primary-bg: var(--accent);
   --primary-text: var(--c-bright);
@@ -5512,9 +5512,11 @@ html[data-large-text] .shortcut-list {
 
 /* ---------- Name plates and polish (Stardust; a look only) ---------- */
 /* A plate is an Art Deco border around the name (plates.ts): Bronze a single line with
-   square corners, Silver a double line with stepped corners, Gold adds sunburst fans and
-   gems, the Elomentalist a crown, chevrons and a soft glow. The name keeps its own colour;
-   the border is decoration in the plate's metal (--plate, 3:1 on every surface it sits on). */
+   square corners, Silver a double line with stepped corners, Gold sunburst fans and gems,
+   the Elomentalist a pointed cartouche with a sunburst crown and a soft glow. The name
+   keeps its own colour; the border is decoration in the plate's metal (--plate), a little
+   see-through and worn in specks and patches like the tiles' frames (art/plate-wear.png,
+   icons/make-plate-wear.mjs; a plain image mask, which Firefox draws as crisply). */
 .name-plate {
   position: relative;
   display: inline-block;
@@ -5522,10 +5524,13 @@ html[data-large-text] .shortcut-list {
   /* the border takes no more room than the name did */
   margin: -7px 0;
 }
-/* gems and the crown reach past the lines: room so they don't touch the line below */
-.name-plate.plate-3,
-.name-plate.plate-4 {
+/* gems and the crown reach past the lines: room so they don't touch what's around */
+.name-plate.plate-3 {
   margin: -4px 0 4px;
+}
+.name-plate.plate-4 {
+  padding: 8px 32px;
+  margin: 14px 12px 6px;
 }
 .plate-1 { --plate: var(--plate-bronze); }
 .plate-2 { --plate: var(--plate-silver); }
@@ -5533,49 +5538,74 @@ html[data-large-text] .shortcut-list {
 .plate-4 { --plate: var(--plate-elo); }
 .plate-frame {
   position: absolute;
-  inset: 0;
+  inset: -24px -16px;
   color: var(--plate);
+  opacity: 0.8;
   pointer-events: none;
+  -webkit-mask: url('./art/plate-wear.png') 0 0 / 128px 128px repeat;
+  mask: url('./art/plate-wear.png') 0 0 / 128px 128px repeat;
 }
-.plate-frame::before,
-.plate-frame::after {
+.plate-box {
+  position: absolute;
+  inset: 24px 16px;
+}
+.plate-box::before,
+.plate-box::after {
   content: '';
   position: absolute;
   inset: 0;
   border: 1px solid currentColor;
 }
-.plate-1 .plate-frame::after {
-  content: none;
-}
-.plate-frame::after {
+.plate-box::after {
   inset: 3px;
 }
-.plate-4 .plate-frame {
-  filter: drop-shadow(0 0 2px var(--plate-glow));
+.plate-1 .plate-box::after {
+  content: none;
 }
-.plate-frame svg {
+.plate-box svg {
   position: absolute;
   overflow: visible;
   fill: none;
   stroke: currentColor;
   stroke-width: 1;
 }
-.plate-frame svg .solid {
+.plate-box svg .solid {
   fill: currentColor;
   stroke: none;
 }
 /* (sizes set here too: other rules stretch icons to their box) */
-.plate-frame .plate-corner { width: 21px; height: 21px; }
-.plate-frame .plate-mid { width: 20px; height: 14px; }
-.plate-frame .plate-side { width: 14px; height: 20px; }
+.plate-box .plate-corner { width: 21px; height: 21px; }
+.plate-box .plate-mid { width: 20px; height: 14px; }
 .plate-corner { top: -5px; left: -5px; }
 .plate-corner.c-tr { left: auto; right: -5px; transform: scaleX(-1); }
 .plate-corner.c-bl { top: auto; bottom: -5px; transform: scaleY(-1); }
 .plate-corner.c-br { top: auto; left: auto; bottom: -5px; right: -5px; transform: scale(-1); }
 .plate-mid { top: -7px; left: calc(50% - 10px); }
 .plate-mid.m-b { top: auto; bottom: -7px; transform: scaleY(-1); }
-.plate-side { left: -7px; top: calc(50% - 10px); }
-.plate-side.s-r { left: auto; right: -7px; transform: scaleX(-1); }.plate-sheet,
+/* The Elomentalist: the straight lines stop where the pointed ends begin (26px in). */
+.plate-4 .plate-box {
+  filter: drop-shadow(0 0 2px var(--plate-glow));
+}
+.plate-4 .plate-box::before,
+.plate-4 .plate-box::after {
+  left: 26px;
+  right: 26px;
+  border-left: 0;
+  border-right: 0;
+}
+.plate-box .elo-end,
+.plate-box .elo-inner {
+  left: 0;
+  width: 26px;
+}
+.plate-box .elo-end { top: 0.5px; height: calc(100% - 1px); }
+.plate-box .elo-inner { top: 3.5px; height: calc(100% - 7px); }
+.plate-box .e-r { left: auto; right: 0; transform: scaleX(-1); }
+.plate-box .elo-tip { width: 21px; height: 14px; top: calc(50% - 7px); left: -13.5px; }
+.plate-box .elo-tip.t-r { left: auto; right: -13.5px; transform: scaleX(-1); }
+.plate-box .elo-tip .ring { opacity: 0.6; }
+.plate-box .elo-crown { width: 44px; height: 22px; top: -20.5px; left: calc(50% - 22px); }
+.plate-box .elo-drop { width: 24px; height: 11px; top: calc(100% - 2.5px); left: calc(50% - 12px); }.plate-sheet,
 .mend-sheet {
   text-align: center;
 }
@@ -5594,6 +5624,7 @@ html[data-large-text] .shortcut-list {
 }
 .plate-list li {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
@@ -5602,12 +5633,15 @@ html[data-large-text] .shortcut-list {
   font-family: var(--serif);
   font-size: var(--fs-small);
 }
+.plate-list li > span:last-child {
+  white-space: nowrap;
+}
 .plate-list li.is-yours {
   font-weight: 700;
 }
 .plate-list .name-plate {
   font-family: var(--font);
-  font-size: var(--fs-body);
+  font-size: var(--fs-small);
   font-weight: 700;
 }
 /* Polish I–V on a part: a soft sheen, then a gilt glow, then a slow glint at V. */
