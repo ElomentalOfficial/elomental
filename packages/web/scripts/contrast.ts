@@ -12,7 +12,8 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-export type Theme = 'dark' | 'light';
+/** Each theme, and each with Setup > Accessibility > Contrast: High. */
+export type Theme = 'dark' | 'light' | 'dark-hc' | 'light-hc';
 type RGBA = [number, number, number, number];
 
 /** [label, foreground token, background token, required ratio, what a translucent background sits on, foreground opacity] */
@@ -26,6 +27,14 @@ export const PAIRS: Pair[] = [
   ['Text on modal', '--text', '--modal-bg', 4.5],
   ['Text on surface-2 (inputs, segments)', '--text', '--surface-2', 4.5],
   ['Muted text on surface-2 (resume info, pills)', '--muted', '--surface-2', 4.5],
+  ['Muted text on surface (cards, profile rank)', '--muted', '--surface', 4.5],
+  ['Muted text on a chosen card', '--muted-chosen', '--chosen-bg', 4.5, '--surface'],
+  // The accent as text (titles, counts, the Daily month, errors' mark, outline buttons)
+  ['Accent text on page', '--accent-text', '--bg', 4.5],
+  ['Accent text on surface', '--accent-text', '--surface', 4.5],
+  ['Accent text on surface-2', '--accent-text', '--surface-2', 4.5],
+  ['Accent text on modal', '--accent-text', '--modal-bg', 4.5],
+  ['Accent text on a chosen card', '--accent-text', '--chosen-bg', 4.5, '--surface'],
   ['Home tile label', '--tile-text', '--tile', 4.5],
   ['Daily tile label (Bright on Crimson)', '--c-bright', '--c-crimson', 4.5],
   ['Casual tile label (Bright on Forest)', '--c-bright', '--c-forest', 4.5],
@@ -91,6 +100,8 @@ export const PAIRS: Pair[] = [
   ['UI: mistake unused vs page', '--mistake-off', '--bg', 3],
   ['UI: keypad key vs page', '--key-bg', '--bg', 3],
   ['UI: text field border vs modal', '--field-border', '--modal-bg', 3],
+  ['UI: text field border vs surface (Setup cards)', '--field-border', '--surface', 3],
+  ['UI: Clash code box edge vs modal (as a text field)', '--field-border', '--modal-bg', 3],
   ['UI: selected segment ring vs track', '--select', '--chip-bg', 3, '--modal-bg'],
   // Supplementary or decorative: measured, never required (see ACCEPTED).
   ['UI: board cell vs page', '--cell', '--bg', 3],
@@ -155,9 +166,15 @@ function block(css: string, selector: RegExp): Record<string, string> {
 
 export function themes(css: string): Record<Theme, Record<string, string>> {
   const palette = block(css, /\/\* Palette from the Figma ColorPalette frame\. \*\/\s*:root/);
+  const dark = { ...palette, ...block(css, /:root,\s*:root\[data-theme='dark'\]/) };
+  const light = { ...palette, ...block(css, /:root\[data-theme='light'\]\s*\{/) };
+  // High contrast: the shared overrides, then each theme's own (styles.css, "High contrast").
+  const hc = block(css, /:root\[data-contrast='high'\]\[data-theme\]\s*\{/);
   return {
-    dark: { ...palette, ...block(css, /:root,\s*:root\[data-theme='dark'\]/) },
-    light: { ...palette, ...block(css, /:root\[data-theme='light'\]\s*\{/) },
+    dark,
+    light,
+    'dark-hc': { ...dark, ...hc, ...block(css, /:root\[data-contrast='high'\]\[data-theme='dark'\]\s*\{/) },
+    'light-hc': { ...light, ...hc, ...block(css, /:root\[data-contrast='high'\]\[data-theme='light'\]\s*\{/) },
   };
 }
 
@@ -185,7 +202,7 @@ export interface Row {
 }
 
 export function contrast(css: string): Record<Theme, Row[]> {
-  const out = { dark: [] as Row[], light: [] as Row[] };
+  const out = { dark: [], light: [], 'dark-hc': [], 'light-hc': [] } as Record<Theme, Row[]>;
   for (const [theme, vars] of Object.entries(themes(css)) as [Theme, Record<string, string>][]) {
     for (const [label, fgToken, bgToken, need, underToken, opacity] of PAIRS) {
       const under = underToken ? colour(vars, underToken) : undefined;
@@ -241,7 +258,7 @@ export interface StatePair {
 
 /** State pairs that look alike (ΔE < 15) under some kind of colour vision. */
 export function lookAlikes(css: string): Record<Theme, StatePair[]> {
-  const out = { dark: [] as StatePair[], light: [] as StatePair[] };
+  const out = { dark: [], light: [], 'dark-hc': [], 'light-hc': [] } as Record<Theme, StatePair[]>;
   for (const [theme, vars] of Object.entries(themes(css)) as [Theme, Record<string, string>][]) {
     const cols = STATES.map(([name, token]) => [name, colour(vars, token)!] as const);
     for (const vision of ['normal', ...Object.keys(MACHADO)]) {

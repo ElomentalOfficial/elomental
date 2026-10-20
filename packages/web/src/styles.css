@@ -9,6 +9,7 @@
   --c-rock: #b3b5a0;
   --c-lava: #a85b37; /* was #b1613c; Bright on it reaches 4.91:1 (WCAG AA) */
   --c-lava-highlight: #413226;
+  --c-ember: #e69c74; /* a lighter Lava, the same hue: Lava as text on the dark surfaces */
   --c-forest: #636945;
   /* Rarities and elements (parts, drops, affinities): deep fills at the tiles' own depth
      (lightness 33–44%), so Bright text reads on each at 4.5:1 or better, in both themes.
@@ -71,9 +72,14 @@
      Lava is Bright, which reads clearly on it. */
   --accent: var(--c-lava);
   --on-accent: var(--c-bright);
+  /* The accent as text (titles, counts, links): Lava is a fill colour, too dark to read as
+     text on the dark surfaces, so text takes a lighter Lava (4.6:1 or better on each). */
+  --accent-text: var(--c-ember);
   /* What you've chosen (the part you wear, your plate): a wash of the accent. */
   --chosen-bg: rgba(168, 91, 55, 0.18);
   --muted: rgba(255, 255, 229, 0.62);
+  /* Secondary text on a chosen card (--chosen-bg). */
+  --muted-chosen: var(--muted);
   --line: #383932;
   --surface: var(--c-highlight);
   --surface-2: var(--c-highlight-2);
@@ -157,10 +163,13 @@
      frame). Forest marks what's on: same-number highlights, Notes on, Casual. */
   --accent: var(--c-crimson);
   --on-accent: var(--c-bright);
+  --accent-text: var(--c-crimson);
   /* Chosen things wear the board's selection colour here: Forest, brightened. */
   --chosen-bg: var(--c-forest-highlight);
   /* 0.92 keeps small secondary text at 4.5:1 or more on Mud too (4.70:1), 6.3:1 on the page. */
   --muted: rgba(121, 67, 65, 0.92);
+  /* On the Forest-highlight chosen fill the see-through muted drops to 4.2:1: solid ink there. */
+  --muted-chosen: var(--c-crimson);
   --line: var(--c-second-bright);
   --surface: var(--c-second-bright);
   --surface-2: var(--c-mud);
@@ -187,7 +196,8 @@
   /* Bright inside the Crimson ring keeps the selection visible on a Forest same-number fill. */
   --select-inner: var(--c-bright);
   --focus: var(--c-crimson);
-  --field-border: #8c8d76;
+  /* 3.5:1 on surface, 4.3:1 on the page, 3:1 on mud. */
+  --field-border: #7a7b64;
   --grid-line: #8c8d76;
   --key-bg: var(--c-crimson);
   --key-text: var(--c-bright);
@@ -256,6 +266,8 @@ body {
      colour, because that is what iOS samples for the status bar at launch. */
 }
 body {
+  /* the base size follows Setup > Text size too, for anything without a type-scale token */
+  font-size: var(--fs-body);
   position: fixed;
   top: 0;
   left: 0;
@@ -426,10 +438,14 @@ button {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
+/* Keyboard focus is a double ring outside the control, so it never looks like a selection
+   (a single solid ring or a fill). Fields and search use the same ring. */
 button:focus-visible,
 [href]:focus-visible,
-[tabindex]:not([tabindex='-1']):focus-visible {
-  outline: 2px solid var(--focus);
+[tabindex]:not([tabindex='-1']):focus-visible,
+.text-field:focus-visible,
+.review-search:focus-within {
+  outline: 4px double var(--focus);
   outline-offset: 2px;
 }
 /* Headings get focus only so a screen reader starts there (ui.ts holdFocus): no ring. */
@@ -586,8 +602,8 @@ h2 {
 /* Secondary call to action that shouldn't compete with the main button. */
 .btn-outline {
   background: transparent;
-  color: var(--accent);
-  box-shadow: inset 0 0 0 1.5px var(--accent);
+  color: var(--accent-text);
+  box-shadow: inset 0 0 0 1.5px var(--accent-text);
 }
 .icon-btn {
   width: 44px;
@@ -1102,7 +1118,7 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   gap: 6px;
   font-family: var(--serif);
   font-size: var(--fs-body);
-  opacity: 0.8;
+  color: var(--muted);
 }
 /* Ranked tier emblems (ICONS.tiers): the shape tells the tier, the colour only adds to
    it. Novice to Adept in the text colour, Elementalist in the theme accent, Archmage in
@@ -1174,14 +1190,15 @@ html[data-reduce-motion] .promotion .tier-emblem {
   font-weight: 800;
 }
 .stat-chip span:last-child {
-  font-size: var(--fs-caption);
+  font-size: var(--fs-small);
   font-weight: 700;
   text-transform: uppercase;
   color: var(--muted);
 }
+/* Inline icons grow with Text size, like the words beside them. */
 .stat-icon {
-  width: 16px;
-  height: 16px;
+  width: calc(16px * var(--text-scale));
+  height: calc(16px * var(--text-scale));
 }
 
 /* ---------- Sub-screens (daily, setup) ---------- */
@@ -1208,6 +1225,9 @@ html[data-reduce-motion] .promotion .tier-emblem {
   flex-direction: column;
   gap: var(--space-4);
   padding-bottom: var(--space-5);
+  /* room for the focus ring of a full-width control (the body scrolls, so it would clip it) */
+  padding-inline: var(--space-2);
+  margin-inline: calc(-1 * var(--space-2));
 }
 .sub-body > * {
   flex: none;
@@ -1388,9 +1408,6 @@ html.standalone .screen.scrollable {
   background: var(--surface);
   cursor: text;
 }
-.review-search:focus-within {
-  box-shadow: inset 0 0 0 2px var(--accent);
-}
 .review-search-icon {
   display: flex;
   flex: none;
@@ -1557,7 +1574,7 @@ html.standalone .screen.scrollable {
   cursor: pointer;
   font-size: var(--fs-small);
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 .review-game {
   display: flex;
@@ -1645,9 +1662,27 @@ html.standalone .screen.scrollable {
   color: var(--muted);
 }
 .signup .field-error {
-  color: var(--accent);
+  color: var(--text);
   font-family: var(--serif);
   font-size: var(--fs-small);
+}
+/* Errors read in the text colour with an alert mark before them: never colour alone. A
+   wrapped line starts under the words, not under the mark. */
+:is(.signup, .setting) .field-error:not(:empty) {
+  padding-left: 1.45em;
+  text-indent: -1.45em;
+}
+:is(.signup, .setting) .field-error:not(:empty)::before {
+  content: '';
+  display: inline-block;
+  width: 1.1em;
+  height: 1.1em;
+  margin-right: 0.35em;
+  text-indent: 0;
+  vertical-align: -0.2em;
+  background: var(--accent-text);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-1.2 5h2.4v7h-2.4zm0 9h2.4v2.4h-2.4z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-1.2 5h2.4v7h-2.4zm0 9h2.4v2.4h-2.4z'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 .signup .field-error:empty {
   display: none;
@@ -1656,7 +1691,7 @@ html.standalone .screen.scrollable {
   font-family: var(--serif);
   font-size: var(--fs-body);
   text-align: center;
-  color: var(--accent);
+  color: var(--accent-text);
   animation: waiting 1.6s ease-in-out infinite;
 }
 @keyframes waiting {
@@ -1676,7 +1711,7 @@ html.standalone .screen.scrollable {
   font-family: var(--serif);
   font-size: var(--fs-body);
   text-align: center;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 /* Account: email and code fields (selectable, ≥16px so iOS doesn't zoom). */
 .setting.account {
@@ -1700,9 +1735,6 @@ html.standalone .screen.scrollable {
   -webkit-touch-callout: default;
   touch-action: auto;
 }
-.text-field:focus {
-  box-shadow: inset 0 0 0 2px var(--select);
-}
 /* An autofilled email gets the browser's pale yellow and black text; paint
    the field's own colours back over it (the UA background can't be overridden,
    so a full inset shadow covers it). */
@@ -1711,11 +1743,6 @@ html.standalone .screen.scrollable {
   caret-color: var(--text);
   box-shadow: inset 0 0 0 100px var(--field-bg);
   transition: background-color 9999s step-end;
-}
-.text-field:-webkit-autofill:focus {
-  box-shadow:
-    inset 0 0 0 2px var(--select),
-    inset 0 0 0 100px var(--field-bg);
 }
 .text-field::placeholder {
   color: var(--muted);
@@ -1731,7 +1758,7 @@ html.standalone .screen.scrollable {
   color: var(--muted);
 }
 .setting .field-error {
-  color: var(--accent);
+  color: var(--text);
   font-size: var(--fs-small);
 }
 .setting .field-error:empty {
@@ -1781,8 +1808,8 @@ html.standalone .screen.scrollable {
   box-shadow: inset 0 0 0 2px var(--select);
 }
 .segment-icon {
-  width: 20px;
-  height: 20px;
+  width: calc(20px * var(--text-scale));
+  height: calc(20px * var(--text-scale));
 }
 
 /*
@@ -1969,7 +1996,7 @@ html:not([data-large-text]) .daily-art {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.02em;
-  color: var(--accent);
+  color: var(--accent-text);
 }
 /* "Tap a missed day to fill it in…", under the calendar while there are missed days. */
 .mend-hint {
@@ -2001,7 +2028,7 @@ html:not([data-large-text]) .daily-art {
 .weekday {
   padding-bottom: 2px;
   text-align: center;
-  font-size: var(--fs-caption);
+  font-size: var(--fs-small);
   font-weight: 700;
   color: var(--muted);
 }
@@ -2032,7 +2059,7 @@ html:not([data-large-text]) .daily-art {
 /* Filled-in days (Stardust): the check without the fill, on a dashed outline. */
 .day.mended {
   background: transparent;
-  color: var(--accent);
+  color: var(--accent-text);
   outline: 2px dashed var(--accent);
   outline-offset: -2px;
 }
@@ -2056,7 +2083,7 @@ html:not([data-large-text]) .daily-art {
 }
 .day.today {
   background: transparent;
-  color: var(--accent);
+  color: var(--accent-text);
   box-shadow: inset 0 0 0 2px var(--accent);
 }
 .day.today .day-num {
@@ -2091,7 +2118,7 @@ html:not([data-large-text]) .daily-art {
 .reward-card p {
   font-family: var(--serif);
   font-size: var(--fs-body);
-  opacity: 0.8;
+  color: var(--muted);
 }
 .avatar-reward {
   width: 50px;
@@ -2308,7 +2335,7 @@ html[data-reduce-motion] .sword-live .sword-flame {
   color: var(--muted);
 }
 .good {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 /* Ranked pop-up: "Start" is the theme's primary button (crimson light, lava dark). */
 .btn-start {
@@ -2360,11 +2387,12 @@ html[data-reduce-motion] .sword-live .sword-flame {
   display: flex;
   align-items: center;
   gap: 10px;
+  font-size: var(--fs-body);
   font-weight: 700;
 }
 .reward svg {
-  width: 24px;
-  height: 24px;
+  width: calc(24px * var(--text-scale));
+  height: calc(24px * var(--text-scale));
   color: var(--accent);
   flex: none;
 }
@@ -2492,7 +2520,7 @@ html[data-reduce-motion] .avatar-face.alive {
   display: flex;
   flex-direction: column;
   margin-top: var(--space-1);
-  font-size: var(--fs-caption);
+  font-size: var(--fs-small);
   color: var(--muted);
 }
 .affinity-standing strong {
@@ -2506,7 +2534,7 @@ html[data-reduce-motion] .avatar-face.alive {
   border-radius: 999px;
   background: var(--accent);
   color: var(--on-accent);
-  font-size: var(--fs-caption);
+  font-size: var(--fs-small);
   font-weight: 700;
 }
 .forge-affinity {
@@ -2537,6 +2565,7 @@ html[data-reduce-motion] .avatar-face.alive {
 .odds th,
 .odds td {
   padding: 6px 0;
+  font-size: var(--fs-body);
   border-bottom: 1px solid var(--line);
 }
 .odds th {
@@ -2559,9 +2588,11 @@ html[data-reduce-motion] .avatar-face.alive {
   font-size: var(--fs-small);
   color: var(--muted);
 }
+/* Federo has one weight: never bolder than 400 (a synthetic bold smears it). */
 .odds-section h3 {
   font-family: inherit;
   font-size: var(--fs-body);
+  font-weight: 400;
   color: var(--text);
 }
 .forge-balances .link-btn {
@@ -2704,7 +2735,8 @@ html[data-reduce-motion] .avatar-face.alive {
   border-radius: 999px;
   background: var(--rc);
   color: var(--c-bright);
-  /* 14px floor for anything that carries meaning (docs/AUDIT.md) */
+  /* 14px floor for anything that carries meaning (docs/AUDIT.md); Montserrat, as a bold tag */
+  font-family: var(--font);
   font-size: var(--fs-small);
   font-weight: 700;
   letter-spacing: 0.03em;
@@ -2958,7 +2990,7 @@ html[data-reduce-motion] .avatar-face.alive {
   text-align: center;
 }
 .drop-note.good {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 .drop-forge {
   align-self: center;
@@ -3304,7 +3336,7 @@ html[data-reduce-motion] .casual-feather-shadow {
 }
 .casual-label {
   margin-bottom: -6px;
-  font-size: var(--fs-caption);
+  font-size: var(--fs-small);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -3525,7 +3557,7 @@ html[data-reduce-motion] .clash-live .brush-art {
   padding: 10px 12px;
   border-radius: var(--radius);
   background: var(--surface-2);
-  color: var(--accent);
+  color: var(--accent-text);
   font-size: var(--fs-body);
 }
 .clash-join {
@@ -3566,8 +3598,9 @@ html[data-reduce-motion] .clash-live .brush-art {
   font-size: var(--fs-title);
   color: var(--text);
 }
+/* Each slot has a field's edge (3:1 against the pop-up), like the text fields. */
 .code-box {
-  box-shadow: inset 0 0 0 1.5px var(--line);
+  box-shadow: inset 0 0 0 1px var(--field-border);
   transition: box-shadow 0.15s ease;
 }
 .code-box.active {
@@ -3664,7 +3697,7 @@ html[data-reduce-motion] .clash-live .brush-art {
   gap: 6px;
 }
 .clash-code span {
-  color: var(--accent);
+  color: var(--accent-text);
   animation: pop-in 0.3s ease backwards;
 }
 .clash-code span:nth-child(2) { animation-delay: 0.04s; }
@@ -3727,7 +3760,7 @@ html[data-reduce-motion] .clash-live .brush-art {
 .log-status {
   padding: 4px 8px;
   border-radius: 4px;
-  font-size: var(--fs-caption);
+  font-size: var(--fs-small);
   background: var(--surface);
 }
 .log-status.won {
@@ -4412,8 +4445,8 @@ html[data-reduce-motion] :is(.loader-hop, .loader-icon) {
   font-size: var(--fs-label);
 }
 .action svg {
-  width: 20px;
-  height: 20px;
+  width: calc(20px * var(--text-scale));
+  height: calc(20px * var(--text-scale));
 }
 .action:active {
   filter: brightness(1.15);
@@ -4464,7 +4497,7 @@ html[data-reduce-motion] .key[data-digit] span {
   background: var(--accent);
   color: var(--on-accent);
   font-family: var(--font);
-  font-size: var(--fs-caption);
+  font-size: var(--fs-small);
   font-weight: 800;
 }
 
@@ -4745,9 +4778,9 @@ html[data-large-text] .coach-actions {
   animation: rise 0.25s ease;
 }
 .coach-count {
-  font-size: var(--fs-caption);
+  font-size: var(--fs-small);
   font-weight: 800;
-  color: var(--accent);
+  color: var(--accent-text);
   letter-spacing: 0.08em;
 }
 .coach-card h3 {
@@ -4915,6 +4948,7 @@ html[data-colour-blind] .cell.cross {
   --modal-border: var(--field-border);
 }
 :root[data-contrast='high'][data-theme='dark'] {
+  --accent-text: var(--text);
   --grid-line: #9a9b8f;
   --field-border: #9a9b8f;
   --chip-bg: rgba(255, 255, 229, 0.08);
@@ -4935,8 +4969,8 @@ html[data-contrast='high'] .cell.selected {
 html[data-contrast='high'] .box-frame {
   outline-width: 2px;
 }
-html[data-contrast='high'] :is(button, [href], [tabindex]:not([tabindex='-1'])):focus-visible {
-  outline-width: 3px;
+html[data-contrast='high'] :is(button, [href], [tabindex]:not([tabindex='-1']), .text-field):focus-visible {
+  outline-width: 6px;
 }
 /* High contrast: the empty mistake slots show clearly too. */
 html[data-contrast='high'] .skull:not(.used) {
@@ -5069,18 +5103,21 @@ html[data-large-text] .segmented:is(.cols-3, .cols-4) > .segment {
   flex: 1 1 auto;
   padding-inline: 0.6em;
 }
+/* The three stats stay side by side and alike: number over name, each name as large as its
+   chip has room for (so STARDUST never wraps and the chips keep one height). */
 html[data-large-text] .profile-stats {
-  font-size: var(--fs-caption);
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9em), 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
-/* A stat that has a row to itself reads across: icon, number, name. */
 html[data-large-text] .stat-chip {
-  flex-direction: row;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: baseline;
-  column-gap: var(--space-2);
-  padding: var(--space-2) var(--space-3);
+  min-width: 0;
+  padding: var(--space-2) var(--space-1);
+  container-type: inline-size;
+}
+html[data-large-text] .stat-chip span:last-child {
+  font-size: min(var(--fs-small), 13cqi);
+}
+html[data-large-text] .stat-chip strong {
+  font-size: min(var(--fs-label), 30cqi);
 }
 html[data-large-text] .month-head {
   flex-wrap: wrap;
@@ -5100,7 +5137,7 @@ html[data-large-text] .day.today .day-num {
   font-size: min(var(--fs-body), 6.5cqi);
 }
 html[data-large-text] .weekday {
-  font-size: min(var(--fs-caption), 5cqi);
+  font-size: min(var(--fs-small), 5cqi);
 }
 /* Pop-ups get wider (up to the screen) so the larger words have room. */
 html[data-large-text] .modal {
@@ -5338,7 +5375,7 @@ html[data-large-text] .shortcut-list {
   }
   /* STARDUST is one word: it grows only as far as its chip has room for. */
   html[data-large-text] .stat-chip span:last-child {
-    font-size: min(var(--fs-caption), 13cqi);
+    font-size: min(var(--fs-small), 13cqi);
   }
   /* The other pages keep their phone column, a little larger. */
   .screen.daily,
@@ -5729,7 +5766,8 @@ button.plate-card {
 .plate-card.state-ready .part-state {
   color: var(--text);
 }
-.plate-card.state-replaced .plate-sample {
+/* A plate you've moved past: its frame fades, the name stays at full contrast ("Replaced" says why). */
+.plate-card.state-replaced .plate-sample > :not(.plate-text) {
   opacity: 0.45;
 }
 .plate-sample {
@@ -6082,6 +6120,9 @@ html[data-reduce-motion] .strength-seg {
   display: flex;
   overflow-x: auto;
   scrollbar-width: none;
+  /* room for a focused tab's ring (the row scrolls, so it would clip it) */
+  padding: var(--space-2);
+  margin: calc(-1 * var(--space-2));
 }
 .lb-tabs .segment {
   flex: 1 0 auto;
@@ -6416,6 +6457,7 @@ html[data-reduce-motion] .strength-seg {
   height: 20px;
 }
 .card-numbers {
+  font-family: var(--font);
   font-size: var(--fs-body);
   font-weight: 700;
   font-variant-numeric: tabular-nums;
@@ -6486,7 +6528,7 @@ html[data-reduce-motion] .strength-seg {
   line-height: 1.25;
 }
 .badge-tag {
-  font-size: var(--fs-caption);
+  font-size: var(--fs-small);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -6657,6 +6699,11 @@ html[data-reduce-motion] .strength-seg {
 }
 .picker-option:hover {
   background: color-mix(in srgb, var(--surface-2), var(--text) 6%);
+}
+/* Secondary text on every chosen card uses the chosen-safe muted. */
+:is(.part-card.state-wearing, .plate-card.state-yours, .lb-row.is-me .lb-row-btn, .faction-standings li.is-mine, .tier-list li.is-mine,
+  .badge-slot.on-card, .badge-pick.on, .showcase-pick.on, .picker-option.on) {
+  --muted: var(--muted-chosen);
 }
 .picker-option.on {
   background: var(--chosen-bg);

@@ -142,7 +142,7 @@ export function labelByHeading(dialog: HTMLElement): void {
   const heading = dialog.querySelector<HTMLElement>('h1, h2, h3');
   if (!heading) return;
   heading.id ||= `dialog-title-${++labelIds}`;
-  dialog.setAttribute('aria-labelledby', heading.id);
+  if (dialog.getAttribute('aria-labelledby') !== heading.id) dialog.setAttribute('aria-labelledby', heading.id);
 }
 
 /**
@@ -218,8 +218,12 @@ export function openModal(content: HTMLElement, options: { dismissible?: boolean
   const backdrop = h('div', { class: 'backdrop scrollable' }, panel);
   const dismissible = options.dismissible !== false;
   let release = () => {};
+  // Sheets that load their content (the Ranks sheet, a player's card) get their heading
+  // later: name the dialog again whenever its content changes.
+  const relabel = new MutationObserver(() => labelByHeading(panel));
   const close = () => {
     openModals.delete(close);
+    relabel.disconnect();
     backdrop.remove();
     release();
     syncScrimEdges();
@@ -232,6 +236,7 @@ export function openModal(content: HTMLElement, options: { dismissible?: boolean
   openModals.add(close);
   document.body.append(backdrop);
   labelByHeading(panel);
+  relabel.observe(panel, { childList: true, subtree: true });
   release = holdFocus(panel, { onEscape: dismissible ? close : undefined });
   syncScrimEdges();
   return close;
