@@ -34,7 +34,7 @@ export function devScreen(): Screen {
     return btn;
   };
   const on = () => !!cachedAccount()?.devMode;
-  const activity = h('ul', { class: 'activity-list' }, h('li', { text: copy.forge.loading }));
+  const activity = h('ul', { class: 'activity-list' }, h('li', { text: copy.common.loading }));
 
   // the switch: On / Off
   const switches = [true, false].map((value) =>

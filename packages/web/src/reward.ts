@@ -60,7 +60,7 @@ export function dropReveal(drop: Drop, onOpenForge?: () => void): HTMLElement {
   if (drop.pity) notes.push(h('p', { class: 'drop-note good', text: copy.forge.pityHit(rarityName(drop.pity)) }));
   // the nearest guarantee, only once it's close (3 parts or fewer)
   const g = drop.guarantee;
-  if (g.mythic <= 3) notes.push(h('p', { class: 'drop-pity', text: copy.forge.guarantee(rarityName('mythic'), g.mythic) }));
+  if (g.mythic <= 3) notes.push(h('p', { class: 'drop-pity', text: copy.forge.guaranteeTop(rarityName('mythic'), g.mythic) }));
   else if (g.epic <= 3) notes.push(h('p', { class: 'drop-pity', text: copy.forge.guarantee(rarityName('epic'), g.epic) }));
   return h('div', { class: 'drop' }, card, ...notes);
 }

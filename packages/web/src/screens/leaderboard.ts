@@ -17,7 +17,7 @@ import { signUpForm } from '../accountForm.ts';
 import { ICONS } from '../icons.ts';
 import { paintPlate } from '../plates.ts';
 import { cardAvatar, openPlayerCard } from '../playerCard.ts';
-import { ELEMENTS, rankTier, type Element } from '../profile.ts';
+import { ELEMENTS, nextRank, rankTier, type Element } from '../profile.ts';
 import { readJson, writeJson } from '../storage.ts';
 import { closeButton, goBack, h, mount, openModal, subPage, type Screen } from '../ui.ts';
 import { affinityScreen } from './affinity.ts';
@@ -434,12 +434,16 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
     const sheet = h('div', { class: 'sheet lb-tiers-sheet' }, h('p', { class: 'note', text: t.loading }));
     const close = openModal(sheet);
     void lbTiers().then((data) => {
-      const mine = rankTier(cachedAccount()?.elo ?? 0).tier;
+      const account = cachedAccount();
+      const mine = rankTier(account?.elo ?? 0).tier;
+      // where you stand: the next rank and how far it is (once you've played Ranked)
+      const up = account && account.rankedGames > 0 ? nextRank(account.elo) : null;
       if (!data) return sheet.replaceChildren(closeButton(() => close()), h('p', { class: 'note', text: t.offline }));
       sheet.replaceChildren(
         closeButton(() => close()),
         h('h2', { text: t.tiersTitle }),
         h('p', { class: 'note', text: t.tiersIntro }),
+        up ? h('p', { class: 'tier-next', text: copy.common.toNextRank(up.gap, up.label) }) : '',
         h('ol', { class: 'tier-list' },
           ...data.tiers.slice().reverse().map((tier) => {
             const index = data.tiers.indexOf(tier);

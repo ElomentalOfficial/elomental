@@ -252,7 +252,7 @@ async function showClashRecord(code: string) {
       h('h2', { class: verdict.tone, text: verdict.title }),
       record.theirs
         ? null
-        : h('p', { class: 'note', text: copy.clash.waitingForFriend }),
+        : h('p', { class: 'note', text: signedIn() ? copy.clash.waitingForFriendOnline : copy.clash.waitingForFriend }),
       clashTable(code, record.mine, record.theirs),
       h('div', { class: 'actions' }, shareButton(code, record.mine, record.theirs ? copy.clash.sendResult : copy.clash.challengeFriend), h('button', { class: 'btn', text: copy.common.close, onclick: () => close() })),
     ),

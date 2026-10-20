@@ -208,6 +208,13 @@ export function rankTier(elo: number): RankTier {
   return { tier, division, name, label: division === null ? name : copy.common.rankDivision(name, DIVISIONS[division]) };
 }
 
+/** The next rank up from this Elo and how many Elo away it is; null for Archmage (the top). */
+export function nextRank(elo: number): { label: string; gap: number } | null {
+  const starts = TIERS.flatMap((t) => (t.divisions.length ? t.divisions : [t.from]));
+  const next = starts.find((s) => s > elo);
+  return next === undefined ? null : { label: rankTier(next).label, gap: next - Math.floor(elo) };
+}
+
 /** A step up in tier or division, between two Elo ratings. */
 export function promoted(before: number, after: number): boolean {
   const a = rankTier(before);
@@ -264,6 +271,10 @@ export interface Outcome {
   progress?: { count: number; every: number };
   /** Influence added to the player's affinity this solve. */
   influence?: { affinity: Element; amount: number };
+  /** The day's 9 counted solves are used up: no part progress until tomorrow (server only). */
+  partsCapped?: boolean;
+  /** Casual/Clash past the first 20 solves of the day pay 1 Stardust (server only). */
+  dustCapped?: boolean;
 }
 
 export interface DailyMonth {

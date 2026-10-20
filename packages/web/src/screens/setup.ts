@@ -324,7 +324,7 @@ function accountSection(): HTMLElement {
         h('p', {
           class: 'field-hint',
           text: locked
-            ? copy.account.nameAgainOnHint(formatDay(locked))
+            ? copy.account.nameAgainOn(formatDay(locked))
             : copy.account.nameCooldown(NAME_COOLDOWN_DAYS),
         }),
         ...(locked ? [] : [save]),

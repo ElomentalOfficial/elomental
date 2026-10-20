@@ -23,6 +23,7 @@ import {
   HINT_ELO_PENALTY,
   dailyGoal,
   loadProfile,
+  nextRank,
   parMs,
   promoted,
   puzzleProfile,
@@ -109,10 +110,14 @@ export interface SavedGame {
   paused?: boolean;
   /** Ranked/Clash pauses used (3 per game). */
   pauses?: number;
+  /** Ranked/Clash: when the current pause began (wall clock), to count time past its 5 minutes. */
+  pausedSince?: number;
 }
 
 /** Ranked and Clash allow this many pauses per game (the server enforces it too). */
 const MAX_PAUSES = 3;
+/** How long the clock waits per Ranked/Clash pause (the server's rule, ranked_pause.sql). */
+const PAUSE_WAIT_MS = 5 * 60_000;
 
 /**
  * One saved game per mode (full review H4), so starting a Casual game never replaces a paused
@@ -607,8 +612,9 @@ function gameScreen(game: SavedGame): Screen {
   /**
    * A hint opens an explained walkthrough (like sudoku.com): the relevant
    * squares light up and a card explains the logic step by step, ending with
-   * "Place N". The hint counts as soon as it opens, and the clock is frozen
-   * while it is on screen (ranked included).
+   * "Place N". The hint counts as soon as it opens. The clock waits while it is
+   * on screen in Casual and Daily; in Ranked and Clash the server's clock runs
+   * on, so the shown one does too (the confirm says so).
    */
   async function hint() {
     if (finished || paused || coaching) return;
@@ -617,6 +623,9 @@ function gameScreen(game: SavedGame): Screen {
     const known = Uint8Array.from(game.values, (v, c) => (v === solution[c] ? v : 0));
     const next = nextPlacement(known);
     if (!next) return toast(copy.game.noHintStep);
+    // Ranked and Clash: say what a hint costs (Elo, a running clock) before the first one
+    if (competitive && game.hints === 0 && !(await confirmHint())) return;
+    if (finished || paused) return;
     game.hints++;
     coaching = true;
     selected = -1;
@@ -643,6 +652,37 @@ function gameScreen(game: SavedGame): Screen {
       announce(copy.game.a11y.hintPlaced(next.digit, ROW_OF[next.cell] + 1, COL_OF[next.cell] + 1));
     } else render();
     if (ranked) toast(copy.game.hintEloCut(Math.round(HINT_ELO_PENALTY * 100 * game.hints)));
+  }
+
+  /** Ranked's first hint of a game: its cost, then Use hint or Keep playing (the default). */
+  function confirmHint(): Promise<boolean> {
+    return new Promise((resolve) => {
+      let answered = false;
+      const answer = (yes: boolean) => {
+        if (answered) return;
+        answered = true;
+        close();
+        resolve(yes);
+      };
+      const keep = h('button', { class: 'btn btn-primary', text: copy.game.keepPlaying, attrs: { type: 'button' }, onclick: () => answer(false) });
+      const close = openModal(
+        h('div', { class: 'confirm' },
+          h('h2', { text: copy.game.hintConfirmTitle }),
+          h('p', { text: ranked ? copy.game.hintConfirmText(Math.round(HINT_ELO_PENALTY * 100)) : copy.game.hintConfirmClash }),
+          h('div', { class: 'actions' }, keep, h('button', { class: 'btn', text: copy.game.hintUse, attrs: { type: 'button' }, onclick: () => answer(true) }))),
+      );
+      // Esc or a tap outside is "Keep playing"
+      const watch = new MutationObserver(() => {
+        if (!keep.isConnected) {
+          watch.disconnect();
+          if (!answered) {
+            answered = true;
+            resolve(false);
+          }
+        }
+      });
+      watch.observe(document.body, { childList: true });
+    });
   }
 
   /** Apply a stage's highlights to the board. */
@@ -697,6 +737,16 @@ function gameScreen(game: SavedGame): Screen {
       game.pauses = MAX_PAUSES - left;
     }
     if (!value && competitive && config.serverId) void resumeServerGame(config.serverId);
+    // The clock waits up to 5 minutes per pause (the server's rule): time past that counts.
+    if (competitive && value && !restoring) game.pausedSince = Date.now();
+    if (competitive && !value && game.pausedSince) {
+      const over = Date.now() - game.pausedSince - PAUSE_WAIT_MS;
+      if (over > 0) {
+        game.elapsedMs += over;
+        game.startedAt = Date.now() - game.elapsedMs;
+      }
+      delete game.pausedSince;
+    }
     paused = value;
     game.paused = paused;
     if (pauseNote) {
@@ -796,10 +846,13 @@ function gameScreen(game: SavedGame): Screen {
   let last = performance.now();
   function tick() {
     const now = performance.now();
-    if (coaching || (competitive && paused)) {
-      // The clock stands still during the first-game tutorial, ranked included.
+    if ((coaching && !competitive) || (competitive && paused)) {
+      // The clock stands still during a hint or the first-game tutorial in Casual and Daily.
+      // Ranked and Clash are timed by the server, which only pauses on Pause: the shown
+      // clock never stops when the one that counts doesn't.
       game.startedAt = Date.now() - game.elapsedMs;
-    } else if (competitive) {
+    } else if (competitive && !finished) {
+      // (once finished, the time is the server's: settle() put it here, and it stays)
       game.elapsedMs = Date.now() - game.startedAt;
     } else if (!paused && !finished && !document.hidden) {
       // Cap the step so a sleeping phone doesn't add the whole nap to the clock.
@@ -916,6 +969,7 @@ function gameScreen(game: SavedGame): Screen {
     const rewards = h('div', { class: 'rewards' });
     if (outcome.dust) rewards.append(h('div', { class: 'reward' }, h('span', { html: ICONS.dust }), h('span', { text: copy.common.plusStardust(outcome.dust) })));
     if (outcome.spirit) rewards.append(h('div', { class: 'reward rare', html: `${ICONS.spirit}<span>${copy.common.rareSpirit}</span>` }));
+    rewards.append(...capLines(outcome));
     openModal(
       h(
         'div',
@@ -959,7 +1013,7 @@ function gameScreen(game: SavedGame): Screen {
       notice ? h('p', { class: 'note', text: notice }) : null,
       line ? h('p', { class: 'note result-line', text: line }) : null,
       statRow(copy.result.time, formatTime(game.elapsedMs)),
-      statRow(copy.result.mistakes, copy.result.mistakesOf(game.mistakes, MAX_MISTAKES)),
+      statRow(copy.result.mistakes, copy.result.mistakesOf(game.mistakes, mistakeLimit() ? MAX_MISTAKES : null)),
     ];
     if (game.hints) rows.push(statRow(copy.result.hints, String(game.hints)));
     let promotedNow = false;
@@ -968,11 +1022,19 @@ function gameScreen(game: SavedGame): Screen {
       const eloRow = statRow(copy.result.elo, copy.result.eloChange(outcome.elo.before, outcome.elo.after), delta > 0 ? 'good' : '');
       // The new rating counts up from the old one.
       countUp(eloRow.querySelector('strong')!, outcome.elo.before, outcome.elo.after, (n) => copy.result.eloChange(outcome.elo!.before, n, delta));
-      // a speed bonus is a small line inside the Elo row, not a block of its own
-      if (!outcome.elo.unrated && outcome.elo.bonus > 0) eloRow.append(h('span', { class: 'stat-sub', text: copy.result.speedBonus(Math.round(outcome.elo.bonus * 100)) }));
+      // a speed bonus is a small line inside the Elo row, not a block of its own; cuts (a slow
+      // solve, hints) are said there too, never applied in silence
+      const sub = (text: string, cls = 'stat-sub') => eloRow.append(h('span', { class: cls, text }));
+      if (!outcome.elo.unrated && outcome.elo.bonus > 0) sub(copy.result.speedBonus(Math.round(outcome.elo.bonus * 100)));
+      else if (!outcome.elo.unrated && outcome.elo.bonus < 0) sub(copy.result.slowCut(Math.round((2 * parMs(config.rating)) / 60_000)), 'stat-sub plain');
+      if (!outcome.elo.unrated && outcome.elo.hintCut > 0) sub(copy.game.hintEloCut(Math.round(outcome.elo.hintCut * 100)), 'stat-sub plain');
       rows.push(eloRow);
+      // how far the next rank is now (at the top there's no next); after a promotion, below it
+      const next = nextRank(outcome.elo.after);
+      const nextLine = next ? h('p', { class: 'note result-next-rank', text: copy.common.toNextRank(next.gap, next.label) }) : null;
       // A step up in tier or division gets its moment: the new emblem stamps in.
       promotedNow = !outcome.elo.unrated && promoted(outcome.elo.before, outcome.elo.after);
+      if (!promotedNow && nextLine) sub(nextLine.textContent!, 'stat-sub muted');
       if (promotedNow) {
         const tier = rankTier(outcome.elo.after);
         rows.push(
@@ -982,6 +1044,7 @@ function gameScreen(game: SavedGame): Screen {
             h('span', { class: `tier-emblem tier-${tier.tier}`, html: ICONS.tiers[tier.tier], attrs: { 'aria-hidden': 'true' } }),
             h('span', { text: copy.result.promoted(tier.label) }),
           ),
+          nextLine,
         );
       }
       // Only what went well here; no coaching tips (docs/AUDIT.md: a quieter result).
@@ -1013,6 +1076,8 @@ function gameScreen(game: SavedGame): Screen {
     // how close the next part is.
     if (outcome.influence) rewards.append(influenceLine(outcome.influence));
     if (outcome.progress && !outcome.drop) rewards.append(progressLine(outcome.progress));
+    // the day's counted solves are used up: say so, rather than the strip just going quiet
+    rewards.append(...capLines(outcome));
 
     // A failed Daily can be retried (same square) until it's solved; only a solve marks the day.
     const retryDaily = config.mode === 'daily' && !won;
@@ -1057,15 +1122,16 @@ function gameScreen(game: SavedGame): Screen {
         h(
           'div',
           { class: 'actions' },
+          // the safe choice is the primary one (and first, so it takes the focus)
+          h('button', { class: 'btn btn-primary', text: copy.game.keepPlaying, onclick: () => close() }),
           h('button', {
-            class: 'btn btn-primary',
+            class: 'btn',
             text: copy.game.concede,
             onclick: () => {
               close();
               finish(false, 'concede');
             },
           }),
-          h('button', { class: 'btn', text: copy.game.keepPlaying, onclick: () => close() }),
         ),
       ),
     );
@@ -1254,7 +1320,9 @@ function gameScreen(game: SavedGame): Screen {
   render();
   tick();
 
-  if (!tutorialDone()) {
+  // The first-game tutorial waits for a Casual or Daily game: a Ranked or Clash clock (the
+  // server's) wouldn't stop for it.
+  if (!tutorialDone() && !competitive) {
     coaching = true;
     const steps: TutorialStep[] = [
       {
@@ -1355,6 +1423,14 @@ function signupPrompt(): HTMLElement | null {
     onDone: (kind) => box.replaceChildren(h('p', { class: 'signup-done', text: kind === 'email_change' ? copy.account.signedUp : copy.account.signedInSwitched })),
   });
   return box;
+}
+
+/** The day's limits, when this result met one: Stardust after 20 squares, parts after 3. */
+function capLines(outcome: Outcome): HTMLElement[] {
+  const lines: HTMLElement[] = [];
+  if (outcome.dustCapped) lines.push(h('p', { class: 'part-progress', text: copy.result.dustCapped }));
+  if (outcome.partsCapped) lines.push(h('p', { class: 'part-progress', text: copy.result.partsCapped }));
+  return lines;
 }
 
 function statRow(label: string, value: string, valueClass = ''): HTMLElement {

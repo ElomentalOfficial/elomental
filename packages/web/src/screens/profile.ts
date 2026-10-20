@@ -7,7 +7,7 @@ import { canSwitchAffinity } from '../backend/affinity.ts';
 import { cachedLoadout, cachedPolish, loadForge } from '../backend/forge.ts';
 import { ICONS } from '../icons.ts';
 import { paintPlate } from '../plates.ts';
-import { dailyGoal, dailyKey, loadProfile, rankTier } from '../profile.ts';
+import { dailyGoal, dailyKey, loadProfile, nextRank, rankTier } from '../profile.ts';
 import { closeButton, goBack, h, mount, openModal, subPage, toast, type Screen } from '../ui.ts';
 import { affinityScreen } from './affinity.ts';
 import { forgeScreen } from './forge.ts';
@@ -23,6 +23,8 @@ export function profileScreen(): Screen {
   const p = loadProfile();
   const account = cachedAccount();
   const tier = rankTier(p.elo);
+  // the next rank, once the player has played Ranked
+  const nextUp = p.rankedGames > 0 ? nextRank(p.elo) : null;
   const today = dailyKey();
   const [year, month] = today.split('-').map(Number);
   const days = new Date(year, month, 0).getDate();
@@ -83,6 +85,7 @@ export function profileScreen(): Screen {
           h('span', { class: `tier-emblem tier-${tier.tier}`, html: ICONS.tiers[tier.tier], attrs: { 'aria-hidden': 'true' } }),
           h('span', { text: p.title ?? tier.label }),
         ),
+        nextUp ? h('p', { class: 'note profile-next-rank', text: copy.common.toNextRank(nextUp.gap, nextUp.label) }) : null,
         side,
       ),
       h(

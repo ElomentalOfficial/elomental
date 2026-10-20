@@ -61,6 +61,8 @@ export const common = {
   ranks: ['Novice', 'Apprentice', 'Adept', 'Elementalist', 'Archmage'] as const,
   /** A tier with its division, e.g. "Adept II". */
   rankDivision: (rank: string, division: string) => `${rank} ${division}`,
+  /** How far the next rank is (profile.ts nextRank). */
+  toNextRank: (gap: number, label: string) => `${gap} Elo to ${label}`,
 };
 
 // --- Welcome ---------------------------------------------------------------
@@ -97,6 +99,12 @@ export const home = {
   ranked: {
     title: 'Ranked',
     text: 'A square matched to your Elo. Solve it to climb.',
+    /** Before you start: your rank, the square's length and what's at stake. */
+    rank: (label: string, elo: number) => `${label} · ${elo} Elo`,
+    length: (minutes: number) => `About ${minutes} min. Faster wins more.`,
+    stakes: (win: number, loss: number) =>
+      loss === 0 ? `Win about +${win}. No Elo lost below 500.` : `Win about +${win}, lose about −${loss} (3 mistakes or Concede).`,
+    pauses: '3 pauses of up to 5 minutes.',
     start: 'Start',
   },
 };
@@ -152,7 +160,7 @@ export const game = {
   } as Record<string, string>,
   concede: 'Concede',
   paused: 'Paused',
-  pausesLeft: (n: number) => `${plural(n, 'pause')} left`,
+  pausesLeft: (n: number) => `${plural(n, 'pause')} left. The clock waits up to 5 minutes.`,
   noPausesLeft: 'No pauses left in this game.',
   pauseFailed: 'Couldn’t pause: no connection. The clock is still running, and no pause was used.',
   /** A finished game whose result couldn't be sent (pending.ts). */
@@ -175,6 +183,11 @@ export const game = {
   noHintsLeft: (max: number) => `No hints left: ${max} per game.`,
   noHintStep: 'No hint fits this position. Try notes on the busiest box.',
   hintEloCut: (percent: number) => `Hints this game: Elo gain −${percent}%`,
+  /** Ranked: asked before the first hint of a game. */
+  hintConfirmTitle: 'Use a hint?',
+  hintConfirmText: (percent: number) => `In Ranked, each hint cuts this game’s Elo gain by ${percent}%. The clock keeps running while the hint is open.`,
+  hintConfirmClash: 'In a Clash, the clock keeps running while the hint is open.',
+  hintUse: 'Use hint',
   placeNumber: (n: number) => `Place ${n}`,
   concedeConfirm: 'Concede this game? It counts as a loss.',
   keepPlaying: 'Keep playing',
@@ -241,6 +254,8 @@ export const forge = {
   progressDone: 'A new part with your next 3 squares.',
   /** The nearest guarantee still ahead. */
   guarantee: (rarity: string, n: number) => (n <= 1 ? `${rarity} or better next part.` : `${rarity} or better within ${n} parts.`),
+  /** Mythic is the top rarity: nothing is better. */
+  guaranteeTop: (rarity: string, n: number) => (n <= 1 ? `${rarity} next part.` : `${rarity} within ${n} parts.`),
   influence: (n: number, element: string) => `+${n} influence for ${element}`,
   /** Screen readers hear the part as one literal line. */
   a11yDrop: (name: string, rarity: string) => `New part: ${name}, ${rarity}.`,
@@ -387,7 +402,13 @@ export const result = {
   mistakes: 'Mistakes',
   hints: 'Hints',
   elo: 'Elo',
-  mistakesOf: (n: number, max: number) => `${n} / ${max}`,
+  /** `max` null: Casual without the mistake limit, so just the count. */
+  mistakesOf: (n: number, max: number | null) => (max === null ? String(n) : `${n} / ${max}`),
+  /** Under the Elo row when a solve took over twice the square's par. */
+  slowCut: (minutes: number) => `Over ${minutes} min: Elo gain −25%`,
+  /** The day's counted solves are used up (finish_game partsCapped / dustCapped). */
+  partsCapped: 'You’ve earned today’s 3 parts. More tomorrow.',
+  dustCapped: '1 Stardust after your first 20 squares today.',
   /** `shown` counts up to the new Elo; `delta` is the final change. */
   eloChange: (before: number, shown: number, delta = shown - before) => `${before} → ${shown} (${delta >= 0 ? '+' : ''}${delta})`,
   unratedCopied: 'Unrated: cells were filled before they could be worked out.',
@@ -506,16 +527,18 @@ export const clash = {
   created: (difficulty: string) => `Your ${difficulty} code. Send it now or after you play: your time travels with the result.`,
   shareCode: 'Share code',
   log: 'Clash log',
-  logNoteOnline: 'You vs friend. Results arrive on their own once your friend finishes (they need an account too).',
+  logNoteOnline: 'You vs friend. Results arrive once your friend finishes.',
   logNoteOffline: 'You vs friend. A result appears once its link is opened on this phone. Sign in (Setup) to get results automatically.',
   logEmpty: 'No clashes yet. Create a code and send it to a friend.',
   status: { won: 'Won', lost: 'Lost', draw: 'Draw', waiting: 'Waiting', unplayed: 'Not played' },
-  notFinished: 'DNF',
+  notFinished: 'Not solved',
   noTime: '—',
   versus: (mine: string, theirs: string) => `${mine} vs ${theirs}`,
   noCodeOnClipboard: 'No Clash code on the clipboard',
   pasteBlocked: 'Paste blocked. Long-press the boxes instead.',
   waitingForFriend: 'Waiting for your friend’s result. Open the result link they send you and it lands here.',
+  /** Signed in, results arrive by themselves. */
+  waitingForFriendOnline: 'Waiting for your friend’s result. It arrives here once they finish.',
   sendResult: 'Send result',
   challengeFriend: 'Challenge a friend',
   verdict: { timeSet: 'Time set!', lost: 'Not solved', won: 'You won the clash', defeated: 'You lost the clash', draw: 'Dead heat' },
@@ -609,7 +632,6 @@ export const account = {
   signOut: 'Sign out',
   signOutPending: 'A result on this phone hasn’t been sent yet. Sign out once you’re back online, so it counts.',
   nameAgainOn: (day: string) => `You can change your name again on ${day}.`,
-  nameAgainOnHint: (day: string) => `You can change your name again on ${day}.`,
   nameCooldown: (days: number) => `You can change your name once every ${days} days.`,
   nameTaken: 'That name is taken.',
   nameRules: 'Names are 3–20 letters, numbers, spaces, . _ -',
@@ -694,7 +716,7 @@ export const statement = {
   limits: [
     'Pinch zoom is off on phones so the board stays still while you play. Use Text size instead.',
     'The notes wheel needs a long press or a drag. With a keyboard or screen reader, use Notes (N) or Shift with a number.',
-    'Ranked, Daily and Clash are timed races: you can hide the clock, not stop it, and pauses are limited.',
+    'Ranked and Clash are timed races: you can hide the clock, not stop it, and pauses are limited.',
     'Tested with automated checks and keyboard only so far; testing with VoiceOver, TalkBack and NVDA is under way.',
   ] as const,
   feedbackTitle: 'Tell us',

@@ -9,7 +9,7 @@ import { affinityDue } from '../backend/affinity.ts';
 import { affinityScreen } from './affinity.ts';
 import { addToHomeNote, countNoteVisit } from '../install.ts';
 import { enableTilt, turnstileIn, turnstileOut } from '../motion.ts';
-import { loadProfile, rankTier, rankedTarget } from '../profile.ts';
+import { eloDelta, loadProfile, parMs, rankTier, rankedTarget } from '../profile.ts';
 import { closeButton, h, hiddenHeading, mount, navigatingBack, openModal, toast, type Screen } from '../ui.ts';
 import { handleEmailLink } from '../emailLink.ts';
 import { onAccountChange, refreshAccount, signedIn } from '../backend.ts';
@@ -194,7 +194,16 @@ function openRanked(leave: (go: () => void) => void) {
   const saved = loadSavedGame('ranked');
   if (saved?.config.mode === 'ranked') return leave(() => resumeGame(saved));
   const profile = loadProfile();
-  const difficulty = difficultyForRating(rankedTarget(profile.elo));
+  const target = rankedTarget(profile.elo);
+  const difficulty = difficultyForRating(target);
+  // what a player 35–45 wants to know before starting: how long, and what's at stake
+  const r = copy.home.ranked;
+  const facts = [
+    r.rank(rankTier(profile.elo).label, profile.elo),
+    r.length(Math.round(parMs(target) / 60_000)),
+    r.stakes(eloDelta(profile.elo, target, true), -eloDelta(profile.elo, target, false)),
+    r.pauses,
+  ];
   const close = openModal(
     h(
       'div',
@@ -203,6 +212,7 @@ function openRanked(leave: (go: () => void) => void) {
       heatingSword(h('span', { class: 'sheet-icon ranked', html: ICONS.rankedLive, attrs: { 'aria-hidden': 'true' } })),
       h('h2', { text: copy.home.ranked.title }),
       h('p', { class: 'ranked-copy', text: copy.home.ranked.text }),
+      h('ul', { class: 'ranked-facts' }, ...facts.map((f) => h('li', { text: f }))),
       h('button', {
         class: 'btn btn-primary btn-start',
         text: copy.home.ranked.start,

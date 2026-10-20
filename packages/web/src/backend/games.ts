@@ -125,6 +125,8 @@ export async function finishServerGame(input: {
     drop?: Drop | null;
     progress?: { count: number; every: number } | null;
     influence?: { affinity: Element; amount: number } | null;
+    partsCapped?: boolean;
+    dustCapped?: boolean;
   };
   void refreshAccount();
   return {
@@ -137,6 +139,8 @@ export async function finishServerGame(input: {
       drop: d.drop ?? undefined,
       progress: d.progress ?? undefined,
       influence: d.influence ?? undefined,
+      partsCapped: !!d.partsCapped,
+      dustCapped: !!d.dustCapped,
     },
   };
 }

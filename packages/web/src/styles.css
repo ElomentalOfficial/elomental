@@ -2352,6 +2352,23 @@ html[data-reduce-motion] .sword-live .sword-flame {
 .ranked-copy {
   line-height: 1.4;
 }
+/* The Ranked sheet's facts: your rank, the square's length, the stakes, the pauses. */
+.ranked-facts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.ranked-facts li:first-child {
+  font-family: var(--font);
+  font-weight: 700;
+  color: var(--text);
+}
 .note {
   font-family: var(--serif);
   font-size: var(--fs-small);
@@ -2408,6 +2425,18 @@ html[data-reduce-motion] .sword-live .sword-flame {
   font-size: var(--fs-small);
   text-align: right;
   color: var(--accent-text);
+}
+.stat .stat-sub.muted {
+  color: var(--muted);
+}
+/* a cut (slow solve, hints) is said plainly, not in the reward colour */
+.stat .stat-sub.plain {
+  color: var(--text);
+}
+/* "10 Elo to Adept III" in the Ranks sheet: the one line about you. */
+.tier-next {
+  font-weight: 700;
+  font-size: var(--fs-small);
 }
 /* One strip for everything earned (game.ts): it wraps onto a second line when narrow. */
 .rewards {
