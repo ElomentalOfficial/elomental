@@ -81,7 +81,6 @@ export const home = {
     ranked: 'Play Ranked',
   },
   storeLater: 'The Store opens soon.',
-  leaderboardLater: 'The Leaderboard opens soon.',
   casual: {
     title: 'Casual',
     text: 'No pressure, no Elo.',
@@ -312,6 +311,14 @@ export const profile = {
   collectionOffline: 'Your parts show here when you’re online.',
   forge: 'Forge',
   guestNote: 'Make an account to keep your avatar, parts and Elo on any device.',
+  showcase: 'Showcase',
+  showcaseHelp: 'Up to three parts on your card, for other players to see.',
+  showcaseChoose: 'Choose',
+  showcaseTitle: 'Your showcase',
+  showcasePick: 'Choose up to three.',
+  showcaseSave: 'Save',
+  showcaseSaved: 'Showcase saved.',
+  a11yShowcasePart: (name: string, chosen: boolean) => `${name}${chosen ? ', chosen' : ''}`,
 };
 // --- Affinities ----------------------------------------------------------------
 // docs/PROGRESSION_DESIGN.md §13: each player fights for one element in a monthly war.
@@ -763,6 +770,142 @@ export const setup = {
   openDev: 'Open dev mode',
 };
 
+// --- Leaderboard (screens/leaderboard.ts, playerCard.ts) ------------------------
+// docs/LEADERBOARD_DESIGN.md. Calm and literal: places, names, Elo. Elements are always
+// named in words beside their colour.
+
+const ORDINAL = (n: number) => {
+  const t = n % 100;
+  if (t >= 11 && t <= 13) return `${n}th`;
+  return `${n}${['th', 'st', 'nd', 'rd'][n % 10] ?? 'th'}`;
+};
+
+export const leaderboard = {
+  title: 'Leaderboard',
+  views: { friends: 'Friends', global: 'Everyone', faction: 'Affinity', season: 'Season', country: 'Country' },
+  a11yViews: 'Which list',
+  updated: (min: number) => (min < 1 ? 'Updated just now' : `Updated ${min} min ago`),
+  ranks: 'Ranks',
+  showMore: 'Show more',
+  showMe: 'Show me',
+  showTop: 'Back to the top',
+  you: 'You',
+  place: (n: number) => `#${n.toLocaleString('en-GB')}`,
+  ofTotal: (n: number) => `of ${n.toLocaleString('en-GB')}`,
+  ordinal: ORDINAL,
+  notRated: 'Play a Ranked game to get your place.',
+  hiddenBar: (place: number | null) => (place ? `You’re hidden. Your place would be #${place.toLocaleString('en-GB')}.` : 'You’re hidden from the leaderboard.'),
+  restricted: 'Ranked is closed to you for now, so you aren’t listed.',
+  notInView: {
+    faction: 'Choose an affinity to see your place here.',
+    country: 'Choose your country in Setup to see this list.',
+    season: 'Win a Ranked game this season to get a place here.',
+    friends: 'Play a Ranked game to compare with your friends.',
+    global: 'Play a Ranked game to get your place.',
+  } as Record<string, string>,
+  empty: {
+    friends: 'Follow players to compare with them here. Find them with the search above.',
+    faction: 'Nobody in this affinity has a place yet.',
+    country: 'Nobody from this country has a place yet.',
+    season: 'Nobody has climbed this season yet.',
+    global: 'Nobody has a place yet.',
+  } as Record<string, string>,
+  chooseCountry: 'Choose your country',
+  loading: 'Loading the list…',
+  meLoading: 'Finding your place…',
+  offline: 'The leaderboard needs a connection.',
+  retry: 'Try again',
+  elo: 'Elo',
+  gained: (n: number) => `+${n}`,
+  a11yRow: (place: number, name: string, rank: string, elo: number) => `${place}. ${name}, ${rank}, ${elo} Elo`,
+  a11ySeasonRow: (place: number, name: string, gain: number) => `${place}. ${name}, ${gain} Elo gained this season`,
+  a11yYou: (text: string) => `You: ${text}`,
+
+  // Search
+  search: 'Find a player',
+  searchPlaceholder: 'Find a player…',
+  searching: 'Searching…',
+  noResults: (q: string) => `No player matches “${q}”.`,
+  a11yResults: (n: number) => (n === 1 ? '1 player found' : `${n} players found`),
+
+  // The affinities this month
+  affinitiesOf: (month: string) => `Affinities · ${month}`,
+  leads: (a: string, b: string, pct: number) => `${a} leads ${b} by ${pct}%`,
+  level: 'Level so far: nobody leads yet.',
+  nobody: 'No influence yet this month.',
+  daysLeft: (d: number) => (d <= 1 ? 'Last day' : `${d} days left`),
+  prize: 'Winners get a badge and 300 Stardust',
+  yours: (n: number, place: number, element: string) => `You: +${n} influence · ${ORDINAL(place)} in ${element}`,
+  yoursNone: (element: string) => `You: no influence yet for ${element} this month`,
+  joinIn: 'Choose an affinity to join in',
+  a11yBar: (parts: string) => `This month: ${parts}`,
+  a11yPart: (element: string, standing: number) => `${element} ${standing}`,
+  details: 'Details',
+  sheetTitle: (month: string) => `Affinities in ${month}`,
+  sheetIntro: 'Every square solved adds influence to its player’s affinity. The side with the most influence per active player wins the month.',
+  members: (n: number) => (n === 1 ? '1 player' : `${n} players`),
+  influence: (n: number) => `${n.toLocaleString('en-GB')} influence`,
+  perPlayer: (n: number) => `${n} each`,
+  topIn: (element: string) => `Top in ${element} this month`,
+  topEmpty: 'Nobody yet.',
+  lastWinner: (element: string, month: string) => `${month}: ${element} won`,
+
+  // Ranks
+  tiersTitle: 'Ranks',
+  tiersIntro: 'Your Elo sets your rank. The share is of everyone with a place.',
+  from: (n: number) => (n === 0 ? 'From the start' : `From ${n} Elo`),
+  share: (pct: number) => `${pct}%`,
+  a11yTier: (name: string, from: string, pct: number) => `${name}: ${from}, ${pct}% of players`,
+  yourTier: 'Yours',
+
+  errors: {
+    slow_down: 'Lots of searches: wait a moment, then try again.',
+    no_player: 'That player can’t be followed.',
+    too_many_follows: 'You follow 500 players, the most.',
+    not_owned: 'You don’t own that part.',
+    bad_request: 'That isn’t allowed.',
+  } as Record<string, string>,
+
+  // The show-off card
+  card: {
+    peak: (n: number) => `Peak ${n}`,
+    notRanked: 'Not ranked',
+    stats: (solved: number, ranked: number) => `${solved.toLocaleString('en-GB')} solved · ${ranked.toLocaleString('en-GB')} Ranked`,
+    follow: 'Follow',
+    following: 'Following',
+    a11yFollowing: (name: string) => `Following ${name}. Tap to stop following.`,
+    followed: (name: string) => `You follow ${name}. They’re in your Friends list.`,
+    unfollowed: (name: string) => `You stopped following ${name}.`,
+    fullProfile: 'Full profile',
+    showOnBoard: 'Show on the leaderboard',
+    hidden: 'This player keeps their card private.',
+    missing: 'This player can’t be found.',
+    badges: 'Badges',
+    showcase: 'Showcase',
+    showcaseEmpty: 'Choose up to three parts on your profile.',
+    winBadge: (element: string, month: string) => `${element} won ${month}`,
+    you: 'This is you',
+    loading: 'Opening the card…',
+  },
+};
+
+// Setup > Leaderboard and card (screens/privacy.ts)
+export const privacy = {
+  title: 'Leaderboard and card',
+  summary: 'Your country, and what other players see.',
+  open: 'Open',
+  intro: 'Choose what other players see. Your place is always visible to you.',
+  group: 'What others see',
+  country: 'Country',
+  countryHelp: 'Optional. It lists you in your country’s ranking and shows on your card.',
+  noCountry: 'No country',
+  listed: 'Show me on leaderboards',
+  listedHelp: 'Off: you’re left out of every list and search, and nobody can follow you.',
+  stats: 'Stats on my card',
+  statsHelp: 'Squares solved and Ranked games played.',
+  saved: 'Saved.',
+  guest: 'Make an account to appear on the leaderboard.',
+};
 // --- Founder access (literal; screens/setup.ts) -------------------------------
 // Review and Dev mode need a code from an authenticator app on top of the founder email.
 

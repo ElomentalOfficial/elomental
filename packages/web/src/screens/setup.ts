@@ -17,6 +17,7 @@ import { getTheme, type Theme } from '../theme.ts';
 import { deviceInfo } from '../viewport.ts';
 import { closeButton, goBack, h, mount, openModal, subPage, toast, type Screen } from '../ui.ts';
 import { accessibilityScreen } from './accessibility.ts';
+import { privacyScreen } from './privacy.ts';
 import { homeScreen } from './home.ts';
 import { devScreen } from './dev.ts';
 import { founderUnlocked, hasAuthenticator, startEnrolment, verifyCode } from '../backend/founder.ts';
@@ -111,6 +112,7 @@ export function setupScreen(): Screen {
       h('div', { class: 'segmented', attrs: { role: 'radiogroup', 'aria-label': copy.setup.notesWheel } }, ...wheelButtons),
     ),
     accessibilityLink(),
+    privacyLink(),
     addToHomeRow(),
     h(
       'section',
@@ -138,6 +140,18 @@ function accessibilityLink(): HTMLElement {
     { class: 'setting' },
     h('div', {}, h('h2', { text: t.title }), h('p', { text: t.summary })),
     h('button', { class: 'btn', text: t.open, onclick: () => mount(accessibilityScreen()) }),
+  );
+}
+
+/** Setup's way into Leaderboard and card (screens/privacy.ts); signed-in players only. */
+function privacyLink(): HTMLElement | null {
+  if (!cachedAccount()) return null;
+  const t = copy.privacy;
+  return h(
+    'section',
+    { class: 'setting' },
+    h('div', {}, h('h2', { text: t.title }), h('p', { text: t.summary })),
+    h('button', { class: 'btn', text: t.open, onclick: () => mount(privacyScreen()) }),
   );
 }
 

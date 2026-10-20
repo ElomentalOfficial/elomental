@@ -39,6 +39,11 @@ export interface Account {
   devMode?: boolean;
   /** This session passed an authenticator-app code (aal2): founder tools need it. */
   aal2?: boolean;
+  /** Leaderboard and card choices (migration leaderboard). */
+  country?: string | null;
+  lbHidden?: boolean;
+  cardStats?: boolean;
+  showcase?: string[];
 }
 
 const ACCOUNT_KEY = 'elomental:account';
@@ -85,7 +90,7 @@ export async function refreshAccount(session?: Session | null): Promise<Account 
   const [{ data: profile, error }, { data: dailies }, { count: solved }, { data: mends }, { data: best }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('display_name, title, name_changed_at, elo, ranked_games, stardust, spirits, settings, affinity, plate, dev_mode')
+      .select('display_name, title, name_changed_at, elo, ranked_games, stardust, spirits, settings, affinity, plate, dev_mode, country, lb_hidden, card_stats, showcase')
       .eq('id', s.user.id)
       .single(),
     supabase.from('games').select('date_key').eq('mode', 'daily').eq('won', true),
@@ -112,6 +117,10 @@ export async function refreshAccount(session?: Session | null): Promise<Account 
     mended: Object.fromEntries((mends ?? []).map((d) => [d.date_key as string, true as const])),
     plate: profile.plate ?? 0,
     devMode: !!profile.dev_mode,
+    country: profile.country ?? null,
+    lbHidden: !!profile.lb_hidden,
+    cardStats: profile.card_stats !== false,
+    showcase: profile.showcase ?? [],
     bestElo: Math.max(profile.elo, (best?.[0]?.elo_after as number | undefined) ?? 0),
   };
   writeJson(ACCOUNT_KEY, account);

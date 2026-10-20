@@ -16,6 +16,7 @@ import { onAccountChange, refreshAccount, signedIn } from '../backend.ts';
 import { casualScreen } from './casual.ts';
 import { handleClashLink } from './clashSheet.ts';
 import { dailyScreen } from './daily.ts';
+import { leaderboardScreen } from './leaderboard.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
 import { setupScreen } from './setup.ts';
 import * as copy from '../copy/en.ts';
@@ -100,7 +101,8 @@ export function homeScreen(): Screen {
 
   const daily = tile('daily', ICONS.daily, copy.home.tiles.daily, (el) => leave(el, () => mount(dailyScreen())));
   const store = tile('store', ICONS.store, copy.home.tiles.store, () => toast(copy.home.storeLater));
-  const leader = tile('leader', ICONS.leaderboard, copy.home.tiles.leaderboard, () => toast(copy.home.leaderboardLater));
+  const leader = tile('leader', ICONS.leaderboard, copy.home.tiles.leaderboard, (el) =>
+    signedIn() ? leave(el, () => mount(leaderboardScreen())) : toast(copy.leaderboard.offline));
   const casual = tile('casual', ICONS.casual, copy.home.tiles.casual, (el) => leave(el, () => mount(casualScreen())));
   const ranked = tile('ranked', ICONS.ranked, copy.home.tiles.ranked, (el) => openRanked((go) => leave(el, go)));
   // Wide screens give Setup a tile of its own (Figma desktop home); phones keep it in the notch.

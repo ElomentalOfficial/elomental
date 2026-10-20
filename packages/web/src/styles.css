@@ -513,6 +513,8 @@ h2 {
 .screen.casual,
 .screen.forge,
 .screen.profile-page,
+.screen.leaderboard,
+.screen.player-page,
 .screen.affinity,
 .screen.setup,
 .screen.game,
@@ -535,6 +537,8 @@ h2 {
 .screen.casual.from-back,
 .screen.forge.from-back,
 .screen.profile-page.from-back,
+.screen.leaderboard.from-back,
+.screen.player-page.from-back,
 .screen.affinity.from-back,
 .screen.setup.from-back {
   animation-name: page-back-in;
@@ -5321,6 +5325,8 @@ html[data-large-text] .shortcut-list {
   .screen.casual,
   .screen.forge,
   .screen.profile-page,
+  .screen.leaderboard,
+  .screen.player-page,
   .screen.affinity,
   .screen.setup,
   .screen.loading {
@@ -5887,4 +5893,562 @@ button.plate-card {
 .activity-who {
   font-family: var(--serif);
   color: var(--muted);
+}
+
+/* ---------- Leaderboard (screens/leaderboard.ts; docs/LEADERBOARD_DESIGN.md) ---------- */
+.lb-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-height: 100%;
+}
+.lb-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+/* The affinities this month: a calm card, one bar, three short lines. */
+.lb-faction {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.lb-faction-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.lb-faction-head h2 {
+  font-size: var(--fs-body);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.lb-tug {
+  display: flex;
+  gap: 3px;
+  height: 32px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.tug-seg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  flex-basis: 0;
+  background: var(--el);
+  color: var(--c-bright);
+}
+.tug-seg svg {
+  width: 18px;
+  height: 18px;
+}
+.tug-seg.el-fire { --el: var(--el-fire); }
+.tug-seg.el-water { --el: var(--el-water); }
+.tug-seg.el-earth { --el: var(--el-earth); }
+.tug-seg.el-air { --el: var(--el-air); }
+/* the leader: a bright inner edge, so it reads without relying on colour (its name is written too) */
+.tug-seg.lead {
+  box-shadow: inset 0 0 0 2px var(--c-bright);
+}
+.lb-lead {
+  font-size: var(--fs-label);
+  font-weight: 700;
+}
+.lb-faction-line,
+.lb-faction-mine {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.lb-faction-mine {
+  color: var(--text);
+}
+.lb-faction .link-btn {
+  align-self: flex-start;
+  font-size: var(--fs-small);
+}
+/* Search */
+.lb-search-field {
+  text-align: left;
+}
+.lb-dim {
+  display: none !important;
+}
+/* Which list: the segmented control scrolls sideways when the labels don't fit. */
+.lb-tabs {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.lb-tabs .segment {
+  flex: 1 0 auto;
+  padding-inline: var(--space-3);
+}
+.lb-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.lb-meta {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.lb-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+}
+.lb-notice:empty {
+  display: none;
+}
+/* Rows: place · avatar · name and rank · Elo, always in that order and size. */
+.lb-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.lb-list > .note {
+  padding: var(--space-3);
+  font-family: var(--serif);
+  color: var(--muted);
+}
+.lb-row-btn {
+  display: grid;
+  grid-template-columns: 2.6em 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: 64px;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: 10px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.lb-row.is-me .lb-row-btn {
+  background: var(--chosen-bg);
+}
+.lb-row.is-focus .lb-row-btn {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.lb-row.placeholder {
+  height: 64px;
+  border-radius: 10px;
+  background: var(--surface);
+  opacity: 0.6;
+}
+.lb-place {
+  justify-self: center;
+  font-size: var(--fs-body);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+/* The top three: a metal ring with the number inside (the number carries it, not colour). */
+.lb-place.medal {
+  display: grid;
+  place-items: center;
+  width: 2.2em;
+  height: 2.2em;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 3px var(--medal);
+}
+.medal-1 { --medal: var(--plate-gold); }
+.medal-2 { --medal: var(--plate-silver); }
+.medal-3 { --medal: var(--plate-bronze); }
+/* 4–100: a quiet underline in gold */
+.lb-place.top100 {
+  text-decoration: underline 2px var(--plate-gold);
+  text-underline-offset: 4px;
+}
+.lb-avatar {
+  width: 44px;
+  height: 44px;
+}
+.lb-who {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+}
+.lb-name {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-body);
+  font-weight: 700;
+}
+/* plates on rows: the plainer frames only fit in a row's height, so rows show the name's
+   plate as a compact border (the full ornament shows on the card) */
+.lb-name.name-plate {
+  padding: 4px 10px;
+  margin: 0;
+  overflow: visible;
+}
+.lb-name.name-plate .plate-box svg {
+  display: none;
+}
+/* the cartouche's pointed ends hide too: its lines close into a plain double frame */
+.lb-name.plate-4 .plate-box::before,
+.lb-name.plate-4 .plate-box::after {
+  left: 0;
+  right: 0;
+  border-left: 1px solid currentColor;
+  border-right: 1px solid currentColor;
+}
+.lb-name.plate-4 .plate-box::after {
+  left: 3px;
+  right: 3px;
+}
+.lb-sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.lb-sub .tier-emblem,
+.lb-sub .drop-element {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+}
+.lb-score {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.lb-score strong {
+  font-size: var(--fs-label);
+  font-variant-numeric: tabular-nums;
+}
+.lb-score span {
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: var(--muted);
+}
+.lb-more {
+  align-self: center;
+}
+/* You: pinned to the bottom of the page, in every view. */
+.lb-me {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: auto;
+  padding: var(--space-3);
+  border-radius: 12px;
+  background: var(--surface-2);
+  box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.18);
+}
+.lb-me-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  font-size: var(--fs-body);
+}
+.lb-me-text strong {
+  font-size: var(--fs-small);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.lb-jump {
+  flex: none;
+  width: auto;
+  min-height: 44px;
+  padding: 4px 16px;
+  font-size: var(--fs-body);
+  white-space: nowrap;
+}
+/* The affinities sheet and the ranks sheet */
+.faction-standings,
+.tier-list,
+.faction-top ol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  align-self: stretch;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+.faction-standings li,
+.tier-list li {
+  display: grid;
+  grid-template-columns: 1.6em 28px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: 10px;
+  background: var(--surface-2);
+}
+.faction-standings li.is-mine,
+.tier-list li.is-mine {
+  background: var(--chosen-bg);
+}
+.tier-list li {
+  grid-template-columns: 28px minmax(0, 1fr) 7em;
+}
+.fs-name,
+.tier-name {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.fs-name span,
+.tier-name span {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.fs-standing,
+.tier-pct strong {
+  font-variant-numeric: tabular-nums;
+}
+.tier-pct {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.tier-share {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.tier-share span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+}
+.tier-list .tier-emblem {
+  width: 28px;
+  height: 28px;
+}
+.faction-top {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  text-align: left;
+}
+.faction-top h3 {
+  font-size: var(--fs-body);
+}
+.faction-top li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+}
+/* The show-off card (playerCard.ts): fixed slots, the same size whatever is equipped. */
+.player-card {
+  text-align: center;
+}
+.card-body {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  align-self: stretch;
+}
+/* later phase: card backgrounds and banners fill these without moving anything */
+.card-banner {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 0;
+}
+.card-avatar {
+  width: 128px;
+  height: 128px;
+  margin-bottom: var(--space-2);
+}
+.card-body.large .card-avatar {
+  width: 168px;
+  height: 168px;
+}
+.card-name {
+  margin-top: var(--space-2);
+  font-size: var(--fs-title);
+}
+.card-facts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-1) var(--space-3);
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+}
+.card-fact {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.card-fact .tier-emblem,
+.card-fact .drop-element {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+}
+.card-numbers {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.card-stats {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.card-badges ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  font-size: var(--fs-small);
+  font-weight: 700;
+}
+.card-badge .drop-element {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+}
+.card-showcase {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.card-showcase h3,
+.card-showcase h2 {
+  font-size: var(--fs-small);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.card-showcase ul {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.showcase-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 92px;
+  padding: var(--space-2);
+  border-radius: 10px;
+  outline: 2px dashed var(--line);
+  outline-offset: -2px;
+}
+.showcase-slot.filled {
+  outline: 0;
+  background: var(--surface-2);
+}
+.showcase-art {
+  display: block;
+  width: 56px;
+  height: 56px;
+}
+.showcase-name {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+}
+.card-actions {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+.card-actions .link-btn {
+  align-self: center;
+}
+.player-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-bottom: var(--space-5);
+}
+/* Choosing the showcase (profile.ts) */
+.showcase-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: var(--space-2);
+  align-self: stretch;
+}
+.showcase-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-2);
+  border: 0;
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.showcase-pick.on {
+  background: var(--chosen-bg);
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+/* Wide screens: the list on the left, the affinities on the right. */
+@media (min-width: 900px) {
+  .screen.leaderboard {
+    max-width: calc(820px * var(--text-scale, 1));
+  }
+  .lb-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    grid-template-areas: 'main side' 'me side';
+    align-items: start;
+  }
+  .lb-main { grid-area: main; }
+  .lb-faction { grid-area: side; position: sticky; top: 0; }
+  .lb-me { grid-area: me; }
 }
