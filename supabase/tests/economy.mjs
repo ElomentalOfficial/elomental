@@ -560,6 +560,8 @@ await db.exec(`insert into public.affinity_months (month, player_id, affinity, i
   ('2026-08-01', '${few}', 'water', 40, 4)`);
 const s8 = (await db.query(`select * from private.standings('2026-08-01') order by affinity`)).rows;
 check(s8.find((r) => r.affinity === 'water').standing === s8.find((r) => r.affinity === 'fire').standing, `M4 one member's influence counts up to 300 (${s8.map((r) => `${r.affinity} ${r.standing}`).join(', ')})`);
+const earth8 = s8.find((r) => r.affinity === 'earth');
+check(earth8.members === 0 && Number(earth8.influence) === 0 && Number(earth8.standing) === 0, `M4 a side with nobody counted shows 0 influence (${JSON.stringify(earth8)})`);
 const fewBefore = (await one(`select stardust from public.profiles where id = $1`, [few])).stardust;
 await db.query(`select private.settle_faction_month('2026-08-01')`);
 const fm = await one(`select winners from public.faction_months where month = '2026-08-01'`);
