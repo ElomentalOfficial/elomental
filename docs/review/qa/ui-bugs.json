@@ -1,0 +1,38 @@
+{
+  "T8-square-code": [
+    {
+      "typed": "k7p2-qx9m",
+      "playEnabled": true,
+      "status": ""
+    },
+    {
+      "typed": "K7P2 QX9M",
+      "playEnabled": true,
+      "status": ""
+    },
+    {
+      "typed": "K7P2-QX0M",
+      "playEnabled": false,
+      "status": ""
+    },
+    {
+      "typed": "K7P2-QXOM",
+      "playEnabled": false,
+      "status": ""
+    },
+    {
+      "typed": "K7P2-QX1M",
+      "playEnabled": false,
+      "status": ""
+    },
+    {
+      "typed": "K7P2-QX9M-EXTRA",
+      "playEnabled": true,
+      "status": ""
+    },
+    {
+      "typed": "K7P2-QX9M (unknown)",
+      "status": "No square has that code. Check it with your friend."
+    }
+  ]
+}

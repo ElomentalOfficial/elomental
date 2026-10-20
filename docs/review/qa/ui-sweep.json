@@ -1,0 +1,97 @@
+{
+  "layout": {
+    "375x812 text 100%": {
+      "problems": [
+        "Leaderboard: off screen button.segment \"Country\"",
+        "Ranks sheet: off screen button.segment \"Country\"",
+        "Affinities sheet: off screen button.segment \"Country\"",
+        "Show-off card: off screen button.segment \"Country\""
+      ],
+      "unhandledSupabase": [],
+      "pageErrors": []
+    },
+    "375x812 text 200%": {
+      "problems": [
+        "Leaderboard: off screen button.segment \"Fire\"",
+        "Leaderboard: off screen button.segment \"Season\"",
+        "Leaderboard: off screen button.segment \"Country\"",
+        "Ranks sheet: off screen button.segment \"Fire\"",
+        "Ranks sheet: off screen button.segment \"Season\"",
+        "Ranks sheet: off screen button.segment \"Country\"",
+        "Affinities sheet: off screen button.segment \"Fire\"",
+        "Affinities sheet: off screen button.segment \"Season\"",
+        "Affinities sheet: off screen button.segment \"Country\"",
+        "Show-off card: off screen button.segment \"Fire\"",
+        "Show-off card: off screen button.segment \"Season\"",
+        "Show-off card: off screen button.segment \"Country\"",
+        "Forge: off screen span. \"Stardust\"",
+        "Part sheet (Happy): off screen span. \"Stardust\"",
+        "Part sheet (Happy): off screen span.life-cost-short \"Need 5750 more\"",
+        "Part sheet (Happy): text outside its box span.life-cost-short \"Need 5750 more\" in div.modal \"HappyCommonAvatarE\"",
+        "Part sheet (needs more): off screen span. \"Stardust\""
+      ],
+      "unhandledSupabase": [],
+      "pageErrors": []
+    },
+    "320x568 text 200%": {
+      "problems": [
+        "Leaderboard: off screen button.link-btn \"Details\"",
+        "Leaderboard: off screen button.segment.on \"Everyone\"",
+        "Leaderboard: off screen button.segment \"Fire\"",
+        "Leaderboard: off screen button.segment \"Season\"",
+        "Leaderboard: off screen button.segment \"Country\"",
+        "Ranks sheet: off screen button.link-btn \"Details\"",
+        "Ranks sheet: off screen button.segment.on \"Everyone\"",
+        "Ranks sheet: off screen button.segment \"Fire\"",
+        "Ranks sheet: off screen button.segment \"Season\"",
+        "Ranks sheet: off screen button.segment \"Country\"",
+        "Affinities sheet: off screen button.segment \"Friends\"",
+        "Affinities sheet: off screen button.segment.on \"Everyone\"",
+        "Affinities sheet: off screen button.segment \"Fire\"",
+        "Affinities sheet: off screen button.segment \"Season\"",
+        "Affinities sheet: off screen button.segment \"Country\"",
+        "Affinities sheet: off screen p.lb-meta \"Updated 3 min ago\"",
+        "Show-off card: off screen button.link-btn \"Details\"",
+        "Show-off card: off screen button.segment.on \"Everyone\"",
+        "Show-off card: off screen button.segment \"Fire\"",
+        "Show-off card: off screen button.segment \"Season\"",
+        "Show-off card: off screen button.segment \"Country\"",
+        "Forge: off screen p.forge-intro \"Every 3rd square y\"",
+        "Forge: off screen button.link-btn \"How parts work\"",
+        "Forge: off screen span. \"Fire · 2nd this mo\"",
+        "Forge: off screen span. \"Stardust\"",
+        "Odds sheet: off screen h2.forge-heading \"Name plates\"",
+        "Odds sheet: off screen p.forge-intro \"A border around yo\"",
+        "Odds sheet: off screen h2.forge-heading \"Parts\"",
+        "Odds sheet: off screen h2. \"Avatars\"",
+        "Odds sheet: off screen h2. \"Frames\"",
+        "Part sheet (Happy): off screen p.forge-intro \"Every 3rd square y\"",
+        "Part sheet (Happy): off screen button.link-btn \"How parts work\"",
+        "Part sheet (Happy): off screen span. \"Fire · 2nd this mo\"",
+        "Part sheet (Happy): off screen span. \"Stardust\"",
+        "Part sheet (needs more): off screen p.forge-intro \"Every 3rd square y\"",
+        "Part sheet (needs more): off screen button.link-btn \"How parts work\"",
+        "Part sheet (needs more): off screen span. \"Fire · 2nd this mo\"",
+        "Part sheet (needs more): off screen span. \"Stardust\""
+      ],
+      "unhandledSupabase": [],
+      "pageErrors": []
+    }
+  },
+  "axe": {
+    "dark": {
+      "violations": [
+        "Ranks sheet: serious aria-dialog-name: .modal",
+        "Show-off card: serious aria-dialog-name: .modal"
+      ],
+      "pageErrors": []
+    },
+    "light": {
+      "violations": [
+        "Ranks sheet: serious aria-dialog-name: .modal",
+        "Show-off card: serious aria-dialog-name: .modal"
+      ],
+      "pageErrors": []
+    }
+  }
+}

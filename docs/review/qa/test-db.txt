@@ -1,0 +1,85 @@
+﻿
+> test:db
+> node supabase/tests/economy.mjs
+
+all 35 migrations applied
+
+900 rated solves -> 300 parts: common 58.7%, rare 24.7%, epic 11.7%, mythic 5.0% duplicates 277
+  ok  exactly every 3rd solve drops a part, and the counter matches
+  ok  Epic or better within 10 parts (longest wait 9)
+  ok  Mythic within 25 parts (longest wait 24)
+  ok  300 parts collect the whole 23-part set (23)
+  ok  duplicates paid Stardust (14370)
+  ok  40 solves in one day: 3 parts, then counting stops (3)
+  ok  a loss counts for nothing
+  ok  affinity needs 3 solved squares first
+  ok  choosing sets the affinity (no crest part any more)
+  ok  daily clean solve: +5 influence ({"affinity":"water","amount":5})
+  ok  standings count the member
+  ok  forging a Common costs 100 Stardust (100)
+  ok  cannot forge it twice
+  ok  Mythic: 1200 Stardust, not affordable with 1000
+  ok  Mythic: 1200 Stardust, no Spirit needed ({"stardust":700,"spirits":0})
+  ok  equipped it
+  ok  bringing an avatar to life needs a Spirit
+  ok  Happy (free) brought to life: 6000 Stardust and a Spirit ({"stardust":14000,"spirits":1})
+  ok  only once
+  ok  only avatars you own
+  ok  frames are never brought to life
+  ok  can wear Happy, not an avatar you lack
+  ok  Bronze then Silver plate: 3500 ({"plate":2,"stardust":10300})
+  ok  at most 3 mends a month
+  ok  3 days mended (3)
+  ok  today cannot be mended
+  catalogue common:9 epic:6 mythic:1 rare:7
+  ok  Season 0: 11 avatars and 12 frames, 9 Common, 7 Rare, 6 Epic, 1 Mythic
+  ok  the 700th counted solve brings a Spirit
+  ok  Spirits held: 1
+  ok  the 10th solve of a day rolls no Spirit
+  ok  veteran: Rare sigil 250 + polish III 1400 + frame polish I 200 back, Crowns kept as Spirits ({"stardust":2850,"spirits":2})
+  ok  only the frame stays ([{"part_id":"s0-frame-fire-1","polish":0}])
+  ok  still wears the frame; Happy as the avatar
+  ok  players cannot write their parts (permission denied for table player_parts)
+  ok  dev mode: not for players who aren't founders
+  ok  a founder without the authenticator code gets nothing
+  ok  founder_status: a founder, not unlocked ({"founder":true,"unlocked":false})
+  ok  with the code: unlocked
+  ok  dev tools need dev mode on
+  ok  an instant solve is refused while dev mode is off
+  ok  fill: 999999 Stardust and 99 Spirits ({"stardust":999999,"spirits":99})
+  ok  next part Mythic, on an instant solve (mythic)
+  ok  next solve brings a Spirit
+  ok  no daily limit in dev mode (12 of 12 counted)
+  ok  Ranked instant solve counts as rated ({"before":100,"after":164,"protectedLoss":false,"bonus":0.25,"hintCut":0,"unrated":null})
+  ok  unlock every part (23)
+  ok  set Elo and plate ({"elo":2500,"plate":4})
+  ok  remove every part
+  ok  dev tools stop when dev mode is off
+  ok  every founder action is logged (9, newest dev_off)
+  ok  the log needs the code too
+  ok  global: best Elo first (Wise Thinker, Anastasia, Bogdan, Catalina, Sharp Mapmaker)
+  ok  hidden players aren't listed
+  ok  your own row is marked
+  ok  faction view defaults to yours (Anastasia,Catalina,Daniela)
+  ok  country view (Anastasia,Bogdan)
+  ok  around me: place 4, with you in the window
+  ok  the pinned bar: #4 of 7
+  ok  a hidden player still sees the place they'd have (#1)
+  ok  search: prefix first (Anastasia)
+  ok  search: a typo still finds the name (Bogdan)
+  ok  search leaves hidden players out
+  ok  search: 30 a minute, then slow down
+  ok  friends: who you follow and you (1.Anastasia,2.Catalina)
+  ok  can't follow a hidden player
+  ok  card: name, place, following, stats ({"place":2,"following":true})
+  ok  a hidden player's card shows nothing
+  ok  stats hidden when the player turns them off
+  ok  showcase: only badges you own
+  ok  tiers add up (1/0/4/2/0 of 7)
+  ok  settled: Fire wins; badge and 300 Stardust once (300, win-2026-09-fire)
+  ok  showcase: your chosen badge on your card (["win-2026-09-fire"])
+  ok  none chosen: the newest badges show
+  ok  faction board (mine fire, last winner fire)
+
+all checks passed
+EXIT 0

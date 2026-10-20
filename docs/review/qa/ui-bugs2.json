@@ -1,0 +1,21 @@
+{
+  "T9-pause-offline": {
+    "pauseNoteAfterFailedServerPause": "0 pauses left",
+    "secondPauseToast": "No pauses left in this game.",
+    "pausedAfterSecondTry": 0,
+    "pauseCalls": 1
+  },
+  "T10-dev-bar-100": {
+    "bar": {
+      "top": 4,
+      "bottom": 48
+    },
+    "covered": [
+      "timer"
+    ]
+  },
+  "T11-local-guest-progress": {
+    "homeStatsWithAccount": "100 ELO 0 STARDUST 1 SPIRITS",
+    "localProfileHad": "Elo 640, 380 Stardust, 12 Ranked games, 1 Daily"
+  }
+}

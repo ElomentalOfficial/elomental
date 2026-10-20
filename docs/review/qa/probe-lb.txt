@@ -1,0 +1,44 @@
+﻿
+== L1: ties and paging
+  315 players, 300 tied at Elo 100: rows per page 0:310 1:0 2:0 3:0 4:0 5:0 6:5 7:0 (total 315)
+  Show me for a tied player: place 11, 310 rows returned (expected ~21)
+  page 0 places: first 1,2,3 â€¦ last 11,11,11 (310 rows)
+
+== L2: anonymous guest and the pinned bar
+  anonymous guest with 4 Ranked games: lb_me {"place":11,"total":315,"scope":null,"elo":1500,"rated":true,"hidden":false,"restricted":false,"listed":false,"value":1500}
+  lb_around_me: place 11, listed false, rows include me: false
+  anonymous never in search (generated names): not found
+
+== L3: search
+  "anastsia": Anastasia
+  "anstasia": Anastasia
+  "ANA": Anastasia
+  "bo": Bo_Li
+  "bo_": Bo_Li
+  "b_": a.b
+  "%": (none)
+  "__": (none)
+  "a.": a.b
+  "maximilian long name": Maximilian Long Name
+  "long name": Maximilian Long Name
+  "  ana  ": Anastasia
+  "xxxxxxxxxxâ€¦(5000)": (none)
+  rate limit: first refusal on search #31; counter stays at 30
+  40 one-letter searches counted: 0
+
+== L4: showcase, follow, card
+  showcase with the same badge three times: accepted; card showcase ["win-2026-09-fire","win-2026-09-fire","win-2026-09-fire"]
+  showcase emptied: card still shows ["win-2026-09-fire","win-2026-08-fire"] (the newest, can't show none)
+  follow yourself: bad_request
+  card of a missing id: {"missing":true}
+  set_country: "zz"â†’ZZ  "XX"â†’XX  "r o"â†’bad_request  ""â†’bad_request  "gbr"â†’bad_request  nullâ†’null
+
+== L5: dev mode and the live competition
+  founder in dev mode: 100 instant hard solves paid +400 influence to Air (no 25-a-day cap)
+  public board top: 1. Astute Seeker 4805 | 2. Anastasia 2400
+  affinity standings: air 407, earth 0, fire 0, water 0
+
+== L6: settle_faction_month
+  exact tie (fire 40/1, water 40/1): winner fire (only one side paid)
+  month with no influence: winner null, recorded true
+  settle a mid-month date '2026-08-15': accepted, winner null (not normalised to the 1st)

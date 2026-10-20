@@ -1,0 +1,54 @@
+﻿
+== P1: Casual pays for any valid grid, many open games at once
+  20 hard Casual games opened together, each finished 46 s later with the SAME stock grid: +300 Stardust (profile 300)
+  won games recorded: 20
+  after 220 scripted wins in a minute of wall time: 3300 Stardust (no daily cap on Stardust)
+
+== P2: Ranked loss uses the client-reported rating (clamped to target Â±350)
+  target 1600: honest loss 1600->1582 (-18); reported rating 99999: 1600->1596 (-4)
+  stored puzzle rating for the cheat's game: 1950
+  20 conceded games at 1600: honest -360 Elo, inflated rating -80 Elo
+
+== P3: a Ranked win whose finish_game never arrived is turned into a loss by the next Ranked start
+  Elo 1200 -> 1180; the solved game is recorded as won=false (1200->1180)
+
+== P4: Daily date window, retries, mends
+  one UTC day, three Daily squares solved (yesterday, today, tomorrow): 2026-10-19: +12 dust; 2026-10-20: +12 dust; 2026-10-21: +12 dust
+  same day again: daily_done
+  after a loss a new attempt opens: true (seed daily:2026-10-20)
+  mend yesterday (ok), then play yesterday anyway: allowed, +12 dust, month {"done":1,"days":31,"monthComplete":false}
+  without mending: yesterday's Daily is playable for free via start_game (+12 dust, month {"done":1,"days":31,"monthComplete":false})
+
+== P5: Clash codes
+  code abcdef: bad_code
+  code ABCDE1: bad_code
+  code ABCDEFG: bad_code
+  code ABCDEI: bad_code
+  code AAAAAA: started
+  second attempt at the same code: clash_played
+  get_clash as A: [{"display_name":"Still Theorist","is_me":true,"solved":true,"seconds":120,"mistakes":0,"hints":0,"finished_at":"2026-10-20T08:03:46.373Z"},{"display_name":"Subtle Thinker","is_me":false,"solved":false,"seconds":300,"mistakes":3,"hints":0,"finished_at":"2026-10-20T08:03:46.381Z"}]
+  clash left open an hour then resumed: resumed=true, counted time 3600s
+  clashes columns: code, difficulty, created_by, created_at (no expiry)
+
+== P6: Ranked pauses
+  pause x4: {"pauses_left":2} | {"pauses_left":1} | {"pauses_left":0} | no_pauses_left; stored pauses=3 paused_seconds=900
+  finished while paused (200 s into the pause, 1000 s since start): seconds=800
+  casual pause_game accepted 5/5
+
+== P7: finish_game seconds and too_fast
+  casual easy after 14 s: too_fast
+  casual reported -50 s (wall 100 s): too_fast
+  casual hard, 100 s wall, reports 20 s: too_fast
+  invalid grid: invalid_solution
+  negative mistakes/hints: dust=15 (clamped to 0 â†’ full pay)
+  finishing someone else's game: no_game
+
+== P8: affinity choice, switch, influence
+  choose fire, switch water, earth, fire: fire:ok water:ok earth:affinity_locked fire:affinity_locked
+  season 0: 2026-10-20T00:00:00.000Z â†’ 2027-07-01T00:00:00.000Z
+  30 more hard solves today: influence paid on 22 of them, +88
+  3 losses then choose: too_soon
+  choose 'lava': bad_request; choose null: affinity_locked
+
+== P9: anonymous player economy
+  anonymous guest solve pays: dust 4, progress {"count":1,"every":3}

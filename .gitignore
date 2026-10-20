@@ -4,3 +4,7 @@ dist/
 mood_board/
 packages/web/test-results/
 packages/web/playwright-report/
+
+# full-review screenshots (about 100 MB): kept locally, not in the repo
+docs/review/ui/
+docs/review/ux/
