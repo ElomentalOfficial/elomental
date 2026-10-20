@@ -42,15 +42,16 @@ body {
 }
 /*
  * Home-screen mode draws under the status bar. Clear it with the reported
- * inset, or 60px where iOS reports 0, plus room for iOS 26's fade below it.
+ * inset, or 60px where iOS reports 0, plus a little room for iOS 26's fade below it.
  */
 html.standalone {
   --status-clear: max(env(safe-area-inset-top), 60px);
+  /* Was 30px while whole pages scrolled under the fade; sub-page headers stay put now, so
+     content starts closer, where the fade only softens the page colour above the header. */
+  --status-gap: var(--space-3);
 }
-/* iOS 26 draws a soft blur below the status bar; content starts under it,
-   where the blur only has the plain page colour to soften. */
 html.standalone .screen:not(.welcome) {
-  padding-top: calc(var(--status-clear) + 30px);
+  padding-top: calc(var(--status-clear) + var(--status-gap));
 }
 /* Literal page colours (not variables), for iOS's status-area sampling. */
 html,
@@ -95,7 +96,7 @@ html[data-theme='light'] #status-tint {
 }
 html.standalone #status-tint {
   z-index: 5;
-  height: calc(var(--status-clear) + 26px);
+  height: calc(var(--status-clear) + var(--status-gap) - var(--space-1));
 }
 html.standalone.welcome-active #status-tint {
   display: none;

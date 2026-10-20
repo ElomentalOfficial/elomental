@@ -419,6 +419,7 @@ html[data-large-text] .lb-leader-pct {
 /* You: pinned to the bottom of the page, in every view. */
 .lb-me {
   position: sticky;
+  /* (the page's bottom padding, --sub-end, already keeps it above the home indicator) */
   bottom: 0;
   z-index: 2;
   display: flex;
@@ -428,12 +429,13 @@ html[data-large-text] .lb-leader-pct {
   padding: var(--space-3);
   border-radius: var(--radius-lg);
   background: var(--surface-2);
-  /* the shade above, and a skirt of page colour below so no row peeks out under the bar */
-  box-shadow: 0 -6px 16px var(--shadow), 0 var(--space-5) 0 var(--bg);
+  /* the shade above, and a skirt of page colour below, down to the screen's edge, so no row
+     peeks out under the bar */
+  box-shadow: 0 -6px 16px var(--shadow), 0 calc(var(--sub-end, 0px) + var(--space-5)) 0 var(--bg);
 }
-/* The pinned bar sits on the page's bottom edge (its skirt covers the rows below it). */
+/* The pinned bar sits just above the home indicator (its skirt covers the rows below it). */
 html:not([data-large-text]) .screen.leaderboard > .sub-body {
-  padding-bottom: 0;
+  padding-bottom: var(--sub-end);
 }
 /* ...and is the page's edge itself, so the scroll fade stays off it */
 html:not([data-large-text]) .screen.leaderboard > .sub-body.fade-bottom {
