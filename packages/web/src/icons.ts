@@ -45,6 +45,14 @@ const figma = (viewBox: string, body: string) =>
  * `cls` picks the theme (ic-light / ic-dark) and any extra fit class.
  */
 const brush = (src: string, cls = '') => `<img class="brush-art ${cls}" src="${src}" alt="" aria-hidden="true" draggable="false">`;
+/** The element marks as stroke paths in a 24-unit box (ICONS.elements; avatar.ts draws them larger). */
+export const ELEMENT_PATHS = {
+  fire: ['M12 3c1 4 5 6 5 11a5 5 0 0 1-10 0c0-3 2-4 2.5-6 1 1.5 2 2 2.5 2.5C12 8 11 6 12 3Z'],
+  water: ['M12 3c3 5 6 8 6 12a6 6 0 0 1-12 0c0-4 3-7 6-12Z'],
+  earth: ['M3 19 9 8l3.5 5.5L15 10l6 9Z'],
+  air: ['M3 9h10a3 3 0 1 0-3-3', 'M3 14h15a3 3 0 1 1-3 3', 'M3 19h7'],
+} as const;
+const elementPaths = (e: keyof typeof ELEMENT_PATHS) => ELEMENT_PATHS[e].map((d) => `<path d="${d}"/>`).join('');
 const figmaStroke = (body: string) =>
   `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
 
@@ -141,10 +149,10 @@ export const ICONS = {
   crown: fill('M3 8l4.5 4L12 5l4.5 7L21 8l-2 10H5Z M5 19h14v2H5Z'),
   /** The four elements (affinities, drops, parts): flame, drop, peaks, gust. Always shown with the element's name. */
   elements: {
-    fire: stroke('<path d="M12 3c1 4 5 6 5 11a5 5 0 0 1-10 0c0-3 2-4 2.5-6 1 1.5 2 2 2.5 2.5C12 8 11 6 12 3Z"/>'),
-    water: stroke('<path d="M12 3c3 5 6 8 6 12a6 6 0 0 1-12 0c0-4 3-7 6-12Z"/>'),
-    earth: stroke('<path d="M3 19 9 8l3.5 5.5L15 10l6 9Z"/>'),
-    air: stroke('<path d="M3 9h10a3 3 0 1 0-3-3"/><path d="M3 14h15a3 3 0 1 1-3 3"/><path d="M3 19h7"/>'),
+    fire: stroke(elementPaths('fire')),
+    water: stroke(elementPaths('water')),
+    earth: stroke(elementPaths('earth')),
+    air: stroke(elementPaths('air')),
   },
   /**
    * Ranked tier emblems, Novice to Archmage (profile.ts rankTier): a square that gains

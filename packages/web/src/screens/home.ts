@@ -1,5 +1,8 @@
 import { difficultyForRating } from '@elomental/engine';
+import { avatarSvg } from '../avatar.ts';
+import { cachedLoadout, loadLoadout } from '../backend/forge.ts';
 import { ICONS } from '../icons.ts';
+import { forgeScreen } from './forge.ts';
 import { addToHomeNote, countNoteVisit } from '../install.ts';
 import { enableTilt, turnstileIn, turnstileOut } from '../motion.ts';
 import { loadProfile, rankTier, rankedTarget } from '../profile.ts';
@@ -40,6 +43,18 @@ export function homeScreen(): Screen {
   );
   enableTilt(setupTile);
 
+  // The avatar: the player's forged loadout (avatar.ts), and the way into the Forge.
+  const avatarBtn = h('button', { class: 'avatar avatar-btn', attrs: { type: 'button', 'aria-label': copy.forge.a11yAvatar } });
+  const paintAvatar = (loadout = cachedLoadout()) => {
+    const worn = loadout && Object.values(loadout).some(Boolean);
+    avatarBtn.innerHTML = worn ? avatarSvg(loadout) : '';
+    avatarBtn.classList.toggle('worn', !!worn);
+  };
+  paintAvatar();
+  if (signedIn()) void loadLoadout().then((l) => l && el.isConnected && paintAvatar(l));
+  avatarBtn.addEventListener('click', () => leave(profileCard, () => mount(forgeScreen())));
+  enableTilt(avatarBtn, 6);
+
   const nameEl = h('strong', { class: 'profile-name' });
   const rankEl = h('span', { class: 'profile-rank' });
   const eloChip = stat('', copy.common.elo);
@@ -69,7 +84,7 @@ export function homeScreen(): Screen {
     h(
       'div',
       { class: 'profile-main' },
-      h('span', { class: 'avatar' }),
+      avatarBtn,
       nameEl,
       rankEl,
     ),

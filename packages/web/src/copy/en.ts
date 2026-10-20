@@ -211,6 +211,42 @@ export const forge = {
   /** Screen readers hear the drop as one literal line. */
   a11yDrop: (name: string) => `Drop: ${name}.`,
   skipReveal: 'Show the drop',
+
+  // The Forge page (screens/forge.ts)
+  title: 'Forge',
+  /** Home's avatar button: literal. */
+  a11yAvatar: 'Your avatar. Opens the Forge.',
+  intro: 'Forge avatar parts from your drops and Stardust.',
+  parts: 'Parts',
+  materialsTitle: 'Materials',
+  wearing: 'Wearing',
+  owned: 'Owned',
+  ready: 'Ready to forge',
+  needsMore: 'Needs more',
+  withAffinity: 'Comes with your affinity',
+  recipe: 'Recipe',
+  have: (have: number, need: number) => `${have} / ${need}`,
+  forge: 'Forge',
+  wear: 'Wear',
+  takeOff: 'Take off',
+  forged: (name: string) => `Forged: ${name}.`,
+  edition: (n: number) => `No. ${n}`,
+  refine: 'Refine',
+  refineHint: 'Five of one tier make one of the next.',
+  swap: 'Swap',
+  swapHint: 'Three of one element make one of another.',
+  element: 'Element',
+  from: 'From',
+  to: 'To',
+  tier: 'Tier',
+  refineCost: (stardust: number, result: string) => `Makes 1 ${result} for ${stardust} Stardust.`,
+  swapCost: (stardust: number, result: string) => `Makes 1 ${result} for ${stardust} Stardust.`,
+  refined: (result: string) => `Refined: 1 ${result}.`,
+  swapped: (result: string) => `Swapped: 1 ${result}.`,
+  offline: 'The Forge needs a connection. Your parts and materials are safe on your account.',
+  loading: 'Opening the Forge…',
+  /** Materials table cell, read in full: "Tempered Ember: 4". */
+  a11yCount: (name: string, n: number) => `${name}: ${n}`,
 };
 
 // --- Results ---------------------------------------------------------------
@@ -476,6 +512,16 @@ export const refusals = {
     invalid_solution: 'The grid didn’t check out, so it wasn’t counted.',
   } as Record<string, string>,
   finishOffline: 'No connection. This game wasn’t saved to your account.',
+  /** The Forge (forge_part, refine_components, swap_components, equip_part). */
+  forge: {
+    not_enough_components: 'Not enough components for that yet.',
+    not_enough_stardust: 'Not enough Stardust or Crowns for that yet.',
+    already_owned: 'That part is already yours.',
+    vaulted: 'That part’s season has ended. It can’t be forged any more.',
+    not_owned: 'You don’t own that part yet.',
+    not_signed_in: 'Sign in again to use the Forge.',
+  } as Record<string, string>,
+  forgeOffline: 'No connection. Nothing was spent; try again in a moment.',
 };
 
 // --- Setup -----------------------------------------------------------------

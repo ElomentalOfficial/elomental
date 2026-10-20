@@ -481,6 +481,7 @@ h2 {
 /* Sub-screens turnstile in from the left hinge, like a Windows Phone page. */
 .screen.daily,
 .screen.casual,
+.screen.forge,
 .screen.setup,
 .screen.game,
 .screen.loading {
@@ -500,6 +501,7 @@ h2 {
    browser would play the new one too, and the page would swing in twice. */
 .screen.daily.from-back,
 .screen.casual.from-back,
+.screen.forge.from-back,
 .screen.setup.from-back {
   animation-name: page-back-in;
 }
@@ -2298,6 +2300,366 @@ html[data-reduce-motion] .sword-live .sword-flame {
   color: var(--accent);
   flex: none;
 }
+/* The avatar (avatar.ts): five layers from the loadout. --el is the part's element
+   colour, palette only (Water borrows Rock until it has a colour of its own). A sigil
+   is drawn in Bright on a backdrop, and in its element's colour on the bare disc. */
+.avatar-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.avatar-base {
+  fill: var(--surface-2);
+}
+.avatar-art .el-fire { --el: var(--c-lava); }
+.avatar-art .el-earth { --el: var(--c-forest); }
+.avatar-art .el-air { --el: var(--c-mud); }
+.avatar-art .el-water { --el: var(--c-rock); }
+/* On the light theme's pale cards Air and Water need more ink to show at all. */
+:root[data-theme='light'] .avatar-art .el-air { --el: color-mix(in srgb, var(--c-mud) 45%, var(--c-bg)); }
+:root[data-theme='light'] .avatar-art .el-water { --el: color-mix(in srgb, var(--c-rock) 55%, var(--c-bg)); }
+.layer-backdrop .fill {
+  fill: var(--el);
+}
+.layer-backdrop .line {
+  fill: none;
+  stroke: color-mix(in srgb, var(--c-bright) 40%, transparent);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+.layer-sigil .ink {
+  fill: none;
+  stroke: var(--el);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+.avatar-art.has-backdrop .layer-sigil .ink {
+  stroke: var(--c-bright);
+}
+.layer-frame .ring {
+  stroke: var(--el);
+  stroke-width: 4;
+}
+.layer-frame .stud {
+  fill: var(--c-bright);
+  stroke: var(--el);
+  stroke-width: 1.6;
+}
+.layer-crest .badge {
+  fill: var(--el);
+  stroke: var(--surface);
+  stroke-width: 2.4;
+}
+.layer-crest .badge-ink {
+  stroke: var(--c-bright);
+}
+.layer-aura .aura {
+  stroke: var(--el);
+  stroke-width: 3;
+  stroke-dasharray: 5 8;
+  stroke-linecap: round;
+  transform-origin: 50px 50px;
+  filter: drop-shadow(0 0 3px var(--el));
+  animation: aura-turn 14s linear infinite;
+}
+@keyframes aura-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+html[data-reduce-motion] .layer-aura .aura {
+  animation: none;
+}
+/* Home's avatar is a button into the Forge; once something is worn, the drawing replaces
+   the plain disc and its ring. */
+.avatar-btn {
+  display: block;
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.avatar-btn.worn {
+  background: none;
+  box-shadow: none;
+}
+.avatar-btn svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------- The Forge (screens/forge.ts) ---------- */
+.forge-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-bottom: var(--space-5);
+}
+.forge-status {
+  font-family: var(--serif);
+  color: var(--muted);
+  text-align: center;
+  padding: var(--space-6) var(--space-4);
+}
+.forge-head {
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.forge-avatar {
+  display: block;
+  width: 112px;
+  height: 112px;
+}
+.forge-balances {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.forge-intro {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.balance {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.balance svg {
+  width: 20px;
+  height: 20px;
+  color: var(--accent);
+}
+.balance strong {
+  font-size: var(--fs-label);
+}
+.balance span:last-child {
+  color: var(--muted);
+  font-size: var(--fs-small);
+}
+.forge-heading {
+  margin-top: var(--space-3);
+  font-size: var(--fs-label);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.forge-group h2 {
+  margin-bottom: var(--space-2);
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+  font-weight: 400;
+  color: var(--muted);
+}
+.part-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: var(--space-2);
+}
+.part-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-3) var(--space-2);
+  border: 0;
+  border-radius: 12px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+.part-art {
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 2px;
+}
+.part-name {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  line-height: 1.2;
+  font-weight: 400;
+}
+.part-rarity {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-caption);
+  color: var(--muted);
+}
+.part-state {
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  color: var(--muted);
+}
+/* (labels stay in the text colour for contrast; the outline and wash carry the accent) */
+.part-card.state-ready .part-state,
+.part-card.state-wearing .part-state,
+.part-card.state-wearing .part-rarity {
+  color: var(--text);
+}
+/* ready: an accent outline; wearing: filled with a wash of the accent */
+.part-card.state-ready {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.part-card.state-wearing {
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+}
+/* not yet yours: a dim silhouette */
+.part-card.state-needs .part-art,
+.part-card.state-starter .part-art {
+  opacity: 0.4;
+  filter: grayscale(0.6);
+}
+/* Rarity pips: the count is the rarity (1 Scrap … 5 Starforged). */
+.pips {
+  display: inline-flex;
+  gap: 2px;
+}
+.pips i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.pips.rarity-tempered,
+.pips.rarity-runed,
+.pips.rarity-starforged {
+  color: var(--accent);
+}
+.part-sheet {
+  text-align: center;
+}
+.part-sheet-art {
+  display: block;
+  width: 140px;
+  height: 140px;
+  margin: 0 auto var(--space-2);
+}
+.part-sheet-meta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.recipe {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  text-align: left;
+}
+.recipe h3 {
+  font-size: var(--fs-small);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+.recipe-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--serif);
+}
+.recipe-row.enough strong {
+  color: var(--accent);
+}
+.recipe-row.short strong {
+  color: var(--muted);
+}
+.forge-materials {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: 12px;
+  background: var(--surface);
+}
+.materials {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.materials th,
+.materials td {
+  padding: 6px 2px;
+  text-align: center;
+}
+.materials thead th {
+  vertical-align: bottom;
+}
+.materials tbody th {
+  text-align: left;
+  font-family: var(--serif);
+  font-weight: 400;
+  white-space: nowrap;
+}
+.materials tbody th .drop-element {
+  margin-right: 6px;
+  vertical-align: -2px;
+}
+.materials td {
+  font-weight: 700;
+}
+.materials td.none {
+  color: var(--muted);
+  font-weight: 400;
+  opacity: 0.6;
+}
+.materials-tier {
+  display: block;
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  color: var(--muted);
+}
+/* On narrow screens the column heads are pips only; the tier name is still read out. */
+@media (max-width: 479px) {
+  .materials-tier {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+}
+.materials-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+.forge-field {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  text-align: left;
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.forge-field select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-body);
+}
+
 /* The drop (reward.ts): an ingot comes out glowing Lava-hot and cools into its rarity's
    colour (--ingot); the rarer, the longer (--cool). Rarity colours, by palette token:
    Scrap Rock, Forged Forest, Tempered Crimson, Runed Lava, Starforged Bright. The pips and
@@ -4866,6 +5228,7 @@ html[data-large-text] .shortcut-list {
   /* The other pages keep their phone column, a little larger. */
   .screen.daily,
   .screen.casual,
+  .screen.forge,
   .screen.setup,
   .screen.loading {
     zoom: var(--wide-zoom, 1);
