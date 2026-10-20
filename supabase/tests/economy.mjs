@@ -60,7 +60,7 @@ const a = await newPlayer();
 const tally = { common: 0, rare: 0, epic: 0, mythic: 0 };
 let solves = 0, drops = 0, dupes = 0, gapEpic = 0, maxGapEpic = 0, gapMythic = 0, maxGapMythic = 0, progressOk = true;
 for (let i = 0; i < 900; i++) {
-  if (i % 20 === 0) await db.exec(`update public.games set finished_at = finished_at - interval '1 day' where user_id = '${a}'`);
+  if (i % 9 === 0) await db.exec(`update public.games set finished_at = finished_at - interval '1 day' where user_id = '${a}'`);
   const j = await play(a, 'ranked', 'medium', { rating: 500 });
   solves++;
   if (!j.progress || j.progress.count !== solves % 3) progressOk = false;
@@ -81,11 +81,11 @@ check(owned === 48, `300 parts collect the whole 48-part set (${owned})`);
 const dupDust = (await db.query(`select coalesce(sum(stardust),0)::int s from public.drops where player_id = $1 and duplicate`, [a])).rows[0].s;
 check(dupDust > 0, `duplicates paid Stardust (${dupDust})`);
 
-// --- 2. the daily limit: counting stops after 30 solves
+// --- 2. the daily limit: counting stops after 9 solves (3 parts)
 const b = await newPlayer();
 let partsToday = 0, lastProgress = null;
 for (let i = 0; i < 40; i++) { const j = await play(b, 'casual', 'medium'); if (j.drop) partsToday++; if (j.progress) lastProgress = j.progress; else lastProgress = 'stopped'; }
-check(partsToday === 10 && lastProgress === 'stopped', `40 solves in one day: 10 parts, then counting stops (${partsToday})`);
+check(partsToday === 3 && lastProgress === 'stopped', `40 solves in one day: 3 parts, then counting stops (${partsToday})`);
 
 // --- 3. losses and unrated: nothing counts
 const c = await newPlayer();
@@ -132,7 +132,33 @@ await db.query(`select public.equip_part('${common.split('-')[1]}', $1)`, [commo
 const eq = (await db.query(`select * from public.avatar_loadouts where player_id = $1`, [e0])).rows[0];
 check(Object.values(eq).includes(common), 'equipped it');
 
-// --- 6. catalogue and access
+// --- 6. sinks: polish, plates, mend a Daily
+await db.exec(`update public.profiles set stardust = 20000 where id = '${e0}'`);
+await as(e0);
+for (let i = 0; i < 5; i++) await db.query(`select public.polish_part($1)`, [common]);
+const pol = (await db.query(`select polish from public.player_parts where player_id = $1 and part_id = $2`, [e0, common])).rows[0].polish;
+const afterPolish = (await db.query(`select stardust from public.profiles where id = $1`, [e0])).rows[0].stardust;
+check(pol === 5 && afterPolish === 20000 - 6200, `polish I–V costs 6200 in all (${20000 - afterPolish})`);
+err = null; try { await db.query(`select public.polish_part($1)`, [common]); } catch (e) { err = e.message; }
+check(err?.includes('fully_polished'), 'no polish past V');
+err = null; try { await db.query(`select public.polish_part($1)`, [mythic === common ? 'x' : (await db.query(`select id from public.parts where id not in (select part_id from public.player_parts where player_id = $1) limit 1`, [e0])).rows[0].id]); } catch (e) { err = e.message; }
+check(err?.includes('not_owned'), 'only parts you own can be polished');
+for (let i = 0; i < 2; i++) await db.query(`select public.buy_plate()`);
+const pl = (await db.query(`select plate, stardust from public.profiles where id = $1`, [e0])).rows[0];
+check(pl.plate === 2 && pl.stardust === 13800 - 3500, `Bronze then Silver plate: 3500 (${JSON.stringify(pl)})`);
+const ym = new Date(); const day = (n) => `${ym.getUTCFullYear()}-${String(ym.getUTCMonth() + 1).padStart(2, '0')}-${String(n).padStart(2, '0')}`;
+const today = ym.getUTCDate();
+if (today > 4) {
+  for (let n = 1; n <= 3; n++) await db.query(`select public.mend_daily($1)`, [day(n)]);
+  err = null; try { await db.query(`select public.mend_daily($1)`, [day(4)]); } catch (e) { err = e.message; }
+  check(err?.includes('no_mends_left'), 'at most 3 mends a month');
+  const mends = (await db.query(`select count(*)::int n from public.daily_mends where player_id = $1`, [e0])).rows[0].n;
+  check(mends === 3, `3 days mended (${mends})`);
+} else console.log('  (skipped mend checks: too early in the month)');
+err = null; try { await db.query(`select public.mend_daily($1)`, [day(today)]); } catch (e) { err = e.message; }
+check(err?.includes('bad_date'), 'today cannot be mended');
+
+// --- 7. catalogue and access
 const cat = (await db.query(`select rarity, count(*)::int n from public.parts where source = 'craft' group by rarity order by rarity`)).rows;
 console.log('  catalogue', cat.map((r) => `${r.rarity}:${r.n}`).join(' '));
 check(JSON.stringify(cat) === JSON.stringify([{ rarity: 'common', n: 16 }, { rarity: 'epic', n: 10 }, { rarity: 'mythic', n: 6 }, { rarity: 'rare', n: 16 }]), 'Season 0: 16 Common, 16 Rare, 10 Epic, 6 Mythic');
