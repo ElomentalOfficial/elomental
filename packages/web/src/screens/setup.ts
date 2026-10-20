@@ -13,14 +13,13 @@ import {
 import { segmented } from '../controls.ts';
 import { ICONS } from '../icons.ts';
 import { addToHome, canAddToHome } from '../install.ts';
+import { openLazy } from '../lazy.ts';
 import { notesWheelOn } from '../settings.ts';
 import { getTheme, type Theme } from '../theme.ts';
 import { deviceInfo } from '../viewport.ts';
 import { closeButton, goBack, h, mount, openModal, subPage, toast, type Screen } from '../ui.ts';
 import { accessibilityScreen } from './accessibility.ts';
-import { privacyScreen } from './privacy.ts';
 import { homeScreen } from './home.ts';
-import { devScreen } from './dev.ts';
 import { founderUnlocked, hasAuthenticator, startEnrolment, verifyCode } from '../backend/founder.ts';
 import * as copy from '../copy/en.ts';
 
@@ -120,7 +119,7 @@ function privacyLink(): HTMLElement | null {
     'section',
     { class: 'setting' },
     h('div', {}, h('h2', { text: t.title }), h('p', { text: t.summary })),
-    h('button', { class: 'btn', text: t.open, attrs: { 'aria-label': t.a11yOpen }, onclick: () => mount(privacyScreen()) }),
+    h('button', { class: 'btn', text: t.open, attrs: { 'aria-label': t.a11yOpen }, onclick: () => openLazy(() => import('./privacy.ts'), (m) => mount(m.privacyScreen())) }),
   );
 }
 
@@ -221,7 +220,7 @@ function devSection(): HTMLElement {
     'section',
     { class: 'setting' },
     h('div', {}, h('h2', { text: copy.setup.dev }), help),
-    h('button', { class: 'btn', text: copy.setup.openDev, onclick: () => mount(devScreen()) }),
+    h('button', { class: 'btn', text: copy.setup.openDev, onclick: () => openLazy(() => import('./dev.ts'), (m) => mount(m.devScreen())) }),
   );
   const paint = () => {
     section.hidden = !founderUnlocked();

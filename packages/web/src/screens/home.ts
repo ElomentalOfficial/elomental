@@ -11,6 +11,7 @@ import { profileScreen } from './profile.ts';
 import { affinityDue } from '../backend/affinity.ts';
 import { affinityScreen } from './affinity.ts';
 import { addToHomeNote, countNoteVisit } from '../install.ts';
+import { openLazy, prefetch } from '../lazy.ts';
 import { enableTilt, turnstileIn, turnstileOut } from '../motion.ts';
 import { dailyKey, eloDelta, loadProfile, nextRank, parMs, rankTier, rankedOpponent, rankedTarget } from '../profile.ts';
 import { closeButton, h, hiddenHeading, mount, navigatingBack, openModal, toast, type Screen } from '../ui.ts';
@@ -19,7 +20,6 @@ import { onAccountChange, refreshAccount, signedIn } from '../backend.ts';
 import { casualScreen } from './casual.ts';
 import { handleClashLink } from './clashSheet.ts';
 import { dailyScreen } from './daily.ts';
-import { leaderboardScreen } from './leaderboard.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
 import { setupScreen } from './setup.ts';
 import * as copy from '../copy/en.ts';
@@ -136,10 +136,12 @@ export function homeScreen(): Screen {
   paintProfile();
   const stopProfile = onAccountChange(paintProfile);
   if (signedIn()) void refreshAccount();
+  // the leaderboard is split off the main script (lazy.ts): fetched ahead, it opens at once
+  if (signedIn()) prefetch(() => import('./leaderboard.ts'));
   // The Store stays, so players know it's coming (the owner's call on D1); the Forge is on the Profile.
   const store = tile('store', ICONS.store, copy.home.tiles.store, () => toast(copy.home.storeLater));
   const leader = tile('leader', ICONS.leaderboard, copy.home.tiles.leaderboard, (el) =>
-    signedIn() ? leave(el, () => mount(leaderboardScreen())) : toast(copy.leaderboard.offline));
+    signedIn() ? openLazy(() => import('./leaderboard.ts'), (m) => leave(el, () => mount(m.leaderboardScreen()))) : toast(copy.leaderboard.offline));
   const casual = tile('casual', ICONS.casual, copy.home.tiles.casual, (el) => leave(el, () => mount(casualScreen())));
   const ranked = tile('ranked', ICONS.ranked, copy.home.tiles.ranked, (el) => openRanked((go) => leave(el, go)));
   // Wide screens give Setup a tile of its own (Figma desktop home); phones keep it in the notch.

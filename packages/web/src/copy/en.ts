@@ -48,6 +48,9 @@ export const common = {
   on: 'On',
   off: 'Off',
   loading: 'Loading…',
+  /** A page split off the main script (lazy.ts) that can't be fetched: offline, or the app was updated. */
+  pageOffline: 'No connection. This page needs the internet to open.',
+  reloading: 'Loading the latest version of Elomental…',
   searching: 'Searching…',
   you: 'You',
   friend: 'Friend',
