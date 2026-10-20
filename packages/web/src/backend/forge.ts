@@ -90,8 +90,17 @@ export const equipPart = (slot: Slot, part: string | null) => call('equip_part',
 export const polishPart = (part: string) => call('polish_part', { p_part: part });
 /** Buys plate n, the next one (a repeated tap can't buy two). */
 export const buyPlate = (n: number) => call('buy_plate', { p_plate: n });
-/** Fills in a missed Daily Square this month (YYYY-MM-DD) for MEND_COST Stardust. */
-export const mendDaily = (date: string) => call('mend_daily', { p_date: date });
+/**
+ * Fills in a missed Daily Square this month (YYYY-MM-DD) for MEND_COST Stardust. `badge` is
+ * the month's badge when this fill-in just earned it (daily_month).
+ */
+export async function mendDaily(date: string): Promise<{ error: string | null; badge: string | null }> {
+  const { data, error } = await supabase.rpc('mend_daily', { p_date: date });
+  if (error) return { error: knownError(error, copy.refusals.forge) ?? copy.refusals.forgeOffline, badge: null };
+  void refreshAccount();
+  const daily = (data as { daily?: { badgeNew?: boolean; badge?: string } } | null)?.daily;
+  return { error: null, badge: daily?.badgeNew && daily.badge ? daily.badge : null };
+}
 export const MEND_COST = 300;
 export const MENDS_A_MONTH = 3;
 

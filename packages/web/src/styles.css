@@ -1971,6 +1971,10 @@ html:not([data-large-text]) .daily-art {
   letter-spacing: 0.02em;
   color: var(--accent);
 }
+/* "Tap a missed day to fill it in…", under the calendar while there are missed days. */
+.mend-hint {
+  padding: 0 2px;
+}
 .month-count {
   font-family: var(--serif);
   font-size: var(--fs-body);

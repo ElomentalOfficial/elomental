@@ -1,6 +1,7 @@
 import { reducedMotion } from '../a11y.ts';
 import { ICONS } from '../icons.ts';
-import { dailyKey, dateKey, loadProfile, nextResetIn } from '../profile.ts';
+import { dailyBadgeNeed, dailyGoal, dailyKey, dateKey, loadProfile, nextResetIn } from '../profile.ts';
+import { badgeMonth } from '../badges.ts';
 import { cachedAccount, refreshAccount } from '../backend/account.ts';
 import { MEND_COST, MENDS_A_MONTH, mendDaily } from '../backend/forge.ts';
 import { closeButton, goBack, h, mount, openModal, subPage, toast, type Screen } from '../ui.ts';
@@ -127,8 +128,11 @@ function tearOffCalendar(): HTMLElement {
   });
   return el;
 }
-/** A missed day this month: fill it in for Stardust (3 a month), or say why not. */
-function openMend(key: string, label: string, left: number): void {
+/**
+ * A missed day this month: fill it in for Stardust (3 a month), or say why not. `badgeNote`
+ * says honestly what this fill-in does for the month's badge.
+ */
+function openMend(key: string, label: string, left: number, badgeNote: string): void {
   const account = cachedAccount();
   if (!account) {
     toast(copy.daily.mendOffline);
@@ -141,10 +145,10 @@ function openMend(key: string, label: string, left: number): void {
     if (account.stardust < MEND_COST) btn.disabled = true;
     else btn.addEventListener('click', () => {
       btn.disabled = true;
-      void mendDaily(key).then(async (err) => {
+      void mendDaily(key).then(async ({ error, badge }) => {
         close();
-        if (err) return toast(err);
-        toast(copy.daily.mended(label));
+        if (error) return toast(error);
+        toast(badge ? copy.result.monthBadgeEarned(badgeMonth(badge)) : copy.daily.mended(label));
         await refreshAccount();
         mount(dailyScreen());
       });
@@ -158,6 +162,7 @@ function openMend(key: string, label: string, left: number): void {
       closeButton(() => close()),
       h('h2', { text: copy.daily.mendTitle(label) }),
       h('p', { text: copy.daily.mendText }),
+      h('p', { text: badgeNote }),
       h('p', { class: 'note', text: copy.daily.mendLeft(Math.max(0, left), account.stardust) }),
       action,
     ),
@@ -176,55 +181,86 @@ export function dailyScreen(): Screen {
   for (const w of WEEKDAYS) calendar.append(h('span', { class: 'weekday', text: w }));
   for (let i = 0; i < firstWeekday; i++) calendar.append(h('span'));
 
-  const mended = cachedAccount()?.mended ?? {};
+  // Fill-ins and badges live on the server: without an account there are none to use.
+  const account = cachedAccount();
+  const mended = account?.mended ?? {};
   const prefix = today.slice(0, 8);
-  const mendsLeft = MENDS_A_MONTH - Object.keys(mended).filter((k) => k.startsWith(prefix)).length;
-  let done = 0;
+  const mendsLeft = account ? Math.max(0, MENDS_A_MONTH - Object.keys(mended).filter((k) => k.startsWith(prefix)).length) : 0;
+
+  const saved = loadSavedGame();
+  const resumable = saved?.config.mode === 'daily' && saved.config.dateKey === today ? saved : null;
+  const doneToday = !!profile.daily[today];
+  const playToday = () =>
+    resumable ? resumeGame(resumable) : void startGame({ mode: 'daily', difficulty: 'medium', seed: `daily:${today}`, dateKey: today });
+
+  type DayState = 'done' | 'mended' | 'missed' | 'today' | 'future';
+  const states: DayState[] = [];
   for (let d = 1; d <= days; d++) {
     const key = dateKey(year, month - 1, d);
-    const completed = !!profile.daily[key];
-    if (completed) done++;
-    const state = completed ? (mended[key] ? 'mended' : 'done') : d < day ? 'missed' : d === day ? 'today' : 'future';
-    const icon = state === 'done' || state === 'mended' ? ICONS.check : state === 'missed' ? ICONS.close : '';
+    states.push(profile.daily[key] ? (mended[key] ? 'mended' : 'done') : d < day ? 'missed' : d === day ? 'today' : 'future');
+  }
+  const done = states.filter((s) => s === 'done' || s === 'mended').length;
+  const missed = states.filter((s) => s === 'missed').length;
+
+  // The month's badge: 20 days solved or filled in. Out of reach once even every day left plus
+  // every fill-in can't get there; fill-ins are only worth suggesting when solving alone can't.
+  const need = dailyBadgeNeed(days);
+  const earned = done >= need;
+  const bySolving = done + (days - day) + (doneToday ? 0 : 1);
+  const reach = bySolving + Math.min(missed, mendsLeft);
+  const nextMonth = new Date(year, month, 1).toLocaleString('en', { month: 'long' });
+  const badgeLine = !account
+    ? copy.daily.badgeNeedsAccount
+    : earned
+      ? copy.daily.badgeEarned
+      : reach < need
+        ? copy.daily.badgeOutOfReach(nextMonth)
+        : copy.daily.badgeHow(need);
+  const mendHint =
+    account && !earned && bySolving < need && reach >= need ? h('p', { class: 'note mend-hint', text: copy.daily.mendHint(MEND_COST, mendsLeft) }) : null;
+  const mendBadgeNote = earned ? copy.daily.mendBadgeHeld(monthName) : reach < need ? copy.daily.mendNoBadge(monthName) : copy.daily.mendToward(done + 1, need);
+
+  states.forEach((state, i) => {
+    const d = i + 1;
+    const key = dateKey(year, month - 1, d);
+    const label = copy.daily.a11yDay(monthName, d, state);
+    const icon = state === 'done' || state === 'mended' ? ICONS.check : '';
     calendar.append(
       h(
         'button',
         {
           class: `day ${state}`,
-          attrs: { 'aria-label': copy.daily.a11yDay(monthName, d, state) },
+          attrs: {
+            'aria-label': state === 'today' && !doneToday ? copy.daily.a11yPlayToday(label, !!resumable) : state === 'missed' ? copy.daily.a11yFillIn(label) : label,
+            // solved and coming days do nothing when tapped
+            ...(state === 'done' || state === 'mended' || state === 'future' ? { 'aria-disabled': 'true' } : {}),
+          },
           onclick: () => {
-            if (state === 'missed') openMend(key, `${monthName} ${d}`, mendsLeft);
+            if (state === 'missed') openMend(key, `${monthName} ${d}`, mendsLeft, mendBadgeNote);
+            else if (state === 'today') playToday();
           },
         },
         // Done days show a check instead of the number; every other day shows its number.
-        state === 'done' || state === 'mended' ? h('span', { class: 'day-icon', html: icon }) : h('span', { class: 'day-num', text: String(d) }),
+        icon ? h('span', { class: 'day-icon', html: icon }) : h('span', { class: 'day-num', text: String(d) }),
       ),
     );
-  }
+  });
 
-  const saved = loadSavedGame();
-  const resumable = saved?.config.mode === 'daily' && saved.config.dateKey === today ? saved : null;
-  const doneToday = !!profile.daily[today];
   const untilReset = nextResetIn();
   const hours = Math.floor(untilReset / 3_600_000);
   const minutes = Math.floor((untilReset % 3_600_000) / 60_000);
 
   const action = doneToday
     ? h('div', { class: 'done-today', html: `${ICONS.check}<span>${copy.daily.doneToday}</span>` })
-    : h('button', {
-        class: 'btn btn-primary',
-        text: resumable ? copy.daily.continue : copy.daily.play,
-        onclick: () =>
-          resumable
-            ? resumeGame(resumable)
-            : void startGame({ mode: 'daily', difficulty: 'medium', seed: `daily:${today}`, dateKey: today }),
-      });
+    : h('button', { class: 'btn btn-primary', text: resumable ? copy.daily.continue : copy.daily.play, onclick: playToday });
 
   const progress = h('div', { class: 'month-progress', attrs: { 'aria-hidden': 'true' } }, h('span'));
-  progress.firstElementChild!.setAttribute('style', `width:${(done / days) * 100}%`);
+  // the count and bar go toward the badge's 20 until it's earned, then the whole month
+  const goal = dailyGoal(done, days);
+  progress.firstElementChild!.setAttribute('style', `width:${Math.min(1, done / goal) * 100}%`);
 
   // Header, then one block centred in the space below it: the month card
-  // (title, progress, calendar), the avatar reward and the play button.
+  // (title, progress, calendar), the month's badge and the play button.
   const el = subPage(
     { className: 'daily', title: copy.daily.title, onBack: () => void goBack(homeScreen) },
     h(
@@ -238,21 +274,17 @@ export function dailyScreen(): Screen {
           'div',
           { class: 'month-head' },
           h('h2', { text: `${monthName} ${year}` }),
-          h('span', { class: 'month-count', text: copy.daily.monthCount(done, days) }),
+          h('span', { class: 'month-count', text: copy.daily.monthCount(done, goal) }),
         ),
         progress,
         calendar,
+        mendHint,
       ),
       h(
         'div',
         { class: 'reward-card' },
-        h('span', { class: `avatar-reward ${done === days ? 'unlocked' : ''}`, html: done === days ? ICONS.crown : ICONS.lock }),
-        h(
-          'div',
-          {},
-          h('strong', { text: copy.daily.avatar(monthName) }),
-          h('p', { text: done === days ? copy.daily.avatarUnlocked : copy.daily.avatarLocked }),
-        ),
+        h('span', { class: `avatar-reward ${earned ? 'unlocked' : ''}`, html: earned ? ICONS.crown : ICONS.lock }),
+        h('div', {}, h('strong', { text: copy.daily.monthBadge(monthName) }), h('p', { text: badgeLine })),
       ),
       h('div', { class: 'daily-actions' }, action, h('p', { class: 'reset-note', text: copy.daily.nextIn(hours, minutes) })),
     ),

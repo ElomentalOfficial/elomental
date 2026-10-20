@@ -6,7 +6,7 @@ import { canSwitchAffinity } from '../backend/affinity.ts';
 import { cachedLoadout, cachedPolish, loadForge } from '../backend/forge.ts';
 import { ICONS } from '../icons.ts';
 import { paintPlate } from '../plates.ts';
-import { dailyKey, loadProfile, rankTier } from '../profile.ts';
+import { dailyGoal, dailyKey, loadProfile, rankTier } from '../profile.ts';
 import { closeButton, goBack, h, mount, openModal, subPage, toast, type Screen } from '../ui.ts';
 import { affinityScreen } from './affinity.ts';
 import { forgeScreen } from './forge.ts';
@@ -95,7 +95,7 @@ export function profileScreen(): Screen {
           stat(copy.profile.bestElo, String(Math.max(p.elo, account?.bestElo ?? 0))),
           stat(copy.profile.solved, String(account?.solved ?? 0)),
           stat(copy.profile.ranked, String(p.rankedGames)),
-          stat(copy.profile.dailyMonth(monthName), copy.profile.dailyCount(dailyDone, days)),
+          stat(copy.profile.dailyMonth(monthName), copy.profile.dailyCount(dailyDone, dailyGoal(dailyDone, days))),
         ),
       ),
       h('section', { class: 'profile-section' }, h('h2', { text: copy.profile.collection }), collection, bar),

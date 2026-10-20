@@ -17,9 +17,11 @@ import {
 } from '@elomental/engine';
 import { ICONS } from '../icons.ts';
 import { dropReveal, influenceLine, progressLine } from '../reward.ts';
+import { badgeMonth } from '../badges.ts';
 import { forgeScreen } from './forge.ts';
 import {
   HINT_ELO_PENALTY,
+  dailyGoal,
   loadProfile,
   parMs,
   promoted,
@@ -957,8 +959,8 @@ function gameScreen(game: SavedGame): Screen {
       if (outcome.elo.protectedLoss) rows.push(h('p', { class: 'note', text: copy.result.protectedLoss }));
     }
     if (outcome.daily) {
-      rows.push(statRow(copy.result.thisMonth, copy.result.monthOf(outcome.daily.done, outcome.daily.days)));
-      if (outcome.daily.monthComplete) rows.push(h('p', { class: 'note good', text: copy.result.monthComplete }));
+      rows.push(statRow(copy.result.thisMonth, copy.result.monthOf(outcome.daily.done, dailyGoal(outcome.daily.done, outcome.daily.days))));
+      if (outcome.daily.badgeNew && outcome.daily.badge) rows.push(h('p', { class: 'note good', text: copy.result.monthBadgeEarned(badgeMonth(outcome.daily.badge)) }));
     }
 
     const rewards = h('div', { class: 'rewards' });

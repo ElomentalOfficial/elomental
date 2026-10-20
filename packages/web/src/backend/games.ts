@@ -1,5 +1,5 @@
 import type { Difficulty, Move } from '@elomental/engine';
-import type { Drop, Element, Mode, Outcome } from '../profile.ts';
+import type { DailyMonth, Drop, Element, Mode, Outcome } from '../profile.ts';
 import { refreshAccount } from './account.ts';
 import { knownError, supabase } from './client.ts';
 import * as copy from '../copy/en.ts';
@@ -109,7 +109,7 @@ export async function finishServerGame(input: {
     dust: number;
     spirit: boolean;
     elo: { before: number; after: number; protectedLoss: boolean; bonus: number; hintCut: number; unrated?: 'copied' | 'unchecked' | null } | null;
-    daily: { done: number; days: number; monthComplete: boolean } | null;
+    daily: DailyMonth | null;
     drop?: Drop | null;
     progress?: { count: number; every: number } | null;
     influence?: { affinity: Element; amount: number } | null;

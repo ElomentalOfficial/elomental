@@ -112,9 +112,17 @@ export const daily = {
   play: 'Play today’s square',
   continue: 'Continue today’s square',
   monthCount: (done: number, days: number) => `${done} of ${days}`,
-  avatar: (month: string) => `${month} avatar`,
-  avatarUnlocked: 'Unlocked. Well played.',
-  avatarLocked: 'Solve every square this month to unlock it.',
+  /** The month's badge (daily_month): 20 days solved or filled in, every day of a shorter month. */
+  monthBadge: (month: string) => `${month} badge`,
+  badgeEarned: 'Earned. It’s on your Profile.',
+  badgeHow: (need: number) => `Solve or fill in ${need} days this month to earn it.`,
+  badgeOutOfReach: (nextMonth: string) => `Out of reach this month. A fresh month starts ${nextMonth} 1.`,
+  badgeNeedsAccount: 'Badges are kept with an account. Connect and sign in to earn this one.',
+  mendBadgeHeld: (month: string) => `The ${month} badge is already yours, so this only fills in the calendar.`,
+  mendHint: (stardust: number, left: number) => `Tap a missed day to fill it in: ${stardust} Stardust each, ${left} left this month.`,
+  /** In the fill-in sheet: what this fill-in does for the month's badge. */
+  mendToward: (after: number, need: number) => `Brings you to ${after} of ${need} for the badge.`,
+  mendNoBadge: (month: string) => `The ${month} badge is out of reach this month, so this only fills in the calendar.`,
   nextIn: (hours: number, minutes: number) => `New square in ${hours}h ${minutes}m`,
   mendTitle: (date: string) => `Fill in ${date}?`,
   mendText: 'It counts as solved for this month’s Daily total. Your Elo doesn’t change.',
@@ -124,6 +132,9 @@ export const daily = {
   mended: (date: string) => `${date} filled in.`,
   mendOffline: 'Filling in a day needs a connection and an account.',
   a11yDay: (month: string, day: number, state: keyof typeof DAY_STATE) => `${month} ${day}, ${DAY_STATE[state]}`,
+  /** What tapping a day does, after its date: today plays, a missed day opens the fill-in. */
+  a11yPlayToday: (dayLabel: string, resume: boolean) => `${dayLabel}. ${resume ? 'Continue today’s square' : 'Play today’s square'}`,
+  a11yFillIn: (dayLabel: string) => `${dayLabel}. Fill in`,
 };
 
 // --- Game ------------------------------------------------------------------
@@ -379,7 +390,8 @@ export const result = {
   promoted: (label: string) => `Promoted: ${label}`,
   thisMonth: 'This month',
   monthOf: (done: number, days: number) => `${done} / ${days} squares`,
-  monthComplete: 'Month complete. Avatar unlocked!',
+  /** Shown once, on the solve or fill-in that earns the month's badge. */
+  monthBadgeEarned: (month: string) => `${month} badge earned. It’s on your Profile.`,
   dailyRetry: 'Not solved yet. Try today’s square again: the day counts once you solve it.',
   tryAgain: 'Try again',
   calendar: 'Calendar',
@@ -889,7 +901,9 @@ export const leaderboard = {
 export const badges = {
   title: 'Badges',
   unknown: 'Badge',
-  none: 'No badges yet. Win a month with your affinity to earn one; events and the store will bring more.',
+  /** 'daily-2026-10': 20 Daily squares in October 2026. */
+  daily: (month: string) => `Daily Square, ${month}`,
+  none: 'No badges yet. Solve 20 Daily squares in a month, or win a month with your affinity, to earn one.',
   noneOther: 'No badges yet.',
   choose: 'Choose three',
   chooseTitle: 'Badges on your card',

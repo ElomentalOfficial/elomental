@@ -255,7 +255,8 @@ export interface Outcome {
    * couldn't check the solve ('unchecked').
    */
   elo?: { before: number; after: number; protectedLoss: boolean; bonus: number; hintCut: number; unrated?: 'copied' | 'unchecked' | null };
-  daily?: { done: number; days: number; monthComplete: boolean };
+  /** The Daily month: days done, its length, the days its badge needs; badgeNew on the solve that earns it (server only). */
+  daily?: DailyMonth;
   /** A part dropped by this solve (every 3rd rated solve; signed-in players only; reward.ts shows it). */
   drop?: Drop;
   /** Rated solves toward the next part: count of every (e.g. 1 of 3). */
@@ -263,6 +264,21 @@ export interface Outcome {
   /** Influence added to the player's affinity this solve. */
   influence?: { affinity: Element; amount: number };
 }
+
+export interface DailyMonth {
+  done: number;
+  days: number;
+  need?: number;
+  monthComplete: boolean;
+  badge?: string;
+  badgeNew?: boolean;
+}
+
+/** Days of a month the Daily badge needs (server daily_month: least(days, 20), so 20). */
+export const dailyBadgeNeed = (days: number): number => Math.min(days, 20);
+
+/** What a month's Daily count is out of: the badge's 20 until it's earned, then the whole month. */
+export const dailyGoal = (done: number, days: number): number => (done < dailyBadgeNeed(days) ? dailyBadgeNeed(days) : days);
 
 export type Element = 'fire' | 'water' | 'earth' | 'air';
 export type Rarity = 'common' | 'rare' | 'epic' | 'mythic';
@@ -310,7 +326,8 @@ export function recordResult(input: ResultInput): Outcome {
     const days = new Date(year, month, 0).getDate();
     let done = 0;
     for (let d = 1; d <= days; d++) if (profile.daily[dateKey(year, month - 1, d)]) done++;
-    outcome.daily = { done, days, monthComplete: done === days };
+    // (a guest playing offline earns no badge: badges live on the server)
+    outcome.daily = { done, days, need: dailyBadgeNeed(days), monthComplete: done >= dailyBadgeNeed(days) };
   }
 
   saveProfile(profile);
