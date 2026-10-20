@@ -189,7 +189,7 @@ Why: ranking hundreds of thousands of players on every request is expensive and 
 - `packages/web/src/screens/privacy.ts`: Setup > Leaderboard and card (country, hide me, stats, country on card).
 - Profile: a Badges section (every badge you own; choose the three on your card).
 - `packages/web/src/badges.ts`: badge medals (vector) and names.
-- Tests: `supabase/tests/economy.mjs` (ranks, around-me, privacy, follows, search, settlement), e2e a11y.
+- Tests: `supabase/tests/leaderboard.mjs` and `season.mjs` (ranks, around-me, privacy, follows, search, settlement), e2e a11y.
 
 ## 7. States and readability
 
