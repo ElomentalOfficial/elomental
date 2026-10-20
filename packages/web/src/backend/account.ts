@@ -37,6 +37,8 @@ export interface Account {
   bestElo?: number;
   /** Dev mode is on (founders only; the server checks every tool). */
   devMode?: boolean;
+  /** This session passed an authenticator-app code (aal2): founder tools need it. */
+  aal2?: boolean;
 }
 
 const ACCOUNT_KEY = 'elomental:account';
@@ -59,6 +61,16 @@ export function onAccountChange(fn: () => void): () => void {
   return () => listeners.delete(fn);
 }
 const notify = () => listeners.forEach((fn) => fn());
+
+/** The assurance level in an access token ('aal1', or 'aal2' after an authenticator code). */
+function sessionAal(token: string): string | null {
+  try {
+    const part = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    return (JSON.parse(atob(part)) as { aal?: string }).aal ?? null;
+  } catch {
+    return null;
+  }
+}
 
 /** Re-reads the profile and won daily squares from the server into the cache. */
 export async function refreshAccount(session?: Session | null): Promise<Account | null> {
@@ -85,6 +97,7 @@ export async function refreshAccount(session?: Session | null): Promise<Account 
   syncSettings(profile.settings);
   const account: Account = {
     anonymous: !!s.user.is_anonymous,
+    aal2: sessionAal(s.access_token) === 'aal2',
     email: s.user.email ?? '',
     name: profile.display_name,
     title: profile.title ?? null,

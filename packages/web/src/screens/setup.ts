@@ -15,10 +15,11 @@ import { addToHome, canAddToHome } from '../install.ts';
 import { notesWheelOn } from '../settings.ts';
 import { getTheme, type Theme } from '../theme.ts';
 import { deviceInfo } from '../viewport.ts';
-import { goBack, h, mount, subPage, toast, type Screen } from '../ui.ts';
+import { closeButton, goBack, h, mount, openModal, subPage, toast, type Screen } from '../ui.ts';
 import { accessibilityScreen } from './accessibility.ts';
 import { homeScreen } from './home.ts';
 import { devScreen } from './dev.ts';
+import { founderUnlocked, hasAuthenticator, startEnrolment, verifyCode } from '../backend/founder.ts';
 import { reviewScreen } from './review.ts';
 import * as copy from '../copy/en.ts';
 
@@ -96,6 +97,7 @@ export function setupScreen(): Screen {
   const el = subPage(
     { className: 'setup', title, onBack: () => void goBack(homeScreen) },
     accountSection(),
+    founderGate(),
     reviewSection(),
     devSection(),
     h(
@@ -153,6 +155,84 @@ function addToHomeRow(): HTMLElement | null {
   );
 }
 
+/**
+ * Founders whose session hasn't given an authenticator code yet: the one way to unlock
+ * Review and Dev mode. Set up the authenticator the first time, then enter a code.
+ */
+function founderGate(): HTMLElement {
+  const t = copy.founder;
+  const button = h('button', { class: 'btn', text: t.unlock, attrs: { type: 'button' } });
+  const section = h('section', { class: 'setting' }, h('div', {}, h('h2', { text: t.title }), h('p', { text: t.lockedHelp })), button);
+  let enrolled: boolean | null = null;
+  button.addEventListener('click', () => (enrolled === false ? openSetUp() : openCode()));
+  const paint = () => {
+    section.hidden = !isFounder() || !!cachedAccount()?.anonymous || founderUnlocked();
+    if (section.hidden) return;
+    void hasAuthenticator().then((has) => {
+      enrolled = has;
+      button.textContent = has === false ? t.setUp : t.unlock;
+    });
+  };
+  paint();
+  const stop = onAccountChange(() => {
+    if (!section.isConnected) return stop();
+    paint();
+  });
+  return section;
+}
+
+/** A 6-digit code field, a Verify button and an error line, for the founder sheets. */
+function codeForm(check: (code: string) => Promise<string | null>, done: () => void): HTMLElement {
+  const t = copy.founder;
+  const field = h('input', {
+    class: 'text-field mfa-code',
+    attrs: { type: 'text', inputmode: 'numeric', autocomplete: 'one-time-code', maxlength: '6', pattern: '[0-9]*', 'aria-label': t.codeLabel, placeholder: '000000' },
+  });
+  const error = h('p', { class: 'field-error', attrs: { role: 'alert' } });
+  const verify = h('button', { class: 'btn btn-primary', text: t.verify, attrs: { type: 'submit' } });
+  const form = h('form', { class: 'code-form' }, field, error, verify);
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const code = field.value.replace(/\D/g, '');
+    if (code.length !== 6) return void (error.textContent = t.wrongCode);
+    verify.disabled = true;
+    void check(code).then((err) => {
+      verify.disabled = false;
+      if (err) {
+        error.textContent = err;
+        field.select();
+        return;
+      }
+      toast(t.unlocked);
+      done();
+    });
+  });
+  return form;
+}
+
+/** Enter a code from the authenticator that's already set up. */
+function openCode(): void {
+  const t = copy.founder;
+  const close = openModal(
+    h('div', { class: 'sheet founder-sheet' }, closeButton(() => close()), h('h2', { text: t.unlockTitle }), h('p', { text: t.unlockText }),
+      codeForm((code) => verifyCode(code), () => close())),
+  );
+}
+
+/** The first time: a QR code (and its key) for the authenticator app, then its code. */
+function openSetUp(): void {
+  const t = copy.founder;
+  void startEnrolment().then((e) => {
+    if (typeof e === 'string') return toast(e);
+    const close = openModal(
+      h('div', { class: 'sheet founder-sheet' }, closeButton(() => close()), h('h2', { text: t.setUpTitle }), h('p', { text: t.setUpSteps }),
+        h('img', { class: 'founder-qr', attrs: { src: e.qr, alt: t.a11yQr, width: '180', height: '180' } }),
+        h('p', { class: 'founder-key' }, h('span', { text: `${t.keyLabel} ` }), h('code', { text: e.secret.replace(/(.{4})(?=.)/g, '$1 ') })),
+        codeForm((code) => verifyCode(code, e.factorId), () => close())),
+    );
+  });
+}
+
 /** Founders only: the way into the Review dashboard (the server checks again). */
 function reviewSection(): HTMLElement {
   const section = h(
@@ -161,7 +241,7 @@ function reviewSection(): HTMLElement {
     h('div', {}, h('h2', { text: copy.setup.review }), h('p', { text: copy.setup.reviewHelp })),
     h('button', { class: 'btn', text: copy.setup.openReview, onclick: () => mount(reviewScreen()) }),
   );
-  const paint = () => (section.hidden = !isFounder() || !!cachedAccount()?.anonymous);
+  const paint = () => (section.hidden = !founderUnlocked());
   paint();
   const stop = onAccountChange(() => {
     if (!section.isConnected) return stop();
@@ -180,7 +260,7 @@ function devSection(): HTMLElement {
     h('button', { class: 'btn', text: copy.setup.openDev, onclick: () => mount(devScreen()) }),
   );
   const paint = () => {
-    section.hidden = !isFounder() || !!cachedAccount()?.anonymous;
+    section.hidden = !founderUnlocked();
     help.textContent = copy.setup.devHelp(!!cachedAccount()?.devMode);
   };
   paint();

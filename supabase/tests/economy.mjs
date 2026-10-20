@@ -20,7 +20,8 @@ await db.exec(`
   create table auth.users (id uuid primary key default gen_random_uuid(), email text, email_confirmed_at timestamptz, is_anonymous boolean default false,
     raw_user_meta_data jsonb default '{}', created_at timestamptz default now());
   create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('test.uid', true), '')::uuid $$;
-  create function auth.jwt() returns jsonb language sql stable as $$ select '{}'::jsonb $$;
+  -- the session's assurance level: 'aal2' once an authenticator code was given (test.aal)
+  create function auth.jwt() returns jsonb language sql stable as $$ select jsonb_build_object('aal', coalesce(nullif(current_setting('test.aal', true), ''), 'aal1')) $$;
 `);
 
 const files = readdirSync(MIG).filter((f) => f.endsWith('.sql')).sort();
@@ -216,6 +217,13 @@ check(err?.includes('not_admin'), 'dev mode: not for players who aren\'t founder
 const fo = (await db.query(`insert into auth.users (email, email_confirmed_at) values ('founder@example.test', now()) returning id`)).rows[0].id;
 await db.exec(`insert into private.founders (email) values ('founder@example.test')`);
 await as(fo);
+err = null; try { await db.query(`select public.dev_set_mode(true)`); } catch (e) { err = e.message; }
+check(err?.includes('not_admin'), 'a founder without the authenticator code gets nothing');
+const st0 = (await db.query(`select public.founder_status() as j`)).rows[0].j;
+check(st0.founder === true && st0.unlocked === false, `founder_status: a founder, not unlocked (${JSON.stringify(st0)})`);
+await db.exec(`select set_config('test.aal', 'aal2', false)`);
+const st1 = (await db.query(`select public.founder_status() as j`)).rows[0].j;
+check(st1.unlocked === true, 'with the code: unlocked');
 err = null; try { await db.query(`select public.dev_action('fill')`); } catch (e) { err = e.message; }
 check(err?.includes('dev_off'), 'dev tools need dev mode on');
 let quick = null; try { await play(fo, 'casual', 'medium', { instant: true }); } catch (e) { quick = e.message; }
@@ -251,6 +259,11 @@ check(none === 0, 'remove every part');
 await db.query(`select public.dev_set_mode(false)`);
 err = null; try { await db.query(`select public.dev_action('fill')`); } catch (e) { err = e.message; }
 check(err?.includes('dev_off'), 'dev tools stop when dev mode is off');
+const log = (await db.query(`select public.founder_activity(50) as j`)).rows[0].j;
+check(log.length === 9 && log[0].action === 'dev_off' && log.some((r) => r.action === 'next_drop' && r.detail === 'mythic'), `every founder action is logged (${log.length}, newest ${log[0]?.action})`);
+await db.exec(`select set_config('test.aal', 'aal1', false)`);
+err = null; try { await db.query(`select public.founder_activity()`); } catch (e) { err = e.message; }
+check(err?.includes('not_admin'), 'the log needs the code too');
 
 console.log(fails.length ? `\n${fails.length} FAILED` : '\nall checks passed');
 process.exit(fails.length ? 1 : 0);

@@ -5835,3 +5835,56 @@ button.plate-card {
   font-size: var(--fs-small);
   white-space: nowrap;
 }
+
+/* ---------- Founder access (setup.ts) and the founder log (dev.ts) ---------- */
+.founder-qr {
+  display: block;
+  width: 180px;
+  height: 180px;
+  padding: var(--space-2);
+  border-radius: 12px;
+  /* the QR code stays dark on white in both themes, so every camera reads it */
+  background: var(--c-bright);
+}
+.founder-key code {
+  font-size: var(--fs-small);
+  letter-spacing: 0.08em;
+  overflow-wrap: anywhere;
+}
+.code-form {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.mfa-code {
+  text-align: center;
+  font-size: var(--fs-title);
+  letter-spacing: 0.3em;
+  font-variant-numeric: tabular-nums;
+}
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.activity-list li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--line);
+  font-size: var(--fs-small);
+}
+.activity-list li:last-child {
+  border-bottom: 0;
+}
+.activity-what {
+  font-weight: 700;
+}
+.activity-who {
+  font-family: var(--serif);
+  color: var(--muted);
+}

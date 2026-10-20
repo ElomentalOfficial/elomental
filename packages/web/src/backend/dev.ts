@@ -1,4 +1,5 @@
-import { cachedAccount, isFounder, refreshAccount } from './account.ts';
+import { cachedAccount, refreshAccount } from './account.ts';
+import { founderUnlocked } from './founder.ts';
 import { knownError, supabase } from './client.ts';
 import * as copy from '../copy/en.ts';
 
@@ -10,8 +11,8 @@ import * as copy from '../copy/en.ts';
 
 export type DevAction = 'fill' | 'empty' | 'unlock_all' | 'clear_parts' | 'plate' | 'elo' | 'next_drop' | 'next_spirit' | 'forget_affinity';
 
-/** Show the dev tools: a founder (not a guest) with dev mode on. */
-export const devOn = (): boolean => isFounder() && !cachedAccount()?.anonymous && !!cachedAccount()?.devMode;
+/** Show the dev tools: a founder with their code given this session, and dev mode on. */
+export const devOn = (): boolean => founderUnlocked() && !!cachedAccount()?.devMode;
 
 async function call(fn: string, args: Record<string, unknown>): Promise<string | null> {
   const { error } = await supabase.rpc(fn, args);

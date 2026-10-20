@@ -1,6 +1,7 @@
 import { cachedAccount, onAccountChange } from '../backend.ts';
 import { devAction, setDevMode, type DevAction } from '../backend/dev.ts';
-import { RARITIES } from '../profile.ts';
+import { loadFounderActivity } from '../backend/founder.ts';
+import { RARITIES, type Rarity } from '../profile.ts';
 import { rarityName } from '../reward.ts';
 import { goBack, h, subPage, toast, type Screen } from '../ui.ts';
 import { setupScreen } from './setup.ts';
@@ -24,6 +25,7 @@ export function devScreen(): Screen {
       btn.disabled = true;
       void devAction(action, v).then((err) => {
         btn.disabled = !on();
+        loadActivity();
         toast(err ?? done?.() ?? t.done);
       });
     });
@@ -31,6 +33,7 @@ export function devScreen(): Screen {
     return btn;
   };
   const on = () => !!cachedAccount()?.devMode;
+  const activity = h('ul', { class: 'activity-list' }, h('li', { text: copy.forge.loading }));
 
   // the switch: On / Off
   const switches = [true, false].map((value) =>
@@ -40,7 +43,7 @@ export function devScreen(): Screen {
       attrs: { role: 'radio', type: 'button' },
       onclick: () => {
         if (value === on()) return;
-        void setDevMode(value).then((err) => err && toast(err));
+        void setDevMode(value).then((err) => (err ? toast(err) : loadActivity()));
       },
     }),
   );
@@ -94,7 +97,24 @@ export function devScreen(): Screen {
       choice('dev-plate', t.plate, null, h('div', { class: 'segmented cols-3', attrs: { role: 'group', 'aria-labelledby': 'dev-plate' } }, ...plateButtons)),
       choice('dev-affinity', t.forgetAffinity, t.forgetAffinityHelp, tool(t.forgetAffinity, 'forget_affinity')),
     ),
+    // what founders did lately (Dev mode and Review), to spot anything that wasn't you
+    h('section', { class: 'setting-group' }, h('h2', { text: copy.founder.activity }),
+      h('div', { class: 'setting choice-list' }, h('p', { class: 'field-hint', text: copy.founder.activityHelp }), activity)),
   );
+  const when = (iso: string) => new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  const loadActivity = () =>
+    void loadFounderActivity(30).then((rows) => {
+      if (!rows) return;
+      activity.replaceChildren(
+        ...(rows.length
+          ? rows.map((r) =>
+              h('li', {},
+                h('span', { class: 'activity-what', text: [copy.founder.actions[r.action] ?? r.action, r.action === 'next_drop' && r.detail ? rarityName(r.detail as Rarity) : r.detail].filter(Boolean).join(': ') }),
+                h('span', { class: 'activity-who', text: [r.founder, when(r.at)].filter(Boolean).join(' · ') })))
+          : [h('li', { text: copy.founder.activityEmpty })]),
+      );
+    });
+  loadActivity();
 
   const paint = () => {
     const isOn = on();

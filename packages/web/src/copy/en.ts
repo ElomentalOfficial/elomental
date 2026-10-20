@@ -763,6 +763,38 @@ export const setup = {
   openDev: 'Open dev mode',
 };
 
+// --- Founder access (literal; screens/setup.ts) -------------------------------
+// Review and Dev mode need a code from an authenticator app on top of the founder email.
+
+export const founder = {
+  title: 'Founder tools',
+  lockedHelp: 'Review and Dev mode need a code from your authenticator app, on top of your email.',
+  setUp: 'Set up authenticator',
+  unlock: 'Enter code',
+  setUpTitle: 'Set up your authenticator',
+  setUpSteps: 'Scan this with an authenticator app (Google Authenticator, 1Password, Authy…), or type the key in by hand. Then enter the 6-digit code it shows.',
+  keyLabel: 'Key',
+  a11yQr: 'QR code for your authenticator app',
+  unlockTitle: 'Enter your code',
+  unlockText: 'Open your authenticator app and enter the 6-digit code for Elomental.',
+  codeLabel: '6-digit code',
+  verify: 'Verify',
+  unlocked: 'Founder tools unlocked for this session.',
+  wrongCode: 'That code didn’t work. Check the time on your phone, then try the newest code.',
+  offline: 'No connection. Try again in a moment.',
+  errors: {
+    expired: 'That code expired. Enter the newest one.',
+  } as Record<string, string>,
+  // Dev mode page: what founders did lately
+  activity: 'Recent founder actions',
+  activityHelp: 'Everything done in Dev mode and Review. Anything you don’t recognise: remove the authenticator in Supabase and sign out everywhere.',
+  activityEmpty: 'Nothing yet.',
+  actions: {
+    dev_on: 'Dev mode on', dev_off: 'Dev mode off', fill: 'Filled up', empty: 'Emptied', unlock_all: 'Unlocked every part',
+    clear_parts: 'Removed every part', plate: 'Name plate', elo: 'Elo', next_drop: 'Next part', next_spirit: 'Next Spirit',
+    forget_affinity: 'Forgot affinity', review_clear: 'Review: cleared', review_restrict: 'Review: restricted', review_lift: 'Review: lifted',
+  } as Record<string, string>,
+};
 // --- Dev mode (founders only; plain, literal) --------------------------------
 // screens/dev.ts: testing tools that change the founder's own account for real.
 
