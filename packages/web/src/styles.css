@@ -2486,6 +2486,54 @@ html[data-reduce-motion] .layer-aura .aura {
   font-size: var(--fs-small);
 }
 
+/* The drop odds sheet (forge.ts openOdds): exact numbers, plain. */
+.odds-sheet {
+  text-align: left;
+}
+.odds-sheet > :not(h2, .close-btn, button) {
+  align-self: stretch;
+}
+.odds-sheet h2 {
+  text-align: center;
+}
+.odds {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.odds th,
+.odds td {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+}
+.odds th {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--serif);
+  font-weight: 400;
+  text-align: left;
+}
+.odds td {
+  font-weight: 700;
+  text-align: right;
+}
+.odds-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.odds-section h3 {
+  font-family: inherit;
+  font-size: var(--fs-body);
+  color: var(--text);
+}
+.forge-balances .link-btn {
+  align-self: flex-start;
+}
 /* ---------- The Forge (screens/forge.ts) ---------- */
 .forge-body {
   display: flex;

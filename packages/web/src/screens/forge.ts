@@ -74,6 +74,7 @@ export function forgeScreen(): Screen {
         'div',
         { class: 'forge-balances' },
         h('p', { class: 'forge-intro', text: copy.forge.intro }),
+        h('button', { class: 'link-btn', text: copy.forge.oddsButton, attrs: { type: 'button' }, onclick: () => openOdds() }),
         f.affinity ? affinityLine(f.affinity) : null,
         h('span', { class: 'balance' }, h('span', { html: ICONS.dust, attrs: { 'aria-hidden': 'true' } }), h('strong', { text: String(f.stardust) }), h('span', { text: copy.common.stardust })),
         h('span', { class: 'balance' }, h('span', { html: ICONS.crown, attrs: { 'aria-hidden': 'true' } }), h('strong', { text: String(f.crowns) }), h('span', { text: copy.common.crowns })),
@@ -313,6 +314,30 @@ export function forgeScreen(): Screen {
     });
     const close = openModal(
       h('div', { class: 'sheet' }, closeButton(() => close()), h('h2', { text: copy.forge.swap }), h('p', { class: 'note', text: copy.forge.swapHint }), from.field, to.field, tier.field, cost, btn),
+    );
+  }
+
+  function openOdds() {
+    const BASE: [Rarity, string][] = [['scrap', '62%'], ['forged', '25%'], ['tempered', '9.5%'], ['runed', '3%'], ['starforged', '0.5%']];
+    const section = (title: string, ...lines: string[]) => h('section', { class: 'odds-section' }, h('h3', { text: title }), ...lines.map((t) => h('p', { text: t })));
+    const close = openModal(
+      h(
+        'div',
+        { class: 'sheet odds-sheet' },
+        closeButton(() => close()),
+        h('h2', { text: copy.forge.oddsTitle }),
+        h('p', { class: 'note', text: copy.forge.oddsIntro }),
+        h(
+          'table',
+          { class: 'odds' },
+          h('tbody', {}, ...BASE.map(([r, p]) => h('tr', {}, h('th', { attrs: { scope: 'row' } }, pips(r), copy.forge.rarities[r]), h('td', { text: p })))),
+        ),
+        section(copy.forge.oddsLuckTitle, copy.forge.oddsLuck),
+        section(copy.forge.oddsPityTitle, ...copy.forge.oddsPity),
+        section(copy.forge.oddsPaceTitle, copy.forge.oddsPace),
+        section(copy.forge.oddsPartsTitle, copy.forge.oddsParts),
+        section(copy.forge.oddsCrownTitle, copy.forge.oddsCrown),
+      ),
     );
   }
 

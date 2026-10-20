@@ -122,6 +122,16 @@ One name per concept. Player-facing text uses exactly these.
 | Rare drop | **Rusted Crown**; plural **Crowns** | | |
 | Monthly Daily progress | **this month** / **monthly Daily progress** | streak (there is no day-to-day streak counter) | *Proposal.* Today's copy says "Daily streak" for the month count. |
 | Speed reward | **speed bonus** | | |
+| What a solve drops | **drop**; a material is a **component** | loot, reward box, chest | Drops are always earned, never bought. |
+| Rarity | **Scrap**, **Forged**, **Tempered**, **Runed**, **Starforged** | common, rare, epic, legendary | Always written, with pips; never colour alone. |
+| Element materials | **Ember** (Fire), **Tideglass** (Water), **Ore** (Earth), **Plume** (Air) | | A drop reads "Tempered Ember". |
+| Bad-luck cap | **guarantee**: "Runed or better within 12 drops." | pity, pity timer | "Pity" is only an internal word. |
+| Making parts | **Forge** (the page and the verb), **refine** (5 up one tier), **swap** (3 across elements) | craft, upgrade, convert | |
+| Avatar pieces | **part**; slots **Backdrop**, **Sigil**, **Frame**, **Crest**, **Aura** | item, cosmetic, skin | A part that drops whole: "A whole part". |
+| A duplicate part | **smelted** into Stardust and a material | dupe, junk | |
+| Player's side | **affinity**: **Fire**, **Water**, **Earth**, **Air** | faction, team, clan | "Join Water." |
+| Affinity points | **influence** | score, war points | "+5 influence for Fire". |
+| The monthly contest | **this month** / **the month's standings** | war (in UI), battle | "War" stays in docs only: violent slang rule. |
 | Sharing a puzzle | **Square code** | puzzle ID, import code | "Copy", "Play square". |
 | Clash invite | **Clash code**; history **Clash log** | match code | |
 | Account | **account**, **guest**, **sign up**, **sign in**, **sign out** | log in, register, login | "Sign up" = add an email to the guest account. |
