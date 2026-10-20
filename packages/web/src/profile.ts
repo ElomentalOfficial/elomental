@@ -277,7 +277,7 @@ export interface Outcome {
    * squares went in before they could be worked out ('copied') or the server
    * couldn't check the solve ('unchecked').
    */
-  elo?: { before: number; after: number; protectedLoss: boolean; bonus: number; hintCut: number; unrated?: 'copied' | 'unchecked' | null };
+  elo?: { before: number; after: number; protectedLoss: boolean; bonus: number; hintCut: number; unrated?: Unrated | null };
   /** The Daily month: days done, its length, the days its badge needs; badgeNew on the solve that earns it (server only). */
   daily?: DailyMonth;
   /** A part dropped by this solve (every 3rd rated solve; signed-in players only; reward.ts shows it). */
@@ -291,6 +291,9 @@ export interface Outcome {
   /** Casual/Clash past the first 20 solves of the day pay 1 Stardust (server only). */
   dustCapped?: boolean;
 }
+
+/** Why a Ranked win earned no Elo (finish_game): see copy.result.unrated. */
+export type Unrated = 'copied' | 'unchecked' | 'restricted' | 'too_quick';
 
 export interface DailyMonth {
   done: number;

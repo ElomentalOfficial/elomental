@@ -4,6 +4,10 @@
  * app runs. Only what the functions import (following engine imports from
  * there) is copied. Run after engine changes, then redeploy the functions.
  *
+ * audit-solve regenerates each Ranked game's puzzle and refuses a win on any other, so a
+ * change to the generator must ship to the Edge Function and the app together: an app that
+ * deals a different puzzle from the function's has its Ranked wins flagged.
+ *
  *   npm run sync-edge
  */
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';

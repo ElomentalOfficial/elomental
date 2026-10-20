@@ -446,8 +446,13 @@ export const result = {
   dustCapped: '1 Stardust after your first 20 squares today.',
   /** `shown` counts up to the new Elo; `delta` is the final change. */
   eloChange: (before: number, shown: number, delta = shown - before) => `${before} → ${shown} (${delta >= 0 ? '+' : ''}${delta})`,
-  unratedCopied: 'Unrated: cells were filled before they could be worked out.',
-  unratedUnchecked: 'Unrated: this solve couldn’t be checked. Check your connection.',
+  /** Why a Ranked win earned no Elo (finish_game's reasons). */
+  unrated: {
+    copied: 'Unrated: cells were filled before they could be worked out.',
+    unchecked: 'Unrated: this solve couldn’t be checked. Check your connection.',
+    restricted: 'Unrated: Ranked is paused for your account.',
+    too_quick: 'Unrated: solved faster than a Ranked square can be worked out.',
+  },
   speedBonus: (percent: number) => `Speed bonus +${percent}%`,
   protectedLoss: 'No Elo lost: your rating is protected below 500.',
   /** A step up in tier or division; demotions get no line. */
@@ -697,6 +702,7 @@ export const refusals = {
     bad_code: 'That code isn’t valid.',
     not_signed_in: 'Sign in again to play.',
     ranked_restricted: 'Ranked is paused for your account for now. Casual, Daily and Clash are open.',
+    slow_down: 'Too many games started in a minute. Wait a moment and try again.',
   } as Record<string, string>,
   finish: {
     too_fast: 'Too fast to count: this solve wasn’t recorded.',
@@ -1157,10 +1163,13 @@ export const review = {
   solvedIn: (time: string) => `solved in ${time}`,
   toReviewTag: ' · to review',
   noteLine: (note: string) => `Note: ${note}`,
-  verdict: { unchecked: 'Not checked', veryLikely: 'Very likely copied', likely: 'Likely copied' },
+  verdict: { unchecked: 'Not checked', veryLikely: 'Very likely copied', likely: 'Likely copied', scripted: 'Likely scripted' },
   why: {
     unchecked: 'the app never sent its moves for checking, usually a dropped connection.',
     invalid: 'the square it reported was not a valid sudoku.',
+    puzzle: 'the square it solved was not the one this game dealt.',
+    timing: 'the moves came faster than a person places numbers, or after the game’s own clock.',
+    tooQuick: 'it was solved in under a fifth of par on the server’s clock.',
     leaps: (leaps: number | null, placements: number | null) => `${leaps} of ${placements} cells were filled in before they could be worked out.`,
   },
   until: (day: string) => `until ${day}`,

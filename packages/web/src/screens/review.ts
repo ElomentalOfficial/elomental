@@ -408,12 +408,16 @@ function gameRow(game: ReviewGame, markOpen: boolean): HTMLElement {
 
 function verdict(game: ReviewGame): string {
   if (game.reason === 'unchecked') return copy.review.verdict.unchecked;
+  if (game.reason === 'too_quick' || game.check === 'puzzle' || game.check === 'timing') return copy.review.verdict.scripted;
   if (game.potential !== null && game.evidence !== null && game.potential > 0 && game.evidence < 0) return copy.review.verdict.veryLikely;
   return copy.review.verdict.likely;
 }
 
 function why(game: ReviewGame): string {
   if (game.reason === 'unchecked') return copy.review.why.unchecked;
+  if (game.reason === 'too_quick') return copy.review.why.tooQuick;
+  if (game.check === 'puzzle') return copy.review.why.puzzle;
+  if (game.check === 'timing') return copy.review.why.timing;
   if (!game.validPuzzle) return copy.review.why.invalid;
   return copy.review.why.leaps(game.leaps, game.placements);
 }

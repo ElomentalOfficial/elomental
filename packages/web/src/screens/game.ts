@@ -1060,7 +1060,7 @@ function gameScreen(game: SavedGame): Screen {
           h('p', {
             class: 'note',
             text:
-              outcome.elo.unrated === 'copied' ? copy.result.unratedCopied : copy.result.unratedUnchecked,
+              copy.result.unrated[outcome.elo.unrated],
           }),
         );
       }

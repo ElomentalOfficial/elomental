@@ -83,6 +83,8 @@ async function newPlayer() {
   const { rows } = await db.query(`insert into auth.users default values returning id`);
   return rows[0].id;
 }
+// A Ranked game's solve audit, as audit-solve saves it (private.game_audits since ranked_integrity).
+const setAudit = (game, audit) => db.query(`insert into private.game_audits (game_id, audit) values ($1, $2)`, [game, JSON.stringify(audit)]);
 async function play(uid, mode, difficulty, opts = {}) {
   const rating = opts.rating ?? 400;
   // as start_game does: a new Casual or Clash game closes the open one
@@ -90,10 +92,10 @@ async function play(uid, mode, difficulty, opts = {}) {
     await db.query(`update public.games set finished_at = now(), won = false, seconds = 0 where user_id = $1 and mode = $2 and finished_at is null`, [uid, mode]);
   }
   const { rows } = await db.query(
-    `insert into public.games (user_id, mode, difficulty, seed, rating, started_at, date_key, audit)
-     values ($1, $2, $3, 's', $4, now() - ($7 || ' seconds')::interval, $5, $6) returning id`,
-    [uid, mode, difficulty, rating, mode === 'daily' ? opts.date : null,
-     mode === 'ranked' && !opts.noAudit ? JSON.stringify({ copied: false, solution: SOLVED, rating }) : null, opts.instant ? '2' : '1200']);
+    `insert into public.games (user_id, mode, difficulty, seed, rating, started_at, date_key)
+     values ($1, $2, $3, 's', $4, now() - ($6 || ' seconds')::interval, $5) returning id`,
+    [uid, mode, difficulty, rating, mode === 'daily' ? opts.date : null, opts.instant ? '2' : '1200']);
+  if (mode === 'ranked' && !opts.noAudit) await setAudit(rows[0].id, { copied: false, solution: SOLVED, rating });
   await as(uid);
   const r = await db.query(`select public.finish_game($1, $2, $3, $4, $7, $5, $6) as j`,
     [rows[0].id, opts.won ?? true, opts.mistakes ?? 0, opts.hints ?? 0, rating, SOLVED, opts.instant ? 2 : 1200]);
@@ -466,8 +468,9 @@ check(anonFns.length === 0, `no public function runs for signed-out visitors (${
 
 // C4: in Ranked at most 2 minutes of pauses come off the counted time
 const pz = await newPlayer();
-const pg = (await one(`insert into public.games (user_id, mode, difficulty, seed, rating, started_at, paused_seconds, audit)
-  values ($1, 'ranked', 'medium', 's', 500, now() - interval '1200 seconds', 600, $2) returning id`, [pz, JSON.stringify({ copied: false, solution: SOLVED, rating: 500 })])).id;
+const pg = (await one(`insert into public.games (user_id, mode, difficulty, seed, rating, started_at, paused_seconds)
+  values ($1, 'ranked', 'medium', 's', 500, now() - interval '1200 seconds', 600) returning id`, [pz])).id;
+await setAudit(pg, { copied: false, solution: SOLVED, rating: 500 });
 await as(pz);
 const pj = (await one(`select public.finish_game($1, true, 0, 0, 10, 500, $2) j`, [pg, SOLVED])).j;
 check(Math.abs(pj.seconds - 1080) <= 2, `C4 Ranked time counts pauses beyond 2 minutes (${pj.seconds}s for 1200s with 600s paused)`);
@@ -513,7 +516,8 @@ const rr = await lbPlayer('Rosalind', 1000);
 await as(rr);
 const rg = (await one(`select public.start_game('ranked') j`)).j;
 await db.exec(`select private.restrict_ranked('Rosalind', 30)`);
-await db.query(`update public.games set audit = $2, started_at = now() - interval '600 seconds' where id = $1`, [rg.game_id, JSON.stringify({ copied: false, solution: SOLVED, rating: 1000 })]);
+await db.query(`update public.games set started_at = now() - interval '600 seconds' where id = $1`, [rg.game_id]);
+await setAudit(rg.game_id, { copied: false, solution: SOLVED, rating: 1000 });
 await as(rr);
 const re = (await one(`select public.finish_game($1, true, 0, 0, null, null, $2) j`, [rg.game_id, SOLVED])).j.elo;
 check(re.after === re.before && re.unrated === 'restricted', `L5 a restricted player's open Ranked win is unrated (${re.before} -> ${re.after}, ${re.unrated})`);
@@ -726,9 +730,9 @@ check(hiWin.elo.bonus === 0 && hiWin.elo.after - hiWin.elo.before === even, `D5 
 check(hiWin.influence?.amount === 3 + 2 + 1, `D5 Ranked influence goes by your Elo (${JSON.stringify(hiWin.influence)})`);
 // C2 wins: a square far easier than its target is discounted, a harder one earns no premium
 async function rankedAt(uid, target, audited) {
-  const { rows } = await db.query(`insert into public.games (user_id, mode, difficulty, seed, rating, target_rating, started_at, audit)
-    values ($1, 'ranked', 'hard', 's', $2, $2, now() - interval '1200 seconds', $3) returning id`,
-    [uid, target, JSON.stringify({ copied: false, solution: SOLVED, rating: audited })]);
+  const { rows } = await db.query(`insert into public.games (user_id, mode, difficulty, seed, rating, target_rating, started_at)
+    values ($1, 'ranked', 'hard', 's', $2, $2, now() - interval '1200 seconds') returning id`, [uid, target]);
+  await setAudit(rows[0].id, { copied: false, solution: SOLVED, rating: audited });
   await as(uid);
   return (await db.query(`select public.finish_game($1, true, 0, 0, 1200, $2, $3) j`, [rows[0].id, audited, SOLVED])).rows[0].j;
 }
@@ -741,8 +745,9 @@ check(gain(dear) === gain(fair), `C2 a harder square earns no premium (+${gain(d
 // par goes by the target: at target 300 (par 600 s), 280 s is +25% whatever rating is claimed
 const lowP = await newPlayer();
 await db.exec(`update public.profiles set elo = 300, ranked_games = 50 where id = '${lowP}'`);
-const { rows: lowG } = await db.query(`insert into public.games (user_id, mode, difficulty, seed, rating, target_rating, started_at, audit)
-  values ($1, 'ranked', 'medium', 's', 300, 300, now() - interval '280 seconds', $2) returning id`, [lowP, JSON.stringify({ copied: false, solution: SOLVED, rating: 650 })]);
+const { rows: lowG } = await db.query(`insert into public.games (user_id, mode, difficulty, seed, rating, target_rating, started_at)
+  values ($1, 'ranked', 'medium', 's', 300, 300, now() - interval '280 seconds') returning id`, [lowP]);
+await setAudit(lowG[0].id, { copied: false, solution: SOLVED, rating: 650 });
 await as(lowP);
 const lowJ = (await db.query(`select public.finish_game($1, true, 0, 0, 280, 650, $2) j`, [lowG[0].id, SOLVED])).rows[0].j;
 check(lowJ.elo.bonus === 0.25, `C2 par goes by the target, not the claimed rating (bonus ${lowJ.elo.bonus})`);
@@ -750,6 +755,68 @@ check(lowJ.elo.bonus === 0.25, `C2 par goes by the target, not the claimed ratin
 await db.exec(`update public.profiles set elo = 4000 where id = '${hi}'`);
 const top = await play(hi, 'ranked', 'hard', { rating: 1800 });
 check(top.elo.after - top.elo.before < even, `D5 above 3000 the gains fade (+${top.elo.after - top.elo.before})`);
+
+// --- 17. Ranked integrity (batch B11): one private audit per game, rate limits, the hand-off gone
+const ai = await newPlayer();
+const aiGame = (await one(`insert into public.games (user_id, mode, difficulty, seed, rating, target_rating, started_at) values ($1, 'ranked', 'medium', 's', 500, 500, now() - interval '1200 seconds') returning id`, [ai])).id;
+const casualGame = (await one(`insert into public.games (user_id, mode, difficulty, seed, rating) values ($1, 'casual', 'easy', 's', 100) returning id`, [ai])).id;
+await db.exec(`set role service_role`);
+await db.query(`select public.save_audit($1, $2)`, [aiGame, JSON.stringify({ copied: false, solution: SOLVED, rating: 500 })]);
+err = null; try { await db.query(`select public.save_audit($1, $2)`, [aiGame, JSON.stringify({ copied: false })]); } catch (e) { err = e.message; }
+check(err?.includes('already_audited'), 'C3 one audit per game: a second is refused');
+err = null; try { await db.query(`select public.save_audit($1, $2)`, [casualGame, '{}']); } catch (e) { err = e.message; }
+check(err?.includes('not_open'), 'C3 only an open Ranked game takes an audit');
+await db.exec(`reset role`);
+await db.exec(`set role authenticated`);
+err = null; try { await db.query(`select * from private.game_audits`); } catch (e) { err = e.message; }
+check(!!err, 'C3 a player can\'t read the audits (no oracle)');
+err = null; try { await db.query(`select public.save_audit($1, '{}')`, [aiGame]); } catch (e) { err = e.message; }
+check(err?.includes('permission denied'), 'C3 a player can\'t save an audit');
+await db.exec(`reset role`);
+await as(ai);
+const aiWin = (await one(`select public.finish_game($1, true, 0, 0, 1200, 500, $2) j`, [aiGame, SOLVED])).j;
+check(aiWin.elo?.unrated === null, `C3 finish_game reads the private audit (${JSON.stringify(aiWin.elo)})`);
+// the server's clock: a rated win needs a fifth of par (target 500: par 690 s, so 138 s)
+const tooQuick = await newPlayer();
+const quickGame = (await one(`insert into public.games (user_id, mode, difficulty, seed, rating, target_rating, started_at) values ($1, 'ranked', 'medium', 's', 500, 500, now() - interval '100 seconds') returning id`, [tooQuick])).id;
+await setAudit(quickGame, { copied: false, solution: SOLVED, rating: 500 });
+await as(tooQuick);
+const quickWin = (await one(`select public.finish_game($1, true, 0, 0, 100, 500, $2) j`, [quickGame, SOLVED])).j;
+const quickFlag = (await one(`select reason from private.review_flags where game_id = $1`, [quickGame]))?.reason;
+check(quickWin.elo.unrated === 'too_quick' && quickWin.elo.after === quickWin.elo.before && quickFlag === 'too_quick',
+  `C3 a Ranked win under a fifth of par on the server's clock is unrated and flagged (${quickWin.elo.unrated}, flag ${quickFlag})`);
+// audit_slot: asked before any work; a done game says no; 10 a minute
+await db.exec(`set role service_role`);
+const slotDone = (await one(`select public.audit_slot($1, $2) ok`, [aiGame, ai])).ok;
+let slots = 1;
+err = null;
+for (let i = 0; i < 12 && !err; i++) { try { await db.query(`select public.audit_slot($1, $2)`, [aiGame, ai]); slots++; } catch (e) { err = e.message; } }
+await db.exec(`reset role`);
+check(slotDone === false && slots === 10 && err?.includes('slow_down'), `C3 audit_slot: an audited game says no, 10 asks a minute (${slotDone}, ${slots}, ${err})`);
+const cols = (await one(`select count(*)::int n from information_schema.columns where table_schema = 'public' and table_name = 'games' and column_name = 'audit'`)).n;
+check(cols === 0, 'C3 games.audit is gone');
+
+const rl = await newPlayer();
+await as(rl);
+let starts = 0;
+err = null;
+for (let i = 0; i < 25 && !err; i++) {
+  try { await db.query(`select public.start_game('casual', 'easy')`); starts++; } catch (e) { err = e.message; }
+}
+check(starts === 20 && err?.includes('slow_down'), `M1 20 game starts a minute, then "slow down" (${starts}, ${err})`);
+let squares = 0;
+err = null;
+for (let i = 0; i < 15 && !err; i++) {
+  const givens = SOLVED.slice(0, 80 - i) + '0'.repeat(i + 1);
+  try { await db.query(`select public.square_code($1, 'easy', 100)`, [givens]); squares++; } catch (e) { err = e.message; }
+}
+check(squares === 10 && err?.includes('slow_down'), `M1 10 new square codes a minute (${squares}, ${err})`);
+const known = (await one(`select givens from public.squares where created_by = $1 limit 1`, [rl])).givens;
+check(typeof (await one(`select public.square_code($1, 'easy', 100) c`, [known])).c === 'string', 'M1 an existing square\'s code is still returned when limited');
+const handoffs = (await one(`select count(*)::int n from information_schema.tables where table_name = 'signin_handoffs'`)).n;
+check(handoffs === 0, 'L2 the hand-off table is gone');
+const queue = await one(`select count(*)::int n from private.review_queue`);
+check(queue.n >= 0, 'the review queue still reads');
 
 console.log(fails.length ? `\n${fails.length} FAILED` : '\nall checks passed');
 process.exit(fails.length ? 1 : 0);

@@ -82,12 +82,10 @@ login and key live only in Supabase and Brevo.
   verified in Brevo or Resend): mail "from" a Gmail address sent by a third
   party is more likely to land in spam.
 
-**Unused since 2026-10-19:** the `handoff` Edge Function (functions/handoff,
-migration signin_handoffs). It let the installed iPhone app sign in when the
-email's link opened in Safari, after the player matched a two-digit code on
-both screens. The typed code (below, which iPhone autofills from Mail) replaced
-it, and the app no longer calls it. The function and its table are kept until
-someone decides to remove them (that deletes the table's rows).
+**Removed (full review B11):** the `handoff` Edge Function and its `signin_handoffs`
+table (migration `ranked_integrity`). It let the installed iPhone app sign in when the
+email's link opened in Safari; the typed code below replaced it. Delete the function
+in the dashboard (Edge Functions → handoff) if it's still listed.
 
 **Typed code (2026-10-19):** every sign-in email also carries a code
 (`{{ .Token }}`) that can be typed into the app on any device, for when the
@@ -107,7 +105,13 @@ dashboard only once an app version with `signInFromEmailLink` is live.
 ## Reviewing flagged players
 
 Ranked wins typed in from a solver are left unrated and flagged (Edge
-Function `audit-solve`, migrations `solve_audit*`).
+Function `audit-solve`, migrations `solve_audit*` and `ranked_integrity`). The audit runs
+once per game: it regenerates the puzzle the game dealt from the server's seed and checks
+the solved one is it, checks the moves' timing against the server clock (half the moves
+quicker than 0.7 s apart, or moves after the game's own clock, count as scripted), and
+replays the moves. Its verdict is kept in `private.game_audits`, which players can't read.
+`start_game` and `square_code` are rate limited (`private.hit`: 20 starts, 10 new codes a
+minute per player).
 
 **In the app:** sign in with a founder account, then Setup → Review. Three
 tabs:
@@ -151,9 +155,12 @@ a row of `review_flags` by hand.
 ## Not covered yet
 
 - Every player can still generate the solution on their own device, because
-  the puzzle is built from the seed in the browser. The server clock and the
-  minimum solve time limit how much that helps, but the full fix is to check
-  each move on the server.
+  the puzzle is built from the seed in the browser. The server clock, the
+  minimum solve time, the Ranked audit's timing check and the daily caps limit
+  how much that helps (a bot that plays at a human pace still passes); the full
+  fix is to check each move on the server. Casual, Daily and Clash games aren't
+  checked against their puzzle (the owner chose Ranked only in B11): their caps
+  bound what a script earns.
 - Mistakes and hints are reported by the client. The server only caps them at
   3 each.
 - Local guest progress (from before this update, or while anonymous sign-ins

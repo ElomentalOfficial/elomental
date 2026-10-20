@@ -9,8 +9,11 @@ import * as copy from '../copy/en.ts';
 export interface ReviewGame {
   flagId: number;
   at: string;
-  /** 'copied': typed in before it could be worked out; 'unchecked': no moves reached the server. */
-  reason: 'copied' | 'unchecked';
+  /** 'copied': typed in before it could be worked out; 'unchecked': no moves reached the server;
+      'too_quick': under a fifth of par on the server's clock. */
+  reason: 'copied' | 'unchecked' | 'too_quick';
+  /** Which audit check flagged it: the replay ('solve'), the wrong puzzle, or the moves' timing. */
+  check?: 'solve' | 'puzzle' | 'timing' | null;
   leaps: number | null;
   placements: number | null;
   evidence: number | null;
