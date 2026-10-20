@@ -638,23 +638,21 @@ html[data-large-text] .lb-me .lb-jump {
   text-transform: uppercase;
   font-size: var(--fs-small);
 }
-/* Selected: a neutral fill, a ring and a check in the corner, so the screen's one accent stays
-   on its primary action (full review M24). The ring and the check, not colour, say "chosen". */
+/* Selected: a neutral fill and a ring, so the screen's one accent stays on its primary action
+   (full review M24). The ring, a shape and not a colour, says "chosen" (3:1 against the track,
+   scripts/contrast.ts); screen readers get aria-checked or aria-selected. The corner tick that
+   was here is gone: the ring is enough, and the tick crowded short labels (the owner's call). */
 .segment.on {
   background: var(--seg-on-bg);
   color: var(--text);
   box-shadow: inset 0 0 0 2px var(--select);
 }
-.segment.on::after {
-  content: '';
-  position: absolute;
-  top: 7px;
-  right: 9px;
-  width: calc(5px * var(--text-scale));
-  height: calc(9px * var(--text-scale));
-  border: solid var(--select);
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
+/* Windows High Contrast drops box-shadow: an outline in the system's highlight colour instead. */
+@media (forced-colors: active) {
+  .segment.on {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
 }
 .segment-icon {
   width: calc(20px * var(--text-scale));

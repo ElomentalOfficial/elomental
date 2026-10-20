@@ -105,7 +105,7 @@ export const PAIRS: Pair[] = [
   ['UI: Clash code box edge vs modal (as a text field)', '--field-border', '--modal-bg', 3],
   ['UI: selected segment ring vs track', '--select', '--chip-bg', 3, '--modal-bg'],
   ['Selected segment text', '--text', '--seg-on-bg', 4.5],
-  ['UI: selected segment ring and tick vs its fill', '--select', '--seg-on-bg', 3],
+  ['UI: selected segment ring vs its fill', '--select', '--seg-on-bg', 3],
   ['UI: selected segment ring vs Setup card', '--select', '--surface', 3],
   ['UI: selected segment ring vs modal', '--select', '--modal-bg', 3],
   ['Disabled button text on modal', '--disabled-text', '--modal-bg', 4.5],
