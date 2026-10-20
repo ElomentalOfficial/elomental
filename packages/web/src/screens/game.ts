@@ -227,7 +227,7 @@ export function resumeGame(game: SavedGame): void {
 
 function loadingScreen(): Screen {
   return {
-    el: h('div', { class: 'screen loading' }, h('div', { class: 'loader' }), h('p', { text: copy.pick(copy.game.loading, String(Date.now())) })),
+    el: h('div', { class: 'screen loading' }, h('div', { class: 'loader', html: ICONS.loader }), h('p', { text: copy.pick(copy.game.loading, String(Date.now())) })),
   };
 }
 

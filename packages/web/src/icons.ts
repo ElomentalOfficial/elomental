@@ -102,6 +102,24 @@ export const ICONS = {
    * the blade glowing hot on top, faded in tap by tap (heatingSword in home.ts).
    */
   rankedLive: `<span class="sword-live">${brush(swordFlame, 'sword-flame')}${brush(swordBody)}${brush(swordHeat, 'sword-heat')}</span>`,
+  /**
+   * The loader: a hand-drawn 2x2 square, and two numbers written into it stroke by stroke,
+   * then fading; the next round fills the other two cells (`.loader-icon` in styles.css).
+   * Vector, so the pen strokes can be drawn on; the digits are single strokes (pathLength 1).
+   */
+  loader: `<svg class="loader-icon" viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <g class="loader-grid" stroke="currentColor" stroke-width="2">
+      <path d="M8.5 8C24 7 40 7.6 56 8.2C56.8 24 56.4 40 56 56C40 56.8 24 56.3 8 56C7.6 40 8.2 24 8.5 8Z"/>
+      <path d="M32.3 9C31.6 24 32.6 40 31.8 55"/>
+      <path d="M9 32.4C24 31.6 40 32.6 55 31.7"/>
+    </g>
+    <g class="loader-digits" stroke-width="3.2">
+      <path class="loader-a1" pathLength="1" transform="translate(20 20) rotate(-4)" d="M-3 -4L1 -7.5L1 7"/>
+      <path class="loader-a2" pathLength="1" transform="translate(44 44) rotate(-5)" d="M-5 -3C-4 -8.5 5 -8.5 4.5 -2.5C4 1 -3 4 -5.5 7L5.5 6.5"/>
+      <path class="loader-b1" pathLength="1" transform="translate(44 20) rotate(-3)" d="M-4.5 -6C1 -9 6 -6 1 -1C7 -0.5 6 8 -5 6"/>
+      <path class="loader-b2" pathLength="1" transform="translate(20 44) rotate(-5)" d="M2.5 7.5L2.5 -7L-5.5 3L5.5 3"/>
+    </g>
+  </svg>`,
   mistake: figma(
     '0 0 19 18',
     '<path d="M15.6211 3.99512L17.4609 6.05957L18.3594 9.96484L16.0254 13.5107L14.9922 14.7227L13.332 14.9473V17.4609L12.793 18L11.0869 17.8203L10.459 15.082L9.56152 14.7227L9.91992 17.6406L6.86816 17.4609L5.83496 14.7227H5.02734L5.29688 17.1924H4.30957L3.77051 16.6982L3.14258 14.5439L1.30176 13.2871L0 10.5488V7.81055L1.70605 4.71289L5.16211 1.48145L5.65625 0.717773L9.91992 0L15.6211 3.99512ZM7.54199 10.458L6.68848 11.625V12.3887L7.31738 12.792L7.81055 12.3887L8.25977 12.6582L9.02246 12.3887V11.625L8.25977 10.458H7.54199ZM10.3242 4.39844L10.1006 5.07129L10.3242 5.9248L10.7285 6.23926L11.626 8.4834L10.4141 10.2783L10.3242 11.2217L11.1328 11.5801L11.8057 11.2217L12.8379 10.1885L13.9609 11.625L14.8584 11.5801L15.3076 10.8174L13.8711 8.34863L15.4414 5.9248L14.8584 5.07129L13.8711 5.65527L12.8379 6.64258C12.315 5.89561 11.2437 4.40369 11.1328 4.39844H10.3242ZM3.00781 5.65527L2.02051 7.27148L1.88574 8.61816L2.46973 10.1885L3.72656 11.2217H5.11719L6.375 9.875L6.86816 7.49609L6.15039 5.43066L4.71387 4.84766L3.00781 5.65527Z"/>',
