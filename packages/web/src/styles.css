@@ -3189,172 +3189,128 @@ html.standalone .toast {
   font-family: var(--serif);
   font-size: var(--fs-label);
 }
-/* The loader (ICONS.loader), all in the accent: a hand-drawn 2x2 square. Two numbers are
-   written into it, one after the other; each lands with a pop and the square jiggles like
-   jelly; then they shrink away with a twist and the next round (2s later) fills the
-   other two cells, so it reads as work going on and loops with no visible restart. */
+/* The loader (ICONS.loader), in the accent: a squishy square that crouches, springs up
+   stretched and spinning, lands with a hard squash (a little lopsided, like jelly) and
+   jiggles to a stop, every 1.3s. The hop layer squashes from the ground up; the square
+   inside does one full turn in the air, so every landing matches the last. */
 .loader {
-  width: 80px;
-  height: 80px;
+  position: relative;
+  width: 64px;
+  height: 116px;
   color: var(--accent);
+}
+.loader-hop {
+  position: absolute;
+  left: 10px;
+  bottom: 8px;
+  width: 44px;
+  height: 44px;
+  transform-origin: 50% 100%;
+  animation: loader-hop 1.3s infinite;
 }
 .loader-icon {
   display: block;
   width: 100%;
   height: 100%;
   overflow: visible;
-  transform-origin: 50% 85%;
-  animation: loader-jelly 4s infinite;
+  animation: loader-spin 1.3s infinite;
 }
-.loader-digits path {
-  stroke-dasharray: 1 1;
-  stroke-dashoffset: 1;
-  opacity: 0;
-  transform-box: fill-box;
-  transform-origin: 50% 60%;
-  animation: 4s infinite both;
+.loader-shadow {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 3px;
+  height: 8px;
+  border-radius: 50%;
+  background: color-mix(in srgb, currentColor 30%, transparent);
+  filter: blur(1px);
+  animation: loader-shadow 1.3s infinite;
 }
-.loader-digits :is(.loader-a1, .loader-b1) {
-  animation-name: loader-write-first;
-}
-.loader-digits :is(.loader-a2, .loader-b2) {
-  animation-name: loader-write-second;
-}
-.loader-digits :is(.loader-b1, .loader-b2) {
-  animation-delay: 2s;
-}
-/* Within each 4s cycle, one round takes the first half: write, pop, write, pop, hold, go. */
-@keyframes loader-write-first {
+@keyframes loader-hop {
   0% {
-    stroke-dashoffset: 1;
-    opacity: 0;
     transform: none;
+    animation-timing-function: ease-out;
   }
-  0.5% {
-    stroke-dashoffset: 1;
-    opacity: 1;
-    animation-timing-function: cubic-bezier(0.45, 0, 0.3, 1);
+  /* crouch */
+  11% {
+    transform: scale(1.16, 0.82);
+    animation-timing-function: cubic-bezier(0.3, 0.6, 0.4, 1);
   }
-  12% {
-    stroke-dashoffset: 0;
-    transform: none;
+  /* spring: stretched, slowing to the top */
+  20% {
+    transform: translateY(-40%) scale(0.88, 1.16);
+    animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1);
   }
-  15% {
-    transform: scale(1.16, 1.1) rotate(-7deg);
+  44% {
+    transform: translateY(-128%) scale(1);
+    animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.5);
   }
-  19% {
-    transform: scale(0.93) rotate(3deg);
+  /* falling faster and faster, stretched again just before the ground */
+  68% {
+    transform: translateY(-6%) scale(0.9, 1.12);
+    animation-timing-function: linear;
   }
-  23% {
-    transform: scale(1.05);
+  /* impact: flattened and a little lopsided */
+  71% {
+    transform: scale(1.3, 0.68) skewX(-7deg);
+    animation-timing-function: cubic-bezier(0.3, 0, 0.4, 1);
   }
-  26%,
-  40% {
-    stroke-dashoffset: 0;
-    opacity: 1;
-    transform: none;
-    animation-timing-function: cubic-bezier(0.6, 0, 0.8, 0.4);
-  }
-  46%,
-  100% {
-    stroke-dashoffset: 0;
-    opacity: 0;
-    transform: scale(0.3) rotate(25deg);
-  }
-}
-@keyframes loader-write-second {
-  0%,
-  14% {
-    stroke-dashoffset: 1;
-    opacity: 0;
-    transform: none;
-  }
-  14.1% {
-    stroke-dashoffset: 1;
-    opacity: 1;
-    animation-timing-function: cubic-bezier(0.45, 0, 0.3, 1);
-  }
-  27% {
-    stroke-dashoffset: 0;
-    transform: none;
-  }
-  30% {
-    transform: scale(1.16, 1.1) rotate(7deg);
-  }
-  33% {
-    transform: scale(0.93) rotate(-3deg);
-  }
-  36% {
-    transform: scale(1.05);
-  }
-  38%,
-  40% {
-    stroke-dashoffset: 0;
-    opacity: 1;
-    transform: none;
-    animation-timing-function: cubic-bezier(0.6, 0, 0.8, 0.4);
-  }
-  46%,
-  100% {
-    stroke-dashoffset: 0;
-    opacity: 0;
-    transform: scale(0.3) rotate(-25deg);
-  }
-}
-/* The square wobbles on every landing (12%, 27%, then 62%, 77%) and shrugs as they leave. */
-@keyframes loader-jelly {
-  0%,
-  11%,
-  24%,
-  26%,
-  39%,
-  48%,
-  61%,
-  74%,
-  76%,
-  89%,
-  98%,
-  100% {
-    transform: none;
-  }
-  13%,
-  28%,
-  63%,
+  /* the jelly bounces back up a touch, then wobbles out */
   78% {
-    transform: scale(1.1, 0.9);
+    transform: translateY(-7%) scale(0.88, 1.14) skewX(5deg);
   }
-  16%,
-  31%,
-  66%,
-  81% {
-    transform: scale(0.94, 1.07) rotate(-1.5deg);
-  }
-  19%,
-  34%,
-  69%,
   84% {
-    transform: scale(1.04, 0.97) rotate(1deg);
+    transform: scale(1.1, 0.92) skewX(-3deg);
   }
-  22%,
-  37%,
-  72%,
-  87% {
-    transform: scale(0.99, 1.01);
+  90% {
+    transform: scale(0.96, 1.04) skewX(1.5deg);
   }
-  44%,
-  94% {
-    transform: scale(0.96, 1.04) rotate(-2deg);
+  95% {
+    transform: scale(1.02, 0.98);
+  }
+  100% {
+    transform: none;
   }
 }
-/* Motion off: the square with its first two numbers, still (the text says it's loading). */
-html[data-reduce-motion] :is(.loader-icon, .loader-digits path) {
+@keyframes loader-spin {
+  0%,
+  16% {
+    transform: none;
+    animation-timing-function: cubic-bezier(0.35, 0, 0.35, 1);
+  }
+  68%,
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@keyframes loader-shadow {
+  0% {
+    transform: none;
+    opacity: 1;
+  }
+  11% {
+    transform: scaleX(1.15);
+  }
+  44% {
+    transform: scaleX(0.4);
+    opacity: 0.35;
+  }
+  71% {
+    transform: scaleX(1.3);
+    opacity: 1;
+  }
+  84% {
+    transform: scaleX(1.08);
+  }
+  100% {
+    transform: none;
+    opacity: 1;
+  }
+}
+/* Motion off: the square sits still (the text says it's loading). */
+html[data-reduce-motion] :is(.loader-hop, .loader-icon, .loader-shadow) {
   animation: none;
-}
-html[data-reduce-motion] .loader-digits :is(.loader-a1, .loader-a2) {
-  stroke-dashoffset: 0;
-  opacity: 1;
-}
-/* ---------- Game ---------- */
+}/* ---------- Game ---------- */
 .game {
   --key-h: clamp(46px, 8dvh, 68px);
   --action-h: clamp(42px, 7dvh, 68px);
