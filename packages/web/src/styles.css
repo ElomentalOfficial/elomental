@@ -2471,9 +2471,10 @@ html[data-reduce-motion] .avatar-face.alive {
   color: var(--muted);
   text-align: center;
 }
+/* Two cards side by side, one per row once larger text needs the width. */
 .affinity-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(150px * var(--text-scale))), 1fr));
   gap: var(--space-3);
 }
 .affinity-card {
@@ -2666,9 +2667,15 @@ html[data-reduce-motion] .avatar-face.alive {
   font-weight: 400;
   color: var(--muted);
 }
+/* Cards as wide as their words need: fewer per row as Text size grows. */
 .part-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(104px * var(--text-scale))), 1fr));
+  gap: var(--space-2);
+}
+/* Larger text: cards read across (art, then words), as wide as the text needs. */
+html[data-large-text] .part-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(150px * var(--text-scale))), 1fr));
   gap: var(--space-2);
 }
 .part-card {
@@ -2697,6 +2704,7 @@ html[data-reduce-motion] .avatar-face.alive {
   font-size: var(--fs-small);
   line-height: 1.2;
   font-weight: 400;
+  overflow-wrap: anywhere;
 }
 .part-rarity {
   display: inline-flex;
@@ -2709,6 +2717,7 @@ html[data-reduce-motion] .avatar-face.alive {
   font-size: var(--fs-small);
   font-weight: 700;
   color: var(--muted);
+  overflow-wrap: anywhere;
 }
 /* (labels stay in the text colour for contrast; the outline and wash carry the accent) */
 .part-card.state-ready .part-state,
@@ -2779,7 +2788,7 @@ html[data-reduce-motion] .avatar-face.alive {
 }
 .life-cost {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(120px * var(--text-scale))), 1fr));
   gap: var(--space-2);
   margin: 0;
   padding: 0;
@@ -2855,9 +2864,10 @@ html[data-reduce-motion] .avatar-face.alive {
 }
 .forge-heading-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--space-3);
+  gap: var(--space-1) var(--space-3);
   margin-top: var(--space-3);
 }
 .forge-heading-row .forge-heading {
@@ -2867,6 +2877,7 @@ html[data-reduce-motion] .avatar-face.alive {
   font-family: var(--serif);
   font-size: var(--fs-small);
   color: var(--muted);
+  white-space: nowrap;
 }
 /* A new part on the result (reward.ts): its card turns over in its rarity's colour. Epic
    glows, Mythic flares; the rarer, the longer. Tap to skip. The rarity is always written. */
@@ -5026,13 +5037,63 @@ html[data-large-text] .game .board-wrap,
 html[data-large-text] .game .controls {
   flex: none;
 }
-html[data-large-text] .actions-row {
-  grid-auto-flow: row;
-  grid-template-columns: 1fr;
-}
+/* Hint, Undo and Notes stay in one row: each icon above its name, so Notes stays on screen. */
 html[data-large-text] .action {
   height: auto;
   min-height: var(--action-h);
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  overflow-wrap: anywhere;
+}
+/* They stack on very narrow screens, and in the wide game layout, where the actions sit in
+   a narrow column beside the board (the same query as that layout's). */
+@media (max-width: 339px), (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5 / 4) {
+  html[data-large-text] .actions-row {
+    grid-auto-flow: row;
+    grid-template-columns: 1fr;
+  }
+  html[data-large-text] .action {
+    flex-direction: row;
+  }
+}
+/* Larger text: the Forge's head stacks (avatar above its balances), and the cost pill wraps. */
+html[data-large-text] .forge-head {
+  grid-template-columns: minmax(0, 1fr);
+}
+html[data-large-text] .forge-avatar {
+  justify-self: center;
+}
+html[data-large-text] .life-cost-short {
+  white-space: normal;
+  text-align: center;
+  border-radius: 12px;
+}
+/* The hint count sits on the Hint button's corner, so the three actions keep one height. */
+html[data-large-text] .action {
+  position: relative;
+}
+html[data-large-text] .action .hint-count {
+  position: absolute;
+  top: var(--space-1);
+  right: var(--space-1);
+}
+/* A part card reads across: art on the left, name, rarity and state beside it. */
+html[data-large-text] .part-card {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  align-items: center;
+  justify-items: start;
+  column-gap: var(--space-3);
+  row-gap: 2px;
+  text-align: left;
+}
+html[data-large-text] .part-card .part-art {
+  grid-row: 1 / span 3;
+}
+html[data-large-text] .part-card > :not(.part-art) {
+  grid-column: 2;
+  min-width: 0;
 }
 /* The keypad numbers stay inside their keys. */
 html[data-large-text] .key {
@@ -5625,9 +5686,15 @@ html[data-large-text] .shortcut-list {
 .name-plate {
   position: relative;
   display: inline-block;
+  max-width: 100%;
   padding: 7px 22px;
   /* the border takes no more room than the name did */
   margin: -7px 0;
+}
+/* a name as long as names may be (20 letters, no spaces) wraps inside its plate */
+.name-plate .plate-text {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 /* gems and the crown reach past the lines: room so they don't touch what's around */
 .name-plate.plate-3 {
@@ -5731,7 +5798,7 @@ html[data-large-text] .shortcut-list {
 }
 .plate-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(104px * var(--text-scale))), 1fr));
   gap: var(--space-2);
 }
 .plate-card {
@@ -5834,6 +5901,13 @@ button.plate-card {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+/* Larger text: a section title grows only as far as its card has room for ("COLLECTION" on a small phone). */
+html[data-large-text] .profile-section {
+  container-type: inline-size;
+}
+html[data-large-text] .profile-section h2 {
+  font-size: min(var(--fs-label), 11cqi);
 }
 .profile-stats-list {
   display: grid;
@@ -5976,9 +6050,10 @@ button.plate-card {
 }
 .lb-faction-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-3);
+  gap: var(--space-1) var(--space-3);
 }
 .lb-faction-head h2 {
   font-size: var(--fs-body);
@@ -6049,9 +6124,10 @@ html[data-reduce-motion] .strength-seg {
 .lb-strength-legend .el-earth { --el: var(--el-earth); }
 .lb-faction .el-air,
 .lb-strength-legend .el-air { --el: var(--el-air); }
+/* Four across, two by two once larger text needs the room. */
 .lb-strength-legend {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(72px * var(--text-scale))), 1fr));
   gap: var(--space-2);
   margin: 0;
   padding: 0;
@@ -6130,11 +6206,13 @@ html[data-reduce-motion] .strength-seg {
 }
 .lb-meta-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-3);
+  gap: var(--space-1) var(--space-3);
 }
 .lb-meta {
+  min-width: 0;
   font-family: var(--serif);
   font-size: var(--fs-small);
   color: var(--muted);
@@ -6240,6 +6318,14 @@ html[data-reduce-motion] .strength-seg {
   margin: 0;
   overflow: visible;
 }
+/* a long name ends in … inside its plate rather than running past the row */
+.lb-name.name-plate .plate-text {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
 .lb-name.name-plate .plate-box svg {
   display: none;
 }
@@ -6283,6 +6369,39 @@ html[data-reduce-motion] .strength-seg {
   font-weight: 700;
   color: var(--muted);
 }
+/* Larger text: a row is place and name, with the score on its own line under the name; no
+   avatar, and names and their lines wrap rather than shrink to a letter. */
+html[data-large-text] .lb-row-btn {
+  grid-template-columns: 2.6em minmax(0, 1fr);
+  row-gap: var(--space-1);
+}
+html[data-large-text] .lb-row-btn .lb-avatar {
+  display: none;
+}
+html[data-large-text] .lb-row-btn .lb-score {
+  grid-column: 2;
+  flex-direction: row;
+  align-items: baseline;
+  justify-self: start;
+  gap: var(--space-1);
+}
+html[data-large-text] .lb-name,
+html[data-large-text] .lb-name.name-plate .plate-text {
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: anywhere;
+}
+html[data-large-text] .lb-sub {
+  flex-wrap: wrap;
+}
+/* the month's leader: mark and name, the share on the line below */
+html[data-large-text] .lb-leader {
+  grid-template-columns: 44px minmax(0, 1fr);
+  row-gap: var(--space-1);
+}
+html[data-large-text] .lb-leader-pct {
+  grid-column: 2;
+}
 .lb-more {
   align-self: center;
 }
@@ -6296,9 +6415,27 @@ html[data-reduce-motion] .strength-seg {
   gap: var(--space-3);
   margin-top: auto;
   padding: var(--space-3);
-  border-radius: 12px;
+  border-radius: 10px;
   background: var(--surface-2);
-  box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.18);
+  /* the shade above, and a skirt of page colour below so no row peeks out under the bar */
+  box-shadow: 0 -6px 16px rgba(0, 0, 0, 0.18), 0 var(--space-5) 0 var(--bg);
+}
+/* The pinned bar sits on the page's bottom edge (its skirt covers the rows below it). */
+html:not([data-large-text]) .screen.leaderboard > .sub-body {
+  padding-bottom: 0;
+}
+/* ...and is the page's edge itself, so the scroll fade stays off it */
+html:not([data-large-text]) .screen.leaderboard > .sub-body.fade-bottom {
+  --fade-b: 0px;
+}
+/* Larger text: the bar is the last thing in the list, not pinned over it, and loses the avatar. */
+html[data-large-text] .lb-me {
+  position: static;
+  flex-wrap: wrap;
+  box-shadow: none;
+}
+html[data-large-text] .lb-me .lb-avatar {
+  display: none;
 }
 .lb-me-text {
   display: flex;
@@ -6406,6 +6543,17 @@ html[data-reduce-motion] .strength-seg {
   font-family: var(--serif);
   font-size: var(--fs-small);
 }
+/* a long name wraps; the influence keeps its place on the right */
+.faction-top li .link-btn {
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+.faction-top li > span {
+  flex: none;
+  white-space: nowrap;
+}
 /* The show-off card (playerCard.ts): fixed slots, the same size whatever is equipped. */
 .player-card {
   text-align: center;
@@ -6488,7 +6636,7 @@ html[data-reduce-motion] .strength-seg {
 }
 .card-badges ul {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-2);
   margin: 0;
   padding: 0;
@@ -6526,6 +6674,7 @@ html[data-reduce-motion] .strength-seg {
   font-family: var(--serif);
   font-size: var(--fs-small);
   line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 .badge-tag {
   font-size: var(--fs-small);
