@@ -12,7 +12,7 @@ import {
 } from '../backend.ts';
 import { ICONS } from '../icons.ts';
 import { formatSeconds, goBack, h, openModal, subPage, toast, type Screen } from '../ui.ts';
-import { setupScreen } from './setup.ts';
+import { devScreen } from './dev.ts';
 import * as copy from '../copy/en.ts';
 
 type Item = ReviewPlayer | ReviewDecision;
@@ -355,7 +355,7 @@ export function reviewScreen(sources: Sources = { page: fetchReviewPage, search:
   }
 
   const el = subPage(
-    { className: 'setup review', title: copy.review.title, onBack: () => void goBack(setupScreen) },
+    { className: 'setup review', title: copy.review.title, onBack: () => void goBack(devScreen) },
     searchBox,
     tabBar,
     resultsNote,

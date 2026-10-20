@@ -759,7 +759,7 @@ export const setup = {
   reviewHelp: 'Players flagged for copying answers in Ranked.',
   openReview: 'Open review',
   dev: 'Dev mode',
-  devHelp: (on: boolean) => (on ? 'On. Testing tools for this account.' : 'Off. Testing tools for founders.'),
+  devHelp: (on: boolean) => (on ? 'Review, and testing tools (on).' : 'Review, and testing tools (off).'),
   openDev: 'Open dev mode',
 };
 
@@ -800,7 +800,7 @@ export const founder = {
 
 export const dev = {
   title: 'Dev mode',
-  intro: 'Founders only. These tools change this account for real, so you can test every screen without grinding.',
+  intro: 'Founders only: Review, and testing tools that change this account for real, so you can test every screen without grinding.',
   switchTitle: 'Dev mode',
   switchHelp: 'While it’s on, games show Solve now and Lose now, solves have no daily limit, and the tools below work.',
   groups: { resources: 'Stardust and Spirits', parts: 'Parts', next: 'Next solve', account: 'Account' },

@@ -3,13 +3,14 @@ import { devAction, setDevMode, type DevAction } from '../backend/dev.ts';
 import { loadFounderActivity } from '../backend/founder.ts';
 import { RARITIES, type Rarity } from '../profile.ts';
 import { rarityName } from '../reward.ts';
-import { goBack, h, subPage, toast, type Screen } from '../ui.ts';
+import { goBack, h, mount, subPage, toast, type Screen } from '../ui.ts';
+import { reviewScreen } from './review.ts';
 import { setupScreen } from './setup.ts';
 import * as copy from '../copy/en.ts';
 
 /**
- * Setup > Dev mode (founders only; the server checks every call): a switch, then the
- * testing tools, grouped. They change the founder's own account for real. While dev mode
+ * Setup > Dev mode (founders only; the server checks every call): the way into Review, a
+ * switch, then the testing tools, grouped. They change the founder's own account for real. While dev mode
  * is on, games also show Solve now and Lose now (game.ts).
  */
 export function devScreen(): Screen {
@@ -66,6 +67,8 @@ export function devScreen(): Screen {
   const el = subPage(
     { className: 'setup dev', title: t.title, onBack: () => void goBack(setupScreen) },
     h('p', { class: 'page-intro', text: t.intro }),
+    // Review works whether dev mode is on or off (it only needs the founder code)
+    group(copy.setup.review, h('p', { class: 'field-hint', text: copy.setup.reviewHelp }), h('button', { class: 'btn', text: copy.setup.openReview, attrs: { type: 'button' }, onclick: () => mount(reviewScreen()) })),
     group(
       t.switchTitle,
       choice('dev-switch', t.switchTitle, t.switchHelp,

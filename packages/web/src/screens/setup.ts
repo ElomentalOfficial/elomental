@@ -20,7 +20,6 @@ import { accessibilityScreen } from './accessibility.ts';
 import { homeScreen } from './home.ts';
 import { devScreen } from './dev.ts';
 import { founderUnlocked, hasAuthenticator, startEnrolment, verifyCode } from '../backend/founder.ts';
-import { reviewScreen } from './review.ts';
 import * as copy from '../copy/en.ts';
 
 export function setupScreen(): Screen {
@@ -98,7 +97,6 @@ export function setupScreen(): Screen {
     { className: 'setup', title, onBack: () => void goBack(homeScreen) },
     accountSection(),
     founderGate(),
-    reviewSection(),
     devSection(),
     h(
       'section',
@@ -231,23 +229,6 @@ function openSetUp(): void {
         codeForm((code) => verifyCode(code, e.factorId), () => close())),
     );
   });
-}
-
-/** Founders only: the way into the Review dashboard (the server checks again). */
-function reviewSection(): HTMLElement {
-  const section = h(
-    'section',
-    { class: 'setting' },
-    h('div', {}, h('h2', { text: copy.setup.review }), h('p', { text: copy.setup.reviewHelp })),
-    h('button', { class: 'btn', text: copy.setup.openReview, onclick: () => mount(reviewScreen()) }),
-  );
-  const paint = () => (section.hidden = !founderUnlocked());
-  paint();
-  const stop = onAccountChange(() => {
-    if (!section.isConnected) return stop();
-    paint();
-  });
-  return section;
 }
 
 /** Founders only: the way into Dev mode (screens/dev.ts; the server checks every tool). */
