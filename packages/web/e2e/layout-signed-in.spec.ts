@@ -78,6 +78,12 @@ for (const device of PHONES_AND_TABLETS) {
       test.skip(info.project.name === 'light', 'layout is the same in both themes');
       await page.setViewportSize({ width: device.width, height: device.height });
       await open(page, size, null);
+      // Home asks with one line on the profile card (full review M13), never by taking over;
+      // where the card has no room for it (small phones) the Profile asks instead
+      await expect(page.locator('.tile.area-casual')).toBeVisible();
+      await settled(page);
+      if (!(await page.getByRole('button', { name: /^Choose your affinity/ }).isVisible())) await page.locator('.avatar-btn').click();
+      await page.getByRole('button', { name: /^Choose your affinity/ }).click();
       await expect(page.locator('.affinity-card').first()).toBeVisible({ timeout: 15_000 });
       expect(await problems(page, 'Affinity')).toEqual([]);
     });
@@ -104,4 +110,35 @@ test('the signed-in screens pass axe', async ({ page }) => {
   await expect(page.getByRole('dialog').locator('h2').first()).toBeVisible();
   await check('Player card');
   expect(found).toEqual([]);
+});
+
+test('Home: the next-step line, Spirits only once there is one, the Store still to come', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await open(page, 100);
+  await expect(page.locator('.tile.area-casual')).toBeVisible();
+  // 1530 Elo, 80 Ranked games: the line says what's next
+  await expect(page.locator('.home-line')).toHaveText(/^Today’s\sDaily\sis\swaiting · \d\ssquares?\sto\syour\snext\spart$/);
+  // the fixture has 1 Spirit: three chips, the numbers on one line
+  await expect(page.locator('.stat-chip:visible')).toHaveCount(3);
+  await settled(page); // the tiles have turned in
+  const tops = await page.locator('.stat-chip strong').evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top)));
+  expect(new Set(tops).size).toBe(1);
+  await page.getByRole('button', { name: 'Store', exact: true }).click();
+  await expect(page.getByText('The Store opens soon.')).toBeVisible();
+});
+
+test('Home: the month your side won shows once, then never again', async ({ page }) => {
+  await signedIn(page, { monthWon: true });
+  await page.goto('/');
+  await page.locator('.screen.welcome').click({ timeout: 2_000 }).catch(() => undefined);
+  await expect(page.getByRole('heading', { name: 'Fire won September' })).toBeVisible();
+  await page.getByRole('button', { name: 'See your badges' }).click();
+  // the Profile opens at its badges, the focus on their heading
+  await expect(page.locator('.card-badges h2')).toBeFocused();
+  await expect(page.locator('.card-badges h2')).toBeInViewport();
+  await home(page);
+  await page.reload();
+  await expect(page.locator('.tile.area-casual')).toBeVisible();
+  await page.waitForTimeout(1_500);
+  await expect(page.getByRole('heading', { name: 'Fire won September' })).toHaveCount(0);
 });

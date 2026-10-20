@@ -1,4 +1,5 @@
 import { DEFAULT_AVATAR, type Loadout, type Polish } from './backend/forge.ts';
+import { ELEMENT_PATHS } from './icons.ts';
 import type { Element } from './profile.ts';
 
 /** The avatar pictures (art/faces/<name>.svg, icons/make-faces.mjs), by name. */
@@ -46,6 +47,13 @@ export function avatarSvg(loadout: Loadout | null | undefined, polish: Polish = 
   const l = loadout ?? {};
   const id = l.avatar ?? DEFAULT_AVATAR;
   return `<svg class="avatar-art" viewBox="0 0 100 100" aria-hidden="true">${face(id, polish[id] === 1)}${frame(l.frame)}</svg>`;
+}
+
+/** An element's crest in one of its frames (the Affinity cards): its mark on a disc of its colour. */
+export function crestSvg(element: Element, variant = 2): string {
+  const mark = ELEMENT_PATHS[element].map((d) => `<path d="${d}"/>`).join('');
+  return `<svg class="avatar-art" viewBox="0 0 100 100" aria-hidden="true"><g class="crest el-${element}"><circle cx="50" cy="50" r="38"/>` +
+    `<g class="crest-mark" transform="translate(24.8 24.8) scale(2.1)">${mark}</g></g>${frame(`s0-frame-${element}-${variant}`)}</svg>`;
 }
 
 /** One part alone, as it looks on its own (the Forge's cards): an avatar, or a frame round a plain disc. */

@@ -1,5 +1,6 @@
 import { peelRibbon } from '../fabric.ts';
 import { RIBBON_PATH } from '../ribbon.ts';
+import { readJson, writeJson } from '../storage.ts';
 import { applyTheme } from '../theme.ts';
 import { h, mount, type Screen } from '../ui.ts';
 import { homeScreen } from './home.ts';
@@ -30,6 +31,16 @@ const LETTERS: { ch: string; x: number; y: number }[] = [
 const HOLD_MS = 2800;
 /** The splash page fading out over Home (matches .welcome.fading-out). */
 const FADE_MS = 550;
+
+const SPLASH_KEY = 'elomental:splash-day';
+
+/** The full splash plays on the first launch of the day; later launches go straight to Home. */
+export function splashDue(): boolean {
+  const today = new Date().toDateString();
+  if (readJson<string>(SPLASH_KEY) === today) return false;
+  writeJson(SPLASH_KEY, today);
+  return true;
+}
 
 export function welcomeScreen(): Screen {
   const letters = LETTERS.map(

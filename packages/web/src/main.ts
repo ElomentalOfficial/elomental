@@ -4,7 +4,8 @@ import { cachedAccount, initBackend, onAccountChange, refreshAccount } from './b
 import { readJson, writeJson } from './storage.ts';
 import { flushPending, pendingResults } from './backend/pending.ts';
 import { installWheelScroll, installZoomGuards } from './gestures.ts';
-import { welcomeScreen } from './screens/welcome.ts';
+import { homeScreen } from './screens/home.ts';
+import { splashDue, welcomeScreen } from './screens/welcome.ts';
 import { installA11y } from './a11y.ts';
 import { applyTheme } from './theme.ts';
 import { h, mount, openModal, toast } from './ui.ts';
@@ -65,4 +66,9 @@ onAccountChange(() => {
   setTimeout(show, 800);
 });
 
-mount(welcomeScreen());
+// The splash once a day (full review M21); other launches fade straight into Home.
+if (splashDue()) mount(welcomeScreen());
+else {
+  mount(homeScreen());
+  document.querySelector('.screen.home')?.classList.add('launch');
+}

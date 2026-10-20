@@ -3,7 +3,7 @@ import { avatarSvg } from '../avatar.ts';
 import { badgeArt, badgeLabel } from '../badges.ts';
 import { myBadges, setShowcase } from '../backend/leaderboard.ts';
 import { cachedAccount, refreshAccount } from '../backend/account.ts';
-import { canSwitchAffinity } from '../backend/affinity.ts';
+import { affinityDue, canSwitchAffinity } from '../backend/affinity.ts';
 import { cachedLoadout, cachedPolish, loadForge } from '../backend/forge.ts';
 import { ICONS } from '../icons.ts';
 import { paintPlate } from '../plates.ts';
@@ -19,7 +19,7 @@ import * as copy from '../copy/en.ts';
  * best Elo, a few plain stats, how much of the season's set you have, and one way on:
  * the Forge. Later the leaderboard opens other players' profiles the same way.
  */
-export function profileScreen(): Screen {
+export function profileScreen(start?: { at?: 'badges' }): Screen {
   const p = loadProfile();
   const account = cachedAccount();
   const tier = rankTier(p.elo);
@@ -38,9 +38,12 @@ export function profileScreen(): Screen {
   // the worn avatar in its frame (Happy until another is worn)
   const avatar = h('span', { class: 'avatar profile-avatar worn', html: avatarSvg(cachedLoadout(), cachedPolish()), attrs: { 'aria-hidden': 'true' } });
   // your side; Change shows while switching is allowed (the first 7 days of a season)
+  // no side yet, once it's time: the way to choose one (Home's line has no room on small phones)
   const side = account?.affinity
     ? h('p', { class: 'forge-affinity' }, h('span', { class: 'drop-element', html: ICONS.elements[account.affinity], attrs: { 'aria-hidden': 'true' } }), h('span', { text: copy.forge.elements[account.affinity] }))
-    : null;
+    : affinityDue()
+      ? h('button', { class: 'link-btn', text: copy.home.line.chooseSide, attrs: { type: 'button' }, onclick: () => mount(affinityScreen(profileScreen)) })
+      : null;
 
   const stat = (label: string, value: string) => h('div', { class: 'profile-stat' }, h('dt', { text: label }), h('dd', { text: value }));
   const collection = h('p', { class: 'profile-collection-line', text: signedInText() });
@@ -87,6 +90,8 @@ export function profileScreen(): Screen {
         ),
         nextUp ? h('p', { class: 'note profile-next-rank', text: copy.common.toNextRank(nextUp.gap, nextUp.label) }) : null,
         side,
+        // the Forge, in sight without scrolling (Home has no tile for it)
+        forgeBtn,
       ),
       h(
         'section',
@@ -108,9 +113,17 @@ export function profileScreen(): Screen {
       account?.anonymous
         ? h('section', { class: 'profile-section' }, signUpForm({ collapsed: true, title: copy.account.keepRewards, text: copy.profile.guestNote, onDone: () => mount(profileScreen()) }))
         : null,
-      forgeBtn,
     ),
   );
+  // opened for its badges (Home's month-won sheet): there, with the focus on their heading
+  if (start?.at === 'badges' && badgesSection) {
+    requestAnimationFrame(() => {
+      const heading = badgesSection.querySelector('h2')!;
+      heading.tabIndex = -1;
+      heading.scrollIntoView({ block: 'start' });
+      heading.focus({ preventScroll: true });
+    });
+  }
 
   function signedInText(): string {
     return account ? copy.forge.loading : copy.profile.collectionOffline;
@@ -120,7 +133,7 @@ export function profileScreen(): Screen {
     void refreshAccount();
     void canSwitchAffinity().then((open) => {
       if (!open || !side) return;
-      side.append(h('button', { class: 'link-btn', text: copy.affinity.change, attrs: { type: 'button', 'aria-label': copy.affinity.a11yChange }, onclick: () => mount(affinityScreen()) }));
+      side.append(h('button', { class: 'link-btn', text: copy.affinity.change, attrs: { type: 'button', 'aria-label': copy.affinity.a11yChange }, onclick: () => mount(affinityScreen(profileScreen)) }));
     });
     void loadForge().then((f) => {
       if (!el.isConnected && !document.body.contains(el)) return;

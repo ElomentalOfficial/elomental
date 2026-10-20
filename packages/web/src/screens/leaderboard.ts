@@ -186,7 +186,7 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
       view === 'country' && !cachedAccount()?.country
         ? h('button', { class: 'btn', text: t.chooseCountry, attrs: { type: 'button' }, onclick: () => mount(privacyScreen(() => leaderboardScreen({ view: 'country' }))) })
         : view === 'faction' && !myElement()
-          ? h('button', { class: 'btn', text: t.joinIn, attrs: { type: 'button' }, onclick: () => mount(affinityScreen()) })
+          ? h('button', { class: 'btn', text: t.joinIn, attrs: { type: 'button' }, onclick: () => mount(affinityScreen(() => leaderboardScreen({ view }))) })
           : view === 'friends'
             ? h('button', { class: 'btn', text: t.search, attrs: { type: 'button' }, onclick: () => searchField.focus() })
             : null;
@@ -411,7 +411,7 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
       h('p', { class: 'lb-faction-line' }, h('span', { text: t.daysLeft(days) }), h('span', { class: 'wide-only', text: ` · ${t.prize}` })),
       mine
         ? h('p', { class: 'lb-faction-mine', text: mine })
-        : h('button', { class: 'link-btn', text: t.joinIn, attrs: { type: 'button' }, onclick: () => mount(affinityScreen()) }),
+        : h('button', { class: 'link-btn', text: t.joinIn, attrs: { type: 'button' }, onclick: () => mount(affinityScreen(() => leaderboardScreen({ view }))) }),
     ];
   }
   function openFaction(b: FactionBoard) {

@@ -81,9 +81,10 @@ const rows = (from: number, n: number, base: number, mePlace = 0) =>
 /**
  * Signs the page in as a sample player, with every server call answered by fakes (no live
  * data): parts, plates, Stardust, an affinity, badges, the leaderboard and a player card.
- * `affinity: null` (with 3 solves) makes Home open the affinity choice.
+ * `affinity: null` (with 3 solves) makes Home ask for a side; `monthWon` leaves last month's
+ * win unseen, so Home shows it.
  */
-export async function signedIn(page: Page, opts: { affinity?: string | null; textSize?: number; anonymous?: boolean } = {}) {
+export async function signedIn(page: Page, opts: { affinity?: string | null; textSize?: number; anonymous?: boolean; monthWon?: boolean } = {}) {
   const anonymous = !!opts.anonymous;
   const affinity = opts.affinity === undefined ? 'fire' : opts.affinity;
   const profile = { display_name: ME, title: null, name_changed_at: null, elo: 1530, ranked_games: 80, stardust: 6400, spirits: 1, settings: {}, affinity, plate: 3, affinity_season: null, showcase: [] };
@@ -120,17 +121,18 @@ export async function signedIn(page: Page, opts: { affinity?: string | null; tex
     const single = (route.request().headers().accept ?? '').includes('vnd.pgrst.object');
     return json(single ? (found[0] ?? null) : found);
   });
-  await page.addInitScript(([ref, uid, affinity, textSize, anonymous]) => {
+  await page.addInitScript(([ref, uid, affinity, textSize, anonymous, monthWon]) => {
     if (sessionStorage.getItem('signed-in-ready')) return;
     sessionStorage.setItem('signed-in-ready', '1');
     localStorage.setItem('elomental:tutorial-done', 'true');
     localStorage.setItem('elomental:install-note', '-1');
+    if (!monthWon) localStorage.setItem('elomental:month-won-seen', JSON.stringify(['win-2026-09-fire']));
     if (textSize) localStorage.setItem('elomental:a11y', JSON.stringify({ textSize }));
     localStorage.setItem(`sb-${ref}-auth-token`, JSON.stringify({ access_token: 'x', refresh_token: 'y', token_type: 'bearer', expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 86400,
       user: { id: uid, is_anonymous: anonymous, email: 'test@example.com', aud: 'authenticated', role: 'authenticated' } }));
     localStorage.setItem('elomental:account', JSON.stringify({ userId: uid, anonymous, email: 'test@example.com', name: ME, title: null, nextNameChange: null, elo: 1530, rankedGames: 80,
       stardust: 6400, spirits: 1, daily: {}, mended: {}, affinity, solved: 40, plate: 3, showcase: [] }));
-  }, [REF, UID, affinity, opts.textSize ?? 0, anonymous] as const);
+  }, [REF, UID, affinity, opts.textSize ?? 0, anonymous, !!opts.monthWon] as const);
 }
 
 // --- Layout (layout.spec.ts, layout-signed-in.spec.ts) ---------------------------------------

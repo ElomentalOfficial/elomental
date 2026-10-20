@@ -2,14 +2,17 @@ import { difficultyForRating } from '@elomental/engine';
 import { avatarSvg } from '../avatar.ts';
 import { cachedAccount } from '../backend/account.ts';
 import { cachedLoadout, cachedPolish, loadLoadout } from '../backend/forge.ts';
+import { recentWins } from '../backend/leaderboard.ts';
+import { badgeArt, badgeLabel, badgeMonth } from '../badges.ts';
 import { ICONS } from '../icons.ts';
 import { paintPlate } from '../plates.ts';
+import { readJson, writeJson } from '../storage.ts';
 import { profileScreen } from './profile.ts';
 import { affinityDue } from '../backend/affinity.ts';
 import { affinityScreen } from './affinity.ts';
 import { addToHomeNote, countNoteVisit } from '../install.ts';
 import { enableTilt, turnstileIn, turnstileOut } from '../motion.ts';
-import { eloDelta, loadProfile, parMs, rankTier, rankedTarget } from '../profile.ts';
+import { dailyKey, eloDelta, loadProfile, nextRank, parMs, rankTier, rankedTarget } from '../profile.ts';
 import { closeButton, h, hiddenHeading, mount, navigatingBack, openModal, toast, type Screen } from '../ui.ts';
 import { handleEmailLink } from '../emailLink.ts';
 import { onAccountChange, refreshAccount, signedIn } from '../backend.ts';
@@ -62,9 +65,12 @@ export function homeScreen(): Screen {
 
   const nameEl = h('strong', { class: 'profile-name' });
   const rankEl = h('span', { class: 'profile-rank' });
+  // what to play for next (full review H12), or the way to choose a side (M13)
+  const lineEl = h('p', { class: 'home-line' });
   const eloChip = stat('', copy.common.elo);
   const dustChip = stat('', copy.common.stardust, ICONS.dust);
   const spiritChip = stat('', copy.common.spirits, ICONS.spirit);
+  const stats = h('div', { class: 'profile-stats' }, eloChip, dustChip, spiritChip);
   /** Signed in, the numbers come from the server cache and update when it refreshes. */
   const paintProfile = () => {
     const p = loadProfile();
@@ -79,11 +85,36 @@ export function homeScreen(): Screen {
     eloChip.querySelector('strong')!.textContent = String(p.elo);
     dustChip.querySelector('strong')!.textContent = String(p.dust);
     spiritChip.querySelector('strong')!.textContent = String(p.spirits);
+    // Spirits are rare (months for most players): the chip shows once there's one (decision D6)
+    spiritChip.hidden = p.spirits === 0;
+    stats.classList.toggle('two', p.spirits === 0);
+    paintLine();
   };
-  paintProfile();
-  const stopProfile = onAccountChange(paintProfile);
-  if (signedIn()) void refreshAccount();
-
+  const paintLine = () => {
+    if (affinityDue()) {
+      lineEl.replaceChildren(h('button', { class: 'link-btn', text: copy.home.line.chooseSide, attrs: { type: 'button' }, onclick: () => leave(profileCard, () => mount(affinityScreen())) }));
+      return;
+    }
+    const account = cachedAccount();
+    const p = loadProfile();
+    const dailyDone = !!p.daily[dailyKey()];
+    // a first-time player (a local guest has no solve count: nothing earned yet means none)
+    const firstTime = account ? (account.solved ?? 0) === 0 : !p.dust && !Object.keys(p.daily).length;
+    if (firstTime) {
+      lineEl.replaceChildren(h('button', { class: 'link-btn', text: copy.home.line.start, attrs: { type: 'button' }, onclick: () => leave(daily, () => mount(dailyScreen())) }));
+      return;
+    }
+    // the two nearest things to play for, so the line fits on one row: today's Daily if it's
+    // still open, the next part, the next rank
+    const next = p.rankedGames > 0 && !p.title ? nextRank(p.elo) : null;
+    const parts = [
+      dailyDone ? null : copy.home.line.dailyOpen,
+      account?.partProgress != null ? copy.home.line.toNextPart(3 - account.partProgress) : null,
+      next ? copy.common.toNextRank(next.gap, next.label) : null,
+    ].filter((s): s is string => !!s).slice(0, document.documentElement.hasAttribute('data-large-text') ? 1 : 2);
+    // each part stays whole: the line only breaks between them
+    lineEl.replaceChildren(parts.map((s) => s.replace(/ /g, ' ')).join(' · '));
+  };
   const profileCard = h(
     'section',
     { class: 'profile-card area-profile' },
@@ -93,13 +124,18 @@ export function homeScreen(): Screen {
       avatarBtn,
       nameEl,
       rankEl,
+      lineEl,
     ),
-    h('div', { class: 'profile-stats' }, eloChip, dustChip, spiritChip),
+    stats,
     h('div', { class: 'setup-notch' }, setupTile),
   );
   setupTile.addEventListener('click', () => leave(profileCard, () => mount(setupScreen())));
 
   const daily = tile('daily', ICONS.daily, copy.home.tiles.daily, (el) => leave(el, () => mount(dailyScreen())));
+  paintProfile();
+  const stopProfile = onAccountChange(paintProfile);
+  if (signedIn()) void refreshAccount();
+  // The Store stays, so players know it's coming (the owner's call on D1); the Forge is on the Profile.
   const store = tile('store', ICONS.store, copy.home.tiles.store, () => toast(copy.home.storeLater));
   const leader = tile('leader', ICONS.leaderboard, copy.home.tiles.leaderboard, (el) =>
     signedIn() ? leave(el, () => mount(leaderboardScreen())) : toast(copy.leaderboard.offline));
@@ -119,13 +155,15 @@ export function homeScreen(): Screen {
   /** Home fits the screen without scrolling, so on a short one (browser bars) the note
       would squeeze the tiles until the profile's stats spill out: there it stays away. */
   const fitNote = () => {
-    if (!note) return;
-    const card = profileCard.getBoundingClientRect();
-    const stats = profileCard.querySelector('.profile-stats')!.getBoundingClientRect();
-    if (stats.bottom > card.bottom + 1) {
-      note.remove();
-      animated.pop();
-    } else countNoteVisit();
+    const spills = () => stats.getBoundingClientRect().bottom > profileCard.getBoundingClientRect().bottom + 1;
+    if (note) {
+      if (spills()) {
+        note.remove();
+        animated.pop();
+      } else countNoteVisit();
+    }
+    // the line is the first thing to go on a screen too short for it (the stats stay)
+    if (spills()) lineEl.hidden = true;
   };
   const enter = () => {
     fitNote();
@@ -141,23 +179,61 @@ export function homeScreen(): Screen {
     else requestAnimationFrame(enter);
   });
   setTimeout(() => handleClashLink((go) => leave(casual, go)), 420);
-  // After the third solved square: time to choose a side (once; again after the next solve
-  // if put off). Waits for the tiles to settle so it reads as the next step, not a jump.
-  setTimeout(() => {
-    if (el.isConnected && !leaving && affinityDue()) leave(profileCard, () => mount(affinityScreen()));
-  }, 900);
   setTimeout(() => void handleEmailLink(), 420);
+  // Your side won last month: once, a calm sheet with what it brought (full review M12).
+  setTimeout(() => {
+    if (el.isConnected && !leaving && signedIn()) {
+      void showMonthWon(
+        () => el.isConnected && !leaving,
+        () => leave(profileCard, () => mount(profileScreen({ at: 'badges' }))),
+      );
+    }
+  }, 900);
 
   return { el, destroy: stopProfile };
 }
 
-function stat(value: string, label: string, icon?: string): HTMLElement {
+/** A stat: icon, number, name. Elo has no icon, but keeps the row so the numbers line up. */
+function stat(value: string, label: string, icon = ''): HTMLElement {
   return h(
     'div',
     { class: 'stat-chip' },
-    icon ? h('span', { class: 'stat-icon', html: icon }) : null,
+    h('span', { class: 'stat-icon', html: icon, attrs: { 'aria-hidden': 'true' } }),
     h('strong', { text: value }),
     h('span', { text: label }),
+  );
+}
+
+const MONTH_WON_KEY = 'elomental:month-won-seen';
+
+/**
+ * Once per win: the newest "your side won" badge (win-YYYY-MM-element, paid by
+ * settle_faction_month with 300 Stardust) not yet shown, if it came in the last 3 weeks.
+ */
+async function showMonthWon(stillHome: () => boolean, toBadges: () => void): Promise<void> {
+  const won = await recentWins();
+  // the answer can come after the player has left Home: then it waits for the next visit
+  if (!stillHome() || document.querySelector('.modal')) return;
+  const seen = readJson<string[]>(MONTH_WON_KEY) ?? [];
+  const badge = won.find((b) => !seen.includes(b));
+  if (!badge) return;
+  writeJson(MONTH_WON_KEY, [...seen, badge].slice(-12));
+  const { element } = badgeLabel(badge);
+  const month = badgeMonth(badge);
+  const m = copy.home.monthWon;
+  const close = openModal(
+    h(
+      'div',
+      { class: 'sheet month-won' },
+      closeButton(() => close()),
+      h('span', { class: 'badge-medal month-won-art', html: badgeArt(badge), attrs: { 'aria-hidden': 'true' } }),
+      h('h2', { text: m.title(element ? copy.forge.elements[element] : '', month) }),
+      h('p', { text: m.text(month) }),
+      // a guest account's Profile has no badges section (it can still win): just close
+      cachedAccount()?.anonymous
+        ? h('button', { class: 'btn btn-primary', text: copy.common.close, attrs: { type: 'button' }, onclick: () => close() })
+        : h('button', { class: 'btn btn-primary', text: m.badges, attrs: { type: 'button' }, onclick: () => { close(); toBadges(); } }),
+    ),
   );
 }
 

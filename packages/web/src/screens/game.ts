@@ -19,6 +19,8 @@ import { ICONS } from '../icons.ts';
 import { dropReveal, influenceLine, progressLine } from '../reward.ts';
 import { badgeMonth } from '../badges.ts';
 import { forgeScreen } from './forge.ts';
+import { affinityScreen } from './affinity.ts';
+import { affinityDue } from '../backend/affinity.ts';
 import {
   HINT_ELO_PENALTY,
   dailyGoal,
@@ -46,6 +48,7 @@ import { clashTable, clashVerdict, shareButton } from '../clashView.ts';
 import {
   GameRefused,
   auditServerGame,
+  cachedAccount,
   fetchClash,
   finishServerGame,
   pauseServerGame,
@@ -1396,7 +1399,36 @@ function gameScreen(game: SavedGame): Screen {
  */
 function resultExtra(won: boolean, busy: boolean): HTMLElement | null {
   if (busy) return null;
-  return addToHomeResultNote(won) ?? signupPrompt();
+  return firstWinLine(won) ?? sideLine(won) ?? addToHomeResultNote(won) ?? signupPrompt();
+}
+
+const SIDE_ASKED_KEY = 'elomental:affinity-result';
+
+/** Once, when it's time to choose a side: the way to it on any screen (Home's line can't fit everywhere). */
+function sideLine(won: boolean): HTMLElement | null {
+  if (!won || !affinityDue() || readJson<boolean>(SIDE_ASKED_KEY)) return null;
+  writeJson(SIDE_ASKED_KEY, true);
+  return h(
+    'div',
+    { class: 'first-win' },
+    h('p', { text: copy.result.chooseSide }),
+    h('button', { class: 'link-btn', text: copy.home.line.chooseSide, attrs: { type: 'button' }, onclick: () => void goBack(affinityScreen) }),
+  );
+}
+
+const FIRST_WIN_KEY = 'elomental:first-win';
+
+/** Once, on a signed-in player's first solve: what parts and Stardust are for, and the way to the Forge. */
+function firstWinLine(won: boolean): HTMLElement | null {
+  const account = cachedAccount();
+  if (!won || !account || account.solved > 1 || readJson<boolean>(FIRST_WIN_KEY)) return null;
+  writeJson(FIRST_WIN_KEY, true);
+  return h(
+    'div',
+    { class: 'first-win' },
+    h('p', { text: copy.result.firstWin }),
+    h('button', { class: 'link-btn', text: copy.forge.openForge, attrs: { type: 'button' }, onclick: () => void goBack(forgeScreen) }),
+  );
 }
 
 const RESULTS_KEY = 'elomental:results';

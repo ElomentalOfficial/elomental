@@ -746,6 +746,10 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
 }
 
 /* ---------- Home (Figma "carousel" frame) ---------- */
+/* A launch without the splash (once it has played today): Home fades in. */
+.screen.home.launch {
+  animation: fade 0.3s ease-out;
+}
 .home-grid {
   flex: 1;
   min-height: 0;
@@ -1175,6 +1179,52 @@ html[data-reduce-motion] .promotion .tier-emblem {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
+}
+/* No Spirits yet: Elo and Stardust share the row (home.ts). */
+.stat-chip[hidden] {
+  display: none;
+}
+.profile-stats.two,
+html[data-large-text] .profile-stats.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+/* The next thing to play for, under the rank: one quiet line (home.ts paintLine). */
+.home-line {
+  max-width: 34ch;
+  margin: var(--space-1) 0 var(--space-3);
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  line-height: 1.35;
+  color: var(--muted);
+  text-align: center;
+}
+/* Still a 44px target, but it reaches over the gaps around it rather than taking room. */
+.home-line .link-btn {
+  margin-block: calc(var(--space-3) * -1);
+  font-size: var(--fs-small);
+}
+/* Shorter phones (an iPhone SE): a slightly smaller avatar leaves the line room. */
+@media (max-height: 700px) {
+  .profile-card .avatar {
+    width: clamp(60px, 11dvh, 120px);
+  }
+}
+/* The shortest phones (320×568): compact chips, number over name, so the stats stay in the card. */
+@media (max-height: 600px) {
+  .profile-card .avatar {
+    width: clamp(52px, 10dvh, 120px);
+    margin-bottom: var(--space-1);
+  }
+  .stat-chip {
+    gap: 0;
+    padding: var(--space-1);
+  }
+  .stat-chip strong {
+    font-size: var(--fs-body);
+  }
+  .stat-chip .stat-icon {
+    display: none;
+  }
 }
 .stat-chip {
   display: flex;
@@ -1729,6 +1779,20 @@ html[data-large-text] .lb-me .lb-jump {
   font-size: var(--fs-small);
   color: var(--muted);
   text-align: center;
+}
+/* The first solve's line on parts and the Forge (game.ts firstWinLine). */
+.first-win {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--text);
+  text-align: center;
+}
+.first-win .link-btn {
+  font-size: var(--fs-small);
 }
 .signup-done {
   font-family: var(--serif);
@@ -2477,6 +2541,17 @@ html[data-reduce-motion] .sword-live .sword-flame {
 .layer-frame .ring {
   stroke: var(--el);
   stroke-width: 4;
+}
+/* An element's crest (avatar.ts crestSvg): its mark in cream on a disc of its colour. */
+.crest circle {
+  fill: var(--el);
+}
+.crest-mark {
+  fill: none;
+  stroke: var(--c-bright);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 .layer-frame .ring.thin {
   stroke-width: 1.6;
@@ -5993,8 +6068,10 @@ html[data-large-text] .profile-section h2 {
   font-family: var(--serif);
   font-size: var(--fs-body);
 }
+/* In the hero, under your rank and side: in sight without scrolling. */
 .profile-forge {
   align-self: stretch;
+  margin-top: var(--space-2);
 }
 
 /* ---------- Dev mode (founders only; screens/dev.ts, game.ts) ---------- */
@@ -6774,6 +6851,19 @@ html[data-large-text] .lb-me .lb-avatar {
   display: block;
   width: 60px;
   height: 60px;
+}
+/* Home's sheet when your side won the month: the medal, what it brought, the way to it. */
+.month-won {
+  text-align: center;
+}
+/* the laurel's lowest leaves reach just past the medal's box */
+.badge-art {
+  overflow: visible;
+}
+.badge-medal.month-won-art {
+  width: 96px;
+  height: 96px;
+  margin: 0 auto var(--space-3);
 }
 .badge-name {
   font-family: var(--serif);

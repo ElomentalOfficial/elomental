@@ -13,7 +13,8 @@ async function usePrefs(page: Page, prefs: Record<string, unknown>) {
     localStorage.setItem(key, JSON.stringify({ ...JSON.parse(localStorage.getItem(key) ?? '{}'), ...p }));
   }, prefs);
   await page.reload();
-  await page.locator('.screen.welcome').click();
+  // the splash plays once a day: after a reload it's usually gone
+  await page.locator('.screen.welcome').click({ timeout: 2_000 }).catch(() => undefined);
   await expect(page.locator('.tile.area-casual')).toBeVisible();
   await settled(page);
 }

@@ -156,6 +156,14 @@ export async function setCountry(code: string | null): Promise<string | null> {
 /** Up to three of your badges for your card. */
 export const setShowcase = (badges: string[]) => act('set_showcase', { p_badges: badges });
 
+/** Your "your side won the month" badges from the last 3 weeks, newest first; none offline. */
+export async function recentWins(): Promise<string[]> {
+  const since = new Date(Date.now() - 21 * 86_400_000).toISOString();
+  const { data, error } = await supabase.from('player_badges').select('badge').like('badge', 'win-%').gte('earned_at', since).order('earned_at', { ascending: false });
+  if (error) return [];
+  return (data ?? []).map((r) => r.badge as string).filter((b) => b.startsWith('win-'));
+}
+
 /** Your badges, newest first; null offline. */
 export async function myBadges(): Promise<string[] | null> {
   const { data, error } = await supabase.from('player_badges').select('badge, earned_at').order('earned_at', { ascending: false });

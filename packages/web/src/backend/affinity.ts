@@ -55,17 +55,22 @@ export async function canSwitchAffinity(): Promise<boolean> {
 
 const PROMPTED_KEY = 'elomental:affinity-prompted';
 
+/** Solves "Decide later" waits before Home asks again. */
+const PUT_OFF_SOLVES = 5;
+
 /**
- * Time to ask? Signed in, no affinity yet, 3+ squares solved, and not already asked at
- * this solve count ("Decide later" waits for the next solve).
+ * Time to ask (Home's line)? Signed in, no affinity yet, 3+ squares solved, and not put off
+ * within the last 5 solves.
  */
 export function affinityDue(): boolean {
   const a = cachedAccount();
   if (!a || a.affinity || (a.solved ?? 0) < 3) return false;
-  return (readJson<number>(PROMPTED_KEY) ?? -1) < a.solved;
+  const putOffAt = readJson<number>(PROMPTED_KEY);
+  return putOffAt == null || a.solved >= putOffAt + PUT_OFF_SOLVES;
 }
 
-export function markAffinityPrompted(): void {
+/** "Decide later": Home stops asking for the next 5 solves. */
+export function putOffAffinity(): void {
   const a = cachedAccount();
   if (a) writeJson(PROMPTED_KEY, a.solved);
 }

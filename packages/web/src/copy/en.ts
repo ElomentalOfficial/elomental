@@ -83,6 +83,19 @@ export const home = {
     ranked: 'Play Ranked',
   },
   storeLater: 'The Store opens soon.',
+  /** The quiet line on the profile card: what to play for next. */
+  line: {
+    start: 'Start with today’s Daily Square',
+    dailyOpen: 'Today’s Daily is waiting',
+    toNextPart: (left: number) => `${left} ${left === 1 ? 'square' : 'squares'} to your next part`,
+    chooseSide: 'Choose your affinity',
+  },
+  /** Once, on the first launch after your side won the month (settle_faction_month). */
+  monthWon: {
+    title: (element: string, month: string) => `${element} won ${month}`,
+    text: (month: string) => `+300 Stardust and the ${month} badge are yours.`,
+    badges: 'See your badges',
+  },
   casual: {
     title: 'Casual',
     text: 'No pressure, no Elo.',
@@ -366,7 +379,8 @@ export const affinity = {
   average: (n: number) => `${n} influence each`,
   needsYou: 'Needs you',
   /** The card, read in full by screen readers. */
-  a11yCard: (element: string, line: string, place: string) => `${element}. ${line} ${place} this month.`,
+  a11yCard: (element: string, line: string, place: string, needsYou = false) =>
+    `${element}. ${line}${place ? ` ${place} this month.` : ''}${needsYou ? ' Needs you.' : ''}`,
   confirmTitle: (element: string) => `Join ${element}?`,
   confirmText: 'You can switch once per season, in its first 7 days.',
   /** The Profile's affinity line, while switching is allowed. */
@@ -421,6 +435,10 @@ export const result = {
   monthOf: (done: number, days: number) => `${done} / ${days} squares`,
   /** Shown once, on the solve or fill-in that earns the month's badge. */
   monthBadgeEarned: (month: string) => `${month} badge earned. It’s on your Profile.`,
+  /** Once, on the first solve: what the rewards are for (full review M14). */
+  firstWin: 'Every 3rd square you solve brings an avatar or a frame. Forge the ones you’re missing with Stardust.',
+  /** Once, when it's time to choose a side (3 solves, no affinity yet). */
+  chooseSide: 'Your squares can count for a side this month.',
   dailyRetry: 'Not solved yet. Try today’s square again: the day counts once you solve it.',
   tryAgain: 'Try again',
   calendar: 'Calendar',

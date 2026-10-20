@@ -46,6 +46,8 @@ export interface Account {
   lbHidden?: boolean;
   cardStats?: boolean;
   showcase?: string[];
+  /** Counted solves toward the next part, 0–2 of 3 (missing in old caches). */
+  partProgress?: number;
 }
 
 const ACCOUNT_KEY = 'elomental:account';
@@ -105,7 +107,7 @@ export async function refreshAccount(session?: Session | null): Promise<Account 
   const [{ data: profile, error }, { data: dailies }, { count: solved }, { data: mends }, { data: best }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('display_name, title, name_changed_at, elo, ranked_games, stardust, spirits, settings, affinity, plate, dev_mode, country, lb_hidden, card_stats, showcase')
+      .select('display_name, title, name_changed_at, elo, ranked_games, stardust, spirits, settings, affinity, plate, dev_mode, country, lb_hidden, card_stats, showcase, part_progress')
       .eq('id', s.user.id)
       .single(),
     supabase.from('games').select('date_key').eq('mode', 'daily').eq('won', true),
@@ -140,6 +142,7 @@ export async function refreshAccount(session?: Session | null): Promise<Account 
     lbHidden: !!profile.lb_hidden,
     cardStats: profile.card_stats !== false,
     showcase: profile.showcase ?? [],
+    partProgress: profile.part_progress ?? 0,
     bestElo: Math.max(profile.elo, (best?.[0]?.elo_after as number | undefined) ?? 0),
   };
   writeJson(ACCOUNT_KEY, account);
