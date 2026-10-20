@@ -105,10 +105,10 @@ export const ICONS = {
   /**
    * The loader: a squishy, hand-drawn square (soft even corners, gently bowed sides:
    * icons/build_loader.py) that hops, spins in the air and lands with a squash, then
-   * jiggles to a stop; its shadow shrinks while it's up (`.loader-*` in styles.css).
+   * jiggles to a stop (`.loader-*` in styles.css).
    * The hop and squash sit on the outer layer (anchored at the ground), the spin inside.
    */
-  loader: `<i class="loader-shadow"></i><span class="loader-hop"><svg class="loader-icon" viewBox="0 0 48 48" aria-hidden="true"><path fill="currentColor" d="M17.2,5.8 Q24.0,5.3 30.8,5.7 Q43.6,5.6 43.8,18.4 Q44.5,24.6 43.9,30.8 Q44.1,43.6 31.3,43.6 Q23.8,43.8 16.4,43.5 Q3.6,43.5 3.9,30.7 Q3.6,24.7 4.1,18.7 Q4.4,5.9 17.2,5.8 Z"/></svg></span>`,
+  loader: `<span class="loader-hop"><svg class="loader-icon" viewBox="0 0 48 48" aria-hidden="true"><path fill="currentColor" d="M17.2,5.8 Q24.0,5.3 30.8,5.7 Q43.6,5.6 43.8,18.4 Q44.5,24.6 43.9,30.8 Q44.1,43.6 31.3,43.6 Q23.8,43.8 16.4,43.5 Q3.6,43.5 3.9,30.7 Q3.6,24.7 4.1,18.7 Q4.4,5.9 17.2,5.8 Z"/></svg></span>`,
   mistake: figma(
     '0 0 19 18',
     '<path d="M15.6211 3.99512L17.4609 6.05957L18.3594 9.96484L16.0254 13.5107L14.9922 14.7227L13.332 14.9473V17.4609L12.793 18L11.0869 17.8203L10.459 15.082L9.56152 14.7227L9.91992 17.6406L6.86816 17.4609L5.83496 14.7227H5.02734L5.29688 17.1924H4.30957L3.77051 16.6982L3.14258 14.5439L1.30176 13.2871L0 10.5488V7.81055L1.70605 4.71289L5.16211 1.48145L5.65625 0.717773L9.91992 0L15.6211 3.99512ZM7.54199 10.458L6.68848 11.625V12.3887L7.31738 12.792L7.81055 12.3887L8.25977 12.6582L9.02246 12.3887V11.625L8.25977 10.458H7.54199ZM10.3242 4.39844L10.1006 5.07129L10.3242 5.9248L10.7285 6.23926L11.626 8.4834L10.4141 10.2783L10.3242 11.2217L11.1328 11.5801L11.8057 11.2217L12.8379 10.1885L13.9609 11.625L14.8584 11.5801L15.3076 10.8174L13.8711 8.34863L15.4414 5.9248L14.8584 5.07129L13.8711 5.65527L12.8379 6.64258C12.315 5.89561 11.2437 4.40369 11.1328 4.39844H10.3242ZM3.00781 5.65527L2.02051 7.27148L1.88574 8.61816L2.46973 10.1885L3.72656 11.2217H5.11719L6.375 9.875L6.86816 7.49609L6.15039 5.43066L4.71387 4.84766L3.00781 5.65527Z"/>',

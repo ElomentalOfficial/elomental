@@ -3215,17 +3215,6 @@ html.standalone .toast {
   overflow: visible;
   animation: loader-spin 1.3s infinite;
 }
-.loader-shadow {
-  position: absolute;
-  left: 8px;
-  right: 8px;
-  bottom: 3px;
-  height: 8px;
-  border-radius: 50%;
-  background: color-mix(in srgb, currentColor 30%, transparent);
-  filter: blur(1px);
-  animation: loader-shadow 1.3s infinite;
-}
 @keyframes loader-hop {
   0% {
     transform: none;
@@ -3283,32 +3272,8 @@ html.standalone .toast {
     transform: rotate(360deg);
   }
 }
-@keyframes loader-shadow {
-  0% {
-    transform: none;
-    opacity: 1;
-  }
-  11% {
-    transform: scaleX(1.15);
-  }
-  44% {
-    transform: scaleX(0.4);
-    opacity: 0.35;
-  }
-  71% {
-    transform: scaleX(1.3);
-    opacity: 1;
-  }
-  84% {
-    transform: scaleX(1.08);
-  }
-  100% {
-    transform: none;
-    opacity: 1;
-  }
-}
 /* Motion off: the square sits still (the text says it's loading). */
-html[data-reduce-motion] :is(.loader-hop, .loader-icon, .loader-shadow) {
+html[data-reduce-motion] :is(.loader-hop, .loader-icon) {
   animation: none;
 }/* ---------- Game ---------- */
 .game {
