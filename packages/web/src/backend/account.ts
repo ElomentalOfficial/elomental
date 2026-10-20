@@ -1,4 +1,5 @@
 import type { Session } from '@supabase/supabase-js';
+import type { Element } from '../profile.ts';
 import { applySettings, cleanSettings, localSettings, type Settings } from '../settings.ts';
 import { readJson, removeKey, writeJson } from '../storage.ts';
 import { captchaToken } from './captcha.ts';
@@ -24,6 +25,10 @@ export interface Account {
   crowns: number;
   /** Won daily squares, keyed YYYY-MM-DD. */
   daily: Record<string, true>;
+  /** The element the player fights for (null until chosen, after 3 solves). */
+  affinity: Element | null;
+  /** Squares solved, all modes. */
+  solved: number;
 }
 
 const ACCOUNT_KEY = 'elomental:account';
@@ -57,13 +62,14 @@ export async function refreshAccount(session?: Session | null): Promise<Account 
     }
     return null;
   }
-  const [{ data: profile, error }, { data: dailies }] = await Promise.all([
+  const [{ data: profile, error }, { data: dailies }, { count: solved }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('display_name, title, name_changed_at, elo, ranked_games, stardust, crowns, settings')
+      .select('display_name, title, name_changed_at, elo, ranked_games, stardust, crowns, settings, affinity')
       .eq('id', s.user.id)
       .single(),
     supabase.from('games').select('date_key').eq('mode', 'daily').eq('won', true),
+    supabase.from('games').select('id', { count: 'exact', head: true }).eq('won', true),
   ]);
   if (error || !profile) return cachedAccount();
   syncSettings(profile.settings);
@@ -78,6 +84,8 @@ export async function refreshAccount(session?: Session | null): Promise<Account 
     stardust: profile.stardust,
     crowns: profile.crowns,
     daily: Object.fromEntries((dailies ?? []).map((d) => [d.date_key as string, true as const])),
+    affinity: (profile.affinity ?? null) as Element | null,
+    solved: solved ?? 0,
   };
   writeJson(ACCOUNT_KEY, account);
   notify();

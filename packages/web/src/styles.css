@@ -482,6 +482,7 @@ h2 {
 .screen.daily,
 .screen.casual,
 .screen.forge,
+.screen.affinity,
 .screen.setup,
 .screen.game,
 .screen.loading {
@@ -502,6 +503,7 @@ h2 {
 .screen.daily.from-back,
 .screen.casual.from-back,
 .screen.forge.from-back,
+.screen.affinity.from-back,
 .screen.setup.from-back {
   animation-name: page-back-in;
 }
@@ -2312,6 +2314,14 @@ html[data-reduce-motion] .sword-live .sword-flame {
 .avatar-base {
   fill: var(--surface-2);
 }
+/* On Home the bare disc keeps the profile card's own colours (--avatar-bg, --avatar-ring). */
+.avatar-btn .avatar-base {
+  fill: var(--avatar-bg);
+}
+.avatar-ring {
+  stroke: var(--avatar-ring);
+  stroke-width: 6;
+}
 .avatar-art .el-fire { --el: var(--c-lava); }
 .avatar-art .el-earth { --el: var(--c-forest); }
 .avatar-art .el-air { --el: var(--c-mud); }
@@ -2387,6 +2397,93 @@ html[data-reduce-motion] .layer-aura .aura {
 .avatar-btn svg {
   width: 100%;
   height: 100%;
+}
+
+/* ---------- Choosing an affinity (screens/affinity.ts) ---------- */
+.affinity-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-bottom: var(--space-5);
+}
+.affinity-intro {
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+  color: var(--muted);
+  text-align: center;
+}
+.affinity-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+.affinity-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-3);
+  border: 0;
+  border-radius: 12px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  text-align: center;
+  cursor: pointer;
+}
+.affinity-art {
+  display: block;
+  width: 96px;
+  height: 96px;
+  margin-bottom: var(--space-1);
+}
+.affinity-confirm .affinity-art {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto var(--space-2);
+}
+.affinity-confirm {
+  text-align: center;
+}
+.affinity-name {
+  font-size: var(--fs-label);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.affinity-line {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.affinity-standing {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--space-1);
+  font-size: var(--fs-caption);
+  color: var(--muted);
+}
+.affinity-standing strong {
+  color: var(--text);
+}
+.affinity-tag {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: var(--fs-caption);
+  font-weight: 700;
+}
+.forge-affinity {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--serif);
+  font-size: var(--fs-small);
 }
 
 /* ---------- The Forge (screens/forge.ts) ---------- */
@@ -5229,6 +5326,7 @@ html[data-large-text] .shortcut-list {
   .screen.daily,
   .screen.casual,
   .screen.forge,
+  .screen.affinity,
   .screen.setup,
   .screen.loading {
     zoom: var(--wide-zoom, 1);

@@ -3,6 +3,8 @@ import { avatarSvg } from '../avatar.ts';
 import { cachedLoadout, loadLoadout } from '../backend/forge.ts';
 import { ICONS } from '../icons.ts';
 import { forgeScreen } from './forge.ts';
+import { affinityDue } from '../backend/affinity.ts';
+import { affinityScreen } from './affinity.ts';
 import { addToHomeNote, countNoteVisit } from '../install.ts';
 import { enableTilt, turnstileIn, turnstileOut } from '../motion.ts';
 import { loadProfile, rankTier, rankedTarget } from '../profile.ts';
@@ -134,6 +136,11 @@ export function homeScreen(): Screen {
     else requestAnimationFrame(enter);
   });
   setTimeout(() => handleClashLink((go) => leave(casual, go)), 420);
+  // After the third solved square: time to choose a side (once; again after the next solve
+  // if put off). Waits for the tiles to settle so it reads as the next step, not a jump.
+  setTimeout(() => {
+    if (el.isConnected && !leaving && affinityDue()) leave(profileCard, () => mount(affinityScreen()));
+  }, 900);
   setTimeout(() => void handleEmailLink(), 420);
 
   return { el, destroy: stopProfile };

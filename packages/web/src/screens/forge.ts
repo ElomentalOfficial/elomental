@@ -9,6 +9,7 @@ import {
   type Forge,
   type Part,
 } from '../backend/forge.ts';
+import { loadStandings, type Standing } from '../backend/affinity.ts';
 import { ICONS } from '../icons.ts';
 import { ELEMENTS, RARITIES, type Element, type Rarity } from '../profile.ts';
 import { componentName, partName } from '../reward.ts';
@@ -52,9 +53,10 @@ export function forgeScreen(): Screen {
   const body = h('div', { class: 'forge-body' }, h('p', { class: 'forge-status', text: copy.forge.loading }));
   const el = subPage({ className: 'forge', title: copy.forge.title, onBack: () => void goBack(homeScreen) }, body);
   let forge: Forge | null = null;
+  let standings: Standing[] | null = null;
 
   const refresh = async () => {
-    forge = await loadForge();
+    [forge, standings] = await Promise.all([loadForge(), loadStandings()]);
     render();
   };
 
@@ -72,6 +74,7 @@ export function forgeScreen(): Screen {
         'div',
         { class: 'forge-balances' },
         h('p', { class: 'forge-intro', text: copy.forge.intro }),
+        f.affinity ? affinityLine(f.affinity) : null,
         h('span', { class: 'balance' }, h('span', { html: ICONS.dust, attrs: { 'aria-hidden': 'true' } }), h('strong', { text: String(f.stardust) }), h('span', { text: copy.common.stardust })),
         h('span', { class: 'balance' }, h('span', { html: ICONS.crown, attrs: { 'aria-hidden': 'true' } }), h('strong', { text: String(f.crowns) }), h('span', { text: copy.common.crowns })),
       ),
@@ -95,6 +98,18 @@ export function forgeScreen(): Screen {
       ...groups,
       h('h2', { class: 'forge-heading', text: copy.forge.materialsTitle }),
       materials(f),
+    );
+  }
+
+  /** Your side and where it stands this month. */
+  function affinityLine(e: Element): HTMLElement {
+    const place = (standings?.findIndex((s) => s.affinity === e) ?? -1) + 1;
+    const name = copy.forge.elements[e];
+    return h(
+      'p',
+      { class: 'forge-affinity' },
+      h('span', { class: 'drop-element', html: ICONS.elements[e], attrs: { 'aria-hidden': 'true' } }),
+      h('span', { text: place ? copy.affinity.yours(name, copy.affinity.place(place)) : name }),
     );
   }
 

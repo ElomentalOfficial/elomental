@@ -249,6 +249,35 @@ export const forge = {
   a11yCount: (name: string, n: number) => `${name}: ${n}`,
 };
 
+// --- Affinities ----------------------------------------------------------------
+// docs/PROGRESSION_DESIGN.md §13: each player fights for one element in a monthly war.
+
+export const affinity = {
+  title: 'Your affinity',
+  intro: 'Every square you solve adds influence to your element. Each month the four pull against each other, and the winners’ members earn the most.',
+  /** One line of character per element; flavour only, no element plays differently. */
+  character: {
+    fire: 'Speed and nerve.',
+    water: 'Patience, the long line.',
+    earth: 'Steady, every day.',
+    air: 'A light touch, many squares.',
+  } as Record<string, string>,
+  thisMonth: 'This month',
+  place: (n: number) => ['1st', '2nd', '3rd', '4th'][n - 1] ?? `${n}th`,
+  members: (n: number) => (n === 1 ? '1 active player' : `${n} active players`),
+  average: (n: number) => `${n} influence each`,
+  needsYou: 'Needs you',
+  /** The card, read in full by screen readers. */
+  a11yCard: (element: string, line: string, place: string) => `${element}. ${line} ${place} this month.`,
+  confirmTitle: (element: string) => `Join ${element}?`,
+  confirmText: 'Its crest is yours, free. You can switch once per season, in its first 7 days.',
+  join: 'Join',
+  later: 'Decide later',
+  joined: (element: string) => `Welcome to ${element}.`,
+  /** The Forge's head: your side and where it stands. */
+  yours: (element: string, place: string) => `${element} · ${place} this month`,
+};
+
 // --- Results ---------------------------------------------------------------
 
 export const result = {
@@ -522,6 +551,12 @@ export const refusals = {
     not_signed_in: 'Sign in again to use the Forge.',
   } as Record<string, string>,
   forgeOffline: 'No connection. Nothing was spent; try again in a moment.',
+  /** choose_affinity */
+  affinity: {
+    too_soon: 'Solve 3 squares first, then choose your affinity.',
+    affinity_locked: 'Your affinity is set for this season. You can switch in the first 7 days of the next one.',
+    not_signed_in: 'Sign in again to choose your affinity.',
+  } as Record<string, string>,
 };
 
 // --- Setup -----------------------------------------------------------------

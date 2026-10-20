@@ -58,8 +58,9 @@ function layer(slot: Slot, id: string | null | undefined): string {
 /** The full avatar as an SVG string; an empty loadout is a plain disc. */
 export function avatarSvg(loadout: Loadout | null | undefined): string {
   const l = loadout ?? {};
+  // no backdrop yet: the plain disc with its ring, as before anything was forged
   return `<svg class="avatar-art${l.backdrop ? ' has-backdrop' : ''}" viewBox="0 0 100 100" aria-hidden="true">
-    <circle class="avatar-base" cx="50" cy="50" r="44"/>
+    <circle class="avatar-base" cx="50" cy="50" r="44"/>${l.backdrop ? '' : '<circle class="avatar-ring" cx="50" cy="50" r="41" fill="none"/>'}
     ${layer('aura', l.aura)}${layer('backdrop', l.backdrop)}${layer('sigil', l.sigil)}${layer('frame', l.frame)}${layer('crest', l.crest)}
   </svg>`;
 }
