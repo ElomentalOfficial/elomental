@@ -22,6 +22,55 @@ L more) and the batch it ships in.
 > Review (player emails) and Dev mode. That founder finishes setting up the authenticator, or the
 > email comes off `private.founders` until they do.
 
+## Outcome (updated at the end of Stage 4)
+
+Every batch below shipped, one commit each on `full-review`, with all checks passing after it
+(typecheck, `npm test`, `npm run test:db`, the Playwright + axe suite) and the batch's specialist
+review done. Main moved only by fast-forward, after you said "Push it".
+
+| Batch | State |
+| --- | --- |
+| B0 | Yours: the second founder's authenticator, and Turnstile in the dashboard |
+| B1, B2 | Live: `review_integrity`, `standings_empty_sides`, `daily_month_badge` |
+| B3 to B7 | Live (app only) |
+| B8 | Live: `leaderboard_paging_season` |
+| B9 | Live (app only). D1: the Store tile stays ("The Store opens soon.") |
+| B10 | Live: `economy_pace`, and `ranked_length` for D5 |
+| B11 | Live: `ranked_integrity` and the `audit-solve` Edge Function (v3). Ranked only, your call |
+| B12 | Live (app only) |
+| Stage 4 | R1 to R9 and L35 committed on `full-review`, not pushed. R8 is a migration, not applied live |
+
+### Stage 4 refactors
+
+| # | Done | How it was checked |
+| --- | --- | --- |
+| R1 | Five dead CSS blocks, `rankTitle`, four unread copy keys. The rest of the dead code named in CQ-4 had already gone with B8 to B12 | scripts list every class and export nothing uses |
+| L35 | Glued rules on their own lines; the two `.subbar` blocks in one | all checks |
+| R2 | `rpcData` / `rpcCall` in `backend/client.ts`; the leaderboard reads loadout, polish and follows through the backend. The account's key list stays written out: importing the keys made an import cycle that `signOut` avoids on purpose (follow-up commit) | all checks |
+| R3 | `controls.ts`: `segmented()`, `choice()`, `settingGroup()` in Setup, Accessibility, Leaderboard and card, Dev mode, the statement. The Leaderboard and Review tabs stay their own: tabs with counts, not settings | all checks |
+| R4 | `game.ts` 1,417 to 1,092 lines: `result.ts`, `wheel.ts`, `devBar.ts` | new `e2e/wheel.spec.ts`: no test drove the notes wheel before |
+| R5 | `styles.css` lists 24 files in `src/styles/` in cascade order, cut at the old section headings | the built CSS is byte for byte the same (same hash) |
+| R6 | Leaderboard (with the player profile), Leaderboard and card, and the founder screens load on first open; main script 456.6 to 428.8 kB. Home fetches the leaderboard ahead, so the tile still opens at once. New: offline, "No connection. This page needs the internet to open."; online after a failed load, a reload ("Loading the latest version of Elomental…") | a throwaway test: offline message, then recovery after reconnecting |
+| R7 | Seven PNGs as WebP, 618 to 145 kB: hand-cup, cog (both themes), feather, sword-body, plate-wear. Wallet, calendar and sword stay PNG (WebP saved too little at the quality bar) | 42 dB PSNR or better, alpha-weighted; side by side in WebKit and Chromium |
+| R8 | `finish_game` in seven private stages (migration `finish_game_stages`) | all 174 + 8 database checks; 600 random games played in a database without and one with the migration: identical replies and rows; backend-security-reviewer: safe to apply |
+| R9 | `supabase/tests/`: `harness.mjs`, ten area files, `run.mjs`, and `security.mjs` (the review's proofs, on today's schema) | the same 167 checks in the same order, plus 8 security checks |
+
+### Skipped, and why
+- **SEC-1 full fix for Casual, Daily and Clash** (the server holding their puzzles): you chose
+  Ranked only for B11. They stay on the B1 caps (one open Casual game, Stardust cap per day).
+- **C3 is narrowed, not closed:** a bot that plays at a human pace still passes the audit
+  until moves are recorded on the server.
+- **S7** (the verdict still visible in `finish_game`'s answer; the 20-flag cap per player): not
+  applied; low value next to B11's private audits.
+- **Territories in the country list:** need a whitelist migration; not worth one now.
+- **Home's name stays upper case:** the Home rule ("layout and tile look stay as they are").
+- **The coach finger's loop** stays: it teaches the gesture.
+- **B12 nice-to-haves:** the empty band between board and keypad on tall phones (a layout
+  question for the ux-reviewer), naming the bad character in a Square code, an error icon on
+  the lookalike line.
+- **MIN_MEDIAN_GAP** in `audit-solve` stays 700 ms until real games show how humans pace.
+- **Firefox:** it would not start on this machine, so the WebP icons were checked in WebKit and
+  Chromium only.
 ---
 
 ## How disagreements were settled
@@ -293,10 +342,18 @@ live only by you**. Full SQL drafts are in the specialist reports (sections name
 | D9 | A local guest's offline progress | A one-time note: "Games played offline stay on this phone" |
 
 ## Still needs a human
-- Testing on a real phone (iOS Safari and Android Chrome): the keyboard, the install flow, page turns.
-- A screen reader pass (VoiceOver and TalkBack) on the game, the result and the leaderboard.
+- Testing on a real phone (iOS Safari and Android Chrome): the keyboard, the install flow, page turns,
+  the notes wheel (long-press, slide, swipe), the Clash sheet's steps and Paste, and Text size at 200%.
+- A screen reader pass (VoiceOver and TalkBack) on the game, the result, the leaderboard, the Clash
+  sheet and Setup's option groups.
 - Confirming Turnstile and the Auth rate limits in the Supabase dashboard (not readable from SQL).
+- B0: the second founder finishes setting up the authenticator, or comes off `private.founders`.
+- Deleting the old `handoff` Edge Function in the dashboard (removed from the repo in B11).
+- After the first real Ranked wins: check `private.game_audits` shows the dealt puzzle matched,
+  and that `audit-solve`'s CPU time is fine at targets 1466 and 1800.
+- R8: applying `finish_game_stages` to the live project, when you approve it.
+- Opening the WebP icons once in Firefox.
 
 ---
 
-*Stage 2 ends here. Nothing has been fixed yet; waiting for approval of the batches above.*
+*Stage 2 ended with the plan above; the Outcome section at the top says what happened to it.*
