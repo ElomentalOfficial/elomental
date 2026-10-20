@@ -1,4 +1,7 @@
-// Replays every migration in PGlite (in-memory Postgres, no live database touched) with\n// Supabase stand-ins, then exercises the Phase 1 economy: drops with pity through\n// finish_game, influence, forging, refine, swap, equip, affinity choice and standings.\n// `npm run test:db`
+// Replays every migration in PGlite (in-memory Postgres, no live database touched) with
+// Supabase stand-ins, then exercises the economy: a part every 3rd rated solve with its
+// guarantees, duplicates, the daily limit, forging with Stardust, equip, affinity choice,
+// influence and standings. `npm run test:db`
 import { PGlite } from '@electric-sql/pglite';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -52,47 +55,44 @@ async function play(uid, mode, difficulty, opts = {}) {
 const fails = [];
 const check = (ok, what) => { console.log(ok ? '  ok ' : '  FAIL', what); if (!ok) fails.push(what); };
 
-// --- 1. drops, pity and pace over many games (spread over days so the cap doesn't bite)
+// --- 1. a part every 3rd solve, rarities, guarantees (spread over days so the limit doesn't bite)
 const a = await newPlayer();
-const tally = { scrap: 0, forged: 0, tempered: 0, runed: 0, starforged: 0 };
-let parts = 0, dupes = 0, maxGapTempered = 0, gap = 0, pityHits = 0;
-for (let i = 0; i < 600; i++) {
-  if (i % 20 === 0) await db.exec(`update public.drops set created_at = created_at - interval '1 day' where player_id = '${a}'`);
+const tally = { common: 0, rare: 0, epic: 0, mythic: 0 };
+let solves = 0, drops = 0, dupes = 0, gapEpic = 0, maxGapEpic = 0, gapMythic = 0, maxGapMythic = 0, progressOk = true;
+for (let i = 0; i < 900; i++) {
+  if (i % 20 === 0) await db.exec(`update public.games set finished_at = finished_at - interval '1 day' where user_id = '${a}'`);
   const j = await play(a, 'ranked', 'medium', { rating: 500 });
+  solves++;
+  if (!j.progress || j.progress.count !== solves % 3) progressOk = false;
   const d = j.drop;
+  if ((solves % 3 === 0) !== !!d) progressOk = false;
   if (!d) continue;
-  tally[d.rarity]++;
-  if (d.part) parts++;
+  drops++; tally[d.rarity]++;
   if (d.duplicate) dupes++;
-  if (d.pity) pityHits++;
-  gap = ['tempered', 'runed', 'starforged'].includes(d.rarity) ? 0 : gap + 1;
-  maxGapTempered = Math.max(maxGapTempered, gap);
+  gapEpic = d.rarity === 'epic' || d.rarity === 'mythic' ? 0 : gapEpic + 1; maxGapEpic = Math.max(maxGapEpic, gapEpic);
+  gapMythic = d.rarity === 'mythic' ? 0 : gapMythic + 1; maxGapMythic = Math.max(maxGapMythic, gapMythic);
 }
-const n = Object.values(tally).reduce((x, y) => x + y, 0);
-console.log('\n600 ranked solves ->', n, 'drops:', Object.entries(tally).map(([k, v]) => `${k} ${(v / n * 100).toFixed(1)}%`).join(', '));
-console.log('  relic parts', parts, 'duplicates', dupes, 'pity hits', pityHits);
-check(n === 600, 'every solve dropped (under the daily pace)');
-check(maxGapTempered <= 9, `never more than 9 drops without Tempered+ (longest ${maxGapTempered})`);
-check(tally.starforged >= 3, 'Starforged pity guarantees at least 3 in 600');
+console.log(`\n900 rated solves -> ${drops} parts:`, Object.entries(tally).map(([k, v]) => `${k} ${(v / drops * 100).toFixed(1)}%`).join(', '), `duplicates ${dupes}`);
+check(drops === 300 && progressOk, 'exactly every 3rd solve drops a part, and the counter matches');
+check(maxGapEpic <= 9, `Epic or better within 10 parts (longest wait ${maxGapEpic})`);
+check(maxGapMythic <= 24, `Mythic within 25 parts (longest wait ${maxGapMythic})`);
+const owned = (await db.query(`select count(*)::int n from public.player_parts where player_id = $1`, [a])).rows[0].n;
+check(owned === 48, `300 parts collect the whole 48-part set (${owned})`);
+const dupDust = (await db.query(`select coalesce(sum(stardust),0)::int s from public.drops where player_id = $1 and duplicate`, [a])).rows[0].s;
+check(dupDust > 0, `duplicates paid Stardust (${dupDust})`);
 
-// --- 2. daily pace: 60 solves in one day
+// --- 2. the daily limit: counting stops after 30 solves
 const b = await newPlayer();
-let dropsToday = 0;
-for (let i = 0; i < 60; i++) if ((await play(b, 'casual', 'medium')).drop) dropsToday++;
-console.log('\n60 solves in one day ->', dropsToday, 'drops');
-check(dropsToday >= 25 && dropsToday <= 50, 'pace: 25 full, then about 1 in 3, none after 50');
+let partsToday = 0, lastProgress = null;
+for (let i = 0; i < 40; i++) { const j = await play(b, 'casual', 'medium'); if (j.drop) partsToday++; if (j.progress) lastProgress = j.progress; else lastProgress = 'stopped'; }
+check(partsToday === 10 && lastProgress === 'stopped', `40 solves in one day: 10 parts, then counting stops (${partsToday})`);
 
-// --- 3. Casual Easy caps at Forged
+// --- 3. losses and unrated: nothing counts
 const c = await newPlayer();
-const easy = new Set();
-for (let i = 0; i < 40; i++) easy.add((await play(c, 'casual', 'easy')).drop?.rarity);
-check(![...easy].some((r) => ['tempered', 'runed', 'starforged'].includes(r)), `Casual Easy only Scrap/Forged (${[...easy].join(', ')})`);
-
-// --- 4. losses and unrated: no drop
 const lost = await play(c, 'ranked', 'medium', { won: false });
-check(lost.drop === null, 'a loss drops nothing');
+check(lost.drop === null && lost.progress === null, 'a loss counts for nothing');
 
-// --- 5. affinity: too soon, choose, influence, crest
+// --- 4. affinity: too soon, choose, influence, crest
 const d0 = await newPlayer();
 await as(d0);
 let err = null;
@@ -108,48 +108,37 @@ const inf = await play(d0, 'daily', 'medium', { date: '2026-10-20' });
 check(inf.influence?.affinity === 'water' && inf.influence.amount === 5, `daily clean solve: +5 influence (${JSON.stringify(inf.influence)})`);
 await as(d0);
 const st = (await db.query(`select * from public.affinity_standings() order by affinity`)).rows;
-console.log('  standings', st.map((r) => `${r.affinity}:${r.members}/${r.influence}/${r.standing}`).join(' '));
 check(st.find((r) => r.affinity === 'water').members === 1, 'standings count the member');
 
-// --- 6. forging, refine, swap, equip (give player A plenty of Stardust and Crowns)
-await db.exec(`update public.profiles set stardust = 100000, crowns = 10 where id = '${a}'`);
-await as(a);
-const comps = (await db.query(`select element, rarity, qty from public.player_components where player_id = $1 order by element, rarity`, [a])).rows;
-console.log('\nplayer A components:', comps.map((r) => `${r.element}.${r.rarity}=${r.qty}`).join(' '));
-const forgeable = (await db.query(`
-  select pt.id from public.parts pt join public.recipes r on r.part_id = pt.id
-  where pt.rarity = 'forged' and not exists (select 1 from public.player_parts pp where pp.player_id = $1 and pp.part_id = pt.id)
-    and (select coalesce(qty,0) from public.player_components c where c.player_id = $1 and c.element = pt.element and c.rarity = 'scrap') >= 10
-    and (select coalesce(qty,0) from public.player_components c where c.player_id = $1 and c.element = pt.element and c.rarity = 'forged') >= 4
-  limit 1`, [a])).rows[0]?.id;
-check(!!forgeable, `a Forged part is forgeable (${forgeable})`);
-if (forgeable) {
-  const before = (await db.query(`select stardust from public.profiles where id = $1`, [a])).rows[0].stardust;
-  await db.query(`select public.forge_part($1)`, [forgeable]);
-  const after = (await db.query(`select stardust from public.profiles where id = $1`, [a])).rows[0].stardust;
-  check(before - after === 80, 'forging a Forged part costs 80 Stardust');
-  err = null; try { await db.query(`select public.forge_part($1)`, [forgeable]); } catch (e) { err = e.message; }
-  check(err?.includes('already_owned'), 'cannot forge it twice');
-  await db.query(`select public.equip_part('${forgeable.split('-')[1]}', $1)`, [forgeable]);
-  const eq = (await db.query(`select * from public.avatar_loadouts where player_id = $1`, [a])).rows[0];
-  check(Object.values(eq).includes(forgeable), 'equipped it');
-}
-err = null; try { await db.query(`select public.equip_part('sigil', 's0-sigil-fire-2')`); } catch (e) { err = e.message; }
-const ownsRuned = (await db.query(`select 1 from public.player_parts where player_id = $1 and part_id = 's0-sigil-fire-2'`, [a])).rows.length;
-check(ownsRuned || err?.includes('not_owned'), 'cannot equip a part you do not own');
-const scrapFire = (await db.query(`select qty from public.player_components where player_id = $1 and element = 'fire' and rarity = 'scrap'`, [a])).rows[0].qty;
-await db.query(`select public.refine_components('fire', 'scrap', 2)`);
-const scrapAfter = (await db.query(`select qty from public.player_components where player_id = $1 and element = 'fire' and rarity = 'scrap'`, [a])).rows[0].qty;
-check(scrapFire - scrapAfter === 10, 'refine x2 takes 10 Scrap');
-await db.query(`select public.swap_components('fire', 'air', 'scrap', 1)`);
-const ledger = (await db.query(`select reason, count(*)::int n from private.ledger where player_id = $1 group by reason order by reason`, [a])).rows;
-console.log('  ledger', ledger.map((r) => `${r.reason}:${r.n}`).join(' '));
-check(ledger.some((r) => r.reason === 'forge') && ledger.some((r) => r.reason === 'refine') && ledger.some((r) => r.reason === 'swap'), 'ledger records forge, refine, swap');
+// --- 5. forging with Stardust, equip
+const e0 = await newPlayer();
+for (let i = 0; i < 3; i++) await play(e0, 'casual', 'medium');
+await db.exec(`update public.profiles set stardust = 2000, crowns = 0 where id = '${e0}'`);
+await as(e0);
+const common = (await db.query(`select id from public.parts where rarity = 'common' and source = 'craft' and id not in (select part_id from public.player_parts where player_id = $1) limit 1`, [e0])).rows[0].id;
+await db.query(`select public.forge_part($1)`, [common]);
+const sd = (await db.query(`select stardust from public.profiles where id = $1`, [e0])).rows[0].stardust;
+check(sd === 1900, `forging a Common costs 100 Stardust (${2000 - sd})`);
+err = null; try { await db.query(`select public.forge_part($1)`, [common]); } catch (e) { err = e.message; }
+check(err?.includes('already_owned'), 'cannot forge it twice');
+const mythic = (await db.query(`select id from public.parts where rarity = 'mythic' limit 1`)).rows[0].id;
+err = null; try { await db.query(`select public.forge_part($1)`, [mythic]); } catch (e) { err = e.message; }
+check(err?.includes('not_enough_stardust'), 'Mythic needs a Rusted Crown too');
+await db.exec(`update public.profiles set crowns = 1 where id = '${e0}'`);
+await db.query(`select public.forge_part($1)`, [mythic]);
+const after = (await db.query(`select stardust, crowns from public.profiles where id = $1`, [e0])).rows[0];
+check(after.stardust === 700 && after.crowns === 0, `Mythic: 1200 Stardust and a Crown (${JSON.stringify(after)})`);
+await db.query(`select public.equip_part('${common.split('-')[1]}', $1)`, [common]);
+const eq = (await db.query(`select * from public.avatar_loadouts where player_id = $1`, [e0])).rows[0];
+check(Object.values(eq).includes(common), 'equipped it');
 
-// --- 7. a client can't write the tables directly
+// --- 6. catalogue and access
+const cat = (await db.query(`select rarity, count(*)::int n from public.parts where source = 'craft' group by rarity order by rarity`)).rows;
+console.log('  catalogue', cat.map((r) => `${r.rarity}:${r.n}`).join(' '));
+check(JSON.stringify(cat) === JSON.stringify([{ rarity: 'common', n: 16 }, { rarity: 'epic', n: 10 }, { rarity: 'mythic', n: 6 }, { rarity: 'rare', n: 16 }]), 'Season 0: 16 Common, 16 Rare, 10 Epic, 6 Mythic');
 await db.exec(`set role authenticated`);
-err = null; try { await db.exec(`update public.player_components set qty = 999`); } catch (e) { err = e.message; }
-check(!!err, `players cannot write their inventory (${err?.slice(0, 40)})`);
+err = null; try { await db.exec(`update public.player_parts set part_id = part_id`); } catch (e) { err = e.message; }
+check(!!err, `players cannot write their parts (${err?.slice(0, 40)})`);
 await db.exec(`reset role`);
 
 console.log(fails.length ? `\n${fails.length} FAILED` : '\nall checks passed');
