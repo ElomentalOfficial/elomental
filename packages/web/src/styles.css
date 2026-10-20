@@ -926,7 +926,7 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   isolation: isolate;
 }
 /* A light, even noise over each tile's surface, so the flat colour looks a little rough
-   (art/grain.webp, plain grey noise from icons/make-grain.mjs, baked at 2x), overlay-blended
+   (art/grain.webp, plain blurred grey noise from icons/make-grain.mjs, shown a bit larger than baked), overlay-blended
    into the tile's colour, under the frame. */
 .home-grid > .tile::before,
 .tile-setup::before,
@@ -936,9 +936,9 @@ html[data-reduce-motion] .welcome.flipping .welcome-art {
   inset: 0;
   z-index: -1;
   border-radius: inherit;
-  background: url('./art/grain.webp') 0 0 / 320px 320px;
+  background: url('./art/grain.webp') 0 0 / 448px 448px;
   mix-blend-mode: overlay;
-  opacity: 0.22;
+  opacity: 0.16;
   pointer-events: none;
 }
 .home-grid > .tile::after,
