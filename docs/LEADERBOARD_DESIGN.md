@@ -92,12 +92,14 @@ Mistakes to avoid:
 ```
 The list column is capped at the phone column width × 1.4 so lines stay short; the right column holds what the phone puts in sheets.
 
-### 3.3 Affinity tug of war (a live visual)
+### 3.3 The affinities this month (strength bar)
 
-- A real tug of war (`tug.ts`): the four elements sit in the corners, each pulling a rope tied to one knot in the middle. The knot settles towards the sides that lead this month (by how far they lead, measured in **standing**: influence per active player, which is how the month is won). A strong side's rope is thick, taut and reels in; a weak side's is thin and sags. The knot strains towards the leader and back, gently, all the time. Still at its final pose under Reduce motion.
-- Under it, the same in words: a four-column legend (element, standing; the leader highlighted) and "Influence per active player this month".
-- Then: "Fire leads Water by 12%", "11 days left · Winners get a badge and 300 Stardust", and yours: "You: +54 influence this month · 12th in Fire" (or "Choose an affinity to join in").
-- Details → sheet: the four elements with members, total influence and standing; the prize; last month's winner; **top 10 in your affinity** (hidden players left out).
+- The leader first: its element mark on its colour, its name, "Leading", and its share (30%).
+- One bar of four segments, strongest first, each as wide as its share of **strength**, the side's influence per active player (how the month is won, so small sides can still win), over the four together; the shares are rounded to add to exactly 100%.
+- Under it, the four sides named with their shares; then "Strength: each side's influence per active player, as a share of 100%. The strongest side wins the month."
+- Then "12 days left · Winners get a badge and 300 Stardust", and yours: "You: +54 influence · 12th in Fire" (or "Choose an affinity to join in").
+- Element colours sit only on shapes; all text is in the text colour, so it reads on every surface.
+- Details → sheet: the four elements with members, total influence and per-player strength; the prize; last month's winner; **top 10 in your affinity** (hidden players left out).
 ### 3.4 Search
 
 - A field at the top. Typing (3+ characters, after 300 ms pause) searches names: prefix matches first, then similar names (typo tolerant, trigram similarity), up to 20 results; each shows avatar, name, rank, place.
@@ -186,7 +188,7 @@ Why: ranking hundreds of thousands of players on every request is expensive and 
 - `packages/web/src/playerCard.ts`: the show-off card (also used by the full profile of another player).
 - `packages/web/src/screens/privacy.ts`: Setup > Leaderboard and card (country, hide me, stats, country on card).
 - Profile: a Badges section (every badge you own; choose the three on your card).
-- `packages/web/src/badges.ts`: badge medals (vector) and names; `packages/web/src/tug.ts`: the tug of war.
+- `packages/web/src/badges.ts`: badge medals (vector) and names.
 - Tests: `supabase/tests/economy.mjs` (ranks, around-me, privacy, follows, search, settlement), e2e a11y.
 
 ## 7. States and readability

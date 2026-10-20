@@ -822,7 +822,6 @@ export const leaderboard = {
 
   // The affinities this month
   affinitiesOf: (month: string) => `Affinities · ${month}`,
-  leads: (a: string, b: string, pct: number) => `${a} leads ${b} by ${pct}%`,
   level: 'Level so far: nobody leads yet.',
   nobody: 'No influence yet this month.',
   daysLeft: (d: number) => (d <= 1 ? 'Last day' : `${d} days left`),
@@ -830,9 +829,10 @@ export const leaderboard = {
   yours: (n: number, place: number, element: string) => `You: +${n} influence · ${ORDINAL(place)} in ${element}`,
   yoursNone: (element: string) => `You: no influence yet for ${element} this month`,
   joinIn: 'Choose an affinity to join in',
-  a11yBar: (parts: string) => `This month, influence per active player: ${parts}`,
-  legendNote: 'Influence per active player this month',
-  a11yPart: (element: string, standing: number) => `${element} ${standing}`,
+  leading: 'Leading',
+  noLeader: 'Nobody yet',
+  strengthNote: 'Strength: each side’s influence per active player, as a share of 100%. The strongest side wins the month.',
+  a11yStrength: (parts: string) => `Strength this month: ${parts}`,
   details: 'Details',
   sheetTitle: (month: string) => `Affinities in ${month}`,
   sheetIntro: 'Every square solved adds influence to its player’s affinity. The side with the most influence per active player wins the month.',

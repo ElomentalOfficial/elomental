@@ -5928,89 +5928,111 @@ button.plate-card {
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
-/* The tug of war (tug.ts): four corners pulling one knot. */
-.lb-tug-wrap {
-  margin: var(--space-1) calc(-1 * var(--space-2)) 0;
+/* The month's strength (leaderboard.ts): the leader, one bar of four shares adding to 100%,
+   and each side named with its share. Element colours sit only on shapes; all the text is
+   in the text colour, so it reads on every surface. */
+.lb-leader {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-1);
 }
-.tug {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
+.lb-leader-mark {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--el, var(--surface-2));
+  color: var(--c-bright);
 }
-.tug .el-fire { --el: var(--el-fire); }
-.tug .el-water { --el: var(--el-water); }
-.tug .el-earth { --el: var(--el-earth); }
-.tug .el-air { --el: var(--el-air); }
-.tug-rope {
-  fill: none;
-  stroke: var(--el);
-  stroke-linecap: round;
+.lb-leader-mark svg {
+  width: 24px;
+  height: 24px;
 }
-/* the rope's twist, running towards the side that pulls */
-.tug-strands {
-  fill: none;
-  stroke: var(--c-bright);
-  stroke-opacity: 0.35;
-  stroke-dasharray: 2 5;
-  stroke-linecap: round;
+.lb-leader-name {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
-.tug-orb circle {
-  fill: var(--el);
-  stroke: var(--surface);
-  stroke-width: 3;
+.lb-leader-name strong {
+  font-size: var(--fs-label);
 }
-.tug-orb g {
-  stroke: var(--c-bright);
+.lb-leader-name span {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
 }
-.tug-orb.lead circle {
-  stroke: var(--c-bright);
-  stroke-width: 2.5;
+.lb-leader-pct {
+  font-size: var(--fs-display);
+  font-variant-numeric: tabular-nums;
 }
-.tug-knot circle {
-  fill: var(--text);
+.lb-strength {
+  display: flex;
+  gap: 4px;
+  height: 20px;
 }
-.tug-knot .tug-knot-core {
-  fill: var(--surface);
+.strength-seg {
+  flex-basis: 0;
+  min-width: 10px;
+  border-radius: 999px;
+  background: var(--el);
+  transition: flex-grow 0.8s cubic-bezier(0.2, 0.8, 0.3, 1);
 }
-/* the same in words: each side and its influence per player */
-.lb-tug-legend {
+html[data-reduce-motion] .strength-seg {
+  transition: none;
+}
+.lb-faction .el-fire,
+.lb-strength-legend .el-fire { --el: var(--el-fire); }
+.lb-faction .el-water,
+.lb-strength-legend .el-water { --el: var(--el-water); }
+.lb-faction .el-earth,
+.lb-strength-legend .el-earth { --el: var(--el-earth); }
+.lb-faction .el-air,
+.lb-strength-legend .el-air { --el: var(--el-air); }
+.lb-strength-legend {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-1);
+  gap: var(--space-2);
   margin: 0;
   padding: 0;
   list-style: none;
 }
-.lb-tug-legend li {
+.lb-strength-legend li {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 2px;
-  padding: var(--space-1) 0;
-  border-radius: 8px;
+  min-width: 0;
+}
+.strength-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-family: var(--serif);
   font-size: var(--fs-small);
 }
-.lb-tug-legend li.lead {
-  background: var(--surface-2);
-  font-weight: 700;
-}
-.lb-tug-legend strong {
-  font-family: var(--font);
-  font-size: var(--fs-body);
-  font-variant-numeric: tabular-nums;
-}
-.tug-dot svg {
-  display: block;
+.strength-dot {
+  display: grid;
+  place-items: center;
   width: 18px;
   height: 18px;
+  border-radius: 50%;
+  background: var(--el);
+  color: var(--c-bright);
+  flex: none;
 }
-.lb-legend-note {
+.strength-dot svg {
+  width: 12px;
+  height: 12px;
+}
+.lb-strength-legend strong {
+  font-size: var(--fs-label);
+  font-variant-numeric: tabular-nums;
+}.lb-legend-note {
   font-family: var(--serif);
   font-size: var(--fs-small);
   color: var(--muted);
-  text-align: center;
 }.lb-lead {
   font-size: var(--fs-label);
   font-weight: 700;

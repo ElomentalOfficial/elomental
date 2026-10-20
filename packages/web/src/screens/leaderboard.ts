@@ -17,7 +17,6 @@ import { ICONS } from '../icons.ts';
 import { paintPlate } from '../plates.ts';
 import { cardAvatar, openPlayerCard } from '../playerCard.ts';
 import { ELEMENTS, rankTier, type Element } from '../profile.ts';
-import { tugOfWar } from '../tug.ts';
 import { readJson, writeJson } from '../storage.ts';
 import { closeButton, goBack, h, mount, openModal, subPage, type Screen } from '../ui.ts';
 import { affinityScreen } from './affinity.ts';
@@ -311,26 +310,46 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
     faction.replaceChildren(...factionContent(b));
   }
 
+  /**
+   * Strength as shares of 100%: each side's influence per active player (how the month is
+   * won), over the four together, rounded so they always add up to exactly 100.
+   */
+  function shares(standings: FactionBoard['standings']): Map<Element, number> {
+    const sum = standings.reduce((n, s) => n + Math.max(0, Number(s.standing)), 0);
+    const out = new Map<Element, number>();
+    if (sum === 0) return out;
+    const raw = standings.map((s) => ({ e: s.affinity, v: (Math.max(0, Number(s.standing)) / sum) * 100 }));
+    const floors = raw.map((r) => ({ ...r, f: Math.floor(r.v) }));
+    let left = 100 - floors.reduce((n, r) => n + r.f, 0);
+    for (const r of [...floors].sort((x, y) => (y.v - y.f) - (x.v - x.f))) if (left-- > 0) r.f++;
+    for (const r of floors) out.set(r.e, r.f);
+    return out;
+  }
+
   function factionContent(b: FactionBoard): HTMLElement[] {
-    const standings = [...b.standings].sort((x, y) => ELEMENTS.indexOf(x.affinity) - ELEMENTS.indexOf(y.affinity));
-    const sum = standings.reduce((n, s) => n + Number(s.standing), 0);
-    const ranked = [...b.standings].sort((x, y) => Number(y.standing) - Number(x.standing));
-    const [first, second] = ranked;
     const name = (e: Element) => copy.forge.elements[e];
-    const lead = sum === 0
-      ? t.nobody
-      : Number(first.standing) === Number(second.standing)
-        ? t.level
-        : t.leads(name(first.affinity), name(second.affinity), Number(second.standing) > 0 ? Math.round(((Number(first.standing) - Number(second.standing)) / Number(second.standing)) * 100) : 100);
+    const pct = shares(b.standings);
+    // strongest first, like the bar reads: the leader on the left
+    const ranked = [...b.standings].sort((x, y) => (pct.get(y.affinity) ?? 0) - (pct.get(x.affinity) ?? 0) || ELEMENTS.indexOf(x.affinity) - ELEMENTS.indexOf(y.affinity));
+    const first = ranked[0];
+    const tied = !pct.size || pct.get(first.affinity) === pct.get(ranked[1].affinity);
     const days = Math.max(1, Math.ceil((new Date(b.endsAt).getTime() - Date.now()) / 86_400_000));
-    // the tug of war, live (tug.ts), then the same in words: each side and its influence per player
-    const visual = h('div', { class: 'lb-tug-wrap', attrs: { role: 'img', 'aria-label': t.a11yBar(standings.map((s) => t.a11yPart(name(s.affinity), Number(s.standing))).join(', ')) } });
-    visual.append(tugOfWar(standings));
-    const legend = h('ul', { class: 'lb-tug-legend', attrs: { 'aria-hidden': 'true' } },
-      ...standings.map((s) => h('li', { class: `el-${s.affinity}${sum > 0 && s.affinity === first.affinity ? ' lead' : ''}` },
-        h('span', { class: 'tug-dot', html: ICONS.elements[s.affinity] }),
-        h('span', { text: name(s.affinity) }),
-        h('strong', { text: String(Number(s.standing)) }))));    const mine = b.mine
+
+    const head = h('div', { class: `lb-leader${tied ? '' : ` el-${first.affinity}`}` },
+      h('span', { class: 'lb-leader-mark', html: tied ? ICONS.dust : ICONS.elements[first.affinity], attrs: { 'aria-hidden': 'true' } }),
+      h('span', { class: 'lb-leader-name' }, h('strong', { text: tied ? t.noLeader : name(first.affinity) }), h('span', { text: tied ? (pct.size ? t.level : t.nobody) : t.leading })),
+      tied ? null : h('strong', { class: 'lb-leader-pct', text: `${pct.get(first.affinity)}%` }));
+    const bar = h('div', { class: 'lb-strength', attrs: { role: 'img', 'aria-label': t.a11yStrength(ranked.map((s) => `${name(s.affinity)} ${pct.get(s.affinity) ?? 25}%`).join(', ')) } },
+      ...ranked.map((s) => {
+        const seg = h('span', { class: `strength-seg el-${s.affinity}` });
+        seg.style.flexGrow = String(pct.size ? Math.max(pct.get(s.affinity) ?? 0, 1) : 25);
+        return seg;
+      }));
+    const legend = h('ul', { class: 'lb-strength-legend', attrs: { 'aria-hidden': 'true' } },
+      ...ranked.map((s) => h('li', { class: `el-${s.affinity}` },
+        h('span', { class: 'strength-name' }, h('span', { class: 'strength-dot', html: ICONS.elements[s.affinity] }), h('span', { text: name(s.affinity) })),
+        h('strong', { text: pct.size ? `${pct.get(s.affinity)}%` : '–' }))));
+    const mine = b.mine
       ? b.myInfluence > 0 && b.myPlace
         ? t.yours(b.myInfluence, b.myPlace, name(b.mine))
         : t.yoursNone(name(b.mine))
@@ -339,17 +358,16 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
       h('div', { class: 'lb-faction-head' },
         h('h2', { text: t.affinitiesOf(monthName(b.month)) }),
         h('button', { class: 'link-btn', text: t.details, attrs: { type: 'button' }, onclick: () => openFaction(b) })),
-      visual,
+      head,
+      bar,
       legend,
-      h('p', { class: 'lb-legend-note', text: t.legendNote }),
-      h('p', { class: 'lb-lead', text: lead }),
+      h('p', { class: 'lb-legend-note', text: t.strengthNote }),
       h('p', { class: 'lb-faction-line', text: `${t.daysLeft(days)} · ${t.prize}` }),
       mine
         ? h('p', { class: 'lb-faction-mine', text: mine })
         : h('button', { class: 'link-btn', text: t.joinIn, attrs: { type: 'button' }, onclick: () => mount(affinityScreen()) }),
     ];
   }
-
   function openFaction(b: FactionBoard) {
     const name = (e: Element) => copy.forge.elements[e];
     const ranked = [...b.standings].sort((x, y) => Number(y.standing) - Number(x.standing));
