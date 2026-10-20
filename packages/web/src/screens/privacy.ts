@@ -16,6 +16,8 @@ const CODES = 'AD AE AF AG AL AM AO AR AT AU AZ BA BB BD BE BF BG BH BI BJ BN BO
 export function privacyScreen(back: () => Screen = setupScreen): Screen {
   const t = copy.privacy;
   const account = cachedAccount();
+  // repaint on account changes while the page is open; let go of them when it closes
+  const unsubscribes: (() => void)[] = [];
   // the country: a field that opens a picker sheet (search, then a padded list)
   const countryField = h('button', { class: 'text-field picker-field', attrs: { type: 'button', 'aria-haspopup': 'dialog' } });
   const paintCountry = () => {
@@ -25,7 +27,7 @@ export function privacyScreen(back: () => Screen = setupScreen): Screen {
     countryField.setAttribute('aria-label', t.a11yCountry(label));
   };
   paintCountry();
-  onAccountChange(paintCountry);
+  unsubscribes.push(onAccountChange(paintCountry));
   countryField.addEventListener('click', () => openCountryPicker(cachedAccount()?.country ?? null, (code) => {
     void setCountry(code).then((err) => {
       toast(err ?? t.saved);
@@ -44,7 +46,7 @@ export function privacyScreen(back: () => Screen = setupScreen): Screen {
       b.setAttribute('aria-checked', String(on));
     });
     paint();
-    onAccountChange(paint);
+    unsubscribes.push(onAccountChange(paint));
     return h('div', { class: 'segmented cols-2', attrs: { role: 'radiogroup', 'aria-labelledby': id } }, ...buttons);
   };
   const choice = (id: string, title: string, help: string, control: HTMLElement) =>
@@ -59,7 +61,7 @@ export function privacyScreen(back: () => Screen = setupScreen): Screen {
         choice('privacy-listed', t.listed, t.listedHelp, onOff('privacy-listed', () => !cachedAccount()?.lbHidden, (v) => setCardPrivacy(!v, null))),
         choice('privacy-stats', t.stats, t.statsHelp, onOff('privacy-stats', () => cachedAccount()?.cardStats !== false, (v) => setCardPrivacy(null, v))))),
   );
-  return { el, title: t.title };
+  return { el, title: t.title, destroy: () => unsubscribes.forEach((off) => off()) };
 }
 
 /** The country list as a sheet: a search field, then every country, the chosen one ticked. */

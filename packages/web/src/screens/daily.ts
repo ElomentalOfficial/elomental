@@ -187,7 +187,7 @@ export function dailyScreen(): Screen {
   const prefix = today.slice(0, 8);
   const mendsLeft = account ? Math.max(0, MENDS_A_MONTH - Object.keys(mended).filter((k) => k.startsWith(prefix)).length) : 0;
 
-  const saved = loadSavedGame();
+  const saved = loadSavedGame('daily');
   const resumable = saved?.config.mode === 'daily' && saved.config.dateKey === today ? saved : null;
   const doneToday = !!profile.daily[today];
   const playToday = () =>

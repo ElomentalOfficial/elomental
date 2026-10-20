@@ -26,7 +26,7 @@ import * as copy from '../copy/en.ts';
  * link; their result (if any) is already stored by then.
  */
 export function openClash(leave: (go: () => void) => void, prefill = '') {
-  const saved = loadSavedGame();
+  const saved = loadSavedGame('clash');
   const play = (code: string) => {
     const record = getClash(code);
     close();

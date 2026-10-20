@@ -59,6 +59,7 @@ import {
 import { signUpForm } from '../accountForm.ts';
 import { addToHomeResultNote } from '../install.ts';
 import { devOn } from '../backend/dev.ts';
+import { dropPending, flushPending, keepPending, markSending, pendingResults } from '../backend/pending.ts';
 import { runHintCoach } from '../hintCoach.ts';
 import { runTutorial, tutorialDone, type TutorialStep } from '../tutorial.ts';
 import { formatSeconds, formatTime, goBack, h, hiddenHeading, mount, openModal, toast, type Screen } from '../ui.ts';
@@ -113,7 +114,12 @@ export interface SavedGame {
 /** Ranked and Clash allow this many pauses per game (the server enforces it too). */
 const MAX_PAUSES = 3;
 
-const SAVE_KEY = 'elomental:game';
+/**
+ * One saved game per mode (full review H4), so starting a Casual game never replaces a paused
+ * Ranked one. `elomental:game` was the single slot before; loadSavedGame moves it over.
+ */
+export const SAVE_PREFIX = 'elomental:game';
+const saveKey = (mode: Mode) => `${SAVE_PREFIX}:${mode}`;
 const MAX_MISTAKES = 3;
 /** Hints per game, in every mode. Each one trims Stardust; in Ranked it also costs Elo (profile.ts). */
 const MAX_HINTS = 3;
@@ -122,8 +128,14 @@ const LONG_PRESS_MS = 230;
 /** Or drag this far from the square to open it immediately (swipe-to-note). */
 const SWIPE_START = 14;
 
-export function loadSavedGame(): SavedGame | null {
-  const saved = readJson<SavedGame>(SAVE_KEY);
+/** The game of this mode in progress on this phone, if any. */
+export function loadSavedGame(mode: Mode): SavedGame | null {
+  const single = readJson<SavedGame>(SAVE_PREFIX);
+  if (single) {
+    writeJson(saveKey(single.config.mode), single);
+    removeKey(SAVE_PREFIX);
+  }
+  const saved = readJson<SavedGame>(saveKey(mode));
   if (saved) saved.hints ??= 0;
   return saved;
 }
@@ -170,6 +182,15 @@ export async function startGame(options: {
   if (shared && !options.square?.code) options = { ...options, difficulty: shared.difficulty };
   let server: ServerStart | undefined;
   if (signedIn()) {
+    // A result still waiting on this phone goes first: starting Ranked would otherwise
+    // forfeit a solved game as a loss, and a new Casual or Clash game would close it.
+    if (pendingResults().length) {
+      const { left } = await flushPending();
+      if (left) {
+        toast(copy.game.pendingStillWaiting);
+        return show(options.mode === 'daily' ? dailyScreen : homeScreen);
+      }
+    }
     // Signed in: the server picks the seed (and Ranked's difficulty) and starts the clock.
     try {
       server = await startServerGame({
@@ -219,7 +240,7 @@ export async function startGame(options: {
       startedAt: Date.now(),
       history: [],
     };
-    writeJson(SAVE_KEY, game);
+    writeJson(saveKey(game.config.mode), game);
     show(() => gameScreen(game));
   } catch (error) {
     console.error(error);
@@ -416,7 +437,7 @@ function gameScreen(game: SavedGame): Screen {
 
   // --- State changes -------------------------------------------------------
   const save = () => {
-    if (!finished) writeJson(SAVE_KEY, game);
+    if (!finished) writeJson(saveKey(config.mode), game);
   };
 
   function commit(changes: Change[]) {
@@ -667,7 +688,10 @@ function gameScreen(game: SavedGame): Screen {
       let left = MAX_PAUSES - used - 1;
       if (config.serverId) {
         const serverLeft = await pauseServerGame(config.serverId);
-        if (serverLeft === null) return toast(copy.game.noPausesLeft);
+        if (serverLeft === 'none') return toast(copy.game.noPausesLeft);
+        // didn't reach the server: the clock runs on there, so it runs on here and no pause is used
+        if (serverLeft === 'failed') return toast(copy.game.pauseFailed);
+        if (serverLeft === 'closed') return toast(copy.game.pauseClosed);
         left = serverLeft;
       }
       game.pauses = MAX_PAUSES - left;
@@ -819,7 +843,7 @@ function gameScreen(game: SavedGame): Screen {
     if (finished) return;
     finished = true;
     tick();
-    removeKey(SAVE_KEY);
+    removeKey(saveKey(config.mode));
     selected = -1;
     focusDigit = 0;
     render();
@@ -848,21 +872,32 @@ function gameScreen(game: SavedGame): Screen {
       });
       return { outcome };
     }
-    // A Ranked win only counts once the server has replayed the solve (see auditServerGame).
-    if (ranked && won) await auditServerGame(config.serverId, config.puzzle, game.moves ?? []);
-    const result = await finishServerGame({
-      gameId: config.serverId,
-      won,
-      mistakes: game.mistakes,
-      hints: game.hints,
-      seconds: Math.floor(game.elapsedMs / 1000),
-      rating: config.rating,
-      grid: game.values.join(''),
+    // Kept on this phone before it's sent, so a phone that closes mid-send still has it, and
+    // dropped once the server answers; with no connection it stays to be sent later (pending.ts).
+    const gameId = config.serverId;
+    const seconds = Math.floor(game.elapsedMs / 1000);
+    keepPending({
+      gameId, ranked, won, mistakes: game.mistakes, hints: game.hints, seconds,
+      rating: config.rating, grid: game.values.join(''), puzzle: config.puzzle, moves: game.moves ?? [],
     });
-    if ('refused' in result) return { outcome: { dust: 0, spirit: false }, notice: result.refused };
-    game.elapsedMs = result.seconds * 1000;
-    timer.textContent = formatTime(game.elapsedMs);
-    return { outcome: result.outcome };
+    markSending(gameId, true);
+    try {
+      // A Ranked win only counts once the server has replayed the solve (see auditServerGame).
+      if (ranked && won) await auditServerGame(gameId, config.puzzle, game.moves ?? []);
+      const result = await finishServerGame({
+        gameId, won, mistakes: game.mistakes, hints: game.hints, seconds, rating: config.rating, grid: game.values.join(''),
+      });
+      if ('offline' in result) {
+        return { outcome: { dust: 0, spirit: false }, notice: config.mode === 'ranked' || config.mode === 'clash' ? copy.game.pendingKeptTimed : copy.game.pendingKept };
+      }
+      dropPending(gameId);
+      if ('refused' in result) return { outcome: { dust: 0, spirit: false }, notice: result.refused };
+      game.elapsedMs = result.seconds * 1000;
+      timer.textContent = formatTime(game.elapsedMs);
+      return { outcome: result.outcome };
+    } finally {
+      markSending(gameId, false);
+    }
   }
 
   async function showClash(won: boolean, outcome: Outcome, notice?: string) {

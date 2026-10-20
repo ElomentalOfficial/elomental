@@ -1,7 +1,7 @@
 import type { Session } from '@supabase/supabase-js';
 import type { Element } from '../profile.ts';
 import { applySettings, cleanSettings, localSettings, type Settings } from '../settings.ts';
-import { readJson, removeKey, writeJson } from '../storage.ts';
+import { readJson, removeKey, removeKeysStartingWith, writeJson } from '../storage.ts';
 import { captchaToken } from './captcha.ts';
 import { supabase } from './client.ts';
 import * as copy from '../copy/en.ts';
@@ -11,6 +11,8 @@ import * as copy from '../copy/en.ts';
 // kept locally and refreshed in the background.
 
 export interface Account {
+  /** The auth user id (missing in old caches): a different one means another account. */
+  userId?: string;
   /** A guest account: no email yet; signing up keeps its progress. */
   anonymous: boolean;
   email: string;
@@ -47,6 +49,19 @@ export interface Account {
 }
 
 const ACCOUNT_KEY = 'elomental:account';
+
+/**
+ * What belongs to the signed-in account on this phone, cleared when it signs out or another
+ * account signs in (full review L14): its avatar and polish, its clash log, games in progress
+ * (one per mode, game.ts SAVE_PREFIX) and results waiting to be sent (pending.ts PENDING_KEY).
+ */
+const ACCOUNT_DATA_KEYS = ['elomental:loadout', 'elomental:polish', 'elomental:clashes', 'elomental:pending-results'];
+const SAVED_GAMES_PREFIX = 'elomental:game';
+
+function clearAccountData(): void {
+  for (const key of ACCOUNT_DATA_KEYS) removeKey(key);
+  removeKeysStartingWith(SAVED_GAMES_PREFIX);
+}
 
 export const cachedAccount = (): Account | null => readJson<Account>(ACCOUNT_KEY);
 /** Games go through the server (an email account or an anonymous guest account). */
@@ -99,8 +114,12 @@ export async function refreshAccount(session?: Session | null): Promise<Account 
     supabase.from('games').select('elo_after').not('elo_after', 'is', null).order('elo_after', { ascending: false }).limit(1),
   ]);
   if (error || !profile) return cachedAccount();
+  // another account than the one cached: the last one's things don't carry over
+  const previous = cachedAccount();
+  if (previous?.userId && previous.userId !== s.user.id) clearAccountData();
   syncSettings(profile.settings);
   const account: Account = {
+    userId: s.user.id,
     anonymous: !!s.user.is_anonymous,
     aal2: sessionAal(s.access_token) === 'aal2',
     email: s.user.email ?? '',
@@ -133,6 +152,7 @@ export function initBackend(): void {
   supabase.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_OUT') {
       removeKey(ACCOUNT_KEY);
+      clearAccountData();
       notify();
     } else if (event === 'INITIAL_SESSION' && !session) {
       // First launch (or after signing out): become an anonymous guest account.
@@ -153,12 +173,19 @@ export async function startGuestAccount(): Promise<void> {
   if (error) console.info('Playing as a local guest:', error.message);
 }
 
-export async function signOut(): Promise<void> {
+/** Null when signed out; otherwise why not (a result on this phone still waiting to be sent). */
+export async function signOut(): Promise<string | null> {
+  // A kept result belongs to this account: send it first, and don't sign out while it can't be.
+  // (Imported here: pending.ts reaches this module through games.ts.)
+  const { flushPending, pendingResults } = await import('./pending.ts');
+  if (pendingResults().length && (await flushPending()).left) return copy.account.signOutPending;
   await supabase.auth.signOut();
   removeKey(ACCOUNT_KEY);
+  clearAccountData();
   notify();
   // Back to a fresh guest account, so play keeps going through the server.
   void startGuestAccount();
+  return null;
 }
 
 // --- Settings ------------------------------------------------------------------------

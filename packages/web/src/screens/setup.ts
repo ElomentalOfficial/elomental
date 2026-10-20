@@ -307,7 +307,10 @@ function accountSection(): HTMLElement {
         }),
       );
       const out = h('button', { class: 'btn', text: copy.account.signOut });
-      out.addEventListener('click', () => run(out, () => signOut()));
+      out.addEventListener('click', () => run(out, async () => {
+        const notYet = await signOut();
+        if (notYet) toast(notYet);
+      }));
       section.replaceChildren(
         h('div', {}, h('h2', { text: copy.account.title }), h('p', { text: copy.account.signedInAs(account.email) })),
         h('label', { class: 'field-label', text: copy.account.playerName }),

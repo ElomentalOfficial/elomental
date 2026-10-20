@@ -51,12 +51,20 @@ export async function startServerGame(options: {
 }
 
 /**
- * Ranked/Clash pause: the server stops counting (each pause free for up to 5
- * minutes, 3 per game). Returns pauses left, or null when none are left.
+ * A request that never reached the server (no connection), as opposed to one the server
+ * answered with a refusal: database errors carry a code, a failed fetch doesn't.
  */
-export async function pauseServerGame(gameId: string): Promise<number | null> {
+const unreached = (error: { code?: string }): boolean => !error.code;
+
+/**
+ * Ranked/Clash pause: the server stops counting (each pause free for up to 5
+ * minutes, 3 per game). Returns pauses left, 'none' when none are left, 'closed' when the
+ * server has no such open game, or 'failed' when the pause didn't reach the server (no
+ * connection): then nothing is used up.
+ */
+export async function pauseServerGame(gameId: string): Promise<number | 'none' | 'closed' | 'failed'> {
   const { data, error } = await supabase.rpc('pause_game', { p_game_id: gameId });
-  if (error) return error.message.includes('no_pauses_left') ? null : 0;
+  if (error) return unreached(error) ? 'failed' : error.message.includes('no_pauses_left') ? 'none' : 'closed';
   return (data as { pauses_left: number }).pauses_left;
 }
 
@@ -82,7 +90,10 @@ export interface ServerFinish {
   seconds: number;
 }
 
-/** Settles the game on the server; `refused` with the reason to show when it wasn't counted. */
+/**
+ * Settles the game on the server; `refused` with the reason to show when it wasn't counted,
+ * `offline` when it never got there (the caller keeps it to send again, pending.ts).
+ */
 export async function finishServerGame(input: {
   gameId: string;
   won: boolean;
@@ -91,7 +102,7 @@ export async function finishServerGame(input: {
   seconds: number;
   rating: number;
   grid: string;
-}): Promise<ServerFinish | { refused: string }> {
+}): Promise<ServerFinish | { refused: string } | { offline: true }> {
   const { data, error } = await supabase.rpc('finish_game', {
     p_game_id: input.gameId,
     p_won: input.won,
@@ -102,6 +113,7 @@ export async function finishServerGame(input: {
     p_grid: input.grid,
   });
   if (error) {
+    if (unreached(error)) return { offline: true };
     return { refused: knownError(error, copy.refusals.finish) ?? copy.refusals.finishOffline };
   }
   const d = data as {

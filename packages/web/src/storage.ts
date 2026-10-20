@@ -23,3 +23,12 @@ export function removeKey(key: string): void {
     // Ignore.
   }
 }
+
+/** Removes every key that starts with `prefix` (e.g. the saved game of each mode). */
+export function removeKeysStartingWith(prefix: string): void {
+  try {
+    for (const key of Object.keys(localStorage)) if (key.startsWith(prefix)) localStorage.removeItem(key);
+  } catch {
+    // Ignore.
+  }
+}

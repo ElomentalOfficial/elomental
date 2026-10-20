@@ -154,6 +154,14 @@ export const game = {
   paused: 'Paused',
   pausesLeft: (n: number) => `${plural(n, 'pause')} left`,
   noPausesLeft: 'No pauses left in this game.',
+  pauseFailed: 'Couldn’t pause: no connection. The clock is still running, and no pause was used.',
+  /** A finished game whose result couldn't be sent (pending.ts). */
+  pendingKept: 'No connection. Your result is saved on this phone and will be sent when you’re back online.',
+  /** Ranked and Clash are timed by the server, up to when the result arrives. */
+  pendingKeptTimed: 'No connection. Your result is saved on this phone and will be sent when you’re back online. The time counts until it arrives, so reconnect soon.',
+  pauseClosed: 'This game can’t be paused any more.',
+  pendingStillWaiting: 'Your last result is still waiting to be sent. Try again once you’re back online.',
+  pendingSent: (n: number) => (n === 1 ? 'Your saved result was sent and counted.' : `Your ${n} saved results were sent and counted.`),
   label: {
     clash: (beat?: string) => `Clash${beat ? ` · beat ${beat}` : ''}`,
     casual: (difficulty: string) => `Casual · ${capitalize(difficulty)}`,
@@ -583,6 +591,7 @@ export const account = {
   saveName: 'Save name',
   nameSaved: 'Name saved',
   signOut: 'Sign out',
+  signOutPending: 'A result on this phone hasn’t been sent yet. Sign out once you’re back online, so it counts.',
   nameAgainOn: (day: string) => `You can change your name again on ${day}.`,
   nameAgainOnHint: (day: string) => `You can change your name again on ${day}.`,
   nameCooldown: (days: number) => `You can change your name once every ${days} days.`,
@@ -616,8 +625,10 @@ export const refusals = {
     too_fast: 'Too fast to count: this solve wasn’t recorded.',
     already_finished: 'This game was already counted.',
     invalid_solution: 'The grid didn’t check out, so it wasn’t counted.',
+    no_game: 'This game belongs to another account, so it wasn’t counted here.',
   } as Record<string, string>,
-  finishOffline: 'No connection. This game wasn’t saved to your account.',
+  /** The server answered with something unexpected (no connection keeps the result instead, pending.ts). */
+  finishOffline: 'The server couldn’t count this game. Try again later.',
   /** The Forge (forge_part, refine_components, swap_components, equip_part). */
   forge: {
     not_enough_stardust: 'Not enough Stardust or Spirits for that yet.',

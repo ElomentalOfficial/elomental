@@ -66,7 +66,7 @@ const now = (go: () => void) => go();
  * as pop-ups over this page, so a pop-up never opens from another pop-up.
  */
 export function casualScreen(): Screen {
-  const saved = loadSavedGame();
+  const saved = loadSavedGame('casual');
   const say = copy.home.casual;
   const stored = readJson<Difficulty>(CASUAL_PICK_KEY);
   let pick: Difficulty = stored && DIFFICULTIES.includes(stored) ? stored : 'easy';

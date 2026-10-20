@@ -191,7 +191,7 @@ function heatingSword(badge: HTMLElement): HTMLElement {
 }
 
 function openRanked(leave: (go: () => void) => void) {
-  const saved = loadSavedGame();
+  const saved = loadSavedGame('ranked');
   if (saved?.config.mode === 'ranked') return leave(() => resumeGame(saved));
   const profile = loadProfile();
   const difficulty = difficultyForRating(rankedTarget(profile.elo));
