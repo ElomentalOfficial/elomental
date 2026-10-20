@@ -1,3 +1,4 @@
+import { settingGroup } from '../controls.ts';
 import { goBack, h, subPage, type Screen } from '../ui.ts';
 import { accessibilityScreen } from './accessibility.ts';
 import * as copy from '../copy/en.ts';
@@ -9,19 +10,16 @@ export function statementScreen(): Screen {
   const el = subPage(
     { className: 'setup statement', title: s.title, onBack: () => void goBack(accessibilityScreen) },
     h('p', { class: 'page-intro', text: s.intro }),
-    h('section', { class: 'setting-group' }, h('h2', { text: s.supportedTitle }), h('div', { class: 'setting' }, list(s.supported))),
-    h('section', { class: 'setting-group' }, h('h2', { text: s.limitsTitle }), h('div', { class: 'setting' }, list(s.limits))),
-    h(
-      'section',
-      { class: 'setting-group' },
-      h('h2', { text: s.feedbackTitle }),
-      h(
-        'div',
-        { class: 'setting' },
+    settingGroup(s.supportedTitle, [list(s.supported)], 'setting'),
+    settingGroup(s.limitsTitle, [list(s.limits)], 'setting'),
+    settingGroup(
+      s.feedbackTitle,
+      [
         h('p', { text: s.feedback }),
         h('a', { class: 'btn statement-link', text: s.feedbackLink, attrs: { href: s.feedbackUrl, target: '_blank', rel: 'noopener' } }),
         h('p', { class: 'note', text: s.reviewed }),
-      ),
+      ],
+      'setting',
     ),
   );
   return { el, title: s.title };

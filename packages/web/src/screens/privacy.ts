@@ -1,5 +1,6 @@
 import { cachedAccount, onAccountChange } from '../backend.ts';
 import { setCardPrivacy, setCountry } from '../backend/leaderboard.ts';
+import { choice, segmented, settingGroup } from '../controls.ts';
 import { countryName } from '../playerCard.ts';
 import { ICONS } from '../icons.ts';
 import { closeButton, goBack, h, openModal, subPage, toast, type Screen } from '../ui.ts';
@@ -45,30 +46,25 @@ export function privacyScreen(back: () => Screen = setupScreen): Screen {
   }));
 
   const onOff = (id: string, get: () => boolean, set: (v: boolean) => Promise<string | null>) => {
-    const buttons = [true, false].map((v) => h('button', {
-      class: 'segment', text: v ? copy.common.on : copy.common.off, attrs: { role: 'radio', type: 'button' },
-      onclick: () => void set(v).then((err) => { toast(err ?? t.saved); paint(); }),
-    }));
-    const paint = () => buttons.forEach((b, i) => {
-      const on = (i === 0) === get();
-      b.classList.toggle('on', on);
-      b.setAttribute('aria-checked', String(on));
+    const control = segmented({
+      options: [{ value: true, label: copy.common.on }, { value: false, label: copy.common.off }],
+      current: get,
+      pick: (v) => set(v).then((err) => toast(err ?? t.saved)),
+      labelledBy: id,
+      cols: true,
     });
-    paint();
-    unsubscribes.push(onAccountChange(paint));
-    return h('div', { class: 'segmented cols-2', attrs: { role: 'radiogroup', 'aria-labelledby': id } }, ...buttons);
+    unsubscribes.push(onAccountChange(control.paint));
+    return control.el;
   };
-  const choice = (id: string, title: string, help: string, control: HTMLElement) =>
-    h('div', { class: 'choice' }, h('h3', { text: title, attrs: { id } }), h('p', { text: help }), control);
 
   const el = subPage(
     { className: 'setup privacy', title: t.title, onBack: () => void goBack(back) },
     h('p', { class: 'page-intro', text: account?.anonymous ? t.guest : t.intro }),
-    h('section', { class: 'setting-group' }, h('h2', { text: t.group }),
-      h('div', { class: 'setting choice-list' },
-        choice('privacy-country', t.country, t.countryHelp, countryField),
-        choice('privacy-listed', t.listed, t.listedHelp, onOff('privacy-listed', () => !cachedAccount()?.lbHidden, (v) => setCardPrivacy(!v, null))),
-        choice('privacy-stats', t.stats, t.statsHelp, onOff('privacy-stats', () => cachedAccount()?.cardStats !== false, (v) => setCardPrivacy(null, v))))),
+    settingGroup(t.group, [
+      choice('privacy-country', t.country, t.countryHelp, countryField),
+      choice('privacy-listed', t.listed, t.listedHelp, onOff('privacy-listed', () => !cachedAccount()?.lbHidden, (v) => setCardPrivacy(!v, null))),
+      choice('privacy-stats', t.stats, t.statsHelp, onOff('privacy-stats', () => cachedAccount()?.cardStats !== false, (v) => setCardPrivacy(null, v))),
+    ]),
   );
   return { el, title: t.title, destroy: () => unsubscribes.forEach((off) => off()) };
 }

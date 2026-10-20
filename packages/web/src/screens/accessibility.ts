@@ -1,5 +1,6 @@
 import { DEFAULTS, TEXT_SIZES, a11yPrefs, onA11yChange, type A11yPrefs } from '../a11y.ts';
 import { saveSettings } from '../backend.ts';
+import { choice as titled, segmented, settingGroup } from '../controls.ts';
 import { openShortcuts } from '../shortcuts.ts';
 import { goBack, h, mount, openModal, subPage, toast, type Screen } from '../ui.ts';
 import { setupScreen } from './setup.ts';
@@ -11,40 +12,21 @@ import * as copy from '../copy/en.ts';
  * group). Reads and writes a11y.ts preferences, saved to the account too.
  */
 function choice<K extends keyof A11yPrefs>(key: K, label: string, help: string | null, options: [A11yPrefs[K], string][]): HTMLElement {
-  const buttons = options.map(([value, text]) =>
-    h('button', {
-      class: 'segment',
-      text,
-      attrs: { role: 'radio' },
-      onclick: () => {
-        // On this device at once, and on the account so other devices follow.
-        saveSettings({ a11y: { [key]: value } as Partial<A11yPrefs> });
-        sync();
-      },
-    }),
-  );
-  const sync = () => {
-    const current = a11yPrefs()[key];
-    buttons.forEach((b, i) => {
-      const on = options[i][0] === current;
-      b.classList.toggle('on', on);
-      b.setAttribute('aria-checked', String(on));
-    });
-  };
-  sync();
+  const id = `a11y-${key}`;
+  const control = segmented({
+    options: options.map(([value, text]) => ({ value, label: text })),
+    current: () => a11yPrefs()[key],
+    // On this device at once, and on the account so other devices follow.
+    pick: (value) => saveSettings({ a11y: { [key]: value } as Partial<A11yPrefs> }),
+    labelledBy: id,
+    cols: true,
+  });
   // Choices saved on another device arrive with the account refresh.
   const stop = onA11yChange(() => {
-    if (!buttons[0].isConnected) return void stop();
-    sync();
+    if (!control.el.isConnected) return void stop();
+    control.paint();
   });
-  const id = `a11y-${key}`;
-  return h(
-    'div',
-    { class: 'choice' },
-    h('h3', { text: label, attrs: { id } }),
-    help ? h('p', { text: help }) : null,
-    h('div', { class: `segmented cols-${options.length}`, attrs: { role: 'radiogroup', 'aria-labelledby': id } }, ...buttons),
-  );
+  return titled(id, label, help, control.el);
 }
 
 /**
@@ -76,9 +58,7 @@ function confirmReset(): void {
   );
 }
 
-/** A titled group: the title over one card holding its choices. */
-const group = (title: string, ...items: HTMLElement[]) =>
-  h('section', { class: 'setting-group' }, h('h2', { text: title }), h('div', { class: 'setting choice-list' }, ...items));
+const group = (title: string, ...items: HTMLElement[]) => settingGroup(title, items);
 
 /** Setup > Accessibility: every accessibility preference, grouped (a11y.ts; docs/ACCESSIBILITY_AUDIT.md section 4). */
 export function accessibilityScreen(): Screen {
@@ -123,28 +103,16 @@ export function accessibilityScreen(): Screen {
       choice('casualMistakeLimit', t.mistakeLimit, t.mistakeLimitHelp, onOff),
     ),
     group(t.groups.feedback, choice('haptics', t.haptics, null, onOff), choice('sounds', t.sounds, t.soundsHelp, onOff)),
-    h(
-      'section',
-      { class: 'setting-group' },
-      h('h2', { text: t.groups.help }),
-      h(
-        'div',
-        { class: 'setting choice-list' },
-        h('button', { class: 'btn', text: t.shortcuts, onclick: () => openShortcuts() }),
-        h('button', { class: 'btn', text: t.statement, onclick: () => mount(statementScreen()) }),
-      ),
+    group(
+      t.groups.help,
+      h('button', { class: 'btn', text: t.shortcuts, onclick: () => openShortcuts() }),
+      h('button', { class: 'btn', text: t.statement, onclick: () => mount(statementScreen()) }),
     ),
     // Last, after everything it would undo: back to the defaults, after a check.
-    h(
-      'section',
-      { class: 'setting-group' },
-      h('h2', { text: t.resetGroup }),
-      h(
-        'div',
-        { class: 'setting choice-list' },
-        h('p', { class: 'field-hint', text: t.resetHelp }),
-        h('button', { class: 'btn', text: t.reset, onclick: () => confirmReset() }),
-      ),
+    group(
+      t.resetGroup,
+      h('p', { class: 'field-hint', text: t.resetHelp }),
+      h('button', { class: 'btn', text: t.reset, onclick: () => confirmReset() }),
     ),
   );
   return { el, title: t.title };

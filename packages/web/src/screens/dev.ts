@@ -1,6 +1,7 @@
 import { cachedAccount, onAccountChange } from '../backend.ts';
 import { devAction, setDevMode, type DevAction } from '../backend/dev.ts';
 import { loadFounderActivity } from '../backend/founder.ts';
+import { choice, segmented, settingGroup } from '../controls.ts';
 import { RARITIES, type Rarity } from '../profile.ts';
 import { rarityName } from '../reward.ts';
 import { goBack, h, mount, subPage, toast, type Screen } from '../ui.ts';
@@ -36,18 +37,17 @@ export function devScreen(): Screen {
   const on = () => !!cachedAccount()?.devMode;
   const activity = h('ul', { class: 'activity-list' }, h('li', { text: copy.common.loading }));
 
-  // the switch: On / Off
-  const switches = [true, false].map((value) =>
-    h('button', {
-      class: 'segment',
-      text: value ? copy.common.on : copy.common.off,
-      attrs: { role: 'radio', type: 'button' },
-      onclick: () => {
-        if (value === on()) return;
-        void setDevMode(value).then((err) => (err ? toast(err) : loadActivity()));
-      },
-    }),
-  );
+  // the switch: On / Off (the account refresh repaints the page)
+  const devSwitch = segmented({
+    options: [{ value: true, label: copy.common.on }, { value: false, label: copy.common.off }],
+    current: on,
+    pick: (value) => {
+      if (value === on()) return;
+      return setDevMode(value).then((err) => (err ? toast(err) : loadActivity()));
+    },
+    labelledBy: 'dev-switch',
+    cols: true,
+  });
 
   const eloField = h('input', {
     class: 'text-field',
@@ -59,10 +59,7 @@ export function devScreen(): Screen {
     return btn;
   });
 
-  const choice = (id: string, title: string, help: string | null, ...controls: HTMLElement[]) =>
-    h('div', { class: 'choice' }, h('h3', { text: title, attrs: { id } }), help ? h('p', { text: help }) : null, ...controls);
-  const group = (title: string, ...items: (HTMLElement | null)[]) =>
-    h('section', { class: 'setting-group' }, h('h2', { text: title }), h('div', { class: 'setting choice-list' }, ...items));
+  const group = (title: string, ...items: (HTMLElement | null)[]) => settingGroup(title, items);
 
   const el = subPage(
     { className: 'setup dev', title: t.title, onBack: () => void goBack(setupScreen) },
@@ -71,8 +68,7 @@ export function devScreen(): Screen {
     group(copy.setup.review, h('p', { class: 'field-hint', text: copy.setup.reviewHelp }), h('button', { class: 'btn', text: copy.setup.openReview, attrs: { type: 'button' }, onclick: () => mount(reviewScreen()) })),
     group(
       t.switchTitle,
-      choice('dev-switch', t.switchTitle, t.switchHelp,
-        h('div', { class: 'segmented cols-2', attrs: { role: 'radiogroup', 'aria-labelledby': 'dev-switch' } }, ...switches)),
+      choice('dev-switch', t.switchTitle, t.switchHelp, devSwitch.el),
     ),
     group(t.groups.resources, tool(t.fill, 'fill'), tool(t.empty, 'empty')),
     group(t.groups.parts, tool(t.unlockAll, 'unlock_all'), tool(t.clearParts, 'clear_parts')),
@@ -101,8 +97,7 @@ export function devScreen(): Screen {
       choice('dev-affinity', t.forgetAffinity, t.forgetAffinityHelp, tool(t.forgetAffinity, 'forget_affinity')),
     ),
     // what founders did lately (Dev mode and Review), to spot anything that wasn't you
-    h('section', { class: 'setting-group' }, h('h2', { text: copy.founder.activity }),
-      h('div', { class: 'setting choice-list' }, h('p', { class: 'field-hint', text: copy.founder.activityHelp }), activity)),
+    group(copy.founder.activity, h('p', { class: 'field-hint', text: copy.founder.activityHelp }), activity),
   );
   const when = (iso: string) => new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
   const loadActivity = () =>
@@ -121,11 +116,7 @@ export function devScreen(): Screen {
 
   const paint = () => {
     const isOn = on();
-    switches.forEach((b, i) => {
-      const chosen = (i === 0) === isOn;
-      b.classList.toggle('on', chosen);
-      b.setAttribute('aria-checked', String(chosen));
-    });
+    devSwitch.paint();
     for (const b of tools) b.disabled = !isOn;
     eloField.disabled = !isOn;
     if (!eloField.value) eloField.value = String(cachedAccount()?.elo ?? '');

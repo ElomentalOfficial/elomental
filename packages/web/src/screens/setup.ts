@@ -10,6 +10,7 @@ import {
   setDisplayName,
   signOut,
 } from '../backend.ts';
+import { segmented } from '../controls.ts';
 import { ICONS } from '../icons.ts';
 import { addToHome, canAddToHome } from '../install.ts';
 import { notesWheelOn } from '../settings.ts';
@@ -24,64 +25,26 @@ import { founderUnlocked, hasAuthenticator, startEnrolment, verifyCode } from '.
 import * as copy from '../copy/en.ts';
 
 export function setupScreen(): Screen {
-  const options: { theme: Theme; label: string; icon: string }[] = [
-    { theme: 'dark', label: copy.setup.dark, icon: ICONS.moon },
-    { theme: 'light', label: copy.setup.light, icon: ICONS.sun },
-  ];
-
-  const buttons = options.map((o) =>
-    h(
-      'button',
-      {
-        class: 'segment',
-        attrs: { role: 'radio', 'data-theme-option': o.theme },
-        onclick: () => {
-          saveSettings({ theme: o.theme });
-          sync();
-        },
-      },
-      h('span', { class: 'segment-icon', html: o.icon }),
-      h('span', { text: o.label }),
-    ),
-  );
-  const sync = () => {
-    const current = getTheme();
-    for (const b of buttons) {
-      const on = b.dataset.themeOption === current;
-      b.classList.toggle('on', on);
-      b.setAttribute('aria-checked', String(on));
-    }
-  };
-  sync();
-
-  const wheelButtons = [true, false].map((on) =>
-    h(
-      'button',
-      {
-        class: 'segment',
-        attrs: { role: 'radio' },
-        onclick: () => {
-          saveSettings({ notesWheel: on });
-          syncWheel();
-        },
-      },
-      h('span', { text: on ? copy.common.on : copy.common.off }),
-    ),
-  );
-  const syncWheel = () => {
-    const current = notesWheelOn();
-    wheelButtons.forEach((b, i) => {
-      const on = (i === 0) === current;
-      b.classList.toggle('on', on);
-      b.setAttribute('aria-checked', String(on));
-    });
-  };
-  syncWheel();
+  const theme = segmented<Theme>({
+    options: [
+      { value: 'dark', label: copy.setup.dark, icon: ICONS.moon },
+      { value: 'light', label: copy.setup.light, icon: ICONS.sun },
+    ],
+    current: getTheme,
+    pick: (value) => saveSettings({ theme: value }),
+    label: copy.setup.theme,
+  });
+  const wheel = segmented({
+    options: [{ value: true, label: copy.common.on }, { value: false, label: copy.common.off }],
+    current: notesWheelOn,
+    pick: (value) => saveSettings({ notesWheel: value }),
+    label: copy.setup.notesWheel,
+  });
   // Settings saved on another device arrive with the account refresh.
   const stopSync = onAccountChange(() => {
-    if (!wheelButtons[0].isConnected) return stopSync();
-    sync();
-    syncWheel();
+    if (!wheel.el.isConnected) return stopSync();
+    theme.paint();
+    wheel.paint();
   });
 
   // Hidden diagnostics: five taps on the title show what the phone reports about its screen.
@@ -103,13 +66,13 @@ export function setupScreen(): Screen {
       'section',
       { class: 'setting' },
       h('div', {}, h('h2', { text: copy.setup.theme }), h('p', { text: copy.setup.themeHelp })),
-      h('div', { class: 'segmented', attrs: { role: 'radiogroup', 'aria-label': copy.setup.theme } }, ...buttons),
+      theme.el,
     ),
     h(
       'section',
       { class: 'setting' },
       h('div', {}, h('h2', { text: copy.setup.notesWheel }), h('p', { text: copy.setup.notesWheelHelp })),
-      h('div', { class: 'segmented', attrs: { role: 'radiogroup', 'aria-label': copy.setup.notesWheel } }, ...wheelButtons),
+      wheel.el,
     ),
     accessibilityLink(),
     privacyLink(),
