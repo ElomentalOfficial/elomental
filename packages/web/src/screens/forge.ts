@@ -3,7 +3,7 @@ import { loadStandings, type Standing } from '../backend/affinity.ts';
 import { FORGE_COST, MAX_PLATE, MAX_POLISH, PLATE_COST, POLISH_COST, SLOTS, buyPlate, equipPart, forgePart, loadForge, needsCrown, polishPart, type Forge, type Part } from '../backend/forge.ts';
 import { ICONS } from '../icons.ts';
 import { paintPlate } from '../plates.ts';
-import { ELEMENTS, RARITIES, type Element, type Rarity } from '../profile.ts';
+import { ELEMENTS, RARITIES, loadProfile, type Element, type Rarity } from '../profile.ts';
 import { partName, rarityName } from '../reward.ts';
 import { closeButton, goBack, h, openModal, subPage, toast, type Screen } from '../ui.ts';
 import { homeScreen } from './home.ts';
@@ -26,12 +26,6 @@ function stateOf(f: Forge, p: Part): State {
 }
 
 const price = (r: Rarity) => (needsCrown(r) ? copy.forge.priceCrown(FORGE_COST[r]) : copy.forge.price(FORGE_COST[r]));
-/** A plate's name on that plate, for the plate sheet. */
-const plateSample = (n: number) => {
-  const el = h('span');
-  paintPlate(el, copy.forge.plates[n], n);
-  return el;
-};
 const rarityTag = (r: Rarity) => h('span', { class: `rarity-tag rarity-${r}`, text: rarityName(r) });
 
 export function forgeScreen(back: () => Screen = homeScreen): Screen {
@@ -64,7 +58,6 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
         f.affinity ? affinityLine(f.affinity) : null,
         h('span', { class: 'balance' }, h('span', { html: ICONS.dust, attrs: { 'aria-hidden': 'true' } }), h('strong', { text: String(f.stardust) }), h('span', { text: copy.common.stardust })),
         h('span', { class: 'balance' }, h('span', { html: ICONS.crown, attrs: { 'aria-hidden': 'true' } }), h('strong', { text: String(f.crowns) }), h('span', { text: copy.common.crowns })),
-        h('button', { class: 'link-btn', text: copy.forge.plateButton(copy.forge.plates[f.plate]), attrs: { type: 'button' }, onclick: () => openPlates() }),
       ),
     );
     const groups = SLOTS.map((slot) => {
@@ -75,6 +68,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
     });
     body.replaceChildren(
       head,
+      platesSection(f),
       h(
         'div',
         { class: 'forge-heading-row' },
@@ -179,47 +173,71 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
     );
   }
 
-  /** The four name plates, bought in order; each replaces the last. */
-  function openPlates() {
+  /**
+   * The four name plates, right under the head: each drawn on its card, bought in order,
+   * each replacing the last. Only the next one is a button; it opens a sheet to confirm.
+   */
+  function platesSection(f: Forge): HTMLElement {
+    const t = copy.forge;
+    const card = (n: number) => {
+      const next = n === f.plate + 1;
+      const state = n === f.plate ? 'yours' : n < f.plate ? 'replaced' : next ? (f.stardust >= PLATE_COST[n - 1] ? 'ready' : 'needs') : 'later';
+      const label = state === 'yours' ? t.plateYours
+        : state === 'replaced' ? t.plateReplaced
+        : state === 'ready' ? t.ready
+        : state === 'needs' ? t.needsMore
+        : t.plateAfter(t.plates[n - 1]);
+      const price = state === 'yours' || state === 'replaced' ? null : t.price(PLATE_COST[n - 1]);
+      const sample = h('span', { class: 'plate-sample' });
+      paintPlate(sample, t.plates[n], n);
+      const kids = [
+        sample,
+        h('span', { class: 'part-state', text: label }),
+        price ? h('span', { class: 'plate-price', text: price }) : null,
+      ];
+      const cls = `plate-card plate-card-${n} state-${state}`;
+      const a11y = `${t.plateA11y(t.plates[n])}. ${label}.${price ? ` ${price}.` : ''}`;
+      if (!next) return h('div', { class: cls, attrs: { role: 'group', 'aria-label': a11y } }, ...kids.map((k) => k && (k.setAttribute('aria-hidden', 'true'), k)));
+      return h('button', { class: cls, attrs: { type: 'button', 'aria-label': a11y }, onclick: () => openPlate(n) }, ...kids.map((k) => k && (k.setAttribute('aria-hidden', 'true'), k)));
+    };
+    return h(
+      'section',
+      { class: 'forge-plates' },
+      h('div', { class: 'forge-heading-row' }, h('h2', { class: 'forge-heading', text: t.plateTitle }), h('span', { class: 'forge-count', text: t.plateCount(f.plate, MAX_PLATE) })),
+      h('p', { class: 'forge-intro', text: t.plateIntro }),
+      h('div', { class: 'plate-grid' }, ...[1, 2, 3, 4].map(card)),
+    );
+  }
+
+  /** The next plate: your own name on it, its price, and Get. */
+  function openPlate(n: number) {
     const f = forge!;
-    const next = f.plate + 1;
-    let action: HTMLElement;
-    if (f.plate >= MAX_PLATE) action = h('p', { class: 'note', text: copy.forge.plateTop });
-    else {
-      const cost = PLATE_COST[f.plate];
-      const btn = h('button', { class: 'btn btn-primary', text: copy.forge.plateBuy(copy.forge.plates[next], cost) });
-      if (f.stardust < cost) btn.disabled = true;
-      else btn.addEventListener('click', () => {
-        btn.disabled = true;
-        void buyPlate().then(async (err) => {
-          close();
-          toast(err ?? copy.forge.plateBought(copy.forge.plates[next]));
-          await refresh();
-        });
+    const cost = PLATE_COST[n - 1];
+    const name = copy.forge.plates[n];
+    const preview = h('span', { class: 'plate-sample plate-preview' });
+    paintPlate(preview, loadProfile().name, n);
+    const btn = h('button', { class: 'btn btn-primary', text: copy.forge.plateBuy(name, cost) });
+    if (f.stardust < cost) btn.disabled = true;
+    else btn.addEventListener('click', () => {
+      btn.disabled = true;
+      void buyPlate().then(async (err) => {
+        close();
+        toast(err ?? copy.forge.plateBought(name));
+        await refresh();
       });
-      action = btn;
-    }
+    });
     const close = openModal(
       h(
         'div',
         { class: 'sheet plate-sheet' },
         closeButton(() => close()),
-        h('h2', { text: copy.forge.plateTitle }),
-        h('p', { class: 'note', text: copy.forge.plateIntro }),
-        h(
-          'ul',
-          { class: 'plate-list' },
-          ...[1, 2, 3, 4].map((n) =>
-            h('li', { class: n === f.plate ? 'is-yours' : '' },
-              plateSample(n),
-              h('span', { text: n === f.plate ? copy.forge.plateYours : copy.forge.price(PLATE_COST[n - 1]) })),
-          ),
-        ),
-        action,
+        h('h2', { text: copy.forge.plateA11y(name) }),
+        preview,
+        h('p', { class: 'note', text: f.stardust < cost ? copy.forge.needsMore : copy.forge.plateReplaces }),
+        btn,
       ),
     );
   }
-
   function openOdds() {
     const ODDS: [Rarity, string][] = [['common', '62%'], ['rare', '28%'], ['epic', '8%'], ['mythic', '2%']];
     const section = (title: string, ...lines: string[]) => h('section', { class: 'odds-section' }, h('h3', { text: title }), ...lines.map((t) => h('p', { text: t })));

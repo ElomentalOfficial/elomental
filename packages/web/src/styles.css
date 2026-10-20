@@ -136,6 +136,8 @@
   --plate-gold: #c9a54e;
   --plate-elo: #ecd38c;
   --plate-glow: rgba(236, 211, 140, 0.55);
+  /* a little see-through on the dark theme (the light theme needs them solid for 3:1) */
+  --plate-opacity: 0.9;
   --modal-border: rgba(255, 255, 229, 0.12);
   --primary-bg: var(--accent);
   --primary-text: var(--on-accent);
@@ -204,12 +206,13 @@
   --glass-divider: rgba(121, 67, 65, 0.16);
   --glass-hub: rgba(255, 255, 229, 0.55);
   --modal-bg: var(--c-bright);
-  /* Name plate borders: the same metals, polished bright (decoration; the name carries it). */
-  --plate-bronze: #c48b5c;
-  --plate-silver: #9aa4ae;
-  --plate-gold: #c9a24a;
-  --plate-elo: #d4ad4f;
-  --plate-glow: rgba(240, 205, 120, 0.7);
+  /* Name plate borders: rich, saturated metals, 3:1 or better on every light surface. */
+  --plate-bronze: #9a5b2c;
+  --plate-silver: #66707c;
+  --plate-gold: #8f6a12;
+  --plate-elo: #946410;
+  --plate-glow: rgba(240, 205, 120, 0.8);
+  --plate-opacity: 1;
   --modal-border: rgba(121, 67, 65, 0.18);
   --primary-bg: var(--accent);
   --primary-text: var(--c-bright);
@@ -5540,7 +5543,7 @@ html[data-large-text] .shortcut-list {
   position: absolute;
   inset: -24px -16px;
   color: var(--plate);
-  opacity: 0.8;
+  opacity: var(--plate-opacity, 1);
   pointer-events: none;
   -webkit-mask: url('./art/plate-wear.png') 0 0 / 128px 128px repeat;
   mask: url('./art/plate-wear.png') 0 0 / 128px 128px repeat;
@@ -5614,37 +5617,72 @@ html[data-large-text] .shortcut-list {
 .mend-sheet h2 {
   padding: 0 44px;
 }
-.plate-list {
-  align-self: stretch;
-  list-style: none;
+/* Name plates on the Forge page (forge.ts platesSection): a card per plate, the plate drawn
+   around its own name; the next one is a button, ready to get with an accent outline. */
+.forge-plates {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
-  padding: 0;
-}
-.plate-list li {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
   gap: var(--space-3);
-  padding: var(--space-4) var(--space-2);
-  border-bottom: 1px solid var(--line);
+}
+.forge-plates .forge-heading-row {
+  margin-top: var(--space-3);
+}
+.plate-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+  gap: var(--space-2);
+}
+.plate-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-5) var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: 12px;
+  background: var(--surface);
+  color: inherit;
+  font: inherit;
+  text-align: center;
+}
+button.plate-card {
+  cursor: pointer;
+}
+/* the top plate gets the whole row, with room for its crown */
+.plate-card-4 {
+  grid-column: 1 / -1;
+  padding-top: var(--space-6);
+}
+.plate-card.state-ready {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.plate-card.state-yours {
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+}
+.plate-card.state-yours .part-state,
+.plate-card.state-ready .part-state {
+  color: var(--text);
+}
+.plate-card.state-replaced .plate-sample {
+  opacity: 0.45;
+}
+.plate-sample {
+  margin-bottom: var(--space-2);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.plate-price {
   font-family: var(--serif);
   font-size: var(--fs-small);
 }
-.plate-list li > span:last-child {
-  white-space: nowrap;
-}
-.plate-list li.is-yours {
-  font-weight: 700;
-}
-.plate-list .name-plate {
-  font-family: var(--font);
-  font-size: var(--fs-small);
-  font-weight: 700;
-}
-/* Polish I–V on a part: a soft sheen, then a gilt glow, then a slow glint at V. */
+.plate-sheet .plate-preview {
+  align-self: center;
+  margin: var(--space-5) 0 var(--space-3);
+  font-size: var(--fs-label);
+  font-weight: 800;
+}/* Polish I–V on a part: a soft sheen, then a gilt glow, then a slow glint at V. */
 .avatar-layer.polish-1 { filter: drop-shadow(0 0 0.6px var(--polish-glint)); }
 .avatar-layer.polish-2 { filter: drop-shadow(0 0 1.2px var(--polish-glint)); }
 .avatar-layer.polish-3 { filter: drop-shadow(0 0 1.6px var(--polish-glint)) saturate(1.15); }

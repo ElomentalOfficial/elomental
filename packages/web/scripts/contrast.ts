@@ -97,18 +97,6 @@ export const PAIRS: Pair[] = [
 
 /** Pairs that may stay under their ratio, and why. Anything else failing is a regression. */
 export const ACCEPTED: Record<string, string> = {
-  'Name plate border (bronze) on --surface': 'decorative border around the name; the name itself is the content',
-  'Name plate border (bronze) on --profile-bg': 'decorative border around the name; the name itself is the content',
-  'Name plate border (bronze) on --modal-bg': 'decorative border around the name; the name itself is the content',
-  'Name plate border (silver) on --surface': 'decorative border around the name; the name itself is the content',
-  'Name plate border (silver) on --profile-bg': 'decorative border around the name; the name itself is the content',
-  'Name plate border (silver) on --modal-bg': 'decorative border around the name; the name itself is the content',
-  'Name plate border (gold) on --surface': 'decorative border around the name; the name itself is the content',
-  'Name plate border (gold) on --profile-bg': 'decorative border around the name; the name itself is the content',
-  'Name plate border (gold) on --modal-bg': 'decorative border around the name; the name itself is the content',
-  'Name plate border (elo) on --surface': 'decorative border around the name; the name itself is the content',
-  'Name plate border (elo) on --profile-bg': 'decorative border around the name; the name itself is the content',
-  'Name plate border (elo) on --modal-bg': 'decorative border around the name; the name itself is the content',
   'UI: board cell vs page': 'the 3x3 box outline (--grid-line) carries the board structure',
   'UI: row/column highlight vs cell': 'supplementary; the selection ring marks the cell (High contrast makes it strong)',
   'UI: same-number fill vs cell': 'supplementary; the number itself is the cue',
