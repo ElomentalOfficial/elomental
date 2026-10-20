@@ -162,7 +162,7 @@
   text-align: center;
 }
 button.plate-card {
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
 }
 /* the top plate gets the whole row, with room for its crown */
 .plate-card-4 {

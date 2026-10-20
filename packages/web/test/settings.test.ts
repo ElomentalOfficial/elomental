@@ -17,6 +17,8 @@ test('accessibility settings from the account keep only known keys and values', 
     { textSize: 150, contrast: 'high', motion: 'reduce', colourBlind: true, sounds: false },
   );
   assert.deepEqual(cleanA11y({ textSize: 175, contrast: 'max', motion: 'fast' }), {});
+  assert.deepEqual(cleanA11y({ cursor: 'system' }), { cursor: 'system' });
+  assert.deepEqual(cleanA11y({ cursor: 'sparkle' }), {});
   assert.deepEqual(cleanA11y(null), {});
   assert.deepEqual(cleanA11y('high'), {});
 });

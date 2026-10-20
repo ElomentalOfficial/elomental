@@ -26,6 +26,11 @@ export interface A11yPrefs {
   casualMistakeLimit: boolean;
   haptics: boolean;
   sounds: boolean;
+  /**
+   * With a mouse or trackpad: the gem cursor, or the system's (which keeps the size and colour
+   * set on the device). This device only: the account doesn't keep it (save_settings drops it).
+   */
+  cursor: 'gem' | 'system';
 }
 
 export const DEFAULTS: A11yPrefs = {
@@ -41,6 +46,7 @@ export const DEFAULTS: A11yPrefs = {
   casualMistakeLimit: true,
   haptics: true,
   sounds: false,
+  cursor: 'gem',
 };
 
 const KEY = 'elomental:a11y';
@@ -57,6 +63,7 @@ export function cleanA11y(raw: unknown): Partial<A11yPrefs> {
   if (TEXT_SIZES.includes(r.textSize as A11yPrefs['textSize'])) out.textSize = r.textSize as A11yPrefs['textSize'];
   if (r.contrast === 'system' || r.contrast === 'standard' || r.contrast === 'high') out.contrast = r.contrast;
   if (r.motion === 'system' || r.motion === 'reduce') out.motion = r.motion;
+  if (r.cursor === 'gem' || r.cursor === 'system') out.cursor = r.cursor;
   for (const key of ['colourBlind', 'showTimer', 'highlightLines', 'highlightBox', 'highlightSame', 'keepWrong', 'casualMistakeLimit', 'haptics', 'sounds'] as const) {
     if (typeof r[key] === 'boolean') out[key] = r[key] as boolean;
   }
@@ -100,7 +107,12 @@ export function applyA11y(): void {
   // The player's choice or the system's: styles.css reads only this attribute.
   root.toggleAttribute('data-reduce-motion', reducedMotion());
   root.toggleAttribute('data-hide-timer', !p.showTimer);
+  // base.css shows the gem only with a fine pointer and without forced colours
+  root.dataset.cursor = p.cursor;
 }
+
+/** A mouse or trackpad is the main pointer: the only case where the cursor choice shows. */
+export const finePointer = (): boolean => media('(pointer: fine)');
 
 /** Follow system changes while a preference is set to 'system'. */
 export function installA11y(): void {

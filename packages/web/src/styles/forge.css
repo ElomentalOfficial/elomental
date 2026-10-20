@@ -90,7 +90,7 @@ html[data-large-text] .part-grid {
   color: inherit;
   font: inherit;
   text-align: center;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
 }
 /* Mythic looks it (M31): a still inner edge in its rarity colour and a folded corner. No motion. */
 .part-card.rarity-mythic::before {
@@ -330,7 +330,7 @@ html[data-large-text] .part-grid {
   color: inherit;
   font: inherit;
   text-align: left;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   -webkit-tap-highlight-color: transparent;
   transform-origin: 50% 50%;
   animation: reveal-turn 0.55s cubic-bezier(0.2, 0.8, 0.3, 1.15) var(--start) both;
@@ -476,5 +476,5 @@ html[data-reduce-motion] .part-reveal * {
   outline: 1.5px dashed var(--field-border);
   outline-offset: -1.5px;
   transform: none;
-  cursor: default;
+  cursor: var(--cursor-default);
 }

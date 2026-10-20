@@ -156,7 +156,7 @@ html[data-reduce-motion] .sword-live .sword-flame {
    molten-blade layer fades in and a fiery glow spreads round it. (The flame keeps its
    size: swelling it pulled its Crimson edge out from behind the blade, a dark band.) */
 .sheet-icon.ranked {
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
@@ -362,7 +362,7 @@ html[data-reduce-motion] .avatar-face.alive {
   display: block;
   padding: 0;
   border: 0;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   -webkit-tap-highlight-color: transparent;
 }
 .avatar-btn.worn {

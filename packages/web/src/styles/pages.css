@@ -356,7 +356,7 @@ html.standalone .screen.scrollable {
   font-size: var(--fs-label);
 }
 .review-games summary {
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   font-size: var(--fs-small);
   text-transform: uppercase;
   color: var(--accent-text);
@@ -751,7 +751,7 @@ html:not([data-large-text]) .daily-art {
   height: 85%;
   aspect-ratio: 274 / 300;
   /* Tap it to tear the page (daily.ts): only the drawing, not the empty row beside it. */
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }

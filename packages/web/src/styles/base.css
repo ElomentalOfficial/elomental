@@ -17,6 +17,43 @@ html {
   touch-action: manipulation;
 }
 
+/*
+ * The gem cursor (assets/cursors; scripts/cursors.ts renders the PNGs): with a mouse or a
+ * trackpad, unless the player picked the system's in Setup > Accessibility (a11y.ts sets
+ * data-cursor) or the system forces its colours. A drawn cursor ignores the size and colour
+ * set for the system's, so it never applies there. Rules ask for var(--cursor-pointer) where
+ * they'd say pointer: the lit gem over something to click.
+ */
+:root {
+  --cursor-default: auto;
+  --cursor-pointer: pointer;
+}
+@media (pointer: fine) and (forced-colors: none) {
+  :root[data-cursor='gem'] {
+    --cursor-default: url('../assets/cursors/gem.png') 2 2, auto;
+    --cursor-pointer: url('../assets/cursors/gem-lit.png') 2 2, pointer;
+  }
+  /* crisp on 2x screens where the browser takes image-set() for a cursor */
+  @supports (cursor: image-set(url('x.png') 1x) 2 2, auto) {
+    :root[data-cursor='gem'] {
+      --cursor-default: image-set(url('../assets/cursors/gem.png') 1x, url('../assets/cursors/gem@2x.png') 2x) 2 2, auto;
+      --cursor-pointer: image-set(url('../assets/cursors/gem-lit.png') 1x, url('../assets/cursors/gem-lit@2x.png') 2x) 2 2, pointer;
+    }
+  }
+}
+html {
+  cursor: var(--cursor-default);
+}
+a[href],
+summary,
+label[for] {
+  cursor: var(--cursor-pointer);
+}
+/* text fields keep the text cursor (it would inherit the gem) */
+:is(input:not([type='checkbox'], [type='radio'], [type='range'], [type='button'], [type='submit'], [type='color']), textarea, [contenteditable='true']) {
+  cursor: text;
+}
+
 /* App shell, not a document: nothing scrolls, bounces, zooms or pulls to refresh. */
 html,
 body {
@@ -198,7 +235,7 @@ button {
   color: inherit;
   background: none;
   border: 0;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }

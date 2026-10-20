@@ -184,7 +184,7 @@ html:not([data-large-text]) .casual-feather-art {
   width: 116px;
   height: 100px;
   /* Tap it and it swings (casual.ts). The img inside ignores pointers, so the span gets them. */
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }

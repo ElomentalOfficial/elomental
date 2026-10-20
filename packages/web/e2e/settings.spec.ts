@@ -52,6 +52,7 @@ test('every choice on the Accessibility page is stored and shown as chosen', asy
   await pick('Text size', '150%');
   await pick('Contrast', 'High');
   await pick('Colour-blind friendly', 'On');
+  await pick('Pointer', 'System');
   await pick('Reduce motion', 'Reduce');
   await pick('Timer', 'Hide');
   await pick('Highlight row and column', 'Off');
@@ -74,6 +75,7 @@ test('every choice on the Accessibility page is stored and shown as chosen', asy
     casualMistakeLimit: false,
     haptics: false,
     sounds: true,
+    cursor: 'system',
   });
   const html = app.locator('html');
   await expect(html).toHaveAttribute('data-large-text', '');
@@ -104,6 +106,7 @@ test('every choice on the Accessibility page is stored and shown as chosen', asy
     casualMistakeLimit: true,
     haptics: true,
     sounds: false,
+    cursor: 'gem',
   });
   for (const [group, option] of [['Text size', '100%'], ['Contrast', 'System'], ['Sounds', 'Off'], ['Wrong numbers', 'Briefly']]) {
     await expect(app.getByRole('radiogroup', { name: group }).getByRole('radio', { name: option })).toHaveAttribute('aria-checked', 'true');
@@ -149,6 +152,23 @@ test('Colour-blind friendly marks same numbers with a bar', async ({ app }) => {
   const same = app.locator('.cell.same').first();
   await expect(same).toBeVisible();
   expect(await same.evaluate((c) => getComputedStyle(c, '::after').content)).not.toBe('none');
+});
+
+test('Pointer: the gem with a mouse, lit over a button, the text cursor in a field; System gives it back', async ({ app }) => {
+  const cursors = () => app.evaluate(() => {
+    const field = document.createElement('input');
+    document.body.append(field);
+    const at = (el: Element) => getComputedStyle(el).cursor;
+    const out = { page: at(document.documentElement), button: at(document.querySelector('button')!), field: at(field) };
+    field.remove();
+    return out;
+  });
+  const gem = await cursors();
+  expect(gem.page).toContain('gem');
+  expect(gem.button).toContain('gem-lit');
+  expect(gem.field).toBe('text');
+  await usePrefs(app, { cursor: 'system' });
+  expect(await cursors()).toEqual({ page: 'auto', button: 'pointer', field: 'text' });
 });
 
 test('Timer: Hide takes the clock off the screen and out of the screen reader', async ({ app }) => {

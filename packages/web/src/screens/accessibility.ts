@@ -1,4 +1,4 @@
-import { DEFAULTS, TEXT_SIZES, a11yPrefs, onA11yChange, type A11yPrefs } from '../a11y.ts';
+import { DEFAULTS, TEXT_SIZES, a11yPrefs, finePointer, onA11yChange, type A11yPrefs } from '../a11y.ts';
 import { saveSettings } from '../backend.ts';
 import { choice as titled, segmented, settingGroup } from '../controls.ts';
 import { openShortcuts } from '../shortcuts.ts';
@@ -58,7 +58,7 @@ function confirmReset(): void {
   );
 }
 
-const group = (title: string, ...items: HTMLElement[]) => settingGroup(title, items);
+const group = (title: string, ...items: (HTMLElement | null)[]) => settingGroup(title, items);
 
 /** Setup > Accessibility: every accessibility preference, grouped (a11y.ts; docs/ACCESSIBILITY_AUDIT.md section 4). */
 export function accessibilityScreen(): Screen {
@@ -79,6 +79,13 @@ export function accessibilityScreen(): Screen {
         ['high', t.high],
       ]),
       choice('colourBlind', t.colourBlind, t.colourBlindHelp, onOff),
+      // only where there's a pointer to draw: a mouse or a trackpad
+      finePointer()
+        ? choice('cursor', t.cursor, t.cursorHelp, [
+            ['gem', t.gem],
+            ['system', t.system],
+          ])
+        : null,
     ),
     group(
       t.groups.calm,

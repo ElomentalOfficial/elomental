@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <!-- The gem cursor (owner's concept sheet, top row, second): a slim emerald blade in a
+       faceted gold frame, its tip at 2,2 (the hotspot), fine scrollwork under its base. A dark
+       rim keeps it readable on the light theme. Colours are the art's own, like the avatars'.
+       gem-lit.svg is the same over something to click; scripts/cursors.ts renders the PNGs. -->
+  <defs>
+    <linearGradient id="gem" x1="0.1" y1="0.1" x2="0.9" y2="0.9">
+      <stop offset="0" stop-color="#5fe6a6"/>
+      <stop offset="0.55" stop-color="#16975a"/>
+      <stop offset="1" stop-color="#0a472c"/>
+    </linearGradient>
+  </defs>
+  <!-- the dark rim: blade and scrollwork -->
+  <g fill="none" stroke="#17130b" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M2 2 L9.6 21.3 L18.4 14.7 Z" fill="#17130b" stroke-width="1.8"/>
+    <path d="M15 20 c-1.6 1.4-3.2 1.6-3.6 3.2 c-0.3 1.3 1 2 1.8 1.2 c0.6-0.6 0-1.4-0.6-1.1" stroke-width="2.4"/>
+    <path d="M16 19.8 c1.8 0.2 3.4-0.6 4.4 0.6 c0.8 1 0 2.2-1 1.8 c-0.7-0.3-0.5-1.2 0.2-1.2" stroke-width="2.4"/>
+    <path d="M15.6 20.6 L17.1 23.6" stroke-width="2.4"/>
+    <path d="M17.4 23.4 L18.4 24.6 L17.4 25.8 L16.4 24.6 Z" fill="#17130b" stroke-width="1.6"/>
+  </g>
+  <!-- the gold frame in three bevels: lit, mid, shade -->
+  <path d="M2 2 L9.6 21.3 L9.76 17.85 L5.2 6.27 Z" fill="#f3d688"/>
+  <path d="M2 2 L18.4 14.7 L15.04 13.89 L5.2 6.27 Z" fill="#cf9d3e"/>
+  <path d="M9.6 21.3 L18.4 14.7 L15.04 13.89 L9.76 17.85 Z" fill="#8c5f1e"/>
+  <path d="M2.6 3.3 L9.2 20" stroke="#fff4cf" stroke-width="0.5" stroke-linecap="round" opacity="0.85"/>
+  <!-- the emerald, in three facets with a glint -->
+  <path d="M5.2 6.27 L9.76 17.85 L15.04 13.89 Z" fill="url(#gem)" stroke="#4d3410" stroke-width="0.45" stroke-linejoin="round"/>
+  <path d="M5.2 6.27 L10 12.7 L9.76 17.85 Z" fill="#8ff2c4" opacity="0.4"/>
+  <path d="M9.76 17.85 L10 12.7 L15.04 13.89 Z" fill="#042716" opacity="0.38"/>
+  <ellipse cx="7.1" cy="9.6" rx="0.55" ry="1.7" transform="rotate(-22 7.1 9.6)" fill="#ffffff" opacity="0.7"/>
+  <!-- the scrollwork -->
+  <g fill="none" stroke="#dcab4b" stroke-width="1.05" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M15 20 c-1.6 1.4-3.2 1.6-3.6 3.2 c-0.3 1.3 1 2 1.8 1.2 c0.6-0.6 0-1.4-0.6-1.1"/>
+    <path d="M16 19.8 c1.8 0.2 3.4-0.6 4.4 0.6 c0.8 1 0 2.2-1 1.8 c-0.7-0.3-0.5-1.2 0.2-1.2"/>
+    <path d="M15.6 20.6 L17.1 23.6"/>
+  </g>
+  <path d="M17.4 23.4 L18.4 24.6 L17.4 25.8 L16.4 24.6 Z" fill="#cf9d3e"/>
+  <path d="M15.3 18.3 L16.7 19.7 L15.3 21.1 L13.9 19.7 Z" fill="#e8bf62" stroke="#17130b" stroke-width="0.7" stroke-linejoin="round"/>
+</svg>

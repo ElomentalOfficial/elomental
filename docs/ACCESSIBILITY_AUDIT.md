@@ -174,6 +174,7 @@ An **Accessibility** section in Setup, persisted with the other settings (local 
 | Text size | 100% · 125% · 150% · 200% (scales the type tokens and notes) | 100% |
 | Contrast | Standard · High | follows `prefers-contrast: more` |
 | Colour-blind friendly | On · Off (shape cues on wrong, hint, same number) | Off |
+| Pointer (mouse or trackpad only; this device only) | Gem · System (the device's own pointer, at the size and colour set there) | Gem; always System under forced colours |
 | Reduce motion | System · On · Off | System (`prefers-reduced-motion`) |
 | Timer | Show · Hide (time still recorded and shown on the result) | Show |
 | Highlights | Row and column · + 3×3 box · Same numbers (each on/off) | Row/column and same numbers on |

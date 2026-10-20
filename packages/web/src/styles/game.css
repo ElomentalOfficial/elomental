@@ -153,7 +153,7 @@
   /* 28px on a phone-sized board, scaling down on smaller ones. */
   font-size: min(28px, 8.2cqi);
   line-height: 1;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
   transition: background 0.12s ease;
 }
 .cell.cross {

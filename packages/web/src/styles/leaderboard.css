@@ -265,7 +265,7 @@ html[data-large-text] .lb-tabs .segment:last-child {
   color: inherit;
   font: inherit;
   text-align: left;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
 }
 .lb-row.is-me .lb-row-btn {
   background: var(--chosen-bg);
@@ -756,7 +756,7 @@ html[data-large-text] .lb-me .lb-avatar {
   background: var(--surface-2);
   color: inherit;
   font: inherit;
-  cursor: pointer;
+  cursor: var(--cursor-pointer);
 }
 .badge-pick.on {
   background: var(--chosen-bg);
