@@ -78,6 +78,13 @@ export default async function () {
     check(t === null, `SEC-10 an unconfirmed sign-up gets no Founder title (${t})`);
   }
 
+  // No private function runs for a player: finish_game's stages and every other helper.
+  {
+    const open = (await one(`select count(*)::int n from pg_proc pr join pg_namespace n on n.oid = pr.pronamespace
+      where n.nspname = 'private' and (has_function_privilege('authenticated', pr.oid, 'execute') or has_function_privilege('anon', pr.oid, 'execute'))`)).n;
+    check(open === 0, `private functions are closed to players (${open} open)`);
+  }
+
   // SEC-12: a player restricted mid-game gets no Elo for the open Ranked game.
   {
     const r = await player({ email: 'sec-r@t.test' });
