@@ -4,7 +4,9 @@
 --   player (registered, rated at least once, not hidden, not restricted by Review) with
 --   their place globally, in their affinity, in their country, and by Elo gained this season.
 --   Pages and "around me" windows are range reads on the place columns.
--- * Follows (one-way), an optional country, card privacy, and a showcase of three parts.
+-- * Follows (one-way), an optional country, card privacy, and a showcase of three badges.
+-- * Badges: a catalogue (public.badges) with where each comes from: earned (monthly affinity
+--   wins), store or event (later phases); players own them in public.player_badges.
 -- * Name search: prefix first, then similar names (pg_trgm), 30 searches a minute.
 -- * The show-off card, with privacy applied.
 -- * The monthly affinity result is settled on the 1st (pg_cron): the winner is recorded, and
@@ -20,7 +22,7 @@ alter table public.profiles
   add column lb_hidden boolean not null default false,
   -- the stats line on the show-off card
   add column card_stats boolean not null default true,
-  -- up to three owned parts shown on the card
+  -- up to three owned badges shown on the card (none chosen: the newest three)
   add column showcase text[] not null default '{}' check (cardinality(showcase) <= 3);
 
 create index profiles_name_trgm on public.profiles using gin (lower(display_name) extensions.gin_trgm_ops);
@@ -43,9 +45,20 @@ create policy "Players read who they follow" on public.follows
 revoke insert, update, delete, truncate on public.follows from anon, authenticated;
 
 -- ---------------------------------------------------------------- badges and monthly results
+-- The catalogue: every badge there is, and how it's had. Monthly win badges are added as each
+-- month is settled ('win-2026-10-fire'); store and event badges come in later phases.
+create table public.badges (
+  id text primary key,
+  source text not null check (source in ('earned', 'store', 'event')),
+  created_at timestamptz not null default now()
+);
+alter table public.badges enable row level security;
+create policy "Everyone reads the badges" on public.badges for select to authenticated using (true);
+revoke insert, update, delete, truncate on public.badges from anon, authenticated;
+
 create table public.player_badges (
   player_id uuid not null references public.profiles (id) on delete cascade,
-  badge text not null,             -- e.g. 'win-2026-10-fire'
+  badge text not null references public.badges (id),
   earned_at timestamptz not null default now(),
   primary key (player_id, badge)
 );
@@ -348,7 +361,12 @@ begin
       'solved', (select count(*) from public.games where user_id = p_player and won),
       'ranked', p.ranked_games) end,
     'badges', coalesce((select json_agg(badge order by earned_at desc) from public.player_badges where player_id = p_player), '[]'::json),
-    'showcase', to_json(p.showcase),
+    -- the chosen three (still owned), or else the newest three
+    'showcase', coalesce(
+      (select json_agg(b order by i) from unnest(p.showcase) with ordinality as s (b, i)
+        where exists (select 1 from public.player_badges where player_id = p_player and badge = s.b)),
+      (select json_agg(badge) from (select badge from public.player_badges where player_id = p_player order by earned_at desc limit 3) n),
+      '[]'::json),
     'following', exists (select 1 from public.follows where follower = me and followee = p_player),
     'me', p_player = me);
 end;
@@ -392,18 +410,19 @@ begin
 end;
 $$;
 
-create function public.set_showcase(p_parts text[]) returns void
+-- Up to three of your badges for the card.
+create function public.set_showcase(p_badges text[]) returns void
 language plpgsql security definer set search_path = '' as $$
 declare
   me uuid := auth.uid();
-  part text;
+  b text;
 begin
   if me is null then raise exception 'not_signed_in'; end if;
-  if cardinality(coalesce(p_parts, '{}')) > 3 then raise exception 'bad_request'; end if;
-  foreach part in array coalesce(p_parts, '{}') loop
-    if not private.owns(me, part) then raise exception 'not_owned'; end if;
+  if cardinality(coalesce(p_badges, '{}')) > 3 then raise exception 'bad_request'; end if;
+  foreach b in array coalesce(p_badges, '{}') loop
+    if not exists (select 1 from public.player_badges where player_id = me and badge = b) then raise exception 'not_owned'; end if;
   end loop;
-  update public.profiles set showcase = coalesce(p_parts, '{}') where id = me;
+  update public.profiles set showcase = coalesce(p_badges, '{}') where id = me;
 end;
 $$;
 
@@ -464,6 +483,7 @@ begin
   select s.affinity into win from private.standings(p_month) s where s.members > 0 order by s.standing desc, s.influence desc limit 1;
   insert into public.faction_months (month, winner) values (p_month, win);
   if win is null then return null; end if;
+  insert into public.badges (id, source) values ('win-' || to_char(p_month, 'YYYY-MM') || '-' || win, 'earned') on conflict do nothing;
   with helped as (
     select player_id from public.affinity_months where month = p_month and affinity = win and influence > 0
   ), badged as (

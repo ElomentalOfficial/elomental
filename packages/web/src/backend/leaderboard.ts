@@ -146,4 +146,12 @@ export async function setCountry(code: string | null): Promise<string | null> {
   if (!err) await refreshAccount();
   return err;
 }
-export const setShowcase = (parts: string[]) => act('set_showcase', { p_parts: parts });
+/** Up to three of your badges for your card. */
+export const setShowcase = (badges: string[]) => act('set_showcase', { p_badges: badges });
+
+/** Your badges, newest first; null offline. */
+export async function myBadges(): Promise<string[] | null> {
+  const { data, error } = await supabase.from('player_badges').select('badge, earned_at').order('earned_at', { ascending: false });
+  if (error) return null;
+  return (data ?? []).map((r) => r.badge as string);
+}

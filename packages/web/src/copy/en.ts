@@ -311,14 +311,6 @@ export const profile = {
   collectionOffline: 'Your parts show here when you’re online.',
   forge: 'Forge',
   guestNote: 'Make an account to keep your avatar, parts and Elo on any device.',
-  showcase: 'Showcase',
-  showcaseHelp: 'Up to three parts on your card, for other players to see.',
-  showcaseChoose: 'Choose',
-  showcaseTitle: 'Your showcase',
-  showcasePick: 'Choose up to three.',
-  showcaseSave: 'Save',
-  showcaseSaved: 'Showcase saved.',
-  a11yShowcasePart: (name: string, chosen: boolean) => `${name}${chosen ? ', chosen' : ''}`,
 };
 // --- Affinities ----------------------------------------------------------------
 // docs/PROGRESSION_DESIGN.md §13: each player fights for one element in a monthly war.
@@ -838,7 +830,8 @@ export const leaderboard = {
   yours: (n: number, place: number, element: string) => `You: +${n} influence · ${ORDINAL(place)} in ${element}`,
   yoursNone: (element: string) => `You: no influence yet for ${element} this month`,
   joinIn: 'Choose an affinity to join in',
-  a11yBar: (parts: string) => `This month: ${parts}`,
+  a11yBar: (parts: string) => `This month, influence per active player: ${parts}`,
+  legendNote: 'Influence per active player this month',
   a11yPart: (element: string, standing: number) => `${element} ${standing}`,
   details: 'Details',
   sheetTitle: (month: string) => `Affinities in ${month}`,
@@ -880,15 +873,27 @@ export const leaderboard = {
     showOnBoard: 'Show on the leaderboard',
     hidden: 'This player keeps their card private.',
     missing: 'This player can’t be found.',
-    badges: 'Badges',
-    showcase: 'Showcase',
-    showcaseEmpty: 'Choose up to three parts on your profile.',
     winBadge: (element: string, month: string) => `${element} won ${month}`,
     you: 'This is you',
     loading: 'Opening the card…',
   },
 };
 
+// Badges (badges.ts): earned now; the store and events later.
+export const badges = {
+  title: 'Badges',
+  unknown: 'Badge',
+  none: 'No badges yet. Win a month with your affinity to earn one; events and the store will bring more.',
+  noneOther: 'No badges yet.',
+  choose: 'Choose three',
+  chooseTitle: 'Badges on your card',
+  pick: 'Choose up to three. With none chosen, your newest three show.',
+  save: 'Save',
+  saved: 'Badges on your card saved.',
+  count: (n: number) => (n === 1 ? '1 badge' : `${n} badges`),
+  a11yPick: (name: string, chosen: boolean) => `${name}${chosen ? ', on your card' : ''}`,
+  onCard: 'On your card',
+};
 // Setup > Leaderboard and card (screens/privacy.ts)
 export const privacy = {
   title: 'Leaderboard and card',

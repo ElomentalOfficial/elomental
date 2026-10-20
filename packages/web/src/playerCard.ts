@@ -1,10 +1,10 @@
-import { avatarSvg, partSvg } from './avatar.ts';
+import { avatarSvg } from './avatar.ts';
+import { badgeArt, badgeLabel } from './badges.ts';
 import { DEFAULT_AVATAR } from './backend/forge.ts';
 import { follow, playerCard, unfollow, type PlayerCard } from './backend/leaderboard.ts';
 import { ICONS } from './icons.ts';
 import { paintPlate } from './plates.ts';
-import { rankTier, type Element } from './profile.ts';
-import { partName } from './reward.ts';
+import { rankTier } from './profile.ts';
 import { closeButton, h, openModal, toast } from './ui.ts';
 import * as copy from './copy/en.ts';
 
@@ -12,7 +12,7 @@ import * as copy from './copy/en.ts';
  * The show-off card (docs/LEADERBOARD_DESIGN.md §3.5, §4): opened from any player on the
  * leaderboard, search or the affinities sheet. Fixed slots, always the same size: the avatar
  * (moving when brought to life) in its frame, the name on its plate, rank and title,
- * affinity and country, Elo and peak, a stats line, badges, and a showcase of three. Slots for
+ * affinity and country, Elo and peak, a stats line, and three badges of the player's choice. Slots for
  * later cosmetics (card background, banner, name effect, emote) are marked with data-slot so
  * they can be filled without moving anything. The server applies the player's privacy.
  */
@@ -26,15 +26,6 @@ const regionNames = (() => {
 })();
 /** "RO" → "Romania" (the code itself when the browser can't name it). */
 export const countryName = (code: string): string => regionNames?.of(code) ?? code;
-
-/** 'win-2026-10-fire' → "Fire won October 2026", with its element. */
-export function badgeLabel(badge: string): { text: string; element: Element | null } {
-  const m = badge.match(/^win-(\d{4})-(\d{2})-(fire|water|earth|air)$/);
-  if (!m) return { text: badge, element: null };
-  const month = new Date(Number(m[1]), Number(m[2]) - 1, 1).toLocaleString('en-GB', { month: 'long', year: 'numeric' });
-  const element = m[3] as Element;
-  return { text: copy.leaderboard.card.winBadge(copy.forge.elements[element], month), element };
-}
 
 /** The avatar in its frame, moving if brought to life. */
 export const cardAvatar = (c: { avatar: string | null; frame: string | null; alive: boolean }) =>
@@ -58,27 +49,19 @@ export function cardBody(c: PlayerCard, opts: { large?: boolean } = {}): HTMLEle
     t.peak(c.peak),
     c.notRanked ? t.notRanked : c.place ? copy.leaderboard.place(c.place) : null,
   ].filter(Boolean).join(' · ');
-  const badges = c.badges.length
-    ? h('section', { class: 'card-badges' }, h('h3', { class: 'sr-only', text: t.badges }),
-        h('ul', {}, ...c.badges.slice(0, 4).map((b) => {
-          const label = badgeLabel(b);
-          return h('li', { class: 'card-badge' },
-            label.element ? h('span', { class: 'drop-element', html: ICONS.elements[label.element], attrs: { 'aria-hidden': 'true' } }) : null,
-            h('span', { text: label.text }));
-        }), c.badges.length > 4 ? h('li', { class: 'card-badge', text: `+${c.badges.length - 4}` }) : null))
-    : null;
-  // three fixed slots; an empty showcase shows only on your own card, as an invitation
-  const showcase = c.showcase.length || c.me
-    ? h('section', { class: 'card-showcase' }, h('h3', { text: t.showcase }),
-        h('ul', {}, ...[0, 1, 2].map((i) => {
-          const id = c.showcase[i];
-          return id
-            ? h('li', { class: 'showcase-slot filled' }, h('span', { class: 'showcase-art', html: partSvg(id), attrs: { 'aria-hidden': 'true' } }), h('span', { class: 'showcase-name', text: partName(id) }))
-            : h('li', { class: 'showcase-slot', attrs: { 'aria-hidden': 'true' } });
-        })),
-        !c.showcase.length ? h('p', { class: 'note', text: t.showcaseEmpty }) : null)
-    : null;
-  return h(
+  // Badges: the three the player chose (or their newest); the full profile shows them all
+  const shown = opts.large ? [...c.showcase, ...c.badges.filter((b) => !c.showcase.includes(b))] : c.showcase;
+  const badgeTile = (b: string) => {
+    const label = badgeLabel(b);
+    return h('li', { class: 'badge-slot filled' }, h('span', { class: 'badge-medal', html: badgeArt(b), attrs: { 'aria-hidden': 'true' } }), h('span', { class: 'badge-name', text: label.text }));
+  };
+  const badges = shown.length || c.me
+    ? h('section', { class: 'card-badges' },
+        h('h3', { text: opts.large && c.badges.length ? `${copy.badges.title} · ${copy.badges.count(c.badges.length)}` : copy.badges.title }),
+        h('ul', { class: opts.large ? 'badge-grid' : '' },
+          ...(opts.large ? shown.map(badgeTile) : [0, 1, 2].map((i) => (shown[i] ? badgeTile(shown[i]) : h('li', { class: 'badge-slot', attrs: { 'aria-hidden': 'true' } }))))),
+        !shown.length ? h('p', { class: 'note', text: c.me ? copy.badges.none : copy.badges.noneOther }) : null)
+    : null;  return h(
     'div',
     { class: `card-body${opts.large ? ' large' : ''}`, attrs: { 'data-slot': 'card-background' } },
     h('span', { class: 'card-banner', attrs: { 'data-slot': 'banner', 'aria-hidden': 'true' } }),
@@ -88,7 +71,6 @@ export function cardBody(c: PlayerCard, opts: { large?: boolean } = {}): HTMLEle
     h('p', { class: 'card-numbers', text: numbers }),
     c.stats ? h('p', { class: 'card-stats', text: t.stats(c.stats.solved, c.stats.ranked) }) : null,
     badges,
-    showcase,
   );
 }
 

@@ -17,6 +17,7 @@ import { ICONS } from '../icons.ts';
 import { paintPlate } from '../plates.ts';
 import { cardAvatar, openPlayerCard } from '../playerCard.ts';
 import { ELEMENTS, rankTier, type Element } from '../profile.ts';
+import { tugOfWar } from '../tug.ts';
 import { readJson, writeJson } from '../storage.ts';
 import { closeButton, goBack, h, mount, openModal, subPage, type Screen } from '../ui.ts';
 import { affinityScreen } from './affinity.ts';
@@ -322,16 +323,14 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
         ? t.level
         : t.leads(name(first.affinity), name(second.affinity), Number(second.standing) > 0 ? Math.round(((Number(first.standing) - Number(second.standing)) / Number(second.standing)) * 100) : 100);
     const days = Math.max(1, Math.ceil((new Date(b.endsAt).getTime() - Date.now()) / 86_400_000));
-    const bar = h(
-      'div',
-      { class: 'lb-tug', attrs: { role: 'img', 'aria-label': t.a11yBar(standings.map((s) => t.a11yPart(name(s.affinity), Number(s.standing))).join(', ')) } },
-      ...standings.map((s) => {
-        const seg = h('span', { class: `tug-seg el-${s.affinity}${s.affinity === first.affinity && sum > 0 ? ' lead' : ''}`, html: ICONS.elements[s.affinity] });
-        seg.style.flexGrow = String(sum === 0 ? 1 : Math.max(Number(s.standing), sum * 0.06));
-        return seg;
-      }),
-    );
-    const mine = b.mine
+    // the tug of war, live (tug.ts), then the same in words: each side and its influence per player
+    const visual = h('div', { class: 'lb-tug-wrap', attrs: { role: 'img', 'aria-label': t.a11yBar(standings.map((s) => t.a11yPart(name(s.affinity), Number(s.standing))).join(', ')) } });
+    visual.append(tugOfWar(standings));
+    const legend = h('ul', { class: 'lb-tug-legend', attrs: { 'aria-hidden': 'true' } },
+      ...standings.map((s) => h('li', { class: `el-${s.affinity}${sum > 0 && s.affinity === first.affinity ? ' lead' : ''}` },
+        h('span', { class: 'tug-dot', html: ICONS.elements[s.affinity] }),
+        h('span', { text: name(s.affinity) }),
+        h('strong', { text: String(Number(s.standing)) }))));    const mine = b.mine
       ? b.myInfluence > 0 && b.myPlace
         ? t.yours(b.myInfluence, b.myPlace, name(b.mine))
         : t.yoursNone(name(b.mine))
@@ -340,7 +339,9 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
       h('div', { class: 'lb-faction-head' },
         h('h2', { text: t.affinitiesOf(monthName(b.month)) }),
         h('button', { class: 'link-btn', text: t.details, attrs: { type: 'button' }, onclick: () => openFaction(b) })),
-      bar,
+      visual,
+      legend,
+      h('p', { class: 'lb-legend-note', text: t.legendNote }),
       h('p', { class: 'lb-lead', text: lead }),
       h('p', { class: 'lb-faction-line', text: `${t.daysLeft(days)} · ${t.prize}` }),
       mine

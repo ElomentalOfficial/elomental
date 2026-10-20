@@ -5928,35 +5928,90 @@ button.plate-card {
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
-.lb-tug {
-  display: flex;
-  gap: 3px;
-  height: 32px;
-  border-radius: 8px;
-  overflow: hidden;
+/* The tug of war (tug.ts): four corners pulling one knot. */
+.lb-tug-wrap {
+  margin: var(--space-1) calc(-1 * var(--space-2)) 0;
 }
-.tug-seg {
+.tug {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.tug .el-fire { --el: var(--el-fire); }
+.tug .el-water { --el: var(--el-water); }
+.tug .el-earth { --el: var(--el-earth); }
+.tug .el-air { --el: var(--el-air); }
+.tug-rope {
+  fill: none;
+  stroke: var(--el);
+  stroke-linecap: round;
+}
+/* the rope's twist, running towards the side that pulls */
+.tug-strands {
+  fill: none;
+  stroke: var(--c-bright);
+  stroke-opacity: 0.35;
+  stroke-dasharray: 2 5;
+  stroke-linecap: round;
+}
+.tug-orb circle {
+  fill: var(--el);
+  stroke: var(--surface);
+  stroke-width: 3;
+}
+.tug-orb g {
+  stroke: var(--c-bright);
+}
+.tug-orb.lead circle {
+  stroke: var(--c-bright);
+  stroke-width: 2.5;
+}
+.tug-knot circle {
+  fill: var(--text);
+}
+.tug-knot .tug-knot-core {
+  fill: var(--surface);
+}
+/* the same in words: each side and its influence per player */
+.lb-tug-legend {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.lb-tug-legend li {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-width: 28px;
-  flex-basis: 0;
-  background: var(--el);
-  color: var(--c-bright);
+  gap: 2px;
+  padding: var(--space-1) 0;
+  border-radius: 8px;
+  font-family: var(--serif);
+  font-size: var(--fs-small);
 }
-.tug-seg svg {
+.lb-tug-legend li.lead {
+  background: var(--surface-2);
+  font-weight: 700;
+}
+.lb-tug-legend strong {
+  font-family: var(--font);
+  font-size: var(--fs-body);
+  font-variant-numeric: tabular-nums;
+}
+.tug-dot svg {
+  display: block;
   width: 18px;
   height: 18px;
 }
-.tug-seg.el-fire { --el: var(--el-fire); }
-.tug-seg.el-water { --el: var(--el-water); }
-.tug-seg.el-earth { --el: var(--el-earth); }
-.tug-seg.el-air { --el: var(--el-air); }
-/* the leader: a bright inner edge, so it reads without relying on colour (its name is written too) */
-.tug-seg.lead {
-  box-shadow: inset 0 0 0 2px var(--c-bright);
-}
-.lb-lead {
+.lb-legend-note {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+  text-align: center;
+}.lb-lead {
   font-size: var(--fs-label);
   font-weight: 700;
 }
@@ -6328,44 +6383,26 @@ button.plate-card {
   font-size: var(--fs-small);
   color: var(--muted);
 }
-.card-badges ul {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.card-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: var(--surface-2);
-  font-size: var(--fs-small);
-  font-weight: 700;
-}
-.card-badge .drop-element {
-  display: inline-flex;
-  width: 16px;
-  height: 16px;
-}
-.card-showcase {
+/* Badges (badges.ts): medals in fixed slots; three on the card, all on the full profile. */
+.card-badges {
   align-self: stretch;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
 }
-.card-showcase h3,
-.card-showcase h2 {
+.card-badges h3,
+.card-badges h2 {
   font-size: var(--fs-small);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--muted);
 }
-.card-showcase ul {
+.profile-section.card-badges h2 {
+  font-size: var(--fs-label);
+  font-weight: 800;
+  color: var(--text);
+}
+.card-badges ul {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--space-2);
@@ -6373,31 +6410,96 @@ button.plate-card {
   padding: 0;
   list-style: none;
 }
-.showcase-slot {
+.card-badges ul.badge-grid,
+.badge-grid {
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+}
+.badge-slot {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  min-height: 92px;
+  min-height: 112px;
   padding: var(--space-2);
   border-radius: 10px;
   outline: 2px dashed var(--line);
   outline-offset: -2px;
+  text-align: center;
 }
-.showcase-slot.filled {
+.badge-slot.filled {
   outline: 0;
   background: var(--surface-2);
 }
-.showcase-art {
-  display: block;
-  width: 56px;
-  height: 56px;
+.badge-slot.on-card {
+  background: var(--chosen-bg);
 }
-.showcase-name {
+.badge-medal {
+  display: block;
+  width: 60px;
+  height: 60px;
+}
+.badge-name {
   font-family: var(--serif);
   font-size: var(--fs-small);
+  line-height: 1.25;
 }
-.card-actions {
+.badge-tag {
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.badge-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  --el: var(--r-mythic);
+}
+.badge-art.el-fire { --el: var(--el-fire); }
+.badge-art.el-water { --el: var(--el-water); }
+.badge-art.el-earth { --el: var(--el-earth); }
+.badge-art.el-air { --el: var(--el-air); }
+.badge-shield {
+  fill: var(--el);
+  stroke: var(--plate-gold);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.badge-inner {
+  fill: none;
+  stroke: var(--c-bright);
+  stroke-opacity: 0.45;
+  stroke-width: 1;
+}
+.badge-mark {
+  color: var(--c-bright);
+}
+.badge-laurel {
+  fill: var(--plate-gold);
+}
+.badge-pick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: var(--space-2);
+  align-self: stretch;
+}
+.badge-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-2);
+  border: 0;
+  border-radius: 10px;
+  background: var(--surface-2);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.badge-pick.on {
+  background: var(--chosen-bg);
+  box-shadow: inset 0 0 0 2px var(--accent);
+}.card-actions {
   display: flex;
   flex-direction: column;
   align-self: stretch;

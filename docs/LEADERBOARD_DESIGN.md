@@ -92,13 +92,12 @@ Mistakes to avoid:
 ```
 The list column is capped at the phone column width × 1.4 so lines stay short; the right column holds what the phone puts in sheets.
 
-### 3.3 Affinity tug of war (compact)
+### 3.3 Affinity tug of war (a live visual)
 
-- One horizontal bar split into four, each element's width = its share of the month's **standing** (average influence per active player, which is how the month is won). Each segment carries the element mark and its colour token; the leader's name is written beside it, never colour alone.
-- Line 1: "Fire leads Water by 12%". Line 2: "11 days left · Winners get a badge and 300 Stardust".
-- Line 3 (yours): "You: +54 influence this month · 12th in Fire", or "Choose an affinity to join in" with the way to the choice.
-- Tap → sheet: the four elements with members, total influence and standing; your contribution; **top contributors in your affinity** (top 10, hidden players left out).
-
+- A real tug of war (`tug.ts`): the four elements sit in the corners, each pulling a rope tied to one knot in the middle. The knot settles towards the sides that lead this month (by how far they lead, measured in **standing**: influence per active player, which is how the month is won). A strong side's rope is thick, taut and reels in; a weak side's is thin and sags. The knot strains towards the leader and back, gently, all the time. Still at its final pose under Reduce motion.
+- Under it, the same in words: a four-column legend (element, standing; the leader highlighted) and "Influence per active player this month".
+- Then: "Fire leads Water by 12%", "11 days left · Winners get a badge and 300 Stardust", and yours: "You: +54 influence this month · 12th in Fire" (or "Choose an affinity to join in").
+- Details → sheet: the four elements with members, total influence and standing; the prize; last month's winner; **top 10 in your affinity** (hidden players left out).
 ### 3.4 Search
 
 - A field at the top. Typing (3+ characters, after 300 ms pause) searches names: prefix matches first, then similar names (typo tolerant, trigram similarity), up to 20 results; each shows avatar, name, rank, place.
@@ -135,18 +134,18 @@ The list column is capped at the phone column width × 1.4 so lines stay short; 
 | Name effect | — | on the name | — | Shimmer, ink, embers (respect Reduce motion) |
 | Card background | — | top band | default surface | Backgrounds, animated ones |
 | Banner | — | behind the avatar, top of card | — | Banners (seasonal, faction) |
-| Badges | — | row of 4 | Monthly winner badges, Founder | Event badges (earned, never sold) |
-| Showcase | — | 3 slots | Owned avatars and frames | Any cosmetic |
+| Badges | — | 3 chosen (the newest if none chosen); all on the full profile | Monthly affinity wins | Store badges and event badges (`public.badges.source`: earned, store, event) |
 | Emote | — | small button on the card | — | Emotes played on open (sound off by default) |
 | Row accent | left edge 3px | — | — | Never sold: rows stay uniform |
 
-Monetization notes: rows get only avatar, frame and plate, so paying never makes the list harder to read; every slot has a free default; badges are earned only (selling them would cheapen winning); animated cosmetics pause under Reduce motion; cards render the same size whatever is equipped, so cosmetics can't push content around.
+Monetization notes: rows get only avatar, frame and plate, so paying never makes the list harder to read; every slot has a free default; badges come earned, bought or from events, and each says where it came from, so a bought badge never passes for a won one; animated cosmetics pause under Reduce motion; cards render the same size whatever is equipped, so cosmetics can't push content around.
 
 ## 5. Data and API
 
 ### 5.1 Tables and columns (migration `leaderboard`)
 
-- `profiles` + `country text` (ISO-3166 alpha-2), `lb_hidden boolean` (leave every list and search), `card_stats boolean` (stats line on the card), `card_country boolean`, `showcase text[]` (≤ 3 owned part ids).
+- `profiles` + `country text` (ISO-3166 alpha-2), `lb_hidden boolean` (leave every list and search), `card_stats boolean` (stats line on the card), `showcase text[]` (≤ 3 owned badge ids).
+- `badges (id, source)`: the catalogue; `source` is earned, store or event.
 - `follows (follower, followee, created_at)`: one-way; max 500 per player; read your own only.
 - `player_badges (player_id, badge, earned_at)`: e.g. `win-2026-10-fire`.
 - `faction_months (month, winner, settled_at)`: the settled monthly results.
@@ -186,7 +185,8 @@ Why: ranking hundreds of thousands of players on every request is expensive and 
 - `packages/web/src/screens/leaderboard.ts`: the page, the affinity card and sheet, search, the tier sheet.
 - `packages/web/src/playerCard.ts`: the show-off card (also used by the full profile of another player).
 - `packages/web/src/screens/privacy.ts`: Setup > Leaderboard and card (country, hide me, stats, country on card).
-- Profile: a Showcase section to choose 3 parts.
+- Profile: a Badges section (every badge you own; choose the three on your card).
+- `packages/web/src/badges.ts`: badge medals (vector) and names; `packages/web/src/tug.ts`: the tug of war.
 - Tests: `supabase/tests/economy.mjs` (ranks, around-me, privacy, follows, search, settlement), e2e a11y.
 
 ## 7. States and readability

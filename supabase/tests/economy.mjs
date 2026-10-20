@@ -318,9 +318,8 @@ await db.query(`select public.set_card_privacy(null, false)`);
 await as(cata);
 const private1 = (await db.query(`select public.player_card($1) as j`, [ana])).rows[0].j;
 check(private1.stats === null, 'stats hidden when the player turns them off');
-err = null; try { await db.query(`select public.set_showcase(array['s0-avatar-shocked'])`); } catch (e) { err = e.message; }
-check(err?.includes('not_owned'), 'showcase: only parts you own');
-await db.query(`select public.set_showcase(array['s0-avatar-happy'])`);
+err = null; try { await db.query(`select public.set_showcase(array['win-2026-09-fire'])`); } catch (e) { err = e.message; }
+check(err?.includes('not_owned'), 'showcase: only badges you own')
 const tiers = (await db.query(`select public.lb_tiers() as j`)).rows[0].j;
 check(tiers.tiers.length === 5 && tiers.tiers.reduce((n, t) => n + Number(t.players), 0) === Number(tiers.total), `tiers add up (${tiers.tiers.map((t) => t.players).join('/')} of ${tiers.total})`);
 await db.exec(`insert into public.affinity_months (month, player_id, affinity, influence, solves) values
@@ -331,6 +330,12 @@ await db.query(`select private.settle_faction_month('2026-09-01')`);
 const after2 = (await db.query(`select stardust from public.profiles where id = $1`, [cata])).rows[0].stardust;
 const badges = (await db.query(`select badge from public.player_badges where player_id = $1`, [cata])).rows.map((r) => r.badge);
 check(win === 'fire' && after2 - before === 300 && badges.join() === 'win-2026-09-fire', `settled: Fire wins; badge and 300 Stardust once (${after2 - before}, ${badges.join()})`);
+await as(cata);
+await db.query(`select public.set_showcase(array['win-2026-09-fire'])`);
+const shown = (await db.query(`select public.player_card($1) as j`, [cata])).rows[0].j;
+check(JSON.stringify(shown.showcase) === '["win-2026-09-fire"]', `showcase: your chosen badge on your card (${JSON.stringify(shown.showcase)})`);
+const auto = (await db.query(`select public.player_card($1) as j`, [ana])).rows[0].j;
+check(JSON.stringify(auto.showcase) === '["win-2026-09-fire"]', 'none chosen: the newest badges show');
 const board = (await db.query(`select public.faction_board() as j`)).rows[0].j;
 check(board.mine === 'fire' && board.standings.length === 4 && board.lastWinner?.winner === 'fire', `faction board (mine ${board.mine}, last winner ${board.lastWinner?.winner})`);
 
