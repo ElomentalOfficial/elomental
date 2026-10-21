@@ -8,7 +8,7 @@ Everything is tried on beta first; live (elomental.online) only changes when the
 | Branch | `beta` | `main` |
 | Site | beta.elomental.online, GitHub Pages of `Barsmin/elomental-beta` | elomental.online, GitHub Pages of `Barsmin/elomental` |
 | Deploy | `.github/workflows/beta.yml` on every push to `beta` | `.github/workflows/pages.yml` on every push to `main` |
-| Database | Supabase project `elomental-beta` | Supabase project `xekeiwaxxsmvalezgtyj` |
+| Database | Supabase project `elomental-beta` (`skuxlbukdynqsetnyqzw`, eu-central-1) | Supabase project `elomental` (`xekeiwaxxsmvalezgtyj`) |
 | Looks | "Beta" tag in the corner, "Beta ·" in the tab title (`src/beta.ts`) | as is |
 
 The app picks its project when it's built (`src/backend/client.ts`: `VITE_SUPABASE_URL`,
@@ -34,11 +34,13 @@ The owner's accounts; done once.
    tokens > Generate: repository access only `Barsmin/elomental-beta`, permission Contents: Read
    and write. In `Barsmin/elomental` > Settings > Secrets and variables > Actions > Secrets, add
    it as `BETA_DEPLOY_TOKEN`.
-3. **Supabase: the beta project.** A new project `elomental-beta` (free plan, same region as
-   live). Then, from the project's Settings > API, in `Barsmin/elomental` > Settings > Secrets
-   and variables > Actions > Variables, add `BETA_SUPABASE_URL` (the project URL) and
-   `BETA_SUPABASE_KEY` (the publishable key). Claude applies every migration in
-   `supabase/migrations` to it, deploys the `audit-solve` Edge Function, and checks it.
+3. **Supabase: the beta project.** Done 2026-10-21: `elomental-beta` (free plan, eu-central-1),
+   every migration in `supabase/migrations` applied word for word (fetched from commit 8908850,
+   recorded under the live versions), `audit-solve` deployed (the same bundle as live), and
+   compared with live: functions, columns, grants, policies, triggers and scheduled jobs match.
+   In `Barsmin/elomental` > Settings > Secrets and variables > Actions > Variables, add
+   `BETA_SUPABASE_URL` = `https://skuxlbukdynqsetnyqzw.supabase.co` and `BETA_SUPABASE_KEY` = the
+   beta project's publishable key (Settings > API Keys).
 4. **Supabase beta: sign-in.** Authentication > URL Configuration: Site URL
    `https://beta.elomental.online`, and the same under Redirect URLs. Authentication > Sign In /
    Providers: allow anonymous sign-ins and email, as on live. Email templates as on live
