@@ -93,11 +93,8 @@ export const home = {
     ranked: 'Play Ranked',
   },
   storeLater: 'The Store opens soon.',
-  /** The quiet line on the profile card: what to play for next. */
+  /** The way to choose a side, where one isn't chosen yet (Profile, the result). */
   line: {
-    start: 'Start with today’s Daily Square',
-    dailyOpen: 'Today’s Daily is waiting',
-    toNextPart: (left: number) => `${left} ${left === 1 ? 'square' : 'squares'} to your next part`,
     chooseSide: 'Choose your affinity',
   },
   /** Once, on the first launch after your side won the month (settle_faction_month). */

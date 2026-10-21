@@ -9,16 +9,12 @@ import { rankName } from '../rankName.ts';
 import { paintPlate } from '../plates.ts';
 import { readJson, writeJson } from '../storage.ts';
 import { profileScreen } from './profile.ts';
-import { affinityDue } from '../backend/affinity.ts';
-import { affinityScreen } from './affinity.ts';
 import { addToHomeNote, countNoteVisit } from '../install.ts';
 import { openLazy, prefetch } from '../lazy.ts';
 import { enableTilt, turnstileIn, turnstileOut } from '../motion.ts';
 import {
-  dailyKey,
   eloDelta,
   loadProfile,
-  nextRank,
   parMs,
   rankTier,
   rankedOpponent,
@@ -77,8 +73,6 @@ export function homeScreen(): Screen {
 
   const nameEl = h('strong', { class: 'profile-name' });
   const rankEl = h('span', { class: 'profile-rank' });
-  // what to play for next (full review H12), or the way to choose a side (M13)
-  const lineEl = h('p', { class: 'home-line' });
   const eloChip = stat('', copy.common.elo);
   const dustChip = stat('', copy.common.stardust, ICONS.dust);
   const spiritChip = stat('', copy.common.spirits, ICONS.spirit);
@@ -98,32 +92,6 @@ export function homeScreen(): Screen {
     // Spirits are rare (months for most players): the chip shows once there's one (decision D6)
     spiritChip.hidden = p.spirits === 0;
     stats.classList.toggle('two', p.spirits === 0);
-    paintLine();
-  };
-  const paintLine = () => {
-    if (affinityDue()) {
-      lineEl.replaceChildren(h('button', { class: 'link-btn', text: copy.home.line.chooseSide, attrs: { type: 'button' }, onclick: () => leave(profileCard, () => mount(affinityScreen())) }));
-      return;
-    }
-    const account = cachedAccount();
-    const p = loadProfile();
-    const dailyDone = !!p.daily[dailyKey()];
-    // a first-time player (a local guest has no solve count: nothing earned yet means none)
-    const firstTime = account ? (account.solved ?? 0) === 0 : !p.dust && !Object.keys(p.daily).length;
-    if (firstTime) {
-      lineEl.replaceChildren(h('button', { class: 'link-btn', text: copy.home.line.start, attrs: { type: 'button' }, onclick: () => leave(daily, () => mount(dailyScreen())) }));
-      return;
-    }
-    // the two nearest things to play for, so the line fits on one row: today's Daily if it's
-    // still open, the next part, the next rank
-    const next = p.rankedGames > 0 && !p.title ? nextRank(p.elo, p.tier) : null;
-    const parts = [
-      dailyDone ? null : copy.home.line.dailyOpen,
-      account?.partProgress != null ? copy.home.line.toNextPart(3 - account.partProgress) : null,
-      next ? copy.common.toNextRank(next.gap, next.label) : null,
-    ].filter((s): s is string => !!s).slice(0, document.documentElement.hasAttribute('data-large-text') ? 1 : 2);
-    // each part stays whole: the line only breaks between them
-    lineEl.replaceChildren(parts.map((s) => s.replace(/ /g, ' ')).join(' · '));
   };
   const profileCard = h(
     'section',
@@ -134,7 +102,6 @@ export function homeScreen(): Screen {
       avatarBtn,
       nameEl,
       rankEl,
-      lineEl,
     ),
     stats,
     h('div', { class: 'setup-notch' }, setupTile),
@@ -174,8 +141,6 @@ export function homeScreen(): Screen {
         animated.pop();
       } else countNoteVisit();
     }
-    // the line is the first thing to go on a screen too short for it (the stats stay)
-    if (spills()) lineEl.hidden = true;
   };
   const enter = () => {
     fitNote();

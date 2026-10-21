@@ -112,12 +112,13 @@ test('the signed-in screens pass axe', async ({ page }) => {
   expect(found).toEqual([]);
 });
 
-test('Home: the next-step line, Spirits only once there is one, the Store still to come', async ({ page }) => {
+test('Home: the name and rank only, Spirits only once there is one, the Store still to come', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await open(page, 100);
   await expect(page.locator('.tile.area-casual')).toBeVisible();
-  // 930 Elo (Adept), 80 Ranked games: the line says what's next
-  await expect(page.locator('.home-line')).toHaveText(/^Today’s\sDaily\sis\swaiting · \d\ssquares?\sto\syour\snext\spart$/);
+  // 930 Elo: the rank under the name, and no next-step line under it (owner, 2026-10-21)
+  await expect(page.locator('.profile-rank')).toHaveText('Adept');
+  await expect(page.locator('.home-line')).toHaveCount(0);
   // the fixture has 1 Spirit: three chips, the numbers on one line
   await expect(page.locator('.stat-chip:visible')).toHaveCount(3);
   await settled(page); // the tiles have turned in

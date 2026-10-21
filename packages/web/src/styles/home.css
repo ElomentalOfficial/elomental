@@ -370,12 +370,10 @@
   font-weight: 800;
   text-transform: uppercase;
 }
+/* the title and rank under the name, a size down from it (as on the Profile, .profile-tier) */
 .profile-rank {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
   font-family: var(--serif);
-  font-size: var(--fs-body);
+  font-size: var(--fs-label);
   color: var(--muted);
 }
 /* Ranked rank names (rankName.ts): each rank's name in its own metal (palette.ts RANKS):
@@ -476,22 +474,7 @@ html[data-reduce-motion] .promotion .rank-name {
 html[data-large-text] .profile-stats.two {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-/* The next thing to play for, under the rank: one quiet line (home.ts paintLine). */
-.home-line {
-  max-width: 34ch;
-  margin: var(--space-1) 0 var(--space-3);
-  font-family: var(--serif);
-  font-size: var(--fs-small);
-  line-height: 1.35;
-  color: var(--muted);
-  text-align: center;
-}
-/* Still a 44px target, but it reaches over the gaps around it rather than taking room. */
-.home-line .link-btn {
-  margin-block: calc(var(--space-3) * -1);
-  font-size: var(--fs-small);
-}
-/* Shorter phones (an iPhone SE): a slightly smaller avatar leaves the line room. */
+/* Shorter phones (an iPhone SE): a slightly smaller avatar leaves the stats room. */
 @media (max-height: 700px) {
   .profile-card .avatar {
     width: clamp(60px, 11dvh, 120px);
