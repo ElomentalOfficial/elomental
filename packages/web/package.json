@@ -10,6 +10,7 @@
     "typecheck": "tsc",
     "test": "node --test \"test/**/*.test.ts\"",
     "a11y:contrast": "node scripts/contrast.ts",
+    "palette": "node scripts/palette.ts",
     "test:a11y": "playwright test"
   },
   "dependencies": {

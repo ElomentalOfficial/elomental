@@ -1,14 +1,20 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ACCEPTED, contrast, lookAlikes, readStyles } from '../scripts/contrast.ts';
+import { readFileSync } from 'node:fs';
+import { accepted, contrast, lookAlikes, readStyles } from '../scripts/contrast.ts';
+import { PALETTE_FILE, paletteCss } from '../scripts/palette.ts';
 
 const css = readStyles();
+
+test('the palette stylesheet is what scripts/palette.ts generates (run npm run palette after editing it)', () => {
+  assert.equal(readFileSync(PALETTE_FILE, 'utf8'), paletteCss());
+});
 
 test('every colour pair meets its WCAG ratio in both themes', () => {
   const failures: string[] = [];
   for (const [theme, rows] of Object.entries(contrast(css))) {
     for (const r of rows) {
-      if (!r.pass && !ACCEPTED[r.label]) failures.push(`${theme}: ${r.label} ${r.ratio.toFixed(2)}:1 (need ${r.need}) ${r.fg} on ${r.bg}`);
+      if (!r.pass && !accepted(theme, r.label)) failures.push(`${theme}: ${r.label} ${r.ratio.toFixed(2)}:1 (need ${r.need}) ${r.fg} on ${r.bg}`);
     }
   }
   assert.deepEqual(failures, []);

@@ -97,7 +97,7 @@ html[data-large-text] .part-grid {
   content: '';
   position: absolute;
   inset: 6px;
-  border: 1px solid var(--r-mythic);
+  border: 1px solid var(--r-mythic-line);
   border-radius: calc(var(--radius-lg) - 6px);
   pointer-events: none;
 }
@@ -110,7 +110,7 @@ html[data-large-text] .part-grid {
   width: 14px;
   height: 14px;
   border-top-right-radius: calc(var(--radius-lg) - 2px);
-  background: linear-gradient(225deg, var(--r-mythic) 50%, transparent 50%);
+  background: linear-gradient(225deg, var(--r-mythic-line) 50%, transparent 50%);
   pointer-events: none;
 }
 /* an avatar brought to life: the Spirit glyph beside "Alive" */
@@ -164,13 +164,15 @@ html[data-large-text] .part-grid {
   opacity: 0.4;
   filter: grayscale(0.6);
 }
-/* Rarity tag: the rarity's name on its own colour (Bright text, 4.5:1 or better). */
+/* Rarity tag: the rarity's name on its own colour, in its own text colour (4.5:1 or better), with
+   its edge where a light fill would melt into a light surface (palette.css: fill, on, mark). */
 .rarity-tag {
   display: inline-block;
   padding: 1px 8px;
   border-radius: 999px;
   background: var(--rc);
-  color: var(--c-bright);
+  color: var(--rc-on);
+  box-shadow: inset 0 0 0 1px var(--rc-mark);
   /* 14px floor for anything that carries meaning (docs/AUDIT.md); Montserrat, as a bold tag */
   font-family: var(--font);
   font-size: var(--fs-small);
@@ -178,10 +180,10 @@ html[data-large-text] .part-grid {
   letter-spacing: 0.03em;
   white-space: nowrap;
 }
-.rarity-common { --rc: var(--r-common); }
-.rarity-rare { --rc: var(--r-rare); }
-.rarity-epic { --rc: var(--r-epic); }
-.rarity-mythic { --rc: var(--r-mythic); }
+.rarity-common { --rc: var(--r-common-fill); --rc-on: var(--r-common-on); --rc-mark: var(--r-common-mark); --rc-line: var(--r-common-line); }
+.rarity-rare { --rc: var(--r-rare-fill); --rc-on: var(--r-rare-on); --rc-mark: var(--r-rare-mark); --rc-line: var(--r-rare-line); }
+.rarity-epic { --rc: var(--r-epic-fill); --rc-on: var(--r-epic-on); --rc-mark: var(--r-epic-mark); --rc-line: var(--r-epic-line); }
+.rarity-mythic { --rc: var(--r-mythic-fill); --rc-on: var(--r-mythic-on); --rc-mark: var(--r-mythic-mark); --rc-line: var(--r-mythic-line); }
 .part-sheet {
   text-align: center;
 }
@@ -326,7 +328,8 @@ html[data-large-text] .part-grid {
   border: 0;
   border-radius: var(--radius-lg);
   background: var(--surface-2);
-  box-shadow: inset 0 0 0 2px var(--rc);
+  /* the ring is the cue at the reveal: the line role (3:1 on every surface) */
+  box-shadow: inset 0 0 0 2px var(--rc-line);
   color: inherit;
   font: inherit;
   text-align: left;
@@ -357,7 +360,8 @@ html[data-large-text] .part-grid {
   padding: 1px 8px;
   border-radius: 999px;
   background: var(--rc);
-  color: var(--c-bright);
+  color: var(--rc-on);
+  box-shadow: inset 0 0 0 1px var(--rc-mark);
   font-size: var(--fs-small);
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -404,8 +408,8 @@ html[data-large-text] .part-grid {
   to { opacity: 0; transform: scale(1.8); }
 }
 @keyframes reveal-shine {
-  0%, 70%, 100% { box-shadow: inset 0 0 0 2px var(--rc); }
-  82% { box-shadow: inset 0 0 0 2px var(--rc), 0 0 14px color-mix(in srgb, var(--rc) 70%, transparent); }
+  0%, 70%, 100% { box-shadow: inset 0 0 0 2px var(--rc-line); }
+  82% { box-shadow: inset 0 0 0 2px var(--rc-line), 0 0 14px color-mix(in srgb, var(--rc) 70%, transparent); }
 }
 .drop-element {
   display: inline-block;

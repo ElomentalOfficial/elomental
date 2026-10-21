@@ -20,8 +20,13 @@
 ## Accessibility
 
 - Read [docs/ACCESSIBILITY_AUDIT.md](docs/ACCESSIBILITY_AUDIT.md) before any UI work. The bar is WCAG 2.2 AA.
-- Colours come only from the design tokens in `packages/web/src/styles/tokens.css` (`--c-*` palette,
-  then the theme tokens). No raw colour values in components or screens.
+- Colours come only from the design tokens: the palette in `packages/web/src/styles/palette.css`
+  (ramps `--c-<hue>-<step>`, and each element, rarity and Home tone's roles `-fill`, `-on`, `-ink`,
+  `-line`, `-wash`, `-mark`), then the theme tokens in `tokens.css`. No raw colour values in
+  components or screens. palette.css is generated: a new colour is one ramp and one swatch in
+  `packages/web/scripts/palette.ts`, then `npm run palette -w @elomental/web`; `npm test` checks
+  every role on every surface. Use a role, never a step, in a component; a shape seen alone
+  uses `-line`, `-mark` only beside its name or crest.
 - `styles.css` only lists the files in `src/styles/` in cascade order (tokens, base, then one file per
   screen or feature). Put a rule in its screen's file; a new file goes where its rules belong in that order.
 - Any new colour pair goes into `PAIRS` in `packages/web/scripts/contrast.ts`; `npm test` must pass

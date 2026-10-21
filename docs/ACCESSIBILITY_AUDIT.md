@@ -148,6 +148,12 @@ States compared pairwise: cell, row/column highlight, same number, wrong, hint f
 
 ## 3. Proposed palette (design tokens)
 
+*Since 2026-10-21 the palette is a generated system: one ramp per hue whose steps share their
+contrast across hues, and fill / on / ink / line / wash / mark roles for every element, rarity
+and Home tone, checked on every surface in all four theme variants (`scripts/palette.ts`,
+`src/styles/palette.css`; design in `docs/review/palette-2026-10-21-ui.md` and `-art.md`). The
+section below is the earlier audit.*
+
 The palette stays the Figma one: two tokens are nudged, the rest are new tokens built from existing colours. Nothing turns black, pure white or pure red.
 
 | Token | Dark now | Dark proposed | Light now | Light proposed | Why |

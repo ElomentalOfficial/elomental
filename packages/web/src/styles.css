@@ -1,9 +1,10 @@
 /*
- * The stylesheet, in cascade order: the design tokens first, then the page and the shared
+ * The stylesheet, in cascade order: the palette (generated) and the design tokens first, then the page and the shared
  * pieces, then one file per screen or feature, then the wide layouts and the later screens.
  * The order matters (later rules win ties), so a new file goes where its rules belong, and a
  * rule moved between files keeps its place in this order. Vite inlines these into one file.
  */
+@import './styles/palette.css';
 @import './styles/tokens.css';
 @import './styles/base.css';
 @import './styles/buttons.css';

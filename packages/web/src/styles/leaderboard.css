@@ -49,7 +49,8 @@
   height: 44px;
   border-radius: var(--radius-lg);
   background: var(--el, var(--surface-2));
-  color: var(--c-bright);
+  color: var(--el-on, var(--text));
+  box-shadow: inset 0 0 0 1px var(--el-mark, transparent);
 }
 .lb-leader-mark svg {
   width: 24px;
@@ -82,19 +83,21 @@
   min-width: 10px;
   border-radius: 999px;
   background: var(--el);
+  /* the edge shows where a light fill meets a light surface (Air on the light theme) */
+  box-shadow: inset 0 0 0 1px var(--el-mark);
   transition: flex-grow 0.8s cubic-bezier(0.2, 0.8, 0.3, 1);
 }
 html[data-reduce-motion] .strength-seg {
   transition: none;
 }
 .lb-faction .el-fire,
-.lb-strength-legend .el-fire { --el: var(--el-fire); }
+.lb-strength-legend .el-fire { --el: var(--el-fire-fill); --el-on: var(--el-fire-on); --el-mark: var(--el-fire-mark); }
 .lb-faction .el-water,
-.lb-strength-legend .el-water { --el: var(--el-water); }
+.lb-strength-legend .el-water { --el: var(--el-water-fill); --el-on: var(--el-water-on); --el-mark: var(--el-water-mark); }
 .lb-faction .el-earth,
-.lb-strength-legend .el-earth { --el: var(--el-earth); }
+.lb-strength-legend .el-earth { --el: var(--el-earth-fill); --el-on: var(--el-earth-on); --el-mark: var(--el-earth-mark); }
 .lb-faction .el-air,
-.lb-strength-legend .el-air { --el: var(--el-air); }
+.lb-strength-legend .el-air { --el: var(--el-air-fill); --el-on: var(--el-air-on); --el-mark: var(--el-air-mark); }
 /* Four across, two by two once larger text needs the room. */
 .lb-strength-legend {
   display: grid;
@@ -124,7 +127,8 @@ html[data-reduce-motion] .strength-seg {
   height: 18px;
   border-radius: 50%;
   background: var(--el);
-  color: var(--c-bright);
+  color: var(--el-on);
+  box-shadow: inset 0 0 0 1px var(--el-mark);
   flex: none;
 }
 .strength-dot svg {
@@ -715,12 +719,13 @@ html[data-large-text] .lb-me .lb-avatar {
   display: block;
   width: 100%;
   height: 100%;
-  --el: var(--r-mythic);
+  --el: var(--r-mythic-fill);
+  --el-on: var(--r-mythic-on);
 }
-.badge-art.el-fire { --el: var(--el-fire); }
-.badge-art.el-water { --el: var(--el-water); }
-.badge-art.el-earth { --el: var(--el-earth); }
-.badge-art.el-air { --el: var(--el-air); }
+.badge-art.el-fire { --el: var(--el-fire-fill); --el-on: var(--el-fire-on); }
+.badge-art.el-water { --el: var(--el-water-fill); --el-on: var(--el-water-on); }
+.badge-art.el-earth { --el: var(--el-earth-fill); --el-on: var(--el-earth-on); }
+.badge-art.el-air { --el: var(--el-air-fill); --el-on: var(--el-air-on); }
 .badge-shield {
   fill: var(--el);
   stroke: var(--plate-gold);
@@ -729,12 +734,12 @@ html[data-large-text] .lb-me .lb-avatar {
 }
 .badge-inner {
   fill: none;
-  stroke: var(--c-bright);
+  stroke: var(--el-on);
   stroke-opacity: 0.45;
   stroke-width: 1;
 }
 .badge-mark {
-  color: var(--c-bright);
+  color: var(--el-on);
 }
 .badge-laurel {
   fill: var(--plate-gold);

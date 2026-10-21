@@ -135,13 +135,13 @@ html[data-colour-blind] .cell.cross {
 }
 :root[data-contrast='high'][data-theme='dark'] {
   --accent-text: var(--text);
-  --grid-line: #9a9b8f;
-  --field-border: #9a9b8f;
+  --grid-line: var(--c-stone-375);
+  --field-border: var(--c-stone-375);
   --chip-bg: rgba(255, 255, 229, 0.08);
 }
 :root[data-contrast='high'][data-theme='light'] {
-  --grid-line: #6b6c58;
-  --field-border: #6b6c58;
+  --grid-line: var(--c-sand-500);
+  --field-border: var(--c-sand-500);
 }
 html[data-contrast='high'] .cell {
   box-shadow: inset 0 0 0 1px var(--grid-line);

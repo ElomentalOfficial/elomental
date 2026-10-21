@@ -306,27 +306,31 @@ html[data-reduce-motion] .sword-live .sword-flame {
 .avatar-base {
   fill: var(--surface-2);
 }
-.avatar-art .el-fire { --el: var(--el-fire); }
-.avatar-art .el-water { --el: var(--el-water); }
-.avatar-art .el-earth { --el: var(--el-earth); }
-.avatar-art .el-air { --el: var(--el-air); }
+.avatar-art .el-fire { --el: var(--el-fire-fill); --el-on: var(--el-fire-on); --el-mark: var(--el-fire-mark); }
+.avatar-art .el-water { --el: var(--el-water-fill); --el-on: var(--el-water-on); --el-mark: var(--el-water-mark); }
+.avatar-art .el-earth { --el: var(--el-earth-fill); --el-on: var(--el-earth-on); --el-mark: var(--el-earth-mark); }
+.avatar-art .el-air { --el: var(--el-air-fill); --el-on: var(--el-air-on); --el-mark: var(--el-air-mark); }
 .layer-frame .ring {
-  stroke: var(--el);
+  /* the element as a shape: its fill, or its line where a pale fill would vanish (palette.css mark) */
+  stroke: var(--el-mark);
   stroke-width: 4;
 }
-/* The Mythic frame's gems (avatar.ts frame, IV): the element's colour, edged in cream. */
+/* The Mythic frame's gems (avatar.ts frame, IV): the element's colour, edged in its text colour. */
 .layer-frame .gem {
   fill: var(--el);
-  stroke: var(--c-bright);
+  stroke: var(--el-on);
   stroke-width: 1.6;
 }
-/* An element's crest (avatar.ts crestSvg): its mark in cream on a disc of its colour. */
+/* An element's crest (avatar.ts crestSvg): its mark in its text colour on a disc of its colour. */
 .crest circle {
   fill: var(--el);
+  /* a pale disc (Air, Water) keeps its edge on a pale card */
+  stroke: var(--el-mark);
+  stroke-width: 1.6;
 }
 .crest-mark {
   fill: none;
-  stroke: var(--c-bright);
+  stroke: var(--el-on);
   stroke-width: 1.8;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -335,8 +339,8 @@ html[data-reduce-motion] .sword-live .sword-flame {
   stroke-width: 1.6;
 }
 .layer-frame .stud {
-  fill: var(--c-bright);
-  stroke: var(--el);
+  fill: var(--el-on);
+  stroke: var(--el-mark);
   stroke-width: 1.6;
 }
 /* Brought to life (polished once, forge.ts): the picture breathes, bobs and sways, softly
