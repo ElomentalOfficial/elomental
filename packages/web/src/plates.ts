@@ -145,17 +145,13 @@ function ruleHtml(t: Tier): string {
 }
 
 /**
- * An arc of gems hung under the medallion, where a sun has its rays (Jewelled): five diamonds,
- * the middle one largest, and a dot between each. In the sun's box: the disc's radius is 12.
+ * Gems hung under the medallion, where a sun has its rays (Jewelled): three diamonds, the middle
+ * one largest (owner: minimal). In the sun's box: the disc's radius is 12.
  */
 const gemArc = (): string =>
-  [-56, -28, 0, 28, 56].map((d, i) => {
+  [-32, 0, 32].map((d, i) => {
     const a = ((90 + d) * Math.PI) / 180;
-    return solid(gem(16.5 * Math.cos(a), 16.5 * Math.sin(a), i === 2 ? 3.2 : 2.3));
-  }).join('')
-  + [-42, -14, 14, 42].map((d) => {
-    const a = ((90 + d) * Math.PI) / 180;
-    return `<circle cx="${(20.5 * Math.cos(a)).toFixed(2)}" cy="${(20.5 * Math.sin(a)).toFixed(2)}" r="1.2" class="solid"/>`;
+    return solid(gem(16.5 * Math.cos(a), 16.5 * Math.sin(a), i === 1 ? 3 : 2));
   }).join('');
 
 /** The level in its medallion (rings by tier, a hanging sun or gems); literal for screen readers. */
