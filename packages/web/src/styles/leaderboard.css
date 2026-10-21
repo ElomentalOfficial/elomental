@@ -357,7 +357,7 @@ html[data-large-text] .lb-tabs .segment:last-child {
 }
 /* plates on rows: the whole rule, a size down (no glow there, plates.css) */
 .lb-name.name-plate {
-  --plate-zoom: calc(0.75 * (0.5 + 0.5 * var(--text-scale)));
+  --plate-zoom: calc(0.7 * (0.5 + 0.5 * var(--text-scale)));
   overflow: visible;
 }
 /* a long name ends in … inside its plate rather than running past the row */

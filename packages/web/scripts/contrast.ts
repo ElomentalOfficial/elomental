@@ -15,7 +15,7 @@
  */
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { SWATCHES, lightFill } from './palette.ts';
+import { PLATE_OPACITY, SWATCHES, lightFill } from './palette.ts';
 
 /** Each theme, and each with Setup > Accessibility > Contrast: High. */
 export type Theme = 'dark' | 'light' | 'dark-hc' | 'light-hc';
@@ -124,8 +124,8 @@ for (const { id } of SWATCHES) {
  */
 const PLATE_SURFACES: [string, string, string?][] = [['page', '--bg'], ['surface', '--surface'], ['surface-2', '--surface-2'], ['profile', '--profile-bg'], ['modal', '--modal-bg']];
 for (const metal of ['bronze', 'silver', 'gold', 'diamond', 'elo']) {
-  for (const [n, t] of PLATE_SURFACES) PAIRS.push([`UI: ${metal} plate vs ${n}`, `--plate-${metal}`, t, 3]);
-  PAIRS.push([`UI: ${metal} plate vs a chosen card`, `--plate-${metal}-chosen`, '--chosen-bg', 3, '--surface']);
+  for (const [n, t] of PLATE_SURFACES) PAIRS.push([`UI: ${metal} plate vs ${n}`, `--plate-${metal}`, t, 3, undefined, PLATE_OPACITY]);
+  PAIRS.push([`UI: ${metal} plate vs a chosen card`, `--plate-${metal}-chosen`, '--chosen-bg', 3, '--surface', PLATE_OPACITY]);
 }
 // Ranked rank names (ranks.css): both ends of each rank's gradient are text, on every surface a
 // rank is written on, your own row and the Ranks sheet's chosen line included; the Ranks sheet's
@@ -162,6 +162,13 @@ for (const s of SWATCHES.filter((s) => !lightFill(s)))
     for (const [n] of SURFACES)
       ACCEPTED[`${theme}: UI: ${s.id} mark vs ${n}`] =
         'a deep fill as a shape always sits beside its name or crest; where a shape alone must be seen, the line role is 3:1';
+
+// Name plates are see-through (PLATE_OPACITY, owner 2026-10-21): measured as drawn, and allowed
+// under 3:1 there, since a plate is decoration under a name that is always written. (High
+// contrast draws them solid; measured at the same opacity here, so on the safe side.)
+for (const metal of ['bronze', 'silver', 'gold', 'diamond', 'elo'])
+  for (const n of [...PLATE_SURFACES.map(([n]) => n), 'a chosen card'])
+    ACCEPTED[`UI: ${metal} plate vs ${n}`] = 'decoration under the name, which is always written; see-through by design';
 
 /** Why a pair may stay under its ratio in this theme, or undefined. */
 export const accepted = (theme: string, label: string): string | undefined => ACCEPTED[`${theme}: ${label}`] ?? ACCEPTED[label];

@@ -306,6 +306,7 @@
   --plate-diamond-chosen: var(--c-diamond-200);
   --plate-elo-chosen: var(--c-star-200);
   --plate-glow: rgba(236, 211, 140, 0.55);
+  --plate-opacity: 0.7;
   /* Ranked rank names */
   --rank-0-hi: var(--c-bronze-100);
   --rank-0-lo: var(--c-bronze-300);
@@ -387,6 +388,7 @@
   --plate-diamond-chosen: var(--c-diamond-700);
   --plate-elo-chosen: var(--c-star-700);
   --plate-glow: transparent;
+  --plate-opacity: 0.7;
   /* Ranked rank names */
   --rank-0-hi: var(--c-bronze-600);
   --rank-0-lo: var(--c-bronze-600);
@@ -437,6 +439,7 @@
   --plate-diamond-chosen: var(--c-diamond-100);
   --plate-elo-chosen: var(--c-star-100);
   --plate-glow: rgba(236, 211, 140, 0.55);
+  --plate-opacity: 1;
   /* Ranked rank names */
   --rank-0-hi: var(--c-bronze-100);
   --rank-0-lo: var(--c-bronze-200);
@@ -488,6 +491,7 @@
   --plate-diamond-chosen: var(--c-diamond-700);
   --plate-elo-chosen: var(--c-star-700);
   --plate-glow: transparent;
+  --plate-opacity: 1;
   /* Ranked rank names */
   --rank-0-hi: var(--c-bronze-700);
   --rank-0-lo: var(--c-bronze-700);

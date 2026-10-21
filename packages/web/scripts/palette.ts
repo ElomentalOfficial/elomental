@@ -171,6 +171,8 @@ function hcRoles(s: Swatch, t: 'dark' | 'light'): Record<string, string> {
  * deeper on the light theme where that fill is a mid green.
  */
 const PLATES: [string, string][] = [['bronze', 'bronze'], ['silver', 'silver'], ['gold', 'gold'], ['diamond', 'diamond'], ['elo', 'star']];
+/** How see-through a plate's rule is on the dark and light themes (contrast.ts measures it so). */
+export const PLATE_OPACITY = 0.7;
 /** The gem plates, a step further out than the metals: Diamond's ice would sit on Silver and Air otherwise. */
 const GEM_PLATES = new Set(['diamond', 'elo']);
 type PlateTheme ='dark' | 'light' | 'dark-hc' | 'light-hc';
@@ -188,6 +190,8 @@ function plateRoles(t: PlateTheme): string[] {
     // the Starforged glow: a halo of its own metal on dark; on the pale light surfaces a glow
     // only smudges, so the crown and the cartouche carry the tier there
     `  --plate-glow: ${t.startsWith('dark') ? rgba(PRIM['--c-star-200'], 0.55) : 'transparent'};`,
+    // the rule sits back behind the name, see-through; High contrast draws it solid
+    `  --plate-opacity: ${t.endsWith('hc') ? 1 : PLATE_OPACITY};`,
   ];
 }
 
