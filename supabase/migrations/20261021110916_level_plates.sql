@@ -1,5 +1,5 @@
 -- Name plates come with the level (owner, 2026-10-21; game-economy-designer, ui-designer,
--- ux-reviewer). A plate frames the name and holds the level in a medallion; plates are no longer
+-- ux-reviewer). A plate is a rule under the name, the level in a medallion on it; plates are no longer
 -- bought, they unlock at levels 5, 10, 15, 25, 35, 50, 65, 80 and 100 (9 plates for now,
 -- Starforged at the top), all kept, any equipped.
 --
