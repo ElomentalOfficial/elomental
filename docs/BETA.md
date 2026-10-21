@@ -6,7 +6,7 @@ Everything is tried on beta first; live (elomental.online) only changes when the
 | | Beta | Live |
 |---|---|---|
 | Branch | `beta` | `main` |
-| Site | beta.elomental.online, GitHub Pages of `Barsmin/elomental-beta` | elomental.online, GitHub Pages of `Barsmin/elomental` |
+| Site | beta.elomental.online, GitHub Pages of `Elomentalgame/elomental-beta` | elomental.online, GitHub Pages of `Elomentalgame/elomental` |
 | Deploy | `.github/workflows/beta.yml` on every push to `beta` | `.github/workflows/pages.yml` on every push to `main` |
 | Database | Supabase project `elomental-beta` (`skuxlbukdynqsetnyqzw`, eu-central-1) | Supabase project `elomental` (`xekeiwaxxsmvalezgtyj`) |
 | Looks | "Beta" tag in the corner, "Beta ·" in the tab title (`src/beta.ts`) | as is |
@@ -27,18 +27,18 @@ build without the beta project, or with the live one.
 
 The owner's accounts; done once.
 
-1. **GitHub: the beta site's repository.** Create `Barsmin/elomental-beta`, public (GitHub
+1. **GitHub: the beta site's repository.** Create `Elomentalgame/elomental-beta`, public (GitHub
    Pages on a free account needs a public repository; it only ever holds the built site, like the
    live one), empty, no README.
 2. **GitHub: a deploy token.** Settings (your account) > Developer settings > Fine-grained
-   tokens > Generate: repository access only `Barsmin/elomental-beta`, permission Contents: Read
-   and write. In `Barsmin/elomental` > Settings > Secrets and variables > Actions > Secrets, add
+   tokens > Generate: repository access only `Elomentalgame/elomental-beta`, permission Contents: Read
+   and write. In `Elomentalgame/elomental` > Settings > Secrets and variables > Actions > Secrets, add
    it as `BETA_DEPLOY_TOKEN`.
 3. **Supabase: the beta project.** Done 2026-10-21: `elomental-beta` (free plan, eu-central-1),
    every migration in `supabase/migrations` applied word for word (fetched from commit 8908850,
    recorded under the live versions), `audit-solve` deployed (the same bundle as live), and
    compared with live: functions, columns, grants, policies, triggers and scheduled jobs match.
-   In `Barsmin/elomental` > Settings > Secrets and variables > Actions > Variables, add
+   In `Elomentalgame/elomental` > Settings > Secrets and variables > Actions > Variables, add
    `BETA_SUPABASE_URL` = `https://skuxlbukdynqsetnyqzw.supabase.co` and `BETA_SUPABASE_KEY` = the
    beta project's publishable key (Settings > API Keys).
 4. **Supabase beta: sign-in.** Authentication > URL Configuration: Site URL
@@ -47,8 +47,8 @@ The owner's accounts; done once.
    (`supabase/templates`).
 5. **Cloudflare Turnstile.** The "Elomental" widget > Hostnames: add `beta.elomental.online`.
    In the beta project, Authentication > Attack Protection: the same Turnstile secret as live.
-6. **DNS.** A `CNAME` record: name `beta`, target `barsmin.github.io`.
-7. **First deploy.** Push the `beta` branch (Claude). In `Barsmin/elomental-beta` > Settings >
+6. **DNS.** A `CNAME` record: name `beta`, target `elomentalgame.github.io`.
+7. **First deploy.** Push the `beta` branch (Claude). In `Elomentalgame/elomental-beta` > Settings >
    Pages: source "Deploy from a branch", branch `gh-pages`, folder `/`; custom domain
    `beta.elomental.online`; Enforce HTTPS once the certificate is ready (up to a day).
 8. **Founders.** Sign in on beta and make your account a founder there (Claude, in the beta

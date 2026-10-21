@@ -848,7 +848,7 @@ export const statement = {
   feedbackTitle: 'Tell us',
   feedback: 'Something hard to see, hear or use? Open an issue and tell us what happened and on which device.',
   feedbackLink: 'Open an issue on GitHub',
-  feedbackUrl: 'https://github.com/barsmin/elomental/issues',
+  feedbackUrl: 'https://github.com/Elomentalgame/elomental/issues',
   reviewed: 'Last reviewed October 2026.',
 };
 
