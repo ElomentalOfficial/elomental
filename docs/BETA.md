@@ -60,14 +60,21 @@ The owner's accounts; done once.
 
 ## Testers (invite only)
 
-Beta is for invited testers only. The beta project has "Allow new users to sign up" and
-anonymous sign-ins **off**, so only accounts the owner adds can get a code; the app shows only
-its sign-in until one of them signs in (`src/beta.ts`), and any other email is told it isn't on
-the tester list.
+Beta is for invited testers only. The beta project runs `hook_before_user_created` as its
+Before User Created auth hook (Authentication > Auth Hooks), with sign-ups on and anonymous
+sign-ins off: only emails on the tester list (`private.beta_testers`) and founders get an
+account. The app shows only its sign-in until one of them signs in (`src/beta.ts`), and any
+other email is told it isn't on the tester list.
 
-To add a tester: beta project > Authentication > Users > Add user > Create new user: their
-email, any long password (never used: sign-in is by code), tick Auto Confirm User. They then
-sign in on beta.elomental.online with that email. To remove one: delete the user there.
+Testers are managed in the app: Setup > Founder tools > Beta > Testers (founders, with their
+authenticator code). Add an email; they sign in on beta.elomental.online with it. Remove one:
+they're off the list and their beta account is deleted.
+
+## Founder tools: beta and live
+
+Dev mode, the testing tools, Show founders and Testers are beta only. The beta project has
+`private.app_flags` `dev_tools` on; live has it off, so the server refuses them there and the
+live app shows Review (and the founders' activity log) only.
 
 ## Email (both projects)
 
