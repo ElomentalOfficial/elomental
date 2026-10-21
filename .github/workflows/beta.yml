@@ -55,6 +55,10 @@ jobs:
         env:
           TOKEN: ${{ secrets.BETA_DEPLOY_TOKEN }}
         run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::error::The BETA_DEPLOY_TOKEN secret is missing or empty in this repository (Settings > Secrets and variables > Actions > Secrets)."
+            exit 1
+          fi
           cd packages/web/dist
           echo beta.elomental.online > CNAME
           printf 'User-agent: *\nDisallow: /\n' > robots.txt
@@ -64,4 +68,5 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -q -m "Beta build ${GITHUB_SHA::7}"
-          git push -q --force "https://x-access-token:${TOKEN}@github.com/ElomentalOfficial/elomental-beta.git" gh-pages
+          git push --force "https://x-access-token:${TOKEN}@github.com/ElomentalOfficial/elomental-beta.git" gh-pages \
+            || { echo "::error::The push to ElomentalOfficial/elomental-beta was refused: the token needs Contents read and write on that repository, approved by the organization if it asks (docs/BETA.md)."; exit 1; }
