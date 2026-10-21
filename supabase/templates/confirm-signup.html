@@ -28,10 +28,12 @@
       <p class="muted" style="margin:0 0 24px;font-family:Marcellus, Georgia, 'Times New Roman', serif;font-size:16px;line-height:1.5;color:#40413C;">Type this code in Elomental to finish signing up:</p>
       <div class="code" style="margin:0 0 8px;padding:16px;border:1px solid #DADBB9;border-radius:8px;background:#E8E8CE;text-align:center;font-family:Montserrat, 'Segoe UI', Arial, sans-serif;font-size:28px;font-weight:700;letter-spacing:6px;color:#794341;">{{ .Token }}</div>
       <p class="muted" style="margin:0 0 28px;font-family:Marcellus, Georgia, 'Times New Roman', serif;font-size:14px;line-height:1.5;text-align:center;color:#40413C;">Works once, for 1 hour.</p>
+      <p class="muted" style="margin:0 0 8px;font-family:Marcellus, Georgia, 'Times New Roman', serif;font-size:16px;line-height:1.5;color:#40413C;">Or open this link on this device:</p>
+      <p class="muted" style="margin:0 0 28px;font-family:Montserrat, 'Segoe UI', Arial, sans-serif;font-size:13px;line-height:1.5;word-break:break-all;color:#40413C;">{{ .SiteURL }}?token_hash={{ .TokenHash }}&amp;type=email</p>
       <p class="muted" style="margin:0;font-family:Marcellus, Georgia, 'Times New Roman', serif;font-size:16px;line-height:1.5;color:#40413C;">Your Stardust, Elo and Daily progress stay yours, on any device.<br><br>Good solving,<br>Elomental team</p>
     </td></tr>
     <tr><td style="padding:20px 8px 0;font-family:Marcellus, Georgia, 'Times New Roman', serif;font-size:13px;line-height:1.5;color:#40413C;" class="muted">
-      This email was sent to {{ .Email }} because someone asked for it on Elomental. If it wasn’t you, you can ignore it: nothing changes without the code.<br><br>
+      This email was sent to {{ .Email }} because someone asked for it on Elomental. If it wasn’t you, you can ignore it: nothing changes without the code or the link.<br><br>
       Elomental · competitive sudoku · elomental.online
     </td></tr>
   </table>

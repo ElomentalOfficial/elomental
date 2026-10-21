@@ -3,10 +3,10 @@
 // Then paste each .html into its template in the dashboard, with the subject below.
 //
 // Built to stay out of spam and scam folders:
-// - No images, scripts, forms, hidden text, tracking or links: just the code. Brevo, which
-//   sends them, rewrites every link into its own click tracker (sendibt3.com), which ad
-//   blockers and VPNs block, and it can't be switched off on our plan. With no link,
-//   there's nothing to break.
+// - No images, scripts, forms, hidden text or tracking, and no <a> links: Brevo, which
+//   sends them, rewrites every <a> into its own click tracker (sendibt3.com), which ad
+//   blockers and VPNs block, and it can't be switched off on our plan. The sign-in link
+//   is written out as plain text instead, which mail apps make tappable themselves.
 // - Inline styles and a table layout, which every mail app reads the same way.
 // - Plain sign-in wording, the code in large text (and in the subject, so it shows
 //   in phone notifications), and a footer that says why the email came.
@@ -19,7 +19,12 @@ const sans = "Montserrat, 'Segoe UI', Arial, sans-serif";
 
 export const SUBJECT = '{{ .Token }} is your Elomental code';
 
-const layout = ({ title, lead, codeNote, after }) => `<!doctype html>
+// The link opens the app on the site with a one-time token (verified by
+// signInFromEmailLink in packages/web/src/backend/signIn.ts), not the auth server's
+// own link: mail scanners that pre-open links can't use it up.
+const link = (type) => `{{ .SiteURL }}?token_hash={{ .TokenHash }}&amp;type=${type}`;
+
+const layout = ({ title, lead, codeNote, after, type }) => `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -49,10 +54,12 @@ const layout = ({ title, lead, codeNote, after }) => `<!doctype html>
       <p class="muted" style="margin:0 0 24px;font-family:${serif};font-size:16px;line-height:1.5;color:${C.hi2};">${lead}</p>
       <div class="code" style="margin:0 0 8px;padding:16px;border:1px solid ${C.mud};border-radius:8px;background:${C.second};text-align:center;font-family:${sans};font-size:28px;font-weight:700;letter-spacing:6px;color:${C.crimson};">{{ .Token }}</div>
       <p class="muted" style="margin:0 0 28px;font-family:${serif};font-size:14px;line-height:1.5;text-align:center;color:${C.hi2};">${codeNote}</p>
+      <p class="muted" style="margin:0 0 8px;font-family:${serif};font-size:16px;line-height:1.5;color:${C.hi2};">Or open this link on this device:</p>
+      <p class="muted" style="margin:0 0 28px;font-family:${sans};font-size:13px;line-height:1.5;word-break:break-all;color:${C.hi2};">${link(type)}</p>
       <p class="muted" style="margin:0;font-family:${serif};font-size:16px;line-height:1.5;color:${C.hi2};">${after}</p>
     </td></tr>
     <tr><td style="padding:20px 8px 0;font-family:${serif};font-size:13px;line-height:1.5;color:${C.hi2};" class="muted">
-      This email was sent to {{ .Email }} because someone asked for it on Elomental. If it wasn’t you, you can ignore it: nothing changes without the code.<br><br>
+      This email was sent to {{ .Email }} because someone asked for it on Elomental. If it wasn’t you, you can ignore it: nothing changes without the code or the link.<br><br>
       Elomental · competitive sudoku · elomental.online
     </td></tr>
   </table>
@@ -69,18 +76,21 @@ export const TEMPLATES = {
     title: 'Sign in to Elomental',
     lead: 'Type this code in Elomental, on any phone, tablet or computer:',
     codeNote,
+    type: 'email',
     after: 'Good solving,<br>Elomental team',
   }),
   'confirm-signup': layout({
     title: 'Confirm your email',
     lead: 'Type this code in Elomental to finish signing up:',
     codeNote,
+    type: 'email',
     after: `${keeps}<br><br>Good solving,<br>Elomental team`,
   }),
   'change-email': layout({
     title: 'Confirm your email',
     lead: 'Type this code in Elomental to add {{ .NewEmail }} to your account:',
     codeNote,
+    type: 'email_change',
     after: `${keeps}<br><br>Good solving,<br>Elomental team`,
   }),
 };
