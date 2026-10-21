@@ -15,7 +15,6 @@
     .muted { color: #DADBB9 !important; }
     .mark { color: #E8E8CE !important; }
     .code { background: #262721 !important; border-color: #40413C !important; color: #FFFFE5 !important; }
-    .btn { background: #E8E8CE !important; color: #262721 !important; }
   }
 </style>
 </head>
@@ -29,15 +28,11 @@
       <p class="muted" style="margin:0 0 24px;font-family:Marcellus, Georgia, 'Times New Roman', serif;font-size:16px;line-height:1.5;color:#40413C;">Type this code in Elomental to finish signing up:</p>
       <div class="code" style="margin:0 0 8px;padding:16px;border:1px solid #DADBB9;border-radius:8px;background:#E8E8CE;text-align:center;font-family:Montserrat, 'Segoe UI', Arial, sans-serif;font-size:28px;font-weight:700;letter-spacing:6px;color:#794341;">{{ .Token }}</div>
       <p class="muted" style="margin:0 0 28px;font-family:Marcellus, Georgia, 'Times New Roman', serif;font-size:14px;line-height:1.5;text-align:center;color:#40413C;">Works once, for 1 hour.</p>
-      <p class="muted" style="margin:0 0 12px;font-family:Marcellus, Georgia, 'Times New Roman', serif;font-size:16px;line-height:1.5;color:#40413C;">Or on this device:</p>
-      <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td style="border-radius:8px;">
-        <a class="btn" href="{{ .SiteURL }}?token_hash={{ .TokenHash }}&amp;type=email&amp;r={{ .RedirectTo }}" style="display:inline-block;padding:13px 28px;border-radius:8px;background:#794341;color:#FFFFE5;font-family:Marcellus, Georgia, 'Times New Roman', serif;font-size:17px;text-decoration:none;">Confirm email</a>
-      </td></tr></table>
-      <p class="muted" style="margin:28px 0 0;font-family:Marcellus, Georgia, 'Times New Roman', serif;font-size:16px;line-height:1.5;color:#40413C;">Your Stardust, Elo and Daily progress stay yours, on any device.<br><br>Good solving,<br>Elomental team</p>
+      <p class="muted" style="margin:0;font-family:Marcellus, Georgia, 'Times New Roman', serif;font-size:16px;line-height:1.5;color:#40413C;">Your Stardust, Elo and Daily progress stay yours, on any device.<br><br>Good solving,<br>Elomental team</p>
     </td></tr>
     <tr><td style="padding:20px 8px 0;font-family:Marcellus, Georgia, 'Times New Roman', serif;font-size:13px;line-height:1.5;color:#40413C;" class="muted">
-      This email was sent to {{ .Email }} because someone asked for it on Elomental. If it wasn’t you, you can ignore it: nothing changes without the code or the button.<br><br>
-      Elomental · competitive sudoku · <a href="https://elomental.online" class="muted" style="color:#40413C;">elomental.online</a>
+      This email was sent to {{ .Email }} because someone asked for it on Elomental. If it wasn’t you, you can ignore it: nothing changes without the code.<br><br>
+      Elomental · competitive sudoku · elomental.online
     </td></tr>
   </table>
 </td></tr>

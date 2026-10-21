@@ -38,7 +38,8 @@ export async function sendSignInEmail(
 export type CodeKind = 'email_change' | 'email';
 
 /**
- * The button in the email opens elomental.online itself (not the auth
+ * Only for emails sent before the templates went code-only (Brevo wrapped their
+ * button in a click tracker that blockers stop). The button in those emails opens elomental.online itself (not the auth
  * server), with a one-time token in the query: the sender's and the link's
  * domain match, and mail scanners that pre-open links don't use it up,
  * because only this page's script spends it (supabase/templates/build.mjs).
