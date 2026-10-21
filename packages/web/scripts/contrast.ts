@@ -127,6 +127,16 @@ for (const metal of ['bronze', 'silver', 'gold', 'diamond', 'elo']) {
   for (const [n, t] of PLATE_SURFACES) PAIRS.push([`UI: ${metal} plate vs ${n}`, `--plate-${metal}`, t, 3]);
   PAIRS.push([`UI: ${metal} plate vs a chosen card`, `--plate-${metal}-chosen`, '--chosen-bg', 3, '--surface']);
 }
+// Ranked rank names (ranks.css): both ends of each rank's gradient are text, on every surface a
+// rank is written on, your own row and the Ranks sheet's chosen line included; the Ranks sheet's
+// share bar fills with the deeper end on its track
+for (let i = 0; i < 5; i++) {
+  for (const end of ['hi', 'lo']) {
+    for (const [n, t] of PLATE_SURFACES) PAIRS.push([`rank ${i} name (${end}) on ${n}`, `--rank-${i}-${end}`, t, 4.5]);
+    PAIRS.push([`rank ${i} name (${end}) on a chosen row`, `--rank-${i}-${end}`, '--chosen-bg', 4.5, '--surface']);
+  }
+  PAIRS.push([`UI: rank ${i} share bar vs its track`, `--rank-${i}-lo`, '--surface', 3]);
+}
 // the leaderboard's medals (and the top-100 underline) are the plate metals, checked above; on
 // your own row they take the chosen step too
 for (const metal of ['bronze', 'silver', 'gold'])

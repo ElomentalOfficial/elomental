@@ -376,7 +376,6 @@ html[data-large-text] .lb-tabs .segment:last-child {
   font-size: var(--fs-small);
   color: var(--muted);
 }
-.lb-sub .tier-emblem,
 .lb-sub .drop-element {
   display: inline-flex;
   width: 16px;
@@ -515,7 +514,7 @@ html[data-large-text] .lb-me .lb-avatar {
   background: var(--chosen-bg);
 }
 .tier-list li {
-  grid-template-columns: 28px minmax(0, 1fr) 5em;
+  grid-template-columns: minmax(0, 1fr) 5em;
 }
 .fs-name,
 .tier-name {
@@ -549,12 +548,8 @@ html[data-large-text] .lb-me .lb-avatar {
 .tier-share span {
   display: block;
   height: 100%;
-  /* the text accent: Lava is under 3:1 on the track */
-  background: var(--accent-text);
-}
-.tier-list .tier-emblem {
-  width: 28px;
-  height: 28px;
+  /* in the rank's own colour (its deeper end, 3:1 on the track) */
+  background: var(--rank-lo);
 }
 .faction-top {
   align-self: stretch;
@@ -631,7 +626,6 @@ html[data-large-text] .lb-me .lb-avatar {
   align-items: center;
   gap: 6px;
 }
-.card-fact .tier-emblem,
 .card-fact .drop-element {
   display: inline-flex;
   width: 20px;

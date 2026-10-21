@@ -68,6 +68,9 @@ export const common = {
   rareSpirit: 'Rare drop: a Spirit!',
   /** Shown under the player's name, by Elo (profile.ts rankTier). Names only, no divisions. */
   ranks: ['Novice', 'Apprentice', 'Adept', 'Archmage', 'Elomental'] as const,
+  /** A title shown before the rank's name ("Founder · Archmage", rankName.ts), and read out with it. */
+  titleBeforeRank: (title: string) => `${title} · `,
+  titledRank: (title: string, rank: string) => `${title}, ${rank}`,
   /** How far the next rank is (profile.ts nextRank). */
   toNextRank: (gap: number, label: string) => `${gap} Elo to ${label}`,
 };
@@ -476,7 +479,8 @@ export const result = {
   speedBonus: (percent: number) => `Speed bonus +${percent}%`,
   protectedLoss: 'No Elo lost: losses cost nothing below 300 Elo.',
   /** A step up in rank; demotions get no line. */
-  promoted: (label: string) => `Promoted: ${label}`,
+  /** Before the new rank's name, in its colours (rankName.ts). */
+  promoted: 'Promoted: ',
   /** After a second loss in a row, from 300 Elo up: what the next game holds. */
   comeback: 'Your next square is a step easier, until you win one.',
   /** A Ranked square's hardest step, when it needed more than singles (techniqueName). */

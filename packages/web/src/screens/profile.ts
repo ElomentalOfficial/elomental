@@ -6,6 +6,7 @@ import { cachedAccount, refreshAccount } from '../backend/account.ts';
 import { affinityDue, canSwitchAffinity } from '../backend/affinity.ts';
 import { cachedLoadout, cachedPolish, loadForge } from '../backend/forge.ts';
 import { ICONS } from '../icons.ts';
+import { rankName } from '../rankName.ts';
 import { paintPlate } from '../plates.ts';
 import { dailyGoal, dailyKey, loadProfile, rankTier } from '../profile.ts';
 import { rankProgress } from '../rankBar.ts';
@@ -86,8 +87,7 @@ export function profileScreen(start?: { at?: 'badges' }): Screen {
         h(
           'p',
           { class: 'profile-tier' },
-          h('span', { class: `tier-emblem tier-${tier.tier}`, html: ICONS.tiers[tier.tier], attrs: { 'aria-hidden': 'true' } }),
-          h('span', { text: p.title ?? tier.label }),
+          rankName(tier.tier, tier.label, p.title),
         ),
         nextUp,
         side,

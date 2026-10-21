@@ -378,32 +378,30 @@
   font-size: var(--fs-body);
   color: var(--muted);
 }
-/* Ranked rank emblems (ICONS.tiers): the shape tells the rank, the colour only adds to
-   it. Novice to Adept in the text colour, Archmage in the theme accent, Elomental in
-   Lava with a faint glow. The rank is always written beside the emblem. */
-.tier-emblem {
-  display: inline-block;
-  flex: none;
-  width: 1.15em;
-  height: 1.15em;
+/* Ranked rank names (rankName.ts): each rank's name in its own metal (palette.ts RANKS):
+   Novice bronze, Apprentice silver, Adept gold, Archmage jade, Elomental violet. On dark a
+   gradient between two ink steps (both 4.5:1 on every surface); on light no two steps that far
+   apart both pass, so a solid ink. In the text's own weight (Federo has one). The name is the
+   mark; the colour only adds to it. */
+.rank-0 { --rank-hi: var(--rank-0-hi); --rank-lo: var(--rank-0-lo); }
+.rank-1 { --rank-hi: var(--rank-1-hi); --rank-lo: var(--rank-1-lo); }
+.rank-2 { --rank-hi: var(--rank-2-hi); --rank-lo: var(--rank-2-lo); }
+.rank-3 { --rank-hi: var(--rank-3-hi); --rank-lo: var(--rank-3-lo); }
+.rank-4 { --rank-hi: var(--rank-4-hi); --rank-lo: var(--rank-4-lo); }
+.rank-name {
+  color: var(--rank-lo);
+  /* light above, deep below, the turn inside the letters' height: a struck-metal face */
+  background: linear-gradient(180deg, var(--rank-hi) 32%, var(--rank-lo) 72%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
-.tier-emblem svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-/* the text accent (Lava is under 3:1 on the dark cards); Elomental stands apart by its
-   outline and glow, not by colour */
-.tier-emblem.tier-3,
-.tier-emblem.tier-4 {
-  color: var(--accent-text);
-}
-.tier-emblem.tier-4 {
-  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--c-lava) 60%, transparent));
-}
-/* at 16px in a leaderboard row the glow would fill the X */
-.lb-sub .tier-emblem.tier-4 {
-  filter: none;
+/* Windows High Contrast: plain system text */
+@media (forced-colors: active) {
+  .rank-name {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+  }
 }
 /* How far the next rank is (rankBar.ts): the line, then a bar from this rank's floor. The
    line carries the meaning; the bar only shows it. */
@@ -438,18 +436,15 @@
     forced-color-adjust: none;
   }
 }
-/* The promotion line on the result: the new emblem stamps in. */
+/* The promotion line on the result: the new rank's name stamps in. */
+/* (one line of text: the copy's own space parts "Promoted:" from the rank) */
 .promotion {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
+  text-align: center;
   font-family: var(--serif);
   font-size: var(--fs-label);
 }
-.promotion .tier-emblem {
-  width: 1.4em;
-  height: 1.4em;
+.promotion .rank-name {
+  display: inline-block;
   animation: tier-stamp 0.55s cubic-bezier(0.2, 0.9, 0.3, 1.3) 0.5s both;
 }
 @keyframes tier-stamp {
@@ -465,7 +460,7 @@
     transform: none;
   }
 }
-html[data-reduce-motion] .promotion .tier-emblem {
+html[data-reduce-motion] .promotion .rank-name {
   animation: none;
 }
 .profile-stats {

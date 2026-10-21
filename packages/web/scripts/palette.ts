@@ -58,6 +58,8 @@ export const RAMPS: Ramp[] = [
   { name: 'bronze', what: 'Bronze plate', steps: METAL, anchors: { 400: '#c4875a', 500: '#9a5b2c' } },
   { name: 'silver', what: 'Silver plate', steps: METAL, anchors: { 300: '#b3bac1', 500: '#66707c' } },
   { name: 'gold', what: 'Gold plate, medals', steps: METAL, anchors: { 200: '#f0cd78', 300: { C: 0.115, H: 86 }, 500: '#8f6a12' } },
+  { name: 'teal', what: 'Archmage rank: jade, clear of Diamond ice and Water', steps: METAL, anchors: { 500: { C: 0.085, H: 165 } } },
+  { name: 'violet', what: 'Elomental rank: a deep violet, bluer than Epic heather', steps: METAL, anchors: { 500: { C: 0.13, H: 295 } } },
   { name: 'diamond', what: 'Diamond plate: ice, a cool cyan clear of Silver, Air and Water', steps: METAL, anchors: { 300: { C: 0.05, H: 200 }, 500: { C: 0.06, H: 205 } } },
   { name: 'star', what: 'Starforged plate (the top plate) and its glow', steps: METAL, anchors: { 200: '#ecd38c', 500: '#946410' } },
 ];
@@ -189,6 +191,18 @@ function plateRoles(t: PlateTheme): string[] {
   ];
 }
 
+/**
+ * The Ranked ranks' names (home.css `.rank-name`): each rank's name in its own metal: Novice
+ * bronze, Apprentice silver, Adept gold, Archmage jade, Elomental violet. On dark a gradient
+ * between two steps that are both ink (4.5:1 on every surface); on light no two steps far enough
+ * apart to show both pass, so a solid ink, as in High contrast. The name is always written, so
+ * the colour only adds to it.
+ */
+const RANKS = ['bronze', 'silver', 'gold', 'teal', 'violet'];
+const RANK_STEP: Record<PlateTheme, [number, number]> = { dark: [100, 300], light: [600, 600], 'dark-hc': [100, 200], 'light-hc': [700, 700] };
+const rankRoles = (t: PlateTheme): string[] =>
+  RANKS.flatMap((ramp, i) => [`  --rank-${i}-hi: ${v(ramp, RANK_STEP[t][0])};`, `  --rank-${i}-lo: ${v(ramp, RANK_STEP[t][1])};`]);
+
 /** The old palette names, so every existing rule keeps working. */
 const ALIASES: [string, string][] = [
   ['--c-bg', '--c-stone-900'],
@@ -245,11 +259,11 @@ export function paletteCss(): string {
       '  /* the fill under its short name */',
       ...SWATCHES.filter((s) => !s.id.startsWith('tone-')).map((s) => `  --${s.id}: var(--${s.id}-fill);`),
     ]),
-    block(":root,\n:root[data-theme='dark']", [...perSwatch((s) => themeRoles(s, 'dark')), '  /* name plates */', ...plateRoles('dark')]),
-    block(":root[data-theme='light']", [...perSwatch((s) => themeRoles(s, 'light')), '  /* name plates */', ...plateRoles('light')]),
+    block(":root,\n:root[data-theme='dark']", [...perSwatch((s) => themeRoles(s, 'dark')), '  /* name plates */', ...plateRoles('dark'), '  /* Ranked rank names */', ...rankRoles('dark')]),
+    block(":root[data-theme='light']", [...perSwatch((s) => themeRoles(s, 'light')), '  /* name plates */', ...plateRoles('light'), '  /* Ranked rank names */', ...rankRoles('light')]),
     '/* High contrast: one step stronger (ink 7:1 or near it, lines 4.5:1) */\n',
-    block(":root[data-contrast='high'][data-theme='dark']", [...perSwatch((s) => hcRoles(s, 'dark')), '  /* name plates */', ...plateRoles('dark-hc')]),
-    block(":root[data-contrast='high'][data-theme='light']", [...perSwatch((s) => hcRoles(s, 'light')), '  /* name plates */', ...plateRoles('light-hc')]),
+    block(":root[data-contrast='high'][data-theme='dark']", [...perSwatch((s) => hcRoles(s, 'dark')), '  /* name plates */', ...plateRoles('dark-hc'), '  /* Ranked rank names */', ...rankRoles('dark-hc')]),
+    block(":root[data-contrast='high'][data-theme='light']", [...perSwatch((s) => hcRoles(s, 'light')), '  /* name plates */', ...plateRoles('light-hc'), '  /* Ranked rank names */', ...rankRoles('light-hc')]),
   ].join('\n');
 }
 

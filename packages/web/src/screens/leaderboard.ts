@@ -16,6 +16,7 @@ import {
 } from '../backend/leaderboard.ts';
 import { signUpForm } from '../accountForm.ts';
 import { ICONS } from '../icons.ts';
+import { rankName } from '../rankName.ts';
 import { paintPlate } from '../plates.ts';
 import { cardAvatar, openPlayerCard } from '../playerCard.ts';
 import { ELEMENTS, nextRank, rankTier, type Element } from '../profile.ts';
@@ -110,7 +111,7 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
   /** One row: place, avatar in its frame, name on its plate, rank and affinity, Elo. */
   function row(r: LbRow): HTMLElement {
     const tier = rankTier(r.elo, r.tier);
-    const rank = r.title ?? tier.label;
+    const rank = r.title ? copy.common.titledRank(r.title, tier.label) : tier.label;
     const name = h('strong', { class: 'lb-name' });
     paintPlate(name, r.name, r.plate);
     const isSeason = view === 'season';
@@ -131,9 +132,8 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
           h(
             'span',
             { class: 'lb-sub' },
-            // one emblem per row (M31): the rank's; the side shows on the player's card
-            h('span', { class: `tier-emblem tier-${tier.tier}`, html: ICONS.tiers[tier.tier] }),
-            h('span', { text: rank }),
+            // the rank's name in its colours (the side shows on the player's card)
+            rankName(tier.tier, tier.label, r.title),
           ),
         ),
         h(
@@ -327,11 +327,11 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
       { class: 'lb-row' },
       h(
         'button',
-        { class: 'lb-row-btn', attrs: { type: 'button', 'aria-label': t.a11yRow(hit.place ?? 0, hit.name, hit.title ?? tier.label, hit.elo).replace(/^0\. /, '') }, onclick: () => openCard(hit.id) },
+        { class: 'lb-row-btn', attrs: { type: 'button', 'aria-label': t.a11yRow(hit.place ?? 0, hit.name, hit.title ? copy.common.titledRank(hit.title, tier.label) : tier.label, hit.elo).replace(/^0\. /, '') }, onclick: () => openCard(hit.id) },
         h('span', { class: 'lb-place', text: hit.place ? String(hit.place) : '–', attrs: { 'aria-hidden': 'true' } }),
         h('span', { class: 'avatar lb-avatar worn', html: cardAvatar({ ...hit, alive: false }), attrs: { 'aria-hidden': 'true' } }),
         h('span', { class: 'lb-who', attrs: { 'aria-hidden': 'true' } }, name,
-          h('span', { class: 'lb-sub' }, h('span', { class: `tier-emblem tier-${tier.tier}`, html: ICONS.tiers[tier.tier] }), h('span', { text: hit.title ?? tier.label }))),
+          h('span', { class: 'lb-sub' }, rankName(tier.tier, tier.label, hit.title))),
         h('span', { class: 'lb-score', attrs: { 'aria-hidden': 'true' } }, h('strong', { text: String(hit.elo) }), h('span', { text: t.elo })),
       ),
     );
@@ -471,9 +471,8 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
             const nameT = copy.common.ranks[index];
             const bar = h('span', { class: 'tier-share' }, h('span'));
             (bar.firstElementChild as HTMLElement).style.width = `${pct}%`;
-            return h('li', { class: index === mine ? 'is-mine' : '', attrs: { 'aria-label': t.a11yTier(nameT, from, pct) } },
-              h('span', { class: `tier-emblem tier-${index}`, html: ICONS.tiers[index], attrs: { 'aria-hidden': 'true' } }),
-              h('span', { class: 'tier-name', attrs: { 'aria-hidden': 'true' } }, h('strong', { text: nameT }), h('span', { text: index === mine ? `${from} · ${t.yourTier}` : from })),
+            return h('li', { class: `rank-${index}${index === mine ? ' is-mine' : ''}`, attrs: { 'aria-label': t.a11yTier(nameT, from, pct) } },
+              h('span', { class: 'tier-name', attrs: { 'aria-hidden': 'true' } }, h('strong', { class: `rank-name rank-${index}`, text: nameT }), h('span', { text: index === mine ? `${from} · ${t.yourTier}` : from })),
               h('span', { class: 'tier-pct', attrs: { 'aria-hidden': 'true' } }, h('strong', { text: t.share(pct) }), bar));
           })),
       );

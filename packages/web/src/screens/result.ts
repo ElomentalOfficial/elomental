@@ -6,6 +6,7 @@ import { badgeMonth } from '../badges.ts';
 import type { ClashResult } from '../clash.ts';
 import { clashTable, clashVerdict, shareButton } from '../clashView.ts';
 import { ICONS } from '../icons.ts';
+import { rankName } from '../rankName.ts';
 import { addToHomeResultNote } from '../install.ts';
 import { TECHNIQUE_BY_ID } from '@elomental/engine';
 import { dailyGoal, parMs, promoted, rankTier, type Outcome } from '../profile.ts';
@@ -103,7 +104,7 @@ export function showResult(game: SavedGame, won: boolean, reason: FinishReason, 
     // the rank shown before and after (the server's, with its grace; a local guest's own)
     const tierBefore = outcome.elo.tierBefore ?? rankTier(outcome.elo.before).tier;
     const tierAfter = outcome.elo.tier ?? rankTier(outcome.elo.after).tier;
-    // A step up in rank gets its moment: the new emblem stamps in.
+    // A step up in rank gets its moment: the new rank's name stamps in, in its colours.
     promotedNow = !outcome.elo.unrated && promoted(tierBefore, tierAfter);
     if (promotedNow) {
       const tier = rankTier(outcome.elo.after, tierAfter);
@@ -111,8 +112,8 @@ export function showResult(game: SavedGame, won: boolean, reason: FinishReason, 
         h(
           'p',
           { class: 'promotion good' },
-          h('span', { class: `tier-emblem tier-${tier.tier}`, html: ICONS.tiers[tier.tier], attrs: { 'aria-hidden': 'true' } }),
-          h('span', { text: copy.result.promoted(tier.label) }),
+          h('span', { text: copy.result.promoted }),
+          rankName(tier.tier, tier.label),
         ),
       );
     }

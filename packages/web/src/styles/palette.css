@@ -141,6 +141,22 @@
   --c-gold-500: #8f6a12; /* L 0.548 C 0.107 H 83 · existing */
   --c-gold-600: #6a4c00; /* L 0.437 C 0.090 H 82 */
   --c-gold-700: #553d00; /* L 0.377 C 0.077 H 83 */
+  /* teal: Archmage rank: jade, clear of Diamond ice and Water */
+  --c-teal-100: #d2eadf; /* L 0.916 C 0.029 H 166 */
+  --c-teal-200: #b1dac7; /* L 0.854 C 0.050 H 165 */
+  --c-teal-300: #80bea3; /* L 0.752 C 0.075 H 165 */
+  --c-teal-400: #5ca285; /* L 0.658 C 0.084 H 165 */
+  --c-teal-500: #2d7559; /* L 0.509 C 0.085 H 165 */
+  --c-teal-600: #135c43; /* L 0.424 C 0.081 H 165 */
+  --c-teal-700: #084a34; /* L 0.364 C 0.073 H 164 */
+  /* violet: Elomental rank: a deep violet, bluer than Epic heather */
+  --c-violet-100: #e7e1ff; /* L 0.924 C 0.041 H 295 */
+  --c-violet-200: #d6cbff; /* L 0.868 C 0.072 H 295 */
+  --c-violet-300: #b9a5f7; /* L 0.770 C 0.117 H 295 */
+  --c-violet-400: #9e87e0; /* L 0.680 C 0.130 H 295 */
+  --c-violet-500: #725aae; /* L 0.530 C 0.129 H 295 */
+  --c-violet-600: #5a4390; /* L 0.446 C 0.123 H 295 */
+  --c-violet-700: #493477; /* L 0.384 C 0.110 H 295 */
   /* diamond: Diamond plate: ice, a cool cyan clear of Silver, Air and Water */
   --c-diamond-100: #d6e8e9; /* L 0.918 C 0.019 H 201 */
   --c-diamond-200: #b8d7d9; /* L 0.857 C 0.033 H 201 */
@@ -290,6 +306,17 @@
   --plate-diamond-chosen: var(--c-diamond-200);
   --plate-elo-chosen: var(--c-star-200);
   --plate-glow: rgba(236, 211, 140, 0.55);
+  /* Ranked rank names */
+  --rank-0-hi: var(--c-bronze-100);
+  --rank-0-lo: var(--c-bronze-300);
+  --rank-1-hi: var(--c-silver-100);
+  --rank-1-lo: var(--c-silver-300);
+  --rank-2-hi: var(--c-gold-100);
+  --rank-2-lo: var(--c-gold-300);
+  --rank-3-hi: var(--c-teal-100);
+  --rank-3-lo: var(--c-teal-300);
+  --rank-4-hi: var(--c-violet-100);
+  --rank-4-lo: var(--c-violet-300);
 }
 
 :root[data-theme='light'] {
@@ -360,6 +387,17 @@
   --plate-diamond-chosen: var(--c-diamond-700);
   --plate-elo-chosen: var(--c-star-700);
   --plate-glow: transparent;
+  /* Ranked rank names */
+  --rank-0-hi: var(--c-bronze-600);
+  --rank-0-lo: var(--c-bronze-600);
+  --rank-1-hi: var(--c-silver-600);
+  --rank-1-lo: var(--c-silver-600);
+  --rank-2-hi: var(--c-gold-600);
+  --rank-2-lo: var(--c-gold-600);
+  --rank-3-hi: var(--c-teal-600);
+  --rank-3-lo: var(--c-teal-600);
+  --rank-4-hi: var(--c-violet-600);
+  --rank-4-lo: var(--c-violet-600);
 }
 
 /* High contrast: one step stronger (ink 7:1 or near it, lines 4.5:1) */
@@ -399,6 +437,17 @@
   --plate-diamond-chosen: var(--c-diamond-100);
   --plate-elo-chosen: var(--c-star-100);
   --plate-glow: rgba(236, 211, 140, 0.55);
+  /* Ranked rank names */
+  --rank-0-hi: var(--c-bronze-100);
+  --rank-0-lo: var(--c-bronze-200);
+  --rank-1-hi: var(--c-silver-100);
+  --rank-1-lo: var(--c-silver-200);
+  --rank-2-hi: var(--c-gold-100);
+  --rank-2-lo: var(--c-gold-200);
+  --rank-3-hi: var(--c-teal-100);
+  --rank-3-lo: var(--c-teal-200);
+  --rank-4-hi: var(--c-violet-100);
+  --rank-4-lo: var(--c-violet-200);
 }
 
 :root[data-contrast='high'][data-theme='light'] {
@@ -439,4 +488,15 @@
   --plate-diamond-chosen: var(--c-diamond-700);
   --plate-elo-chosen: var(--c-star-700);
   --plate-glow: transparent;
+  /* Ranked rank names */
+  --rank-0-hi: var(--c-bronze-700);
+  --rank-0-lo: var(--c-bronze-700);
+  --rank-1-hi: var(--c-silver-700);
+  --rank-1-lo: var(--c-silver-700);
+  --rank-2-hi: var(--c-gold-700);
+  --rank-2-lo: var(--c-gold-700);
+  --rank-3-hi: var(--c-teal-700);
+  --rank-3-lo: var(--c-teal-700);
+  --rank-4-hi: var(--c-violet-700);
+  --rank-4-lo: var(--c-violet-700);
 }

@@ -3,6 +3,7 @@ import { badgeArt, badgeLabel } from './badges.ts';
 import { DEFAULT_AVATAR } from './backend/forge.ts';
 import { follow, playerCard, unfollow, type PlayerCard } from './backend/leaderboard.ts';
 import { ICONS } from './icons.ts';
+import { rankName } from './rankName.ts';
 import { paintPlate } from './plates.ts';
 import { rankTier } from './profile.ts';
 import { closeButton, h, openModal, toast } from './ui.ts';
@@ -38,7 +39,7 @@ export function cardBody(c: PlayerCard, opts: { large?: boolean } = {}): HTMLEle
   const name = h('h2', { class: 'card-name', attrs: { 'data-slot': 'name-effect' } });
   paintPlate(name, c.name, c.plate);
   const facts: (HTMLElement | null)[] = [
-    h('span', { class: 'card-fact' }, h('span', { class: `tier-emblem tier-${tier.tier}`, html: ICONS.tiers[tier.tier], attrs: { 'aria-hidden': 'true' } }), h('span', { text: c.title ?? tier.label })),
+    h('span', { class: 'card-fact' }, rankName(tier.tier, tier.label, c.title)),
     c.affinity
       ? h('span', { class: 'card-fact' }, h('span', { class: 'drop-element', html: ICONS.elements[c.affinity], attrs: { 'aria-hidden': 'true' } }), h('span', { text: copy.forge.elements[c.affinity] }))
       : null,
