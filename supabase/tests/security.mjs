@@ -135,6 +135,16 @@ export default async function () {
     check(open === 0, `private functions are closed to players (${open} open)`);
   }
 
+  // Supabase's API refuses a DELETE or UPDATE with no WHERE (pg_safeupdate; PGlite here doesn't),
+  // so a bare one in any function an API call can reach fails live only: refresh_lb_where.
+  // (ON CONFLICT ... DO UPDATE SET is not affected.)
+  {
+    const bare = (await db.query(`select n.nspname || '.' || p.proname fn from pg_proc p join pg_namespace n on n.oid = p.pronamespace,
+        regexp_matches(p.prosrc, '((?:delete\\s+from|(?<!do\\s)update)\\s+[a-z_.]+(?:\\s[^;]*)?;)', 'gi') m
+      where n.nspname in ('public', 'private') and m[1] !~* '\\mwhere\\M' and m[1] !~* '^update\\s+set'`)).rows.map((r) => r.fn);
+    check(bare.length === 0, `no DELETE or UPDATE without a WHERE in any function (${bare.join(', ') || 'none'})`);
+  }
+
   // SEC-12: a player restricted mid-game gets no Elo for the open Ranked game.
   {
     const r = await player({ email: 'sec-r@t.test' });
