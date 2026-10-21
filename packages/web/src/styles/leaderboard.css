@@ -189,43 +189,60 @@ html[data-reduce-motion] .strength-seg {
 .lb-dim {
   display: none !important;
 }
-/* The five lists in balanced rows (3 + 2) rather than one hidden off the edge; two a row
-   (and the last across) when the labels are large or the phone is narrow. */
+/* The five lists: one slim track of tabs, a filter rather than a menu. The chosen one is a
+   raised pill with the selection ring (as the app's segmented controls); where the labels
+   don't fit one row (large text, the narrowest phones) the track wraps, never cuts a word. */
 .lb-tabs {
-  grid-template-columns: repeat(6, 1fr);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
 }
-.lb-tabs .segment {
-  grid-column: span 2;
-  min-width: 0;
-  padding-inline: var(--space-1);
+.lb-tab {
+  flex: 1 1 auto;
+  min-height: 44px;
+  padding: var(--space-1);
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: var(--fs-small);
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: var(--cursor-pointer);
 }
-.lb-tabs .segment:nth-child(n + 4) {
-  grid-column: span 3;
+.lb-tab.on {
+  background: var(--surface-2);
+  color: var(--text);
+  box-shadow: inset 0 0 0 2px var(--select);
 }
+.lb-tab:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+/* where five don't fit one row (the narrowest phones, large text): three then two, all the
+   same width, the second row centred */
 @media (max-width: 359px) {
   .lb-tabs {
-    grid-template-columns: 1fr 1fr;
+    justify-content: center;
   }
-  .lb-tabs .segment:nth-child(n) {
-    grid-column: auto;
-  }
-  .lb-tabs .segment:last-child {
-    grid-column: 1 / -1;
+  .lb-tab {
+    flex: 0 1 calc((100% - 2 * var(--space-1)) / 3);
   }
 }
 html[data-large-text] .lb-tabs {
-  grid-template-columns: 1fr 1fr;
+  justify-content: center;
 }
-html[data-large-text] .lb-tabs .segment:nth-child(n) {
-  grid-column: auto;
+html[data-large-text] .lb-tab {
+  flex: 0 1 calc((100% - 2 * var(--space-1)) / 3);
 }
-html[data-large-text] .lb-tabs .segment:last-child {
-  grid-column: 1 / -1;
-}
-/* Large labels on phones up to 389px: one a row, so no word is cut or crowded. */
-@media (max-width: 389px) {
-  html[data-large-text] .lb-tabs {
-    grid-template-columns: 1fr;
+@media (forced-colors: active) {
+  .lb-tab.on {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
   }
 }
 /* Phones: the affinity card stays short so the list shows sooner (the legend, the rule and
@@ -241,24 +258,53 @@ html[data-large-text] .lb-tabs .segment:last-child {
     display: none;
   }
 }
+/* The list's header: what it ranks and when it was updated, the Ranks button beside them. */
 .lb-meta-row {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-1) var(--space-3);
+  gap: var(--space-3);
+  padding-inline: var(--space-1);
+}
+.lb-head-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+.lb-about {
+  font-family: var(--serif);
+  font-size: var(--fs-body);
 }
 .lb-meta {
-  min-width: 0;
   font-family: var(--serif);
   font-size: var(--fs-small);
   color: var(--muted);
 }
+.lb-meta:empty {
+  display: none;
+}
+.lb-ranks {
+  justify-self: start;
+  width: auto;
+  min-height: 44px;
+  padding-inline: var(--space-4);
+  font-size: var(--fs-small);
+}
+/* large text: the button goes under the words rather than squeezing them */
+html[data-large-text] .lb-meta-row {
+  grid-template-columns: 1fr;
+  justify-items: start;
+}
+/* Empty, offline and "not in this list": a card, with its way forward. */
 .lb-notice {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--space-3);
+  padding: var(--space-5) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
   text-align: center;
 }
 .lb-notice:empty {

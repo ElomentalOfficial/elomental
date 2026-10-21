@@ -89,6 +89,7 @@ export const PAIRS: Pair[] = [
   ['UI: selected segment ring vs its fill', '--select', '--seg-on-bg', 3],
   ['UI: selected segment ring vs Setup card', '--select', '--surface', 3],
   ['UI: selected segment ring vs modal', '--select', '--modal-bg', 3],
+  ['UI: leaderboard tab ring vs its fill', '--select', '--surface-2', 3],
   ['Disabled button text on modal', '--disabled-text', '--modal-bg', 4.5],
   ['Disabled button text on a card', '--disabled-text', '--surface', 4.5],
   ['UI: disabled button dashed edge vs modal', '--field-border', '--modal-bg', 3],

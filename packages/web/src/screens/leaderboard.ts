@@ -64,9 +64,12 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
 
   // ---- the list
   const tabs = VIEWS.map((v) =>
-    h('button', { class: 'segment', attrs: { role: 'tab', type: 'button', 'data-view': v }, onclick: () => switchView(v) }));
+    // toggle buttons in a labelled group (not ARIA tabs: they don't move focus with the arrow keys)
+    h('button', { class: 'lb-tab', attrs: { type: 'button', 'data-view': v }, onclick: () => switchView(v) }));
+  // the list's header: what it ranks, when it was updated, and the ranks behind it
+  const about = h('p', { class: 'lb-about' });
   const meta = h('p', { class: 'lb-meta' });
-  const ranksBtn = h('button', { class: 'link-btn', text: t.ranks, attrs: { type: 'button' }, onclick: () => openTiers() });
+  const ranksBtn = h('button', { class: 'btn lb-ranks', text: t.ranks, attrs: { type: 'button' }, onclick: () => openTiers() });
   const list = h('ol', { class: 'lb-list', attrs: { 'aria-live': 'polite', 'aria-busy': 'true' } });
   const more = h('button', { class: 'btn lb-more', text: t.showMore, attrs: { type: 'button' }, onclick: () => void load(page + 1) });
   const notice = h('div', { class: 'lb-notice' });
@@ -77,8 +80,8 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
     { class: 'lb-main' },
     h('div', { class: 'lb-search' }, searchField, searchStatus),
     results,
-    h('div', { class: 'lb-tabs segmented', attrs: { role: 'tablist', 'aria-label': t.a11yViews } }, ...tabs),
-    h('div', { class: 'lb-meta-row' }, meta, ranksBtn),
+    h('div', { class: 'lb-tabs', attrs: { role: 'group', 'aria-label': t.a11yViews } }, ...tabs),
+    h('div', { class: 'lb-meta-row' }, h('div', { class: 'lb-head-text' }, about, meta), ranksBtn),
     notice,
     list,
     more,
@@ -94,8 +97,10 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
       const label = v === 'faction' && myElement() ? copy.forge.elements[myElement()!] : t.views[v];
       b.textContent = label;
       b.classList.toggle('on', v === view);
-      b.setAttribute('aria-selected', String(v === view));
+      b.setAttribute('aria-pressed', String(v === view));
     });
+    const side = myElement();
+    about.textContent = view === 'faction' ? t.about.faction(side ? copy.forge.elements[side] : null) : t.about[view as Exclude<LbView, 'faction'>];
   }
 
   function switchView(v: LbView) {
@@ -174,8 +179,7 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
   function paintMeta(updated: string | null) {
     if (!updated) return void (meta.textContent = '');
     const min = Math.max(0, Math.floor((Date.now() - new Date(updated).getTime()) / 60000));
-    // the Season list says what it ranks
-    meta.textContent = view === 'season' ? `${t.seasonNote} ${t.updated(min)}.` : t.updated(min);
+    meta.textContent = `${t.updated(min)}.`;
   }
 
   /** Empty and "you're not in this list" messages, with the way forward. */

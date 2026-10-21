@@ -173,7 +173,7 @@ const BOXES =
 /** Rows and grids whose children must not overlap one another. */
 const ROWS =
   '.home-grid, .subbar, .segmented, .pad, .actions-row, .profile-stats, .difficulty-picker, .friend-card, .topbar, .status, .casual-head, .coach-actions, .calendar, ' +
-  '.part-grid, .plate-grid, .affinity-grid, .lb-strength-legend, .lb-me, .lb-meta-row, .badge-grid, .lb-row-btn, .lb-leader';
+  '.part-grid, .plate-grid, .affinity-grid, .lb-strength-legend, .lb-me, .lb-tabs, .lb-meta-row, .badge-grid, .lb-row-btn, .lb-leader';
 
 /** What runs out of its box, off the screen, or over its neighbours, on the page as it is now. */
 export async function problems(page: Page, where: string): Promise<string[]> {

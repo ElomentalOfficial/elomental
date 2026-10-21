@@ -923,8 +923,17 @@ const ORDINAL = (n: number) => {
 
 export const leaderboard = {
   title: 'Leaderboard',
-  views: { friends: 'Friends', global: 'Everyone', faction: 'Affinity', season: 'Season', country: 'Country' },
+  /** The lists' tabs: short, so all five fit one row on a phone. */
+  views: { friends: 'Friends', global: 'All', faction: 'Affinity', season: 'Season', country: 'Country' },
   a11yViews: 'Which list',
+  /** Under the lists' tabs: what the chosen one ranks. */
+  about: {
+    friends: 'You and the players you follow, by Elo.',
+    global: 'Everyone with a place, by Elo.',
+    faction: (side: string | null) => (side ? `Everyone in ${side}, by Elo.` : 'Players in your affinity, by Elo.'),
+    country: 'Players from your country, by Elo.',
+    season: 'Best Elo this season. 20 Ranked games to qualify.',
+  },
   updated: (min: number) => (min < 1 ? 'Updated just now' : `Updated ${min} min ago`),
   ranks: 'Ranks',
   showMore: 'Show more',
@@ -965,7 +974,6 @@ export const leaderboard = {
   retry: 'Try again',
   elo: 'Elo',
   /** The Season list: best Elo this season, from 20 Ranked games (decision D8). */
-  seasonNote: 'Ranked by best Elo this season. Needs 20 Ranked games.',
   seasonToGo: (left: number) => `${left} more Ranked ${left === 1 ? 'game' : 'games'} this season to get a place here.`,
   best: 'Best',
   a11yRow: (place: number, name: string, rank: string, elo: number) => `${place}. ${name}, ${rank}, ${elo} Elo`,
