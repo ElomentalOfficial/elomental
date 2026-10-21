@@ -45,7 +45,16 @@ const LADDER = files.find((f) => f.endsWith('_ranked_ladder.sql'));
 old.ladder = [];
 // Just before diamond_plate, a player holding Starforged (then plate 4), to check they keep it.
 const DIAMOND = files.find((f) => f.endsWith('_diamond_plate.sql'));
+// Just before account_level, a player with a past Medium Casual win and a Ranked loss, to check
+// the backfill pays the win (20 XP) and not the loss.
+const LEVEL = files.find((f) => f.endsWith('_account_level.sql'));
 for (const f of files) {
+  if (f === LEVEL) {
+    old.veteranXp = (await db.query(`insert into auth.users default values returning id`)).rows[0].id;
+    await db.query(`insert into public.games (user_id, mode, difficulty, seed, rating, started_at, finished_at, won) values
+      ($1, 'casual', 'medium', 's', 400, now() - interval '2 days', now() - interval '2 days' + interval '10 minutes', true),
+      ($1, 'ranked', 'hard', 's', 400, now() - interval '1 day', now() - interval '1 day' + interval '10 minutes', false)`, [old.veteranXp]);
+  }
   if (f === DIAMOND) {
     old.starforged = (await db.query(`insert into auth.users default values returning id`)).rows[0].id;
     await db.query(`update public.profiles set plate = 4 where id = $1`, [old.starforged]);
