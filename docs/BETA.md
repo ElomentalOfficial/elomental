@@ -58,6 +58,17 @@ The owner's accounts; done once.
    Review needs a pinned authenticator: set one up on beta, then pin it
    (`private.pin_founder_factor`).
 
+## Testers (invite only)
+
+Beta is for invited testers only. The beta project has "Allow new users to sign up" and
+anonymous sign-ins **off**, so only accounts the owner adds can get a code; the app shows only
+its sign-in until one of them signs in (`src/beta.ts`), and any other email is told it isn't on
+the tester list.
+
+To add a tester: beta project > Authentication > Users > Add user > Create new user: their
+email, any long password (never used: sign-in is by code), tick Auto Confirm User. They then
+sign in on beta.elomental.online with that email. To remove one: delete the user there.
+
 ## Email (both projects)
 
 Sent through Brevo (the Elomentalgame account), SMTP login `bf6722001@smtp-brevo.com`, from
