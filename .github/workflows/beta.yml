@@ -6,7 +6,7 @@ name: Deploy web to beta.elomental.online
 # the beta project's address, so a beta build can never point at live players' data.
 #
 # Needs, in this repository's Settings > Secrets and variables > Actions:
-# - variables BETA_SUPABASE_URL and BETA_SUPABASE_KEY (the beta project's URL and publishable key)
+# - optional variables BETA_SUPABASE_URL and BETA_SUPABASE_KEY (else the beta project's own, below)
 # - secret BETA_DEPLOY_TOKEN (a fine-grained token: ElomentalOfficial/elomental-beta, Contents read and write)
 # - optional variable BETA_TURNSTILE_SITE_KEY (else the live widget's key, which must list
 #   beta.elomental.online among its hostnames)
@@ -28,8 +28,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       VITE_ENV: beta
-      VITE_SUPABASE_URL: ${{ vars.BETA_SUPABASE_URL }}
-      VITE_SUPABASE_KEY: ${{ vars.BETA_SUPABASE_KEY }}
+      # the beta project (public by design, like the live one in client.ts); variables override
+      VITE_SUPABASE_URL: ${{ vars.BETA_SUPABASE_URL || 'https://skuxlbukdynqsetnyqzw.supabase.co' }}
+      VITE_SUPABASE_KEY: ${{ vars.BETA_SUPABASE_KEY || 'sb_publishable_3lMpeOjhQcGIxaMW4goewQ_f1ks36Bl' }}
       VITE_TURNSTILE_SITE_KEY: ${{ vars.BETA_TURNSTILE_SITE_KEY || '0x4AAAAAAFbT-did4rZdUb9s' }}
     steps:
       - name: Refuse to build without the beta project
