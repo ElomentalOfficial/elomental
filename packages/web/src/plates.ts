@@ -38,8 +38,8 @@ interface Tier {
   end: [number, string] | null;
   /** beside the medallion (left; mirrored): its width and drawing */
   flank: [number, string] | null;
-  /** a sun hanging behind the medallion: its rays */
-  sun: 0 | 7 | 13;
+  /** what hangs under the medallion: a sun (its rays), or an arc of gems */
+  sun: 0 | 7 | 13 | 'gems';
   /** rings round the medallion */
   rings: 1 | 2 | 3;
 }
@@ -84,8 +84,8 @@ const PLATES: Partial<Tier>[] = [
   { band: 'gilt', rings: 2, sun: 7, lines: [{ y: 0, a: 11, b: 12 }],
     end: [11, solid('M0.5 0A1.75 1.75 0 1 0 4 0A1.75 1.75 0 1 0 0.5 0Z') + stroke('M6 0H9')],
     flank: [12, stroke('M-1.5 -5.5L-8.5 -8.5M-2 0H-11M-1.5 5.5L-8.5 8.5')] },
-  // 65 Jewelled: two lines from a double diamond, a chain of gems by the medallion
-  { band: 'star', rings: 2, lines: [{ y: -2, a: 17, b: 0 }, { y: 2, a: 17, b: 0 }],
+  // 65 Jewelled: two lines from a double diamond, a chain of gems by the medallion, gems hung beneath
+  { band: 'star', rings: 2, sun: 'gems', lines: [{ y: -2, a: 17, b: 0 }, { y: 2, a: 17, b: 0 }],
     end: [18, solid(gem(3.5, 0, 3)) + stroke(gem(12, 0, 4.5))],
     flank: [16, solid(gem(-6, 0, 1.8) + gem(-12, 0, 1.8))] },
   // 80 Winged: three lines from double chevrons, wings swept off the medallion, a sun beneath
@@ -144,14 +144,28 @@ function ruleHtml(t: Tier): string {
   return parts.join('');
 }
 
-/** The level in its medallion (rings by tier, a hanging sun from Sunburst); literal for screen readers. */
+/**
+ * An arc of gems hung under the medallion, where a sun has its rays (Jewelled): five diamonds,
+ * the middle one largest, and a dot between each. In the sun's box: the disc's radius is 12.
+ */
+const gemArc = (): string =>
+  [-56, -28, 0, 28, 56].map((d, i) => {
+    const a = ((90 + d) * Math.PI) / 180;
+    return solid(gem(16.5 * Math.cos(a), 16.5 * Math.sin(a), i === 2 ? 3.2 : 2.3));
+  }).join('')
+  + [-42, -14, 14, 42].map((d) => {
+    const a = ((90 + d) * Math.PI) / 180;
+    return `<circle cx="${(20.5 * Math.cos(a)).toFixed(2)}" cy="${(20.5 * Math.sin(a)).toFixed(2)}" r="1.2" class="solid"/>`;
+  }).join('');
+
+/** The level in its medallion (rings by tier, a hanging sun or gems); literal for screen readers. */
 export function plateMedal(level: number, plate = 0): HTMLElement {
   const t = TIERS[plate] ?? BLANK;
   const digits = String(level).length;
   return h(
     'span',
     { class: `plate-medal rings-${t.rings}`, attrs: { role: 'img', 'aria-label': copy.level.label(level), 'data-digits': String(Math.min(digits, 4)) } },
-    t.sun ? h('span', { class: 'medal-sun', html: svg('', '-24 -24 48 48', [48, 48], `<path ${line} d="${rays(t.sun, 13, 18, 22, true, true)}"/>`), attrs: { 'aria-hidden': 'true' } }) : '',
+    t.sun ? h('span', { class: 'medal-sun', html: svg('', '-24 -24 48 48', [48, 48], t.sun === 'gems' ? gemArc() : `<path ${line} d="${rays(t.sun, 13, 18, 22, true, true)}"/>`), attrs: { 'aria-hidden': 'true' } }) : '',
     h('span', { class: 'medal-num', text: String(level), attrs: { 'aria-hidden': 'true' } }),
   );
 }
