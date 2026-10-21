@@ -1,18 +1,21 @@
 /* ---------- Name plates (plates.ts; the level's, earned, never bought) ---------- */
-/* A plate is an Art Deco frame round the name with the level in a medallion at its foot: one
-   object (ui-designer). Nine plates, levels 5 to 100, each its own idea (plates.ts TIERS); the
-   shape carries the tier, the colour its band: ink, steel, gilt, star, starfire (palette.ts
+/* A plate is an Art Deco rule under the name with the level in a medallion at its centre: one
+   object (ui-designer; owner: only the part under the name, as the first rules were). Nine plates, levels 5 to 100, each its own idea (plates.ts TIERS); the
+   shape carries the tier, the colour its band: ink, steel, gilt, star, epic, mythic (palette.ts
    PLATE_BANDS), never the rank metals. The frame is decoration: see-through
    (--plate-opacity), worn in specks like the tiles' frames (art/plate-wear.webp). The medallion
    is text: opaque, never worn. */
 .name-plate {
   --medal-d: calc(40px * var(--text-scale));
+  /* the rule's height: its lines, top and bottom, and the shaped ends between them */
+  --rule: 16px;
   position: relative;
   display: inline-block;
   max-width: 100%;
-  padding: 8px 22px calc(var(--medal-d) / 2 + var(--space-2));
-  /* the medallion's lower half (and a hanging sun) below the frame */
-  margin-bottom: calc(var(--medal-d) / 2 + var(--space-1));
+  /* the rule at the foot, the medallion on its centre, clear of the name */
+  padding: 0 22px calc(var(--rule) / 2 + var(--medal-d) / 2 + var(--space-1));
+  /* the medallion's lower half (and a hanging sun) below the rule */
+  margin-bottom: calc(var(--medal-d) / 2 - var(--rule) / 2 + var(--space-1));
   text-align: center;
 }
 /* a name as long as names may be (20 letters, no spaces) wraps inside its plate */
@@ -21,29 +24,14 @@
   overflow-wrap: anywhere;
 }
 /* a short name still gets a frame wide enough for its ornaments and its sun (rows have no medallion) */
-.name-plate.has-medal:not(.tier-0) {
+.name-plate.has-medal {
   min-width: calc(var(--medal-d) * 3);
 }
-/* the bare medallion (below level 5, or no plate worn): under the name, no frame */
-.name-plate.tier-0 {
-  padding: 0 0 calc(var(--medal-d) + var(--space-1));
-  margin-bottom: 0;
-}
-/* shaped ends (and a point's tips) reach out: room on the sides */
-.name-plate.has-end {
-  padding-inline: 34px;
-  margin-inline: 12px;
-}
-/* an ornament on top rises above the frame: room for it */
-.name-plate.has-top {
-  margin-top: 10px;
-}
-/* the crown rises higher (Starforged), and its three rings take a larger medallion */
-.name-plate.tier-9 {
+/* three rings (Winged, Starforged) take a larger medallion */
+:is(.name-plate.tier-8, .name-plate.tier-9) {
   --medal-d: calc(48px * var(--text-scale));
-  margin-top: 18px;
 }
-.plate-card .name-plate.tier-9 {
+.plate-card :is(.name-plate.tier-8, .name-plate.tier-9) {
   --medal-d: calc(40px * var(--text-scale));
 }
 
@@ -51,13 +39,15 @@
 .band-ink { --plate: var(--plate-ink); }
 .band-steel { --plate: var(--plate-steel); }
 .band-gilt { --plate: var(--plate-gilt); }
-.band-star { --plate: var(--plate-star); }
-.band-starfire { --plate: var(--plate-starfire); }
+.band-star { --plate: var(--plate-star); --glow: var(--plate-glow-star); }
+.band-epic { --plate: var(--plate-epic); --glow: var(--plate-glow-epic); }
+.band-mythic { --plate: var(--plate-mythic); --glow: var(--plate-glow-mythic); }
 .plate-card.state-yours .band-ink { --plate: var(--plate-ink-chosen); }
 .plate-card.state-yours .band-steel { --plate: var(--plate-steel-chosen); }
 .plate-card.state-yours .band-gilt { --plate: var(--plate-gilt-chosen); }
 .plate-card.state-yours .band-star { --plate: var(--plate-star-chosen); }
-.plate-card.state-yours .band-starfire { --plate: var(--plate-starfire-chosen); }
+.plate-card.state-yours .band-epic { --plate: var(--plate-epic-chosen); }
+.plate-card.state-yours .band-mythic { --plate: var(--plate-mythic-chosen); }
 
 .plate-frame {
   position: absolute;
@@ -70,65 +60,19 @@
   mask: url('../art/plate-wear.webp') 0 0 / 128px 128px repeat;
 }
 .plate-box {
-  --plate-line: 1.5px;
   position: absolute;
-  inset: 24px;
+  /* the rule: a band at the plate's foot, as wide as the plate */
+  inset: auto 24px 24px;
+  height: var(--rule);
 }
-/* the straight lines are inset shadows, not borders (Chrome rounds a 1.5px border down to 1px):
-   centred 0.5px (outer) and 3.5px (inner) in, as the ornaments are drawn */
-.plate-box::before,
-.plate-box::after {
-  content: '';
+/* a line of the rule (plates.ts ruleHtml sets where it runs): a border, so High contrast keeps it */
+.rule-line {
   position: absolute;
-  inset: -0.25px;
-  box-shadow: inset 0 0 0 var(--plate-line) currentColor;
-}
-.plate-box::after {
-  inset: 2.75px;
-}
-/* one line on Riveted, two from Banded */
-.tier-1 .plate-box::after {
-  content: none;
-}
-/* bevelled corners: the lines are cut there (plates.ts CORNERS.bevel draws the edge) */
-.corner-bevel .plate-box::before {
-  --cut: 8px;
-}
-.corner-bevel .plate-box::after {
-  --cut: 6px;
-}
-.corner-bevel .plate-box::before,
-.corner-bevel .plate-box::after {
-  clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)),
-    calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut));
-}
-/* shaped ends: the straight lines stop where the ends begin (26px in) */
-.has-end .plate-box::before,
-.has-end .plate-box::after {
-  left: 26px;
-  right: 26px;
-  box-shadow: inset 0 var(--plate-line) currentColor, inset 0 calc(-1 * var(--plate-line)) currentColor;
-}
-@media (forced-colors: active) {
-  .plate-box::before,
-  .plate-box::after {
-    box-shadow: none;
-    border: 1px solid CanvasText;
-  }
-  .has-end .plate-box::before,
-  .has-end .plate-box::after {
-    border-inline: 0;
-  }
-  /* drawn whole and solid: no see-through, no wear */
-  .plate-frame,
-  .medal-sun {
-    opacity: 1;
-    -webkit-mask: none;
-    mask: none;
-  }
+  border-top: 1.5px solid currentColor;
 }
 .plate-box svg {
   position: absolute;
+  top: calc(50% - 9px);
   overflow: visible;
   fill: none;
   stroke: currentColor;
@@ -141,37 +85,22 @@
 .plate-box svg .ring {
   opacity: 0.6;
 }
-/* (sizes set here too: other rules stretch icons to their box) */
-.plate-box .plate-corner { width: 21px; height: 21px; }
-.plate-corner { top: -5px; left: -5px; }
-.plate-corner.c-tr { left: auto; right: -5px; transform: scaleX(-1); }
-.plate-corner.c-bl { top: auto; bottom: -5px; transform: scaleY(-1); }
-.plate-corner.c-br { top: auto; left: auto; bottom: -5px; right: -5px; transform: scale(-1); }
-/* on a tab end the corners are its shoulders, 8px in (plates.ts ENDS.tab) */
-.end-tab .plate-corner { left: 3px; }
-.end-tab .plate-corner:is(.c-tr, .c-br) { left: auto; right: 3px; }
-.plate-box .plate-side { width: 20px; height: 20px; top: calc(50% - 10px); left: -10px; }
-.plate-box .plate-side.s-r { left: auto; right: -10px; transform: scaleX(-1); }
-.plate-box .plate-end,
-.plate-box .plate-inner { left: 0; width: 26px; }
-.plate-box .plate-end { top: 0.5px; height: calc(100% - 1px); }
-.plate-box .plate-inner { top: 3.5px; height: calc(100% - 7px); }
-.plate-box .e-r { left: auto; right: 0; transform: scaleX(-1); }
-.plate-box .plate-tip { width: 21px; height: 14px; top: calc(50% - 7px); left: -13.5px; }
-.plate-box .plate-tip.t-r { left: auto; right: -13.5px; transform: scaleX(-1); }
-.plate-box .plate-crown { width: 44px; height: 22px; top: -21px; left: calc(50% - 22px); }
-.plate-box .plate-top { width: 44px; height: 20px; top: -11px; left: calc(50% - 22px); }
+/* the ends at the rule's ends, the flanks against the medallion; each right one the left's mirror */
+.plate-box .rule-end.e-l { left: 0; }
+.plate-box .rule-end.e-r { right: 0; transform: scaleX(-1); }
+.plate-box .rule-flank.f-l { right: calc(50% + var(--medal-d) / 2); }
+.plate-box .rule-flank.f-r { left: calc(50% + var(--medal-d) / 2); transform: scaleX(-1); }
 /* the top bands glow (dark only: the token is transparent on light; never on rows) */
-:is(.band-star, .band-starfire):not(.lb-name) .plate-box {
-  filter: drop-shadow(0 0 2px var(--plate-glow));
+:is(.band-star, .band-epic, .band-mythic):not(.lb-name) .plate-box {
+  filter: drop-shadow(0 0 2px var(--glow));
 }
 
-/* The medallion: the level on a disc set into the frame's foot, rings by tier; text, so opaque,
+/* The medallion: the level on a disc set on the rule's centre, rings by tier; text, so opaque,
    never worn and never glowing. */
 .plate-medal {
   position: absolute;
   left: 50%;
-  bottom: 0;
+  bottom: calc(var(--rule) / 2);
   display: grid;
   place-items: center;
   width: var(--medal-d);
@@ -188,10 +117,6 @@
 .plate-medal.rings-3 {
   box-shadow: inset 0 0 0 1.5px var(--plate), inset 0 0 0 3.5px var(--medal-fill), inset 0 0 0 5px var(--plate),
     inset 0 0 0 7px var(--medal-fill), inset 0 0 0 8.5px var(--plate);
-}
-/* the bare medallion sits under the name rather than on a frame's line */
-.tier-0 > .plate-medal {
-  transform: translateX(-50%);
 }
 .medal-num {
   position: relative;
@@ -210,7 +135,7 @@
 .plate-medal[data-digits='4'] .medal-num { font-size: var(--fs-caption); }
 /* the hanging sun reaches a disc's width below its centre: room for it */
 .name-plate.has-sun {
-  margin-bottom: calc(var(--medal-d) + var(--space-1));
+  margin-bottom: calc(var(--medal-d) - var(--rule) / 2 + var(--space-1));
 }
 /* the hanging sun (Sunburst on): rays below the disc, in the band's metal */
 .medal-sun {
@@ -241,11 +166,13 @@
     background: Canvas;
     color: CanvasText;
   }
-}
-
-/* Large text: the ornaments outside the frame give way to the name */
-html[data-large-text] .plate-box :is(.plate-tip, .plate-crown) {
-  display: none;
+  /* the rule drawn whole and solid: no see-through, no wear */
+  .plate-frame,
+  .medal-sun {
+    opacity: 1;
+    -webkit-mask: none;
+    mask: none;
+  }
 }
 
 /* The Name plates page (Profile > Name plates, screens/plates.ts): the ladder by band, a card per
@@ -329,7 +256,6 @@ button.plate-card:active {
 /* the top plate across the row */
 .plate-card.tier-card-9 {
   grid-column: 1 / -1;
-  padding-top: calc(var(--space-6) + 12px);
 }
 .plate-card .name-plate {
   --medal-d: calc(32px * var(--text-scale));
@@ -451,9 +377,6 @@ button.plate-card:active {
   margin-top: var(--space-3);
   font-size: var(--fs-label);
   font-weight: 800;
-}
-.plate-hero .name-plate.tier-9 {
-  margin-top: calc(var(--space-3) + 18px);
 }
 .plate-hero-line {
   font-family: var(--serif);

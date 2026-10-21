@@ -16,7 +16,7 @@ import * as copy from '../copy/en.ts';
  */
 
 const SEEN_KEY = 'elomental:plates-seen';
-const BANDS: Band[] = ['ink', 'steel', 'gilt', 'star', 'starfire'];
+const BANDS: Band[] = ['ink', 'steel', 'gilt', 'star', 'epic', 'mythic'];
 
 /** Plates collected since this page was last opened (the Profile's row shows "New"). */
 export function newPlates(): number {

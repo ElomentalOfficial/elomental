@@ -21,11 +21,14 @@ leaderboards. Status: **proposal, not built**. Numbers come from a season simula
   never on the leaderboard as a number.
 - **Name plates come with the level (level_plates, owner):** no longer bought. Nine plates for
   now, level 100 the top (owner: the fancy ones within reach; plates past 100 can come later):
-  levels 5, 10, 15, 25, 35, 50, 65, 80 and 100: Riveted (ink; the first plates' Bronze), Banded
-  (steel; their Silver), Cartouche (steel), Fanlight (gilt; their Gold), Colonnade, Sunburst
-  (gilt), Jewelled, Winged (star), Starforged (starfire). Below level 5 (or Blank equipped) the level stands alone
-  in its medallion. A plate is an Art Deco frame round the name with the level in a medallion at
-  its foot, each plate its own idea after the owner's references, richer up the ladder. Every
+  levels 5, 10, 15, 25, 35, 50, 65, 80 and 100: Riveted (ink), Banded, Cartouche (steel),
+  Fanlight, Colonnade, Sunburst (gilt), Jewelled (star), Winged (epic: Epic's heather, the group
+  "Aether") and Starforged (mythic: Mythic's flame). Below level 5 (or Blank equipped) the level
+  sits on one plain line. A plate is an Art Deco rule under the name (owner: only the part under
+  the name, as the first rules were) with the level in a medallion at its centre, each rule its
+  own divider after the owner's references (its lines, ends and what flanks the medallion),
+  richer up the ladder; the medallion has one ring to Cartouche, two from Fanlight, three on
+  Winged and Starforged. Every
   plate is kept; Profile > Name plates holds them all and equips any (`wear_plate`). A new plate
   is equipped by itself only when the player was wearing their newest. Leaderboard rows show the
   band as a rule under the name (no frame, no level). Stardust spent on the old bought plates

@@ -135,7 +135,7 @@ for (const { id } of SWATCHES) {
  * the solid line: the wear mask takes specks out of it, not its colour.
  */
 const PLATE_SURFACES: [string, string, string?][] = [['page', '--bg'], ['surface', '--surface'], ['surface-2', '--surface-2'], ['profile', '--profile-bg'], ['modal', '--modal-bg']];
-const BANDS = ['ink', 'steel', 'gilt', 'star', 'starfire'];
+const BANDS = ['ink', 'steel', 'gilt', 'star', 'epic', 'mythic'];
 for (const band of BANDS) {
   for (const [n, t] of PLATE_SURFACES) PAIRS.push([`UI: ${band} plate vs ${n}`, `--plate-${band}`, t, 3, undefined, PLATE_OPACITY]);
   PAIRS.push([`UI: ${band} plate vs a chosen card`, `--plate-${band}-chosen`, '--chosen-bg', 3, '--surface', PLATE_OPACITY]);

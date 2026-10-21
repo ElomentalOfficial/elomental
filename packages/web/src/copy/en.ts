@@ -379,14 +379,14 @@ export const plates = {
   /** Plate 0 (no frame, the level alone) to 9, in the order they come (xp.ts PLATE_LEVELS). */
   names: ['Blank', 'Riveted', 'Banded', 'Cartouche', 'Fanlight', 'Colonnade', 'Sunburst', 'Jewelled', 'Winged', 'Starforged'] as const,
   /** The page's groups: the plates' bands, cold to lit. */
-  bands: { ink: 'Ink', steel: 'Steel', gilt: 'Gilt', star: 'Star', starfire: 'Starforged' } as Record<string, string>,
+  bands: { ink: 'Ink', steel: 'Steel', gilt: 'Gilt', star: 'Star', epic: 'Aether', mythic: 'Starforged' } as Record<string, string>,
   equipped: 'Equipped',
   equip: 'Equip',
   from: (level: number) => `From level ${level}`,
   locked: (level: number) => `Level ${level}`,
   toGo: (xp: number) => `${formatNumber(xp)} XP to go`,
-  /** Blank: no frame, just the level (how a plate is taken off). */
-  blankLine: 'Just your level',
+  /** Blank: one plain line under the name, with the level (how a plate is taken off). */
+  blankLine: 'A plain line and your level',
   a11yEquipped: (name: string) => `${name} plate, equipped`,
   a11yEquip: (name: string) => `${name} plate. Equip.`,
   a11yLocked: (name: string, level: number) => `${name} plate, locked until level ${level}`,

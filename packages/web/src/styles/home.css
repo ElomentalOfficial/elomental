@@ -505,18 +505,13 @@ html[data-large-text] .profile-stats.two {
   /* the name's plate a size down, so the rank under it stays in the card */
   .profile-card .name-plate {
     --medal-d: calc(30px * var(--text-scale));
-    padding-top: var(--space-1);
-    padding-bottom: calc(var(--medal-d) / 2 + var(--space-1));
-    margin-bottom: calc(var(--medal-d) / 2);
+    margin-bottom: calc(var(--medal-d) / 2 - var(--rule) / 2);
     line-height: 1.1;
   }
   .profile-card .profile-name {
     font-size: var(--fs-label);
   }
-  .profile-card .name-plate.has-end {
-    margin-inline: var(--space-1);
-  }
-  .profile-card .name-plate.tier-9 {
+  .profile-card :is(.name-plate.tier-8, .name-plate.tier-9) {
     --medal-d: calc(36px * var(--text-scale));
   }
 }

@@ -54,15 +54,14 @@ export const RAMPS: Ramp[] = [
   { name: 'azure', what: 'Rare: a deep slate blue', steps: STEPS, anchors: { 500: { C: 0.0731, H: 249.5, Y: 0.15 } } },
   { name: 'amethyst', what: 'Epic: heather', steps: STEPS, anchors: { 500: '#6f4b81' } },
   { name: 'flame', what: 'Mythic: the forge-heart flame, a light fill', steps: STEPS, anchors: { 400: { C: 0.14, H: 36 } } },
-  // the metals: 100 for the High contrast Starforged plate on dark, 700 for it on light
+  // the metals
   { name: 'bronze', what: 'Bronze plate', steps: METAL, anchors: { 400: '#c4875a', 500: '#9a5b2c' } },
   { name: 'silver', what: 'Silver plate', steps: METAL, anchors: { 300: '#b3bac1', 500: '#66707c' } },
   { name: 'gold', what: 'Gold plate, medals', steps: METAL, anchors: { 200: '#f0cd78', 300: { C: 0.115, H: 86 }, 500: '#8f6a12' } },
   { name: 'teal', what: 'Archmage rank: jade, clear of Diamond ice and Water', steps: METAL, anchors: { 500: { C: 0.085, H: 165 } } },
   { name: 'violet', what: 'Elomental rank: a deep violet, bluer than Epic heather', steps: METAL, anchors: { 500: { C: 0.13, H: 295 } } },
-  { name: 'star', what: 'the gilt and star plate bands, and the glow', steps: METAL, anchors: { 200: '#ecd38c', 500: '#946410' } },
+  { name: 'star', what: 'the gilt and star plate bands, and their glow', steps: METAL, anchors: { 200: '#ecd38c', 500: '#946410' } },
   { name: 'steel', what: 'the steel plate band: gunmetal, greyer than Air and Rare', steps: METAL, profile: FLAT, anchors: { 500: { C: 0.02, H: 250 } } },
-  { name: 'starfire', what: 'the top plate (Starforged) on dark: a warm white', steps: METAL, anchors: { 100: { C: 0.03, H: 85 } } },
 ];
 
 function bandY(step: number): number {
@@ -179,15 +178,15 @@ const medalRoles = (t: PlateTheme): string[] =>
 /**
  * The name plates' bands (plates.ts TIERS; ui-designer): the shape carries the tier, the colour
  * only its band, cold to lit, never the rank metals: ink (the level's own ink, tokens.css), steel,
- * gilt, star, starfire. Each band a step per theme, [line, on a chosen card]; on light the
- * starfire band is the star's deepest step (a glow only smudges there: the top plate's crown and
- * sun carry it).
+ * gilt, star, then the top two in the rarities' own hues (owner): epic (Winged, heather) and mythic
+ * (Starforged, flame), at the star's steps. Each band a step per theme, [line, on a chosen card].
  */
 const PLATE_BANDS: Record<string, Record<PlateTheme, [string, number, number]>> = {
   steel: { dark: ['steel', 300, 300], light: ['steel', 500, 600], 'dark-hc': ['steel', 200, 200], 'light-hc': ['steel', 600, 700] },
   gilt: { dark: ['star', 300, 300], light: ['star', 600, 700], 'dark-hc': ['star', 200, 200], 'light-hc': ['star', 700, 700] },
   star: { dark: ['star', 200, 200], light: ['star', 700, 700], 'dark-hc': ['star', 100, 100], 'light-hc': ['star', 700, 700] },
-  starfire: { dark: ['starfire', 100, 100], light: ['star', 700, 700], 'dark-hc': ['starfire', 100, 100], 'light-hc': ['star', 700, 700] },
+  epic: { dark: ['amethyst', 200, 200], light: ['amethyst', 700, 700], 'dark-hc': ['amethyst', 200, 200], 'light-hc': ['amethyst', 700, 800] },
+  mythic: { dark: ['flame', 200, 200], light: ['flame', 700, 700], 'dark-hc': ['flame', 200, 200], 'light-hc': ['flame', 700, 800] },
 };
 /** How see-through a plate's frame is on the dark and light themes (contrast.ts measures it so):
  *  traces of metal behind the name (owner, 2026-10-21). */
@@ -196,9 +195,10 @@ function plateRoles(t: PlateTheme): string[] {
   return [
     ...medalRoles(t),
     ...Object.entries(PLATE_BANDS).flatMap(([b, s]) => [`  --plate-${b}: ${v(s[t][0], s[t][1])};`, `  --plate-${b}-chosen: ${v(s[t][0], s[t][2])};`]),
-    // the top bands' glow: a halo of the star metal on dark; on the pale light surfaces a glow
-    // only smudges, so the ornament carries the tier there
-    `  --plate-glow: ${t.startsWith('dark') ? rgba(PRIM['--c-star-200'], 0.3) : 'transparent'};`,
+    // the top bands' glow, each in its own hue, on dark; on the pale light surfaces a glow only
+    // smudges, so the ornament carries the tier there
+    ...(['star', 'amethyst', 'flame'] as const).map((r, i) =>
+      `  --plate-glow-${['star', 'epic', 'mythic'][i]}: ${t.startsWith('dark') ? rgba(PRIM[`--c-${r}-200`], 0.3) : 'transparent'};`),
     // the frame sits back behind the name, see-through; High contrast draws it solid
     `  --plate-opacity: ${t.endsWith('hc') ? 1 : PLATE_OPACITY};`,
   ];

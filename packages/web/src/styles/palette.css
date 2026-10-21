@@ -157,7 +157,7 @@
   --c-violet-500: #725aae; /* L 0.530 C 0.129 H 295 */
   --c-violet-600: #5a4390; /* L 0.446 C 0.123 H 295 */
   --c-violet-700: #493477; /* L 0.384 C 0.110 H 295 */
-  /* star: the gilt and star plate bands, and the glow */
+  /* star: the gilt and star plate bands, and their glow */
   --c-star-100: #f3e4bc; /* L 0.921 C 0.055 H 90 */
   --c-star-200: #ecd38c; /* L 0.872 C 0.094 H 91 · existing */
   --c-star-300: #d7ab47; /* L 0.763 C 0.127 H 85 */
@@ -173,14 +173,6 @@
   --c-steel-500: #606974; /* L 0.517 C 0.021 H 253 */
   --c-steel-600: #49525b; /* L 0.434 C 0.019 H 248 */
   --c-steel-700: #39414b; /* L 0.372 C 0.020 H 254 */
-  /* starfire: the top plate (Starforged) on dark: a warm white */
-  --c-starfire-100: #eee3cf; /* L 0.919 C 0.029 H 83 */
-  --c-starfire-200: #e1cfac; /* L 0.860 C 0.051 H 84 */
-  --c-starfire-300: #c8af79; /* L 0.763 C 0.077 H 86 */
-  --c-starfire-400: #ae9155; /* L 0.670 C 0.086 H 84 */
-  --c-starfire-500: #806528; /* L 0.521 C 0.086 H 85 */
-  --c-starfire-600: #664e11; /* L 0.438 C 0.081 H 86 */
-  --c-starfire-700: #533e07; /* L 0.377 C 0.073 H 85 */
 
   /* Old palette names, kept as aliases */
   --c-bg: var(--c-stone-900);
@@ -315,9 +307,13 @@
   --plate-gilt-chosen: var(--c-star-300);
   --plate-star: var(--c-star-200);
   --plate-star-chosen: var(--c-star-200);
-  --plate-starfire: var(--c-starfire-100);
-  --plate-starfire-chosen: var(--c-starfire-100);
-  --plate-glow: rgba(236, 211, 140, 0.3);
+  --plate-epic: var(--c-amethyst-200);
+  --plate-epic-chosen: var(--c-amethyst-200);
+  --plate-mythic: var(--c-flame-200);
+  --plate-mythic-chosen: var(--c-flame-200);
+  --plate-glow-star: rgba(236, 211, 140, 0.3);
+  --plate-glow-epic: rgba(225, 202, 238, 0.3);
+  --plate-glow-mythic: rgba(255, 196, 179, 0.3);
   --plate-opacity: 0.5;
   /* Ranked rank names */
   --rank-0-hi: var(--c-bronze-100);
@@ -401,9 +397,13 @@
   --plate-gilt-chosen: var(--c-star-700);
   --plate-star: var(--c-star-700);
   --plate-star-chosen: var(--c-star-700);
-  --plate-starfire: var(--c-star-700);
-  --plate-starfire-chosen: var(--c-star-700);
-  --plate-glow: transparent;
+  --plate-epic: var(--c-amethyst-700);
+  --plate-epic-chosen: var(--c-amethyst-700);
+  --plate-mythic: var(--c-flame-700);
+  --plate-mythic-chosen: var(--c-flame-700);
+  --plate-glow-star: transparent;
+  --plate-glow-epic: transparent;
+  --plate-glow-mythic: transparent;
   --plate-opacity: 0.5;
   /* Ranked rank names */
   --rank-0-hi: var(--c-bronze-600);
@@ -456,9 +456,13 @@
   --plate-gilt-chosen: var(--c-star-200);
   --plate-star: var(--c-star-100);
   --plate-star-chosen: var(--c-star-100);
-  --plate-starfire: var(--c-starfire-100);
-  --plate-starfire-chosen: var(--c-starfire-100);
-  --plate-glow: rgba(236, 211, 140, 0.3);
+  --plate-epic: var(--c-amethyst-200);
+  --plate-epic-chosen: var(--c-amethyst-200);
+  --plate-mythic: var(--c-flame-200);
+  --plate-mythic-chosen: var(--c-flame-200);
+  --plate-glow-star: rgba(236, 211, 140, 0.3);
+  --plate-glow-epic: rgba(225, 202, 238, 0.3);
+  --plate-glow-mythic: rgba(255, 196, 179, 0.3);
   --plate-opacity: 1;
   /* Ranked rank names */
   --rank-0-hi: var(--c-bronze-100);
@@ -512,9 +516,13 @@
   --plate-gilt-chosen: var(--c-star-700);
   --plate-star: var(--c-star-700);
   --plate-star-chosen: var(--c-star-700);
-  --plate-starfire: var(--c-star-700);
-  --plate-starfire-chosen: var(--c-star-700);
-  --plate-glow: transparent;
+  --plate-epic: var(--c-amethyst-700);
+  --plate-epic-chosen: var(--c-amethyst-800);
+  --plate-mythic: var(--c-flame-700);
+  --plate-mythic-chosen: var(--c-flame-800);
+  --plate-glow-star: transparent;
+  --plate-glow-epic: transparent;
+  --plate-glow-mythic: transparent;
   --plate-opacity: 1;
   /* Ranked rank names */
   --rank-0-hi: var(--c-bronze-700);
