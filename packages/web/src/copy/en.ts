@@ -37,6 +37,13 @@ export const common = {
   /** The beta site (beta.ts): its corner tag, and the start of every tab title. */
   betaTag: 'Beta',
   betaTitle: (title: string) => `Beta · ${title}`,
+  /** The beta site's sign-in, for invited testers only (beta.ts). */
+  betaGateTitle: 'Elomental Beta',
+  betaGateText: 'New things are tried here before they reach the game. Only invited testers can sign in.',
+  betaSignInTitle: 'Sign in',
+  betaSignInText: 'Use the email you were invited with.',
+  betaNotInvited: 'That email isn’t on the tester list. To play, go to elomental.online.',
+  betaLiveLink: 'Go to elomental.online',
   /** A new deploy is out while the app was open (update.ts). */
   updateReady: 'A new version of Elomental is ready.',
   updateRefresh: 'Refresh',

@@ -85,6 +85,8 @@ export async function verifyEmailCode(email: string, code: string, kind: CodeKin
 function friendlyAuthError(message: string): string {
   if (/rate limit|too many|security purposes/i.test(message)) return copy.account.errors.tooManyEmails;
   if (/expired|invalid/i.test(message)) return copy.account.errors.badCode;
+  // beta: an email the owner hasn't added (beta.ts)
+  if (/signups not allowed/i.test(message)) return copy.common.betaNotInvited;
   if (/email/i.test(message)) return copy.account.errors.badEmail;
   return message;
 }

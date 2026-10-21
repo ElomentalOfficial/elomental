@@ -16,6 +16,24 @@
   text-transform: uppercase;
   pointer-events: none;
 }
+/* ---------- The beta sign-in, for invited testers only (beta.ts) ---------- */
+/* One settings-style card in the middle of the screen. */
+.beta-gate {
+  /* safe: a tall card at large text scrolls from its top instead of being cut off */
+  justify-content: safe center;
+}
+.beta-gate-card {
+  gap: var(--space-5);
+}
+.beta-gate-card h1 {
+  font-family: var(--serif);
+  font-size: var(--fs-title);
+  font-weight: 400;
+  color: var(--text);
+}
+.beta-gate-head p {
+  margin-top: var(--space-1);
+}
 @media (forced-colors: active) {
   .beta-tag {
     border: 1px solid CanvasText;

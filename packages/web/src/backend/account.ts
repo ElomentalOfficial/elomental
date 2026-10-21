@@ -3,7 +3,7 @@ import type { Element } from '../profile.ts';
 import { applySettings, cleanSettings, localSettings, type Settings } from '../settings.ts';
 import { readJson, removeKey, removeKeysStartingWith, writeJson } from '../storage.ts';
 import { captchaToken } from './captcha.ts';
-import { supabase } from './client.ts';
+import { IS_BETA, supabase } from './client.ts';
 import * as copy from '../copy/en.ts';
 
 // --- Account cache ------------------------------------------------------------
@@ -181,6 +181,8 @@ export function initBackend(): void {
 
 /** Anonymous account for a guest; quietly stays a local guest if that's off or offline. */
 export async function startGuestAccount(): Promise<void> {
+  // Beta has no guests: invited testers only (beta.ts).
+  if (IS_BETA) return;
   // Opened from an email link: that link signs this browser in (signIn.ts), and a
   // guest account starting at the same time could land after it and replace it.
   if (new URLSearchParams(location.search).has('token_hash')) return;

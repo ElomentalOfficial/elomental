@@ -1,6 +1,26 @@
 import { IS_BETA } from './backend/client.ts';
-import { h } from './ui.ts';
+import { registered } from './backend.ts';
+import { signUpForm } from './accountForm.ts';
+import { h, type Screen } from './ui.ts';
 import * as copy from './copy/en.ts';
+
+/**
+ * Beta is for invited testers only: the beta project lets no one sign up and has no guest
+ * accounts, so only emails the owner added (Authentication > Users > Add user) can sign in.
+ * Until one has, the app shows only this sign-in (main.ts). Live builds never lock.
+ */
+export const betaLocked = (): boolean => IS_BETA && !registered();
+
+export function betaGateScreen(): Screen {
+  const el = h('main', { class: 'screen beta-gate scrollable' },
+    h('div', { class: 'setting beta-gate-card' },
+      h('div', { class: 'beta-gate-head' },
+        h('h1', { text: copy.common.betaGateTitle }),
+        h('p', { text: copy.common.betaGateText })),
+      signUpForm({ title: copy.common.betaSignInTitle, text: copy.common.betaSignInText }),
+      h('a', { class: 'link-btn', text: copy.common.betaLiveLink, attrs: { href: 'https://elomental.online/' } })));
+  return { el };
+}
 
 /**
  * The beta site (beta.elomental.online, its own Supabase project) says so: a small tag in the

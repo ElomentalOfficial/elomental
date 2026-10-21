@@ -15,7 +15,7 @@ import { installUiScale } from './scale.ts';
 import { applyGrain } from './grain.ts';
 import { installAddToHome } from './install.ts';
 import { installUpdateCheck } from './update.ts';
-import { installBetaMark } from './beta.ts';
+import { betaGateScreen, betaLocked, installBetaMark } from './beta.ts';
 
 applyTheme();
 installBetaMark();
@@ -70,8 +70,16 @@ onAccountChange(() => {
   setTimeout(show, 800);
 });
 
+// Beta: only the sign-in until an invited tester has signed in, and back to it on signing out.
+onAccountChange(() => {
+  const gate = !!document.querySelector('.screen.beta-gate');
+  if (betaLocked() && !gate) mount(betaGateScreen());
+  else if (!betaLocked() && gate) mount(homeScreen());
+});
+
 // The splash once a day (full review M21); other launches fade straight into Home.
-if (splashDue()) mount(welcomeScreen());
+if (betaLocked()) mount(betaGateScreen());
+else if (splashDue()) mount(welcomeScreen());
 else {
   mount(homeScreen());
   document.querySelector('.screen.home')?.classList.add('launch');
