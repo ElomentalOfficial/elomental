@@ -39,7 +39,8 @@ pauses timed workflows in repositories without activity for 60 days.
 The owner's accounts; done once.
 
 1. **GitHub.** Done 2026-10-21: `ElomentalOfficial/elomental-beta`, public, holding only the
-   deploy workflow and a README. Barsmin and Elomentalgame are both owners of ElomentalOfficial.
+   deploy workflow and a README. Elomentalgame is the organization's owner (Barsmin, the owner's
+   personal account, is not a member); this computer commits and pushes as Elomentalgame.
 2. **Supabase: the beta project.** Done 2026-10-21: `elomental-beta` (free plan, eu-central-1),
    every migration in `supabase/migrations` applied word for word (fetched from commit 8908850,
    recorded under the live versions), `audit-solve` deployed (the same bundle as live), and
