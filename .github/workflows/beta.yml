@@ -1,13 +1,13 @@
 name: Deploy web to beta.elomental.online
 
 # The beta site: every push to the beta branch is built against the BETA Supabase project and
-# published to the gh-pages branch of Elomentalgame/elomental-beta, whose GitHub Pages serves
+# published to the gh-pages branch of ElomentalOfficial/elomental-beta, whose GitHub Pages serves
 # beta.elomental.online. Live (main, pages.yml) is untouched. The build refuses to run without
 # the beta project's address, so a beta build can never point at live players' data.
 #
 # Needs, in this repository's Settings > Secrets and variables > Actions:
 # - variables BETA_SUPABASE_URL and BETA_SUPABASE_KEY (the beta project's URL and publishable key)
-# - secret BETA_DEPLOY_TOKEN (a fine-grained token: Elomentalgame/elomental-beta, Contents read and write)
+# - secret BETA_DEPLOY_TOKEN (a fine-grained token: ElomentalOfficial/elomental-beta, Contents read and write)
 # - optional variable BETA_TURNSTILE_SITE_KEY (else the live widget's key, which must list
 #   beta.elomental.online among its hostnames)
 
@@ -50,7 +50,7 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run build
-      - name: Publish to Elomentalgame/elomental-beta
+      - name: Publish to ElomentalOfficial/elomental-beta
         env:
           TOKEN: ${{ secrets.BETA_DEPLOY_TOKEN }}
         run: |
@@ -63,4 +63,4 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git commit -q -m "Beta build ${GITHUB_SHA::7}"
-          git push -q --force "https://x-access-token:${TOKEN}@github.com/Elomentalgame/elomental-beta.git" gh-pages
+          git push -q --force "https://x-access-token:${TOKEN}@github.com/ElomentalOfficial/elomental-beta.git" gh-pages
