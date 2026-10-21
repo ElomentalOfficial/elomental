@@ -95,7 +95,7 @@ export const home = {
   storeLater: 'The Store opens soon.',
   /** The way to choose a side, where one isn't chosen yet (Profile, the result). */
   line: {
-    chooseSide: 'Choose your affinity',
+    chooseSide: 'Choose your faction',
   },
   /** Once, on the first launch after your side won the month (settle_faction_month). */
   monthWon: {
@@ -406,11 +406,11 @@ export const profile = {
   forge: 'Forge',
   guestNote: 'Sign up to keep your avatar, parts and Elo on any device.',
 };
-// --- Affinities ----------------------------------------------------------------
+// --- Factions ------------------------------------------------------------------
 // docs/PROGRESSION_DESIGN.md §13: each player fights for one element in a monthly war.
 
 export const affinity = {
-  title: 'Your affinity',
+  title: 'Your faction',
   intro: 'Every square you solve adds influence to your element. You count from your 5th square of the month, with up to 300 influence each. Each month, the side with the most influence per player wins.',
   /** One line of character per element; flavour only, no element plays differently. */
   character: {
@@ -429,9 +429,9 @@ export const affinity = {
     `${element}. ${line}${place ? ` ${place} this month.` : ''}${needsYou ? ' Needs you.' : ''}`,
   confirmTitle: (element: string) => `Join ${element}?`,
   confirmText: 'You can switch once per season, in its first 7 days.',
-  /** The Profile's affinity line, while switching is allowed. */
+  /** The Profile's faction line, while switching is allowed. */
   change: 'Change',
-  a11yChange: 'Change your affinity',
+  a11yChange: 'Change your faction',
   join: 'Join',
   later: 'Decide later',
   joined: (element: string) => `Welcome to ${element}.`,
@@ -493,7 +493,7 @@ export const result = {
   monthBadgeEarned: (month: string) => `${month} badge earned. It’s on your Profile.`,
   /** Once, on the first solve: what the rewards are for (full review M14). */
   firstWin: 'Every 3rd square you solve brings an avatar or a frame. Forge the ones you’re missing with Stardust.',
-  /** Once, when it's time to choose a side (3 solves, no affinity yet). */
+  /** Once, when it's time to choose a side (3 solves, no faction yet). */
   chooseSide: 'Your squares can count for a side this month.',
   dailyRetry: 'Not solved yet. Try today’s square again: the day counts once you solve it.',
   tryAgain: 'Try again',
@@ -776,9 +776,9 @@ export const refusals = {
   devOffline: 'No connection. Nothing changed.',
   /** choose_affinity */
   affinity: {
-    too_soon: 'Solve 3 squares first, then choose your affinity.',
-    affinity_locked: 'Your affinity is set for this season. You can switch in the first 7 days of the next one.',
-    not_signed_in: 'Sign in again to choose your affinity.',
+    too_soon: 'Solve 3 squares first, then choose your faction.',
+    affinity_locked: 'Your faction is set for this season. You can switch in the first 7 days of the next one.',
+    not_signed_in: 'Sign in again to choose your faction.',
   } as Record<string, string>,
 };
 
@@ -924,13 +924,13 @@ const ORDINAL = (n: number) => {
 export const leaderboard = {
   title: 'Leaderboard',
   /** The lists' tabs: short, so all five fit one row on a phone. */
-  views: { friends: 'Friends', global: 'All', faction: 'Affinity', season: 'Season', country: 'Country' },
+  views: { friends: 'Friends', global: 'All', faction: 'Faction', season: 'Season', country: 'Country' },
   a11yViews: 'Which list',
   /** Under the lists' tabs: what the chosen one ranks. */
   about: {
     friends: 'You and the players you follow, by Elo.',
     global: 'Everyone with a place, by Elo.',
-    faction: (side: string | null) => (side ? `Everyone in ${side}, by Elo.` : 'Players in your affinity, by Elo.'),
+    faction: (side: string | null) => (side ? `Everyone in ${side}, by Elo.` : 'Players in your faction, by Elo.'),
     country: 'Players from your country, by Elo.',
     season: 'Best Elo this season. 20 Ranked games to qualify.',
   },
@@ -954,7 +954,7 @@ export const leaderboard = {
   hiddenBar: (place: number | null) => (place ? `You’re hidden. Your place would be #${formatNumber(place)}.` : 'You’re hidden from the leaderboard.'),
   restricted: 'Ranked is closed to you for now, so you aren’t listed.',
   notInView: {
-    faction: 'Choose an affinity to see your place here.',
+    faction: 'Choose a faction to see your place here.',
     country: 'Choose your country in Setup to see this list.',
     season: 'Play 20 Ranked games this season to get a place here.',
     friends: 'Play a Ranked game to compare with your friends.',
@@ -962,7 +962,7 @@ export const leaderboard = {
   } as Record<string, string>,
   empty: {
     friends: 'Follow players to compare with them here. Find them with the search above.',
-    faction: 'Nobody in this affinity has a place yet.',
+    faction: 'Nobody in this faction has a place yet.',
     country: 'Nobody from this country has a place yet.',
     season: 'Nobody has played 20 Ranked games this season yet.',
     global: 'Nobody has a place yet.',
@@ -986,8 +986,8 @@ export const leaderboard = {
   noResults: (q: string) => `No player matches “${q}”.`,
   a11yResults: (n: number) => (n === 1 ? '1 player found' : `${n} players found`),
 
-  // The affinities this month
-  affinitiesOf: (month: string) => `Affinities · ${month}`,
+  // The factions this month
+  affinitiesOf: (month: string) => `Factions · ${month}`,
   level: 'Level so far: nobody leads yet.',
   nobody: 'No influence yet this month.',
   daysLeft: (d: number) => (d <= 1 ? 'Last day' : `${d} days left`),
@@ -997,14 +997,14 @@ export const leaderboard = {
   yoursNone: (element: string) => `You: no influence yet for ${element} this month`,
   /** Your side, when it isn't the one leading: its place and share. */
   yourSide: (element: string, place: number, pct: number) => `${element} is ${ORDINAL(place)}, at ${pct}%`,
-  joinIn: 'Choose an affinity to join in',
+  joinIn: 'Choose a faction to join in',
   leading: 'Leading',
   noLeader: 'Nobody yet',
   strengthNote: 'Strength: each side’s influence per player, as a share of 100%. Players count from their 5th square of the month, with up to 300 influence each. The strongest side wins the month.',
   a11yStrength: (parts: string) => `Strength this month: ${parts}`,
   details: 'Details',
-  sheetTitle: (month: string) => `Affinities in ${month}`,
-  sheetIntro: 'Every square solved adds influence to its player’s affinity. Players count from their 5th square of the month, with up to 300 influence each. The side with the most influence per player wins the month; if sides tie, they all win.',
+  sheetTitle: (month: string) => `Factions in ${month}`,
+  sheetIntro: 'Every square solved adds influence to its player’s faction. Players count from their 5th square of the month, with up to 300 influence each. The side with the most influence per player wins the month; if sides tie, they all win.',
   members: (n: number) => (n === 1 ? '1 player' : `${n} players`),
   influence: (n: number) => `${formatNumber(n)} influence`,
   perPlayer: (n: number) => `${n} each`,
@@ -1056,7 +1056,7 @@ export const badges = {
   unknown: 'Badge',
   /** 'daily-2026-10': 20 Daily squares in October 2026. */
   daily: (month: string) => `Daily Square, ${month}`,
-  none: 'No badges yet. Solve 20 Daily squares in a month, or win a month with your affinity, to earn one.',
+  none: 'No badges yet. Solve 20 Daily squares in a month, or win a month with your faction, to earn one.',
   noneOther: 'No badges yet.',
   choose: 'Choose three',
   chooseTitle: 'Badges on your card',
@@ -1120,7 +1120,7 @@ export const founder = {
   actions: {
     dev_on: 'Dev mode on', dev_off: 'Dev mode off', fill: 'Filled up', empty: 'Emptied', unlock_all: 'Unlocked every part',
     clear_parts: 'Removed every part', plate: 'Name plate', elo: 'Elo', next_drop: 'Next part', next_spirit: 'Next Spirit',
-    forget_affinity: 'Forgot affinity', show_founders: 'Founders shown', hide_founders: 'Founders hidden', review_clear: 'Review: cleared', review_restrict: 'Review: restricted', review_lift: 'Review: lifted',
+    forget_affinity: 'Forgot faction', show_founders: 'Founders shown', hide_founders: 'Founders hidden', review_clear: 'Review: cleared', review_restrict: 'Review: restricted', review_lift: 'Review: lifted',
   } as Record<string, string>,
 };
 // --- Founder tools (screens/founderConsole.ts; plain, literal) -----------------
@@ -1160,8 +1160,8 @@ export const dev = {
   eloHelp: 'From 0 to 2000. Set it to see each rank and promotion.',
   setElo: 'Set Elo',
   plate: 'Name plate',
-  forgetAffinity: 'Forget my affinity',
-  forgetAffinityHelp: 'You’re asked to choose again on Home.',
+  forgetAffinity: 'Forget my faction',
+  forgetAffinityHelp: 'Your Profile asks you to choose again.',
   done: 'Done.',
   nextPartSet: (rarity: string) => `Your next solve brings a ${rarity} part.`,
   // in a game

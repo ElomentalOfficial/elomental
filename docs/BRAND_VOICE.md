@@ -139,8 +139,9 @@ One name per concept. Player-facing text uses exactly these.
 | Missed Daily | **fill in** a missed day: "Fill in October 12?" | mend, repair, buy back, streak freeze | "Mend" is only an internal word. |
 | Your page | **Profile** (from Home's avatar) | account, card | "Account" is sign-in and email (Setup). |
 | Avatar pieces | **part**; slots **Backdrop**, **Sigil**, **Frame**, **Crest**, **Aura** | item, cosmetic, skin | |
-| A part you already have | "Already yours: +50 Stardust instead." | dupe, duplicate (in UI), junk | || Player's side | **affinity**: **Fire**, **Water**, **Earth**, **Air** | faction, team, clan | "Join Water." |
-| Affinity points | **influence** | score, war points | "+5 influence for Fire". |
+| A part you already have | "Already yours: +50 Stardust instead." | dupe, duplicate (in UI), junk | |
+| Player's side | **faction**: **Fire**, **Water**, **Earth**, **Air** (renamed from affinity, 2026-10-21: it fits a competitive game, and lore can come later) | affinity, team, clan | "Join Water." |
+| Faction points | **influence** | score, war points | "+5 influence for Fire". |
 | The monthly contest | **this month** / **the month's standings** | war (in UI), battle | "War" stays in docs only: violent slang rule. |
 | Sharing a puzzle | **Square code** | puzzle ID, import code | "Copy", "Play square". |
 | Clash invite | **Clash code**; history **Clash log** | match code | |

@@ -101,7 +101,7 @@ const rows = (from: number, n: number, base: number, mePlace = 0) =>
 /**
  * Signs the page in as a sample player, with every server call answered by fakes (no live
  * data): parts, plates, Stardust, an affinity, badges, the leaderboard and a player card.
- * `affinity: null` (with 3 solves) makes Home ask for a side; `monthWon` leaves last month's
+ * `affinity: null` (with 3 solves) makes the Profile ask for a faction; `monthWon` leaves last month's
  * win unseen, so Home shows it; `lossRun` sets the Ranked losses in a row (2: a comeback square).
  */
 export async function signedIn(page: Page, opts: { affinity?: string | null; textSize?: number; anonymous?: boolean; monthWon?: boolean; lossRun?: number } = {}) {

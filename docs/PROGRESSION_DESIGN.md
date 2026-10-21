@@ -4,6 +4,10 @@ Design spec for seasons, ranked tiers, drops, crafting, avatars, the profile pag
 leaderboards. Status: **proposal, not built**. Numbers come from a season simulation
 (see §2.6); the code in §10 and §11 is the shape of the real migrations, not yet applied.
 
+> **Naming, 2026-10-21:** players see **factions** (Fire, Water, Earth, Air), not "affinities":
+> a better fit for a competitive game, with room for lore later. The code, the database and
+> this document keep "affinity" for the same thing.
+
 ## Revision, 2026-10-20 (live): simpler for sudoku players
 
 Sudoku and casual-puzzle players skew 35+, play short daily sessions as "me time", and are

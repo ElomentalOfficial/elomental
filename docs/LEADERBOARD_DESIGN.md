@@ -1,5 +1,9 @@
 # Leaderboard — design and build (2026-10-20)
 
+> **Naming, 2026-10-21:** players see **factions** where this document says "affinity" (the
+> code and database keep the old word). The lists' tabs are now one slim track (Friends, All,
+> your faction, Season, Country) with a header saying what each list ranks.
+
 Decisions agreed with the owner before building:
 
 | Question | Answer |

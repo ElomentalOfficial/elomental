@@ -69,7 +69,7 @@
 
 - What it is: a competitive sudoku web app (Casual, Daily Square, Ranked Elo against a rated
   square, Clash with a friend, Square codes). Players earn parts, forge avatars and frames with
-  Stardust, join an affinity (Fire, Water, Earth, Air) and show off on the Profile and
+  Stardust, join a faction (Fire, Water, Earth, Air; "affinity" in the code and database) and show off on the Profile and
   leaderboard. Theme: the forge and the four elements.
 - Audience: players aged 35–45 in 5–15 minute sessions. Clear, calm and satisfying beats flashy;
   every session should show progress.

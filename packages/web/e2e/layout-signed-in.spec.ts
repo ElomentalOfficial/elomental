@@ -67,7 +67,7 @@ for (const device of PHONES_AND_TABLETS) {
       await page.locator('.tile.area-leader').click();
       await expect(page.locator('.lb-row-btn').first()).toBeVisible();
       found.push(...(await problems(page, 'Leaderboard')));
-      await sheet(page, () => page.getByRole('button', { name: 'Details', exact: true }).click(), 'Affinities sheet', found);
+      await sheet(page, () => page.getByRole('button', { name: 'Details', exact: true }).click(), 'Factions sheet', found);
       await sheet(page, () => page.getByRole('button', { name: 'Ranks', exact: true }).click(), 'Ranks sheet', found);
       await sheet(page, () => page.locator('.lb-row-btn').first().click(), 'Player card', found);
 
@@ -82,8 +82,8 @@ for (const device of PHONES_AND_TABLETS) {
       // where the card has no room for it (small phones) the Profile asks instead
       await expect(page.locator('.tile.area-casual')).toBeVisible();
       await settled(page);
-      if (!(await page.getByRole('button', { name: /^Choose your affinity/ }).isVisible())) await page.locator('.avatar-btn').click();
-      await page.getByRole('button', { name: /^Choose your affinity/ }).click();
+      if (!(await page.getByRole('button', { name: /^Choose your faction/ }).isVisible())) await page.locator('.avatar-btn').click();
+      await page.getByRole('button', { name: /^Choose your faction/ }).click();
       await expect(page.locator('.affinity-card').first()).toBeVisible({ timeout: 15_000 });
       expect(await problems(page, 'Affinity')).toEqual([]);
     });
