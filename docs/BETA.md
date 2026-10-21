@@ -20,7 +20,9 @@ project and refuses to build against the live one.
 No token: `ElomentalOfficial/elomental` is public, so `elomental-beta` builds it itself.
 Every 10 minutes its workflow compares the `beta` branch with the build the site serves
 (`version.txt`) and builds only when `beta` has moved: typecheck, tests, build, then publish with
-the repository's own Pages permission. For an immediate deploy: `elomental-beta` > Actions >
+the repository's own Pages permission. A push to `elomental-beta` deploys at once, so Claude,
+after every push to `beta`, also pushes a one-line nudge there (about a minute end to end); the
+10-minute check catches pushes made any other way. By hand: `elomental-beta` > Actions >
 Deploy beta.elomental.online > Run workflow. Once a month it makes an empty commit, because GitHub
 pauses timed workflows in repositories without activity for 60 days.
 
