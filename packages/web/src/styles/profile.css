@@ -25,10 +25,11 @@
   font-weight: 800;
   overflow-wrap: anywhere;
 }
-/* the title and rank under the name, a size down from it (as on Home, .profile-rank) */
+/* the title and rank under the name, at its size: the name stays first by its weight (as on
+   Home, .profile-rank) */
 .profile-tier {
   font-family: var(--serif);
-  font-size: var(--fs-label);
+  font-size: var(--fs-title);
 }
 /* The next rank under it (rankBar.ts); the hero is already --surface, so the bar's track steps up. */
 .profile-next-rank {

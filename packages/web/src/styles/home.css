@@ -370,10 +370,11 @@
   font-weight: 800;
   text-transform: uppercase;
 }
-/* the title and rank under the name, a size down from it (as on the Profile, .profile-tier) */
+/* the title and rank under the name, at its size: the name stays first by its weight and
+   capitals (as on the Profile, .profile-tier) */
 .profile-rank {
   font-family: var(--serif);
-  font-size: var(--fs-label);
+  font-size: var(--fs-title);
   color: var(--muted);
 }
 /* Ranked rank names (rankName.ts): each rank's name in its own metal (palette.ts RANKS):
