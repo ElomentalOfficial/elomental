@@ -50,7 +50,7 @@
   border-radius: var(--radius-lg);
   background: var(--el, var(--surface-2));
   color: var(--el-on, var(--text));
-  box-shadow: inset 0 0 0 1px var(--el-mark, transparent);
+  box-shadow: inset 0 0 0 1px var(--el-edge, transparent);
 }
 .lb-leader-mark svg {
   width: 24px;
@@ -83,21 +83,44 @@
   min-width: 10px;
   border-radius: 999px;
   background: var(--el);
-  /* the edge shows where a light fill meets a light surface (Air on the light theme) */
-  box-shadow: inset 0 0 0 1px var(--el-mark);
+  /* every fill's edge, the same for each element (palette.css edge) */
+  box-shadow: inset 0 0 0 1px var(--el-edge);
   transition: flex-grow 0.8s cubic-bezier(0.2, 0.8, 0.3, 1);
 }
 html[data-reduce-motion] .strength-seg {
   transition: none;
 }
+/* The element's glyph inside its segment (leaderboard.ts), dropped where the segment is too
+   narrow to hold it with room on each side. */
+.strength-seg {
+  display: grid;
+  place-items: center;
+  container-type: inline-size;
+  color: var(--el-on);
+}
+.seg-glyph {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+.seg-glyph svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+@container (max-width: 25px) {
+  .seg-glyph {
+    display: none;
+  }
+}
 .lb-faction .el-fire,
-.lb-strength-legend .el-fire { --el: var(--el-fire-fill); --el-on: var(--el-fire-on); --el-mark: var(--el-fire-mark); }
+.lb-strength-legend .el-fire { --el: var(--el-fire-fill); --el-on: var(--el-fire-on); --el-edge: var(--el-fire-edge); }
 .lb-faction .el-water,
-.lb-strength-legend .el-water { --el: var(--el-water-fill); --el-on: var(--el-water-on); --el-mark: var(--el-water-mark); }
+.lb-strength-legend .el-water { --el: var(--el-water-fill); --el-on: var(--el-water-on); --el-edge: var(--el-water-edge); }
 .lb-faction .el-earth,
-.lb-strength-legend .el-earth { --el: var(--el-earth-fill); --el-on: var(--el-earth-on); --el-mark: var(--el-earth-mark); }
+.lb-strength-legend .el-earth { --el: var(--el-earth-fill); --el-on: var(--el-earth-on); --el-edge: var(--el-earth-edge); }
 .lb-faction .el-air,
-.lb-strength-legend .el-air { --el: var(--el-air-fill); --el-on: var(--el-air-on); --el-mark: var(--el-air-mark); }
+.lb-strength-legend .el-air { --el: var(--el-air-fill); --el-on: var(--el-air-on); --el-edge: var(--el-air-edge); }
 /* Four across, two by two once larger text needs the room. */
 .lb-strength-legend {
   display: grid;
@@ -128,7 +151,7 @@ html[data-reduce-motion] .strength-seg {
   border-radius: 50%;
   background: var(--el);
   color: var(--el-on);
-  box-shadow: inset 0 0 0 1px var(--el-mark);
+  box-shadow: inset 0 0 0 1px var(--el-edge);
   flex: none;
 }
 .strength-dot svg {

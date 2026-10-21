@@ -22,7 +22,9 @@ The original palette comes from the Figma ColorPalette frame; `mood_board/` hold
     and the roles of every element, rarity and Home tone: `--el-water-fill`, `-on`, `-ink`,
     `-line`, `-wash`, `-mark` (and `--r-*`, `--tone-*`), per theme and High contrast.
     A new colour is a RAMPS or SWATCHES entry there, never a hex. A shape seen alone uses `-line`;
-    `-mark` only beside its name or crest. docs/review/palette-2026-10-21-ui.md explains it.
+    `-mark` only beside its name or crest; every filled tag, chip, segment or disc takes `-edge`.
+  - One rule per set: the members of a set (elements, rarities, a row of tiles) never differ in
+    treatment within a theme; the owner rejected strokes on only the pale fills. docs/review/palette-2026-10-21-ui.md explains it.
   - `tokens.css`: the type and spacing scales, and the theme tokens on top (`--bg`, `--surface`, `--surface-2`, `--text`, `--accent`, `--focus`,
     `--cell*`, `--tile*`…), for the dark and the light theme
   - type scale `--fs-caption` … `--fs-display` (scaled by `--text-scale`)

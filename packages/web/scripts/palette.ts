@@ -142,8 +142,15 @@ function themeRoles(s: Swatch, t: 'dark' | 'light'): Record<string, string> {
     wash: rgba(PRIM[`--c-${s.ramp}-500`], WASH_ALPHA[t]),
     // a light fill can't stand on the light theme's pale surfaces: as a shape it takes its line
     mark: t === 'light' && lightFill(s) ? v(s.ramp, roleStep(s, 'line', t)) : `var(--${s.id}-fill)`,
+    edge: edge(s, t),
   };
 }
+/**
+ * The rim of a filled tag, chip, segment or disc, and the same rule for every swatch, so a row of
+ * them never mixes rimmed and bare ones: none on the dark theme (the fill itself), and on the
+ * light theme a deeper shade of the fill's own hue (600, or one step past a fill that deep).
+ */
+const edge = (s: Swatch, t: 'dark' | 'light') => (t === 'dark' ? `var(--${s.id}-fill)` : v(s.ramp, Math.max(600, s.fill + 100)));
 function hcRoles(s: Swatch, t: 'dark' | 'light'): Record<string, string> {
   return {
     ink: v(s.ramp, roleStep(s, 'ink-hc', t)),
@@ -198,8 +205,10 @@ export function paletteCss(): string {
       "   *   ink   the hue as text or icon on the page and its surfaces (4.5:1 on each)",
       '   *   line  a border or ring that must be seen (3:1 on each surface)',
       '   *   wash  a faint tint behind something chosen (text and ink stay 4.5:1 on it)',
-      '   *   mark  the hue as a shape without text (ring, bar segment, dot, a fill\'s edge): the fill,',
-      '   *         or its line where a light fill would vanish (light theme)',
+      '   *   mark  the hue as a shape without text (a frame ring, a stud): the fill, or its line where',
+      '   *         a light fill would vanish (light theme)',
+      '   *   edge  the 1px rim of every filled tag, chip, segment and disc: the same rule for all of',
+      '   *         them (none on dark, a deeper shade of the hue on light), so a set never mixes rims',
       '   * Always shown with the name or the crest, never colour alone.',
       '   */',
       ...SWATCHES.flatMap((s) => [`  --${s.id}-fill: ${v(s.ramp, s.fill)};`, `  --${s.id}-on: var(${lightFill(s) ? '--c-stone-900' : '--c-sand-50'});`]),

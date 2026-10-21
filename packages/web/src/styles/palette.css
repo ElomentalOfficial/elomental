@@ -170,8 +170,10 @@
    *   ink   the hue as text or icon on the page and its surfaces (4.5:1 on each)
    *   line  a border or ring that must be seen (3:1 on each surface)
    *   wash  a faint tint behind something chosen (text and ink stay 4.5:1 on it)
-   *   mark  the hue as a shape without text (ring, bar segment, dot, a fill's edge): the fill,
-   *         or its line where a light fill would vanish (light theme)
+   *   mark  the hue as a shape without text (a frame ring, a stud): the fill, or its line where
+   *         a light fill would vanish (light theme)
+   *   edge  the 1px rim of every filled tag, chip, segment and disc: the same rule for all of
+   *         them (none on dark, a deeper shade of the hue on light), so a set never mixes rims
    * Always shown with the name or the crest, never colour alone.
    */
   --el-fire-fill: var(--c-lava-500);
@@ -213,46 +215,57 @@
   --el-fire-line: var(--c-lava-400);
   --el-fire-wash: rgba(168, 91, 55, 0.18);
   --el-fire-mark: var(--el-fire-fill);
+  --el-fire-edge: var(--el-fire-fill);
   --el-water-ink: var(--c-tide-300);
   --el-water-line: var(--c-tide-400);
   --el-water-wash: rgba(46, 111, 140, 0.18);
   --el-water-mark: var(--el-water-fill);
+  --el-water-edge: var(--el-water-fill);
   --el-earth-ink: var(--c-forest-300);
   --el-earth-line: var(--c-forest-400);
   --el-earth-wash: rgba(99, 105, 69, 0.18);
   --el-earth-mark: var(--el-earth-fill);
+  --el-earth-edge: var(--el-earth-fill);
   --el-air-ink: var(--c-mist-300);
   --el-air-line: var(--c-mist-400);
   --el-air-wash: rgba(82, 109, 119, 0.18);
   --el-air-mark: var(--el-air-fill);
+  --el-air-edge: var(--el-air-fill);
   --r-common-ink: var(--c-iron-300);
   --r-common-line: var(--c-iron-400);
   --r-common-wash: rgba(109, 104, 97, 0.18);
   --r-common-mark: var(--r-common-fill);
+  --r-common-edge: var(--r-common-fill);
   --r-rare-ink: var(--c-azure-300);
   --r-rare-line: var(--c-azure-400);
   --r-rare-wash: rgba(74, 111, 149, 0.18);
   --r-rare-mark: var(--r-rare-fill);
+  --r-rare-edge: var(--r-rare-fill);
   --r-epic-ink: var(--c-amethyst-300);
   --r-epic-line: var(--c-amethyst-400);
   --r-epic-wash: rgba(111, 75, 129, 0.18);
   --r-epic-mark: var(--r-epic-fill);
+  --r-epic-edge: var(--r-epic-fill);
   --r-mythic-ink: var(--c-flame-300);
   --r-mythic-line: var(--c-flame-400);
   --r-mythic-wash: rgba(174, 73, 45, 0.18);
   --r-mythic-mark: var(--r-mythic-fill);
+  --r-mythic-edge: var(--r-mythic-fill);
   --tone-lava-ink: var(--c-lava-300);
   --tone-lava-line: var(--c-lava-400);
   --tone-lava-wash: rgba(168, 91, 55, 0.18);
   --tone-lava-mark: var(--tone-lava-fill);
+  --tone-lava-edge: var(--tone-lava-fill);
   --tone-forest-ink: var(--c-forest-300);
   --tone-forest-line: var(--c-forest-400);
   --tone-forest-wash: rgba(99, 105, 69, 0.18);
   --tone-forest-mark: var(--tone-forest-fill);
+  --tone-forest-edge: var(--tone-forest-fill);
   --tone-crimson-ink: var(--c-crimson-300);
   --tone-crimson-line: var(--c-crimson-400);
   --tone-crimson-wash: rgba(148, 88, 86, 0.18);
   --tone-crimson-mark: var(--tone-crimson-fill);
+  --tone-crimson-edge: var(--tone-crimson-fill);
 }
 
 :root[data-theme='light'] {
@@ -260,46 +273,57 @@
   --el-fire-line: var(--c-lava-500);
   --el-fire-wash: rgba(168, 91, 55, 0.14);
   --el-fire-mark: var(--el-fire-fill);
+  --el-fire-edge: var(--c-lava-600);
   --el-water-ink: var(--c-tide-600);
   --el-water-line: var(--c-tide-500);
   --el-water-wash: rgba(46, 111, 140, 0.14);
   --el-water-mark: var(--c-tide-500);
+  --el-water-edge: var(--c-tide-600);
   --el-earth-ink: var(--c-forest-600);
   --el-earth-line: var(--c-forest-500);
   --el-earth-wash: rgba(99, 105, 69, 0.14);
   --el-earth-mark: var(--el-earth-fill);
+  --el-earth-edge: var(--c-forest-600);
   --el-air-ink: var(--c-mist-600);
   --el-air-line: var(--c-mist-600);
   --el-air-wash: rgba(82, 109, 119, 0.14);
   --el-air-mark: var(--c-mist-600);
+  --el-air-edge: var(--c-mist-600);
   --r-common-ink: var(--c-iron-600);
   --r-common-line: var(--c-iron-500);
   --r-common-wash: rgba(109, 104, 97, 0.14);
   --r-common-mark: var(--r-common-fill);
+  --r-common-edge: var(--c-iron-600);
   --r-rare-ink: var(--c-azure-600);
   --r-rare-line: var(--c-azure-500);
   --r-rare-wash: rgba(74, 111, 149, 0.14);
   --r-rare-mark: var(--r-rare-fill);
+  --r-rare-edge: var(--c-azure-600);
   --r-epic-ink: var(--c-amethyst-600);
   --r-epic-line: var(--c-amethyst-500);
   --r-epic-wash: rgba(111, 75, 129, 0.14);
   --r-epic-mark: var(--r-epic-fill);
+  --r-epic-edge: var(--c-amethyst-600);
   --r-mythic-ink: var(--c-flame-600);
   --r-mythic-line: var(--c-flame-500);
   --r-mythic-wash: rgba(174, 73, 45, 0.14);
   --r-mythic-mark: var(--c-flame-500);
+  --r-mythic-edge: var(--c-flame-600);
   --tone-lava-ink: var(--c-lava-600);
   --tone-lava-line: var(--c-lava-500);
   --tone-lava-wash: rgba(168, 91, 55, 0.14);
   --tone-lava-mark: var(--tone-lava-fill);
+  --tone-lava-edge: var(--c-lava-600);
   --tone-forest-ink: var(--c-forest-600);
   --tone-forest-line: var(--c-forest-500);
   --tone-forest-wash: rgba(99, 105, 69, 0.14);
   --tone-forest-mark: var(--tone-forest-fill);
+  --tone-forest-edge: var(--c-forest-600);
   --tone-crimson-ink: var(--c-crimson-600);
   --tone-crimson-line: var(--c-crimson-500);
   --tone-crimson-wash: rgba(148, 88, 86, 0.14);
   --tone-crimson-mark: var(--tone-crimson-fill);
+  --tone-crimson-edge: var(--c-crimson-700);
 }
 
 /* High contrast: one step stronger (ink 7:1 or near it, lines 4.5:1) */

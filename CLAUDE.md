@@ -31,6 +31,10 @@
   screen or feature). Put a rule in its screen's file; a new file goes where its rules belong in that order.
 - Any new colour pair goes into `PAIRS` in `packages/web/scripts/contrast.ts`; `npm test` must pass
   (4.5:1 text, 3:1 large text and UI). Only add to `ACCEPTED` with a reason.
+- One rule per set: every member of a set (the four elements, the rarities, a row of tiles or
+  tags) gets the same treatment in each theme. If one needs an edge, glow or outline, they all
+  take it, through a shared palette role (`-edge` for the rim of every filled tag, chip, segment
+  and disc). Compare siblings side by side in both themes before calling UI done.
 - Never use colour alone to show a state: pair it with a shape, weight, icon, outline or text.
 - Every new control works with mouse, touch, keyboard and screen reader: a real `<button>`/`<a>`
   (activate on `click`, never only on `pointerdown`), a literal accessible name, visible `--focus` ring.

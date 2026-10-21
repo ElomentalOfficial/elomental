@@ -306,10 +306,10 @@ html[data-reduce-motion] .sword-live .sword-flame {
 .avatar-base {
   fill: var(--surface-2);
 }
-.avatar-art .el-fire { --el: var(--el-fire-fill); --el-on: var(--el-fire-on); --el-mark: var(--el-fire-mark); }
-.avatar-art .el-water { --el: var(--el-water-fill); --el-on: var(--el-water-on); --el-mark: var(--el-water-mark); }
-.avatar-art .el-earth { --el: var(--el-earth-fill); --el-on: var(--el-earth-on); --el-mark: var(--el-earth-mark); }
-.avatar-art .el-air { --el: var(--el-air-fill); --el-on: var(--el-air-on); --el-mark: var(--el-air-mark); }
+.avatar-art .el-fire { --el: var(--el-fire-fill); --el-on: var(--el-fire-on); --el-mark: var(--el-fire-mark); --el-edge: var(--el-fire-edge); }
+.avatar-art .el-water { --el: var(--el-water-fill); --el-on: var(--el-water-on); --el-mark: var(--el-water-mark); --el-edge: var(--el-water-edge); }
+.avatar-art .el-earth { --el: var(--el-earth-fill); --el-on: var(--el-earth-on); --el-mark: var(--el-earth-mark); --el-edge: var(--el-earth-edge); }
+.avatar-art .el-air { --el: var(--el-air-fill); --el-on: var(--el-air-on); --el-mark: var(--el-air-mark); --el-edge: var(--el-air-edge); }
 .layer-frame .ring {
   /* the element as a shape: its fill, or its line where a pale fill would vanish (palette.css mark) */
   stroke: var(--el-mark);
@@ -324,8 +324,8 @@ html[data-reduce-motion] .sword-live .sword-flame {
 /* An element's crest (avatar.ts crestSvg): its mark in its text colour on a disc of its colour. */
 .crest circle {
   fill: var(--el);
-  /* a pale disc (Air, Water) keeps its edge on a pale card */
-  stroke: var(--el-mark);
+  /* every disc's edge, the same for each element (palette.css edge) */
+  stroke: var(--el-edge);
   stroke-width: 1.6;
 }
 .crest-mark {

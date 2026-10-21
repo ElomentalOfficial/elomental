@@ -165,14 +165,14 @@ html[data-large-text] .part-grid {
   filter: grayscale(0.6);
 }
 /* Rarity tag: the rarity's name on its own colour, in its own text colour (4.5:1 or better), with
-   its edge where a light fill would melt into a light surface (palette.css: fill, on, mark). */
+   the edge every fill takes (palette.css: fill, on, edge). */
 .rarity-tag {
   display: inline-block;
   padding: 1px 8px;
   border-radius: 999px;
   background: var(--rc);
   color: var(--rc-on);
-  box-shadow: inset 0 0 0 1px var(--rc-mark);
+  box-shadow: inset 0 0 0 1px var(--rc-edge);
   /* 14px floor for anything that carries meaning (docs/AUDIT.md); Montserrat, as a bold tag */
   font-family: var(--font);
   font-size: var(--fs-small);
@@ -180,10 +180,10 @@ html[data-large-text] .part-grid {
   letter-spacing: 0.03em;
   white-space: nowrap;
 }
-.rarity-common { --rc: var(--r-common-fill); --rc-on: var(--r-common-on); --rc-mark: var(--r-common-mark); --rc-line: var(--r-common-line); }
-.rarity-rare { --rc: var(--r-rare-fill); --rc-on: var(--r-rare-on); --rc-mark: var(--r-rare-mark); --rc-line: var(--r-rare-line); }
-.rarity-epic { --rc: var(--r-epic-fill); --rc-on: var(--r-epic-on); --rc-mark: var(--r-epic-mark); --rc-line: var(--r-epic-line); }
-.rarity-mythic { --rc: var(--r-mythic-fill); --rc-on: var(--r-mythic-on); --rc-mark: var(--r-mythic-mark); --rc-line: var(--r-mythic-line); }
+.rarity-common { --rc: var(--r-common-fill); --rc-on: var(--r-common-on); --rc-edge: var(--r-common-edge); --rc-line: var(--r-common-line); }
+.rarity-rare { --rc: var(--r-rare-fill); --rc-on: var(--r-rare-on); --rc-edge: var(--r-rare-edge); --rc-line: var(--r-rare-line); }
+.rarity-epic { --rc: var(--r-epic-fill); --rc-on: var(--r-epic-on); --rc-edge: var(--r-epic-edge); --rc-line: var(--r-epic-line); }
+.rarity-mythic { --rc: var(--r-mythic-fill); --rc-on: var(--r-mythic-on); --rc-edge: var(--r-mythic-edge); --rc-line: var(--r-mythic-line); }
 .part-sheet {
   text-align: center;
 }
@@ -361,7 +361,7 @@ html[data-large-text] .part-grid {
   border-radius: 999px;
   background: var(--rc);
   color: var(--rc-on);
-  box-shadow: inset 0 0 0 1px var(--rc-mark);
+  box-shadow: inset 0 0 0 1px var(--rc-edge);
   font-size: var(--fs-small);
   font-weight: 700;
   letter-spacing: 0.04em;

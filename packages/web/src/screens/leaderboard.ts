@@ -376,7 +376,9 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
       tied ? null : h('strong', { class: 'lb-leader-pct', text: `${pct.get(first.affinity)}%` }));
     const bar = h('div', { class: 'lb-strength', attrs: { role: 'img', 'aria-label': t.a11yStrength(ranked.map((s) => `${name(s.affinity)} ${pct.get(s.affinity) ?? 25}%`).join(', ')) } },
       ...ranked.map((s) => {
-        const seg = h('span', { class: `strength-seg el-${s.affinity}` });
+        // each segment carries its element's glyph where it fits, so the bar never relies on colour
+        // alone (phones hide the legend; Fire and Earth look alike to protanopes); the bar's label says it all
+        const seg = h('span', { class: `strength-seg el-${s.affinity}` }, h('span', { class: 'seg-glyph', html: ICONS.elements[s.affinity] }));
         seg.style.flexGrow = String(pct.size ? Math.max(pct.get(s.affinity) ?? 0, 1) : 25);
         return seg;
       }));
