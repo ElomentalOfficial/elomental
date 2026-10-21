@@ -337,7 +337,6 @@ export const forge = {
   oddsSpendTitle: 'Spending Stardust',
   oddsSpend: [
     'Bring an avatar to life: 6000 Stardust and a Spirit, once per avatar.',
-    'Name plates: Bronze 1000, Silver 2500, Gold 6000, Diamond 9000, Starforged 14000.',
     'Fill in a missed Daily Square: 300 Stardust, up to 3 days a month.',
     'Call a Spirit: 15000 Stardust, then 5000 more for each one called this season.',
   ],
@@ -355,7 +354,7 @@ export const forge = {
   callShort: (have: number, cost: number) => `You have ${formatNumber(have)} of ${formatNumber(cost)} Stardust.`,
   called: 'A Spirit came. Bring an avatar to life with it.',
 
-  // Polish (an avatar brought to life, once) and name plates: a look only
+  // Polish (an avatar brought to life, once): a look only
   alive: 'Alive',
   lifeTitle: 'Bring to life',
   lifeNote: 'It moves wherever your avatar shows. Once per avatar.',
@@ -367,24 +366,43 @@ export const forge = {
   /** The cost, read as one line by screen readers. */
   a11yLifeCost: (stardust: number, haveDust: number, haveSpirits: number) => `Costs ${formatNumber(stardust)} Stardust and 1 Spirit. You have ${formatNumber(haveDust)} Stardust and ${plural(haveSpirits, 'Spirit')}.`,
   broughtToLife: (name: string) => `${name} is alive.`,
-  plateTitle: 'Name plates',
-  plates: ['No plate', 'Bronze', 'Silver', 'Gold', 'Diamond', 'Starforged'] as const,
-  plateCount: (n: number, total: number) => `${n} of ${total}`,
-  plateA11y: (name: string) => `${name} name plate`,
-  /** On a plate card you own but haven't equipped: what tapping it does (the glossary's Equip). */
-  plateWear: 'Equip',
-  /** On a plate card, above its price (so not 'Not enough Stardust yet'). */
-  plateNeeds: 'Not enough',
-  plateAfter: (name: string) => `After ${name}`,
-  plateKeeps: 'It’s equipped straight away, and you keep the plates you have.',
-  plateIntro: 'An ornament under your name on Home, your profile and the leaderboard. Every plate you get is yours to keep: equip any of them.',
-  plateWearing: 'Equipped',
-  plateBuy: (name: string, stardust: number) => `Get ${name} · ${formatNumber(stardust)} Stardust`,
-  plateBought: (name: string) => `Your name now has the ${name} plate.`,
-  plateNone: 'Unequip plate',
-  plateNoneDone: 'Your name has no plate now.',
-  /** Under the plates when you own some and have none equipped. */
-  plateNoneWorn: 'No plate equipped.',
+};
+// --- Name plates (plates.ts, screens/plates.ts; come with the level, never bought) ---------
+// A frame round the name with the level at its foot, one for each level milestone. Glossary:
+// "name plate" ("plate" for short); Equip / Equipped / Unequip; never "buy" or "get".
+
+export const plates = {
+  title: 'Name plates',
+  /** The Profile's row into the page, and how many are collected. */
+  count: (n: number, total: number) => `${n} of ${total}`,
+  intro: 'A frame round your name, with your level at its foot. Reach a level to earn the next one; every plate is yours to keep.',
+  /** Plate 0 (no frame, the level alone) to 9, in the order they come (xp.ts PLATE_LEVELS). */
+  names: ['Blank', 'Riveted', 'Banded', 'Cartouche', 'Fanlight', 'Colonnade', 'Sunburst', 'Jewelled', 'Winged', 'Starforged'] as const,
+  /** The page's groups: the plates' bands, cold to lit. */
+  bands: { ink: 'Ink', steel: 'Steel', gilt: 'Gilt', star: 'Star', starfire: 'Starforged' } as Record<string, string>,
+  equipped: 'Equipped',
+  equip: 'Equip',
+  from: (level: number) => `From level ${level}`,
+  locked: (level: number) => `Level ${level}`,
+  toGo: (xp: number) => `${formatNumber(xp)} XP to go`,
+  /** Blank: no frame, just the level (how a plate is taken off). */
+  blankLine: 'Just your level',
+  a11yEquipped: (name: string) => `${name} plate, equipped`,
+  a11yEquip: (name: string) => `${name} plate. Equip.`,
+  a11yLocked: (name: string, level: number) => `${name} plate, locked until level ${level}`,
+  isNew: 'New',
+  worn: (name: string) => `Your name now has the ${name} plate.`,
+  none: 'Your name has no plate now.',
+  /** The level bar's caption when the next level brings a plate. */
+  nextCaption: (xp: number, level: number) => `${formatNumber(xp)} XP to level ${level}: a new name plate`,
+  /** On the result: a new plate as its moment, or a line when a bigger moment holds it. */
+  newTitle: 'New name plate',
+  newLine: (name: string, level: number) => `${name}, for reaching level ${level}.`,
+  newEquipped: 'Equipped',
+  newElsewhere: 'It’s with your name plates on your Profile.',
+  newShort: (name: string) => `New name plate: ${name}`,
+  a11yNew: (name: string, level: number, equipped: boolean) =>
+    `New name plate: ${name}, for reaching level ${level}. ${equipped ? 'Equipped.' : 'It’s with your name plates on your Profile.'}`,
 };
 // --- Profile ---------------------------------------------------------------------
 // Opened from Home's avatar: who you are, how you're doing, and the way into the Forge.
@@ -778,10 +796,7 @@ export const refusals = {
     not_owned: 'You don’t own that part yet.',
     already_alive: 'That avatar is already alive.',
     no_avatar_to_wake: 'Every avatar you own is alive or has a Spirit waiting for it.',
-    top_plate: 'You already have the Starforged plate.',
-    plate_owned: 'You already have that plate.',
-    plate_not_owned: 'You don’t have that plate yet.',
-    plate_order: 'Plates are bought in order. Get the one before it first.',
+    plate_not_owned: 'You haven’t reached that plate’s level yet.',
     no_mends_left: 'You’ve filled in 3 days this month: that’s the most.',
     already_solved: 'That day is already done.',
     bad_date: 'Only missed days earlier this month can be filled in.',
@@ -1140,7 +1155,7 @@ export const founder = {
   activityEmpty: 'Nothing yet.',
   actions: {
     dev_on: 'Dev mode on', dev_off: 'Dev mode off', fill: 'Filled up', empty: 'Emptied', unlock_all: 'Unlocked every part',
-    clear_parts: 'Removed every part', plate: 'Name plate', elo: 'Elo', next_drop: 'Next part', next_spirit: 'Next Spirit',
+    clear_parts: 'Removed every part', plate: 'Name plate', level: 'Level', elo: 'Elo', next_drop: 'Next part', next_spirit: 'Next Spirit',
     forget_affinity: 'Forgot faction', show_founders: 'Founders shown', hide_founders: 'Founders hidden', review_clear: 'Review: cleared', review_restrict: 'Review: restricted', review_lift: 'Review: lifted',
   } as Record<string, string>,
 };
@@ -1180,7 +1195,8 @@ export const dev = {
   elo: 'Elo',
   eloHelp: 'From 0 to 2000. Set it to see each rank and promotion.',
   setElo: 'Set Elo',
-  plate: 'Name plate',
+  level: 'Level',
+  levelHelp: 'Sets your XP to that level’s and puts on its newest plate.',
   forgetAffinity: 'Forget my faction',
   forgetAffinityHelp: 'Your Profile asks you to choose again.',
   done: 'Done.',

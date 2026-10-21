@@ -60,8 +60,9 @@ export const RAMPS: Ramp[] = [
   { name: 'gold', what: 'Gold plate, medals', steps: METAL, anchors: { 200: '#f0cd78', 300: { C: 0.115, H: 86 }, 500: '#8f6a12' } },
   { name: 'teal', what: 'Archmage rank: jade, clear of Diamond ice and Water', steps: METAL, anchors: { 500: { C: 0.085, H: 165 } } },
   { name: 'violet', what: 'Elomental rank: a deep violet, bluer than Epic heather', steps: METAL, anchors: { 500: { C: 0.13, H: 295 } } },
-  { name: 'diamond', what: 'Diamond plate: ice, a cool cyan clear of Silver, Air and Water', steps: METAL, anchors: { 300: { C: 0.05, H: 200 }, 500: { C: 0.06, H: 205 } } },
-  { name: 'star', what: 'Starforged plate (the top plate) and its glow', steps: METAL, anchors: { 200: '#ecd38c', 500: '#946410' } },
+  { name: 'star', what: 'the gilt and star plate bands, and the glow', steps: METAL, anchors: { 200: '#ecd38c', 500: '#946410' } },
+  { name: 'steel', what: 'the steel plate band: gunmetal, greyer than Air and Rare', steps: METAL, profile: FLAT, anchors: { 500: { C: 0.02, H: 250 } } },
+  { name: 'starfire', what: 'the top plate (Starforged) on dark: a warm white', steps: METAL, anchors: { 100: { C: 0.03, H: 85 } } },
 ];
 
 function bandY(step: number): number {
@@ -164,33 +165,41 @@ function hcRoles(s: Swatch, t: 'dark' | 'light'): Record<string, string> {
   };
 }
 
+type PlateTheme = 'dark' | 'light' | 'dark-hc' | 'light-hc';
+
 /**
- * The name plates (plates.css), one rule for the set: every metal on the same step in a theme,
- * the gem plates (Diamond, Starforged) one step further from the surface (their rules say the
- * tier; the colour only how fine it is). `chosen` is the plate on a chosen card or row, a step
- * deeper on the light theme where that fill is a mid green.
+ * The leaderboard's medals (1st, 2nd, 3rd) in their metals, one step for all three per theme;
+ * `chosen` on your own row, a step deeper on the light theme where that fill is a mid green.
  */
-const PLATES: [string, string][] = [['bronze', 'bronze'], ['silver', 'silver'], ['gold', 'gold'], ['diamond', 'diamond'], ['elo', 'star']];
-/** How see-through a plate's rule is on the dark and light themes (contrast.ts measures it so). */
-export const PLATE_OPACITY = 0.7;
-/** The gem plates, a step further out than the metals: Diamond's ice would sit on Silver and Air otherwise. */
-const GEM_PLATES = new Set(['diamond', 'elo']);
-type PlateTheme ='dark' | 'light' | 'dark-hc' | 'light-hc';
-const PLATE_STEP: Record<PlateTheme, { metal: number; top: number; chosen: number; topChosen: number }> = {
-  dark: { metal: 300, top: 200, chosen: 300, topChosen: 200 },
-  light: { metal: 500, top: 600, chosen: 600, topChosen: 700 },
-  'dark-hc': { metal: 200, top: 100, chosen: 200, topChosen: 100 },
-  'light-hc': { metal: 600, top: 700, chosen: 700, topChosen: 700 },
+const MEDALS = ['bronze', 'silver', 'gold'];
+const MEDAL_STEP: Record<PlateTheme, [number, number]> = { dark: [300, 300], light: [500, 600], 'dark-hc': [200, 200], 'light-hc': [600, 700] };
+const medalRoles = (t: PlateTheme): string[] =>
+  MEDALS.flatMap((m) => [`  --medal-${m}: ${v(m, MEDAL_STEP[t][0])};`, `  --medal-${m}-chosen: ${v(m, MEDAL_STEP[t][1])};`]);
+
+/**
+ * The name plates' bands (plates.ts TIERS; ui-designer): the shape carries the tier, the colour
+ * only its band, cold to lit, never the rank metals: ink (the level's own ink, tokens.css), steel,
+ * gilt, star, starfire. Each band a step per theme, [line, on a chosen card]; on light the
+ * starfire band is the star's deepest step (a glow only smudges there: the top plate's crown and
+ * sun carry it).
+ */
+const PLATE_BANDS: Record<string, Record<PlateTheme, [string, number, number]>> = {
+  steel: { dark: ['steel', 300, 300], light: ['steel', 500, 600], 'dark-hc': ['steel', 200, 200], 'light-hc': ['steel', 600, 700] },
+  gilt: { dark: ['star', 300, 300], light: ['star', 600, 700], 'dark-hc': ['star', 200, 200], 'light-hc': ['star', 700, 700] },
+  star: { dark: ['star', 200, 200], light: ['star', 700, 700], 'dark-hc': ['star', 100, 100], 'light-hc': ['star', 700, 700] },
+  starfire: { dark: ['starfire', 100, 100], light: ['star', 700, 700], 'dark-hc': ['starfire', 100, 100], 'light-hc': ['star', 700, 700] },
 };
+/** How see-through a plate's frame is on the dark and light themes (contrast.ts measures it so):
+ *  traces of metal behind the name (owner, 2026-10-21). */
+export const PLATE_OPACITY = 0.5;
 function plateRoles(t: PlateTheme): string[] {
-  const s = PLATE_STEP[t];
   return [
-    ...PLATES.map(([id, ramp]) => `  --plate-${id}: ${v(ramp, GEM_PLATES.has(id) ? s.top : s.metal)};`),
-    ...PLATES.map(([id, ramp]) => `  --plate-${id}-chosen: ${v(ramp, GEM_PLATES.has(id) ? s.topChosen : s.chosen)};`),
-    // the Starforged glow: a halo of its own metal on dark; on the pale light surfaces a glow
-    // only smudges, so the crown and the cartouche carry the tier there
-    `  --plate-glow: ${t.startsWith('dark') ? rgba(PRIM['--c-star-200'], 0.55) : 'transparent'};`,
-    // the rule sits back behind the name, see-through; High contrast draws it solid
+    ...medalRoles(t),
+    ...Object.entries(PLATE_BANDS).flatMap(([b, s]) => [`  --plate-${b}: ${v(s[t][0], s[t][1])};`, `  --plate-${b}-chosen: ${v(s[t][0], s[t][2])};`]),
+    // the top bands' glow: a halo of the star metal on dark; on the pale light surfaces a glow
+    // only smudges, so the ornament carries the tier there
+    `  --plate-glow: ${t.startsWith('dark') ? rgba(PRIM['--c-star-200'], 0.3) : 'transparent'};`,
+    // the frame sits back behind the name, see-through; High contrast draws it solid
     `  --plate-opacity: ${t.endsWith('hc') ? 1 : PLATE_OPACITY};`,
   ];
 }

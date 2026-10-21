@@ -1,12 +1,12 @@
 -- Name plates come with the level (owner, 2026-10-21; game-economy-designer, ui-designer,
 -- ux-reviewer). A plate frames the name and holds the level in a medallion; plates are no longer
--- bought, they unlock at levels 5, 10, 15, 25, 50, 80, 100, 125, 150, 200, 300 and 500 (12
--- plates, Starforged at the top), all kept, any equipped.
+-- bought, they unlock at levels 5, 10, 15, 25, 35, 50, 65, 80 and 100 (9 plates for now,
+-- Starforged at the top), all kept, any equipped.
 --
 -- * The curve: from level L to L+1 costs min(20 x L, 2000) XP (was 50 x L). Reaching level L
 --   takes 10 x L x (L - 1) XP up to level 100, then 99,000 + 2,000 x (L - 100). Every XP total
 --   stays and gives the same level or a higher one.
--- * private.plates_at(level): how many plates a level has unlocked (0 to 12). profiles.plate is
+-- * private.plates_at(level): how many plates a level has unlocked (0 to 9). profiles.plate is
 --   the one worn (0: none), any up to that; plates_owned and buy_plate go.
 -- * Plates bought with Stardust are refunded in full, once, from the ledger.
 -- * finish_game: a win that unlocks a plate equips it when the player wore their newest one (or
@@ -41,7 +41,7 @@ $$;
 -- How many plates a level has unlocked.
 create function private.plates_at(lvl integer) returns smallint
 language sql immutable set search_path = '' as $$
-  select count(*)::smallint from unnest(array[5, 10, 15, 25, 50, 80, 100, 125, 150, 200, 300, 500]) m where m <= lvl;
+  select count(*)::smallint from unnest(array[5, 10, 15, 25, 35, 50, 65, 80, 100]) m where m <= lvl;
 $$;
 
 -- ---------------------------------------------------------------- the refund
@@ -60,7 +60,7 @@ alter table public.profiles drop constraint profiles_plate_check;
 alter table public.profiles drop column plates_owned;
 -- everyone wears their newest plate to begin with
 update public.profiles set plate = private.plates_at((private.xp_level(xp)).level) where true;
-alter table public.profiles add constraint profiles_plate_check check (plate between 0 and 12);
+alter table public.profiles add constraint profiles_plate_check check (plate between 0 and 9);
 drop function public.buy_plate(integer);
 
 create or replace function public.wear_plate(p_plate integer) returns json

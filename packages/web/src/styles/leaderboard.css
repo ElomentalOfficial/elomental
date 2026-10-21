@@ -367,20 +367,20 @@ html[data-large-text] .lb-meta-row {
   border-radius: 50%;
   box-shadow: inset 0 0 0 3px var(--medal);
 }
-.medal-1 { --medal: var(--plate-gold); }
-.medal-2 { --medal: var(--plate-silver); }
-.medal-3 { --medal: var(--plate-bronze); }
+.medal-1 { --medal: var(--medal-gold); }
+.medal-2 { --medal: var(--medal-silver); }
+.medal-3 { --medal: var(--medal-bronze); }
 /* on your own row the metals take the chosen step, as the plate beside them does */
-.lb-row.is-me .medal-1 { --medal: var(--plate-gold-chosen); }
-.lb-row.is-me .medal-2 { --medal: var(--plate-silver-chosen); }
-.lb-row.is-me .medal-3 { --medal: var(--plate-bronze-chosen); }
+.lb-row.is-me .medal-1 { --medal: var(--medal-gold-chosen); }
+.lb-row.is-me .medal-2 { --medal: var(--medal-silver-chosen); }
+.lb-row.is-me .medal-3 { --medal: var(--medal-bronze-chosen); }
 /* 4–100: a quiet underline in gold */
 .lb-place.top100 {
-  text-decoration: underline 2px var(--plate-gold);
+  text-decoration: underline 2px var(--medal-gold);
   text-underline-offset: 4px;
 }
 .lb-row.is-me .lb-place.top100 {
-  text-decoration-color: var(--plate-gold-chosen);
+  text-decoration-color: var(--medal-gold-chosen);
 }
 .lb-avatar {
   width: 44px;
@@ -401,10 +401,40 @@ html[data-large-text] .lb-meta-row {
   font-size: var(--fs-body);
   font-weight: 700;
 }
-/* plates on rows: the whole rule, a size down (no glow there, plates.css) */
+/* plates on rows: no frame and no medallion (the level is the card's), just the band's colour as
+   a rule under the name: one line in ink, two from steel; none without a plate */
 .lb-name.name-plate {
-  --plate-zoom: calc(0.7 * (0.5 + 0.5 * var(--text-scale)));
+  max-width: 100%;
+  margin: 0;
+  padding: 0 0 6px;
   overflow: visible;
+  text-align: left;
+}
+.lb-name .plate-frame {
+  display: none;
+}
+.lb-name.name-plate:not(.tier-0)::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 1px;
+  height: 1.5px;
+  background: var(--plate);
+  opacity: var(--plate-opacity);
+}
+.lb-name.name-plate:not(.tier-0, .band-ink)::after {
+  height: 4.5px;
+  background: none;
+  border-block: 1.5px solid var(--plate);
+}
+@media (forced-colors: active) {
+  .lb-name.name-plate.band-ink:not(.tier-0)::after {
+    background: CanvasText;
+  }
+  .lb-name.name-plate:not(.tier-0, .band-ink)::after {
+    border-color: CanvasText;
+  }
 }
 /* a long name ends in … inside its plate rather than running past the row */
 .lb-name.name-plate .plate-text {
@@ -781,7 +811,7 @@ html[data-large-text] .lb-me .lb-avatar {
 .badge-art.el-air { --el: var(--el-air-fill); --el-on: var(--el-air-on); }
 .badge-shield {
   fill: var(--el);
-  stroke: var(--plate-gold);
+  stroke: var(--medal-gold);
   stroke-width: 2;
   stroke-linejoin: round;
 }
@@ -795,7 +825,7 @@ html[data-large-text] .lb-me .lb-avatar {
   color: var(--el-on);
 }
 .badge-laurel {
-  fill: var(--plate-gold);
+  fill: var(--medal-gold);
 }
 .badge-pick-grid {
   display: grid;

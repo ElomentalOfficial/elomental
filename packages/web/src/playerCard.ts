@@ -4,7 +4,6 @@ import { DEFAULT_AVATAR } from './backend/forge.ts';
 import { follow, playerCard, unfollow, type PlayerCard } from './backend/leaderboard.ts';
 import { ICONS } from './icons.ts';
 import { rankName } from './rankName.ts';
-import { levelBadge } from './level.ts';
 import { paintPlate } from './plates.ts';
 import { rankTier } from './profile.ts';
 import { closeButton, h, openModal, toast } from './ui.ts';
@@ -38,10 +37,9 @@ export function cardBody(c: PlayerCard, opts: { large?: boolean } = {}): HTMLEle
   const t = copy.leaderboard.card;
   const tier = rankTier(c.elo, c.tier);
   const name = h('h2', { class: 'card-name', attrs: { 'data-slot': 'name-effect' } });
-  paintPlate(name, c.name, c.plate);
+  paintPlate(name, c.name, c.plate, c.level ?? null);
   const facts: (HTMLElement | null)[] = [
     h('span', { class: 'card-fact' }, rankName(tier.tier, tier.label, c.title)),
-    c.level ? h('span', { class: 'card-fact' }, levelBadge(c.level)) : null,
     c.affinity
       ? h('span', { class: 'card-fact' }, h('span', { class: 'drop-element', html: ICONS.elements[c.affinity], attrs: { 'aria-hidden': 'true' } }), h('span', { text: copy.forge.elements[c.affinity] }))
       : null,

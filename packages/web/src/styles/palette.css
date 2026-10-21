@@ -157,15 +157,7 @@
   --c-violet-500: #725aae; /* L 0.530 C 0.129 H 295 */
   --c-violet-600: #5a4390; /* L 0.446 C 0.123 H 295 */
   --c-violet-700: #493477; /* L 0.384 C 0.110 H 295 */
-  /* diamond: Diamond plate: ice, a cool cyan clear of Silver, Air and Water */
-  --c-diamond-100: #d6e8e9; /* L 0.918 C 0.019 H 201 */
-  --c-diamond-200: #b8d7d9; /* L 0.857 C 0.033 H 201 */
-  --c-diamond-300: #8ababc; /* L 0.756 C 0.051 H 199 */
-  --c-diamond-400: #679ea3; /* L 0.663 C 0.058 H 203 */
-  --c-diamond-500: #397177; /* L 0.513 C 0.060 H 205 */
-  --c-diamond-600: #23585e; /* L 0.428 C 0.056 H 205 */
-  --c-diamond-700: #17464c; /* L 0.365 C 0.051 H 207 */
-  /* star: Starforged plate (the top plate) and its glow */
+  /* star: the gilt and star plate bands, and the glow */
   --c-star-100: #f3e4bc; /* L 0.921 C 0.055 H 90 */
   --c-star-200: #ecd38c; /* L 0.872 C 0.094 H 91 · existing */
   --c-star-300: #d7ab47; /* L 0.763 C 0.127 H 85 */
@@ -173,6 +165,22 @@
   --c-star-500: #946410; /* L 0.541 C 0.109 H 74 · existing */
   --c-star-600: #6f4900; /* L 0.437 C 0.092 H 75 */
   --c-star-700: #5a3a00; /* L 0.377 C 0.080 H 74 */
+  /* steel: the steel plate band: gunmetal, greyer than Air and Rare */
+  --c-steel-100: #dae6f1; /* L 0.919 C 0.020 H 246 */
+  --c-steel-200: #c8d3de; /* L 0.862 C 0.019 H 248 */
+  --c-steel-300: #a8b3be; /* L 0.762 C 0.020 H 248 */
+  --c-steel-400: #8c97a1; /* L 0.671 C 0.020 H 246 */
+  --c-steel-500: #606974; /* L 0.517 C 0.021 H 253 */
+  --c-steel-600: #49525b; /* L 0.434 C 0.019 H 248 */
+  --c-steel-700: #39414b; /* L 0.372 C 0.020 H 254 */
+  /* starfire: the top plate (Starforged) on dark: a warm white */
+  --c-starfire-100: #eee3cf; /* L 0.919 C 0.029 H 83 */
+  --c-starfire-200: #e1cfac; /* L 0.860 C 0.051 H 84 */
+  --c-starfire-300: #c8af79; /* L 0.763 C 0.077 H 86 */
+  --c-starfire-400: #ae9155; /* L 0.670 C 0.086 H 84 */
+  --c-starfire-500: #806528; /* L 0.521 C 0.086 H 85 */
+  --c-starfire-600: #664e11; /* L 0.438 C 0.081 H 86 */
+  --c-starfire-700: #533e07; /* L 0.377 C 0.073 H 85 */
 
   /* Old palette names, kept as aliases */
   --c-bg: var(--c-stone-900);
@@ -295,18 +303,22 @@
   --tone-crimson-mark: var(--tone-crimson-fill);
   --tone-crimson-edge: var(--tone-crimson-fill);
   /* name plates */
-  --plate-bronze: var(--c-bronze-300);
-  --plate-silver: var(--c-silver-300);
-  --plate-gold: var(--c-gold-300);
-  --plate-diamond: var(--c-diamond-200);
-  --plate-elo: var(--c-star-200);
-  --plate-bronze-chosen: var(--c-bronze-300);
-  --plate-silver-chosen: var(--c-silver-300);
-  --plate-gold-chosen: var(--c-gold-300);
-  --plate-diamond-chosen: var(--c-diamond-200);
-  --plate-elo-chosen: var(--c-star-200);
-  --plate-glow: rgba(236, 211, 140, 0.55);
-  --plate-opacity: 0.7;
+  --medal-bronze: var(--c-bronze-300);
+  --medal-bronze-chosen: var(--c-bronze-300);
+  --medal-silver: var(--c-silver-300);
+  --medal-silver-chosen: var(--c-silver-300);
+  --medal-gold: var(--c-gold-300);
+  --medal-gold-chosen: var(--c-gold-300);
+  --plate-steel: var(--c-steel-300);
+  --plate-steel-chosen: var(--c-steel-300);
+  --plate-gilt: var(--c-star-300);
+  --plate-gilt-chosen: var(--c-star-300);
+  --plate-star: var(--c-star-200);
+  --plate-star-chosen: var(--c-star-200);
+  --plate-starfire: var(--c-starfire-100);
+  --plate-starfire-chosen: var(--c-starfire-100);
+  --plate-glow: rgba(236, 211, 140, 0.3);
+  --plate-opacity: 0.5;
   /* Ranked rank names */
   --rank-0-hi: var(--c-bronze-100);
   --rank-0-lo: var(--c-bronze-300);
@@ -377,18 +389,22 @@
   --tone-crimson-mark: var(--tone-crimson-fill);
   --tone-crimson-edge: var(--c-crimson-700);
   /* name plates */
-  --plate-bronze: var(--c-bronze-500);
-  --plate-silver: var(--c-silver-500);
-  --plate-gold: var(--c-gold-500);
-  --plate-diamond: var(--c-diamond-600);
-  --plate-elo: var(--c-star-600);
-  --plate-bronze-chosen: var(--c-bronze-600);
-  --plate-silver-chosen: var(--c-silver-600);
-  --plate-gold-chosen: var(--c-gold-600);
-  --plate-diamond-chosen: var(--c-diamond-700);
-  --plate-elo-chosen: var(--c-star-700);
+  --medal-bronze: var(--c-bronze-500);
+  --medal-bronze-chosen: var(--c-bronze-600);
+  --medal-silver: var(--c-silver-500);
+  --medal-silver-chosen: var(--c-silver-600);
+  --medal-gold: var(--c-gold-500);
+  --medal-gold-chosen: var(--c-gold-600);
+  --plate-steel: var(--c-steel-500);
+  --plate-steel-chosen: var(--c-steel-600);
+  --plate-gilt: var(--c-star-600);
+  --plate-gilt-chosen: var(--c-star-700);
+  --plate-star: var(--c-star-700);
+  --plate-star-chosen: var(--c-star-700);
+  --plate-starfire: var(--c-star-700);
+  --plate-starfire-chosen: var(--c-star-700);
   --plate-glow: transparent;
-  --plate-opacity: 0.7;
+  --plate-opacity: 0.5;
   /* Ranked rank names */
   --rank-0-hi: var(--c-bronze-600);
   --rank-0-lo: var(--c-bronze-600);
@@ -428,17 +444,21 @@
   --tone-crimson-ink: var(--c-crimson-200);
   --tone-crimson-line: var(--c-crimson-300);
   /* name plates */
-  --plate-bronze: var(--c-bronze-200);
-  --plate-silver: var(--c-silver-200);
-  --plate-gold: var(--c-gold-200);
-  --plate-diamond: var(--c-diamond-100);
-  --plate-elo: var(--c-star-100);
-  --plate-bronze-chosen: var(--c-bronze-200);
-  --plate-silver-chosen: var(--c-silver-200);
-  --plate-gold-chosen: var(--c-gold-200);
-  --plate-diamond-chosen: var(--c-diamond-100);
-  --plate-elo-chosen: var(--c-star-100);
-  --plate-glow: rgba(236, 211, 140, 0.55);
+  --medal-bronze: var(--c-bronze-200);
+  --medal-bronze-chosen: var(--c-bronze-200);
+  --medal-silver: var(--c-silver-200);
+  --medal-silver-chosen: var(--c-silver-200);
+  --medal-gold: var(--c-gold-200);
+  --medal-gold-chosen: var(--c-gold-200);
+  --plate-steel: var(--c-steel-200);
+  --plate-steel-chosen: var(--c-steel-200);
+  --plate-gilt: var(--c-star-200);
+  --plate-gilt-chosen: var(--c-star-200);
+  --plate-star: var(--c-star-100);
+  --plate-star-chosen: var(--c-star-100);
+  --plate-starfire: var(--c-starfire-100);
+  --plate-starfire-chosen: var(--c-starfire-100);
+  --plate-glow: rgba(236, 211, 140, 0.3);
   --plate-opacity: 1;
   /* Ranked rank names */
   --rank-0-hi: var(--c-bronze-100);
@@ -480,16 +500,20 @@
   --tone-crimson-ink: var(--c-crimson-700);
   --tone-crimson-line: var(--c-crimson-600);
   /* name plates */
-  --plate-bronze: var(--c-bronze-600);
-  --plate-silver: var(--c-silver-600);
-  --plate-gold: var(--c-gold-600);
-  --plate-diamond: var(--c-diamond-700);
-  --plate-elo: var(--c-star-700);
-  --plate-bronze-chosen: var(--c-bronze-700);
-  --plate-silver-chosen: var(--c-silver-700);
-  --plate-gold-chosen: var(--c-gold-700);
-  --plate-diamond-chosen: var(--c-diamond-700);
-  --plate-elo-chosen: var(--c-star-700);
+  --medal-bronze: var(--c-bronze-600);
+  --medal-bronze-chosen: var(--c-bronze-700);
+  --medal-silver: var(--c-silver-600);
+  --medal-silver-chosen: var(--c-silver-700);
+  --medal-gold: var(--c-gold-600);
+  --medal-gold-chosen: var(--c-gold-700);
+  --plate-steel: var(--c-steel-600);
+  --plate-steel-chosen: var(--c-steel-700);
+  --plate-gilt: var(--c-star-700);
+  --plate-gilt-chosen: var(--c-star-700);
+  --plate-star: var(--c-star-700);
+  --plate-star-chosen: var(--c-star-700);
+  --plate-starfire: var(--c-star-700);
+  --plate-starfire-chosen: var(--c-star-700);
   --plate-glow: transparent;
   --plate-opacity: 1;
   /* Ranked rank names */

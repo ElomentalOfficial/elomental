@@ -1,16 +1,14 @@
 import { reducedMotion } from './a11y.ts';
 import { h } from './ui.ts';
-import { xpLevel } from './xp.ts';
+import { PLATE_LEVELS, xpLevel } from './xp.ts';
 import * as copy from './copy/en.ts';
 
 /**
  * The account level (migration account_level): a permanent level from XP, never reset. Every
  * rated win earns XP (Easy 10, Medium 20, Hard 30, the Daily 30, Ranked 40) with no daily cap;
- * from level L to L+1 costs 50 x L, with no top level. XP is status only: never spent, never a
- * Ranked edge, never on the leaderboard.
- *
- * Drawn in ink, never a metal (docs: metal is what you rank in or buy): a Deco cartouche,
- * "LEVEL" and the number (styles/level.css).
+ * from level L to L+1 costs min(20 x L, 2000) (level_plates), with no top level. XP is status
+ * only: never spent, never a Ranked edge, never on the leaderboard. The level shows in the name
+ * plate's medallion (plates.ts); the cartouche badge here is the result's.
  */
 
 export interface XpGain {
@@ -21,6 +19,9 @@ export interface XpGain {
   into: number;
   need: number;
   levelUp: boolean;
+  /** A name plate this win unlocked (level_plates), and whether it was equipped. */
+  plate?: number | null;
+  plateEquipped?: boolean;
 }
 
 export { xpLevel };
@@ -40,6 +41,10 @@ export function levelBadge(level: number, cls = ''): HTMLElement {
   );
 }
 
+/** What the next level needs, saying so when it brings a name plate. */
+const toNext = (left: number, next: number): string =>
+  (PLATE_LEVELS as readonly number[]).includes(next) ? copy.plates.nextCaption(left, next) : copy.level.toNext(left, next);
+
 /** A bar of `share` (0 to 1), its track and fill drawn by .xp-bar. */
 function bar(share: number): HTMLElement {
   const fill = h('span');
@@ -57,7 +62,7 @@ export function xpRow(xp: XpGain, hero = false): HTMLElement {
   const before = xpLevel(xp.total - xp.gained);
   const badge = levelBadge(xp.level);
   const fill = bar(xp.into / xp.need);
-  const caption = h('span', { class: 'xp-caption', text: xp.levelUp ? copy.level.reached(xp.level) : copy.level.toNext(xp.need - xp.into, xp.level + 1) });
+  const caption = h('span', { class: 'xp-caption', text: xp.levelUp ? copy.level.reached(xp.level) : toNext(xp.need - xp.into, xp.level + 1) });
   const row = h(
     'div',
     { class: `xp-row${xp.levelUp && hero ? ' is-hero' : ''}`, attrs: { role: 'group', 'aria-label': copy.level.a11y(xp.level, xp.gained, xp.need - xp.into) } },
@@ -96,6 +101,6 @@ export function levelProgress(total: number): HTMLElement {
     'div',
     { class: 'level-progress' },
     h('div', { attrs: { 'aria-hidden': 'true' } }, bar(l.into / l.need)),
-    h('span', { class: 'xp-caption', text: copy.level.toNext(l.need - l.into, l.level + 1) }),
+    h('span', { class: 'xp-caption', text: toNext(l.need - l.into, l.level + 1) }),
   );
 }

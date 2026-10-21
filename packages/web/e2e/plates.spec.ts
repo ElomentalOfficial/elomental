@@ -2,12 +2,13 @@ import { expect, test } from '@playwright/test';
 import { settled, signedIn } from './fixtures.ts';
 
 /**
- * Name plates are kept (wear_plates): on the Forge every plate you own stays yours, the one
- * equipped says so, any other you own is a button that equips it, and "Unequip plate" takes it
- * off. The sample player owns Bronze, Silver and Gold and has Silver equipped; the server is
- * faked (fixtures.ts signedIn), so this checks the page and what it asks the server for.
+ * Name plates come with the level (level_plates): Profile > Name plates holds every plate, the
+ * collected ones are buttons that equip them, the locked ones say the level that brings them,
+ * the next with its XP to go. The sample player is level 11 (1200 XP): Riveted and Banded are
+ * collected and Banded is worn; the server is faked (fixtures.ts signedIn), so this checks the
+ * page and what it asks the server for.
  */
-test('a plate you own can be equipped again, and unequipped', async ({ page }) => {
+test('the plates the level brought can be equipped; the rest show the level they come at', async ({ page }) => {
   await signedIn(page);
   const asked: unknown[] = [];
   await page.route(/supabase\.co\/rest\/v1\/rpc\/wear_plate/, async (route) => {
@@ -19,28 +20,25 @@ test('a plate you own can be equipped again, and unequipped', async ({ page }) =
   await expect(page.locator('.tile.area-casual')).toBeVisible();
   await settled(page);
   await page.locator('.avatar-btn').click();
-  await page.locator('.profile-forge').click();
-  await expect(page.locator('.plate-card').first()).toBeVisible();
+  // the Profile's name carries the plate and the level
+  await expect(page.locator('.profile-page .plate-medal').first()).toHaveAccessibleName('Level 11');
+  await expect(page.locator('.plates-row')).toContainText('2 of 9');
+  await page.locator('.plates-row').click();
+  await expect(page).toHaveTitle(/Name plates/);
 
-  // Silver is equipped: not a button, and it says so
-  const silver = page.locator('.plate-card-2');
-  await expect(silver).toHaveClass(/state-yours/);
-  await expect(silver).toHaveAttribute('aria-label', /Silver name plate\. Equipped\./);
-  expect(await silver.evaluate((el) => el.tagName)).toBe('DIV');
-  // Bronze and Gold are owned: buttons that equip them, with no price
-  for (const [n, name] of [[1, 'Bronze'], [3, 'Gold']] as const) {
-    await expect(page.getByRole('button', { name: `${name} name plate. Equip.` })).toBeVisible();
-    await expect(page.locator(`.plate-card-${n} .plate-price`)).toHaveCount(0);
-  }
-  // Diamond is the next one to get; Starforged comes after it
-  await expect(page.locator('.plate-card-4')).toHaveAttribute('aria-label', /Diamond name plate\. .*9000 Stardust/);
-  await expect(page.locator('.plate-card-5')).toHaveAttribute('aria-label', /After Diamond/);
+  // Banded is worn and says so
+  await expect(page.getByRole('button', { name: 'Banded plate, equipped' })).toHaveAttribute('aria-pressed', 'true');
+  // Blank and Riveted are collected: buttons that equip them
+  for (const name of ['Blank', 'Riveted']) await expect(page.getByRole('button', { name: `${name} plate. Equip.` })).toBeVisible();
+  // Cartouche is next (level 15), with its XP to go; Starforged is the top, at 100
+  await expect(page.getByRole('group', { name: 'Cartouche plate, locked until level 15' })).toBeVisible();
+  await expect(page.locator('.tier-card-3 .plate-next')).toHaveText('900 XP to go');
+  await expect(page.getByRole('group', { name: 'Starforged plate, locked until level 100' })).toBeVisible();
+  await expect(page.locator('.tier-card-4 .plate-next')).toHaveCount(0);
 
-  // a double tap equips once, and focus lands on the plate equipped
-  await page.getByRole('button', { name: 'Bronze name plate. Equip.' }).dblclick();
-  await expect(page.locator('.toast')).toContainText('Your name now has the Bronze plate.');
-  await expect(page.locator('.plate-card-1')).toBeFocused();
-  await page.getByRole('button', { name: 'Unequip plate' }).click();
-  await expect(page.locator('.forge-plates .forge-heading')).toBeFocused();
-  await expect.poll(() => asked).toEqual([{ p_plate: 1 }, { p_plate: 0 }]);
+  // a double tap equips once, and focus stays on the plate pressed
+  await page.getByRole('button', { name: 'Riveted plate. Equip.' }).dblclick();
+  await expect(page.locator('.toast')).toContainText('Your name now has the Riveted plate.');
+  await expect(page.locator('[data-plate="1"]')).toBeFocused();
+  await expect.poll(() => asked).toEqual([{ p_plate: 1 }]);
 });

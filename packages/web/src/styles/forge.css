@@ -482,3 +482,37 @@ html[data-reduce-motion] .part-reveal * {
   transform: none;
   cursor: var(--cursor-default);
 }
+
+/* The Fill-in and Call sheets, and the Spirits section (forge.ts spiritsSection) */
+.mend-sheet,
+.call-sheet {
+  text-align: center;
+}
+/* titles clear of the close button */
+.mend-sheet h2,
+.call-sheet h2 {
+  padding: 0 44px;
+}
+/* Spirits (forge.ts spiritsSection): how close the next one is, and Call a Spirit. */
+.forge-spirits {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.forge-spirits .forge-heading-row {
+  margin-top: var(--space-3);
+}
+.forge-spirits .forge-subheading {
+  margin-top: var(--space-2);
+  font-family: var(--serif);
+  font-size: var(--fs-body);
+  font-weight: 400;
+  color: var(--muted);
+}
+.forge-spirits .btn {
+  align-self: flex-start;
+}
+.sheet-icon.spirit {
+  background: var(--surface-2);
+  color: var(--text);
+}

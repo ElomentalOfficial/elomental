@@ -79,6 +79,12 @@
   /* The account level (level.css): in ink, never a metal, in both themes (these follow
      --muted and --text, which each theme sets). One bar style for the set. */
   --level-line: var(--muted);
+  /* The name plate's ink band (the first plates: plates.ts TIERS) and its medallion: the level
+     on a disc darker than every surface (text, 4.5:1), the same at every tier. */
+  --plate-ink: var(--muted);
+  --plate-ink-chosen: var(--muted-chosen);
+  --medal-fill: var(--c-stone-950);
+  --medal-ink: var(--c-bright);
   --level-ink: var(--text);
   --xp-fill: var(--text);
   --bar-h: 6px;
@@ -175,6 +181,11 @@
   --bar-bg: var(--c-mud);
   /* the account level, as in the dark theme */
   --level-line: var(--muted);
+  --plate-ink: var(--muted);
+  --plate-ink-chosen: var(--muted-chosen);
+  /* the medallion's disc paler than every light surface */
+  --medal-fill: var(--c-sand-50);
+  --medal-ink: var(--text);
   --level-ink: var(--text);
   --xp-fill: var(--text);
   --cell: var(--c-mud);

@@ -1,11 +1,11 @@
 import { cachedAccount, onAccountChange } from '../backend.ts';
 import { devAction, setDevMode, setFoundersShown, type DevAction } from '../backend/dev.ts';
-import { MAX_PLATE } from '../backend/forge.ts';
 import { loadFounderActivity } from '../backend/founder.ts';
 import { choice, segmented, settingGroup } from '../controls.ts';
 import { RARITIES, type Rarity } from '../profile.ts';
 import { rarityName } from '../reward.ts';
 import { h, toast } from '../ui.ts';
+import { PLATE_LEVELS, xpLevel } from '../xp.ts';
 import * as copy from '../copy/en.ts';
 
 /**
@@ -107,9 +107,12 @@ export function devPanel(section: DevSection, ctx: DevContext): { el: HTMLElemen
       class: 'text-field',
       attrs: { type: 'number', inputmode: 'numeric', min: '0', max: '2000', step: '1', 'aria-labelledby': 'dev-elo' },
     });
-    const plateButtons = Array.from({ length: MAX_PLATE + 1 }, (_, n) => n).map((n) => {
-      const btn = tool(copy.forge.plates[n], 'plate', () => n);
+    // level 1 and each plate's level: sets the XP to the start of it, and wears its plate
+    const levels = [1, ...PLATE_LEVELS];
+    const levelButtons = levels.map((n) => {
+      const btn = tool(String(n), 'level', () => n);
       btn.classList.replace('btn', 'segment');
+      btn.setAttribute('aria-label', copy.level.label(n));
       return btn;
     });
     el = h('div', { class: 'console-section' },
@@ -123,7 +126,7 @@ export function devPanel(section: DevSection, ctx: DevContext): { el: HTMLElemen
             }
             return n;
           }))),
-        choice('dev-plate', t.plate, null, h('div', { class: 'segmented cols-3', attrs: { role: 'group', 'aria-labelledby': 'dev-plate' } }, ...plateButtons)),
+        choice('dev-level', t.level, t.levelHelp, h('div', { class: 'segmented cols-3', attrs: { role: 'group', 'aria-labelledby': 'dev-level' } }, ...levelButtons)),
         choice('dev-affinity', t.forgetAffinity, t.forgetAffinityHelp, tool(t.forgetAffinity, 'forget_affinity')),
       ));
     paint = () => {
@@ -131,8 +134,8 @@ export function devPanel(section: DevSection, ctx: DevContext): { el: HTMLElemen
       for (const b of tools) b.disabled = !isOn;
       eloField.disabled = !isOn;
       if (!eloField.value) eloField.value = String(cachedAccount()?.elo ?? '');
-      const plate = cachedAccount()?.plate ?? 0;
-      plateButtons.forEach((b, n) => b.classList.toggle('on', n === plate));
+      const level = xpLevel(cachedAccount()?.xp ?? 0).level;
+      levelButtons.forEach((b, i) => b.classList.toggle('on', levels[i] === level));
     };
   } else {
     // what founders did lately (Dev mode and Review), to spot anything that wasn't you

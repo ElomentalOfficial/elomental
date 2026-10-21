@@ -1,73 +1,134 @@
-/* ---------- Name plates and polish (Stardust; a look only) ---------- */
-/* A plate is an Art Deco rule under the name (plates.ts): Bronze one line and diamonds, up to
-   Starforged's three lines, ringed gems and hanging sun with a soft glow. The name keeps its own
-   colour; the rule is decoration in the plate's metal (--plate: the metals come from the
-   palette, scripts/palette.ts PLATES, one step for all five per theme), worn in specks and
-   patches like the tiles' frames (art/plate-wear.webp, icons/make-plate-wear.mjs; a plain image
-   mask, which Firefox draws as crisply). */
+/* ---------- Name plates (plates.ts; the level's, earned, never bought) ---------- */
+/* A plate is an Art Deco frame round the name with the level in a medallion at its foot: one
+   object (ui-designer). Nine plates, levels 5 to 100, each its own idea (plates.ts TIERS); the
+   shape carries the tier, the colour its band: ink, steel, gilt, star, starfire (palette.ts
+   PLATE_BANDS), never the rank metals. The frame is decoration: see-through
+   (--plate-opacity), worn in specks like the tiles' frames (art/plate-wear.webp). The medallion
+   is text: opaque, never worn. */
 .name-plate {
+  --medal-d: calc(40px * var(--text-scale));
   position: relative;
   display: inline-block;
   max-width: 100%;
-  /* never narrower than the rule's own ends and centre */
-  min-width: calc(var(--plate-min) * var(--plate-zoom, 1));
-  /* the rule's band sits under the name, a little apart */
-  padding-bottom: calc(var(--plate-h) * var(--plate-zoom, 1) + var(--plate-gap, var(--space-1)));
+  padding: 8px 22px calc(var(--medal-d) / 2 + var(--space-2));
+  /* the medallion's lower half (and a hanging sun) below the frame */
+  margin-bottom: calc(var(--medal-d) / 2 + var(--space-1));
   text-align: center;
 }
-/* The rule grows with the name it sits under (--plate-zoom, half following Text size): drawn
-   for a Forge card's small name, larger under the Profile, Home and player card titles. */
-.plate-sample { --plate-zoom: calc(0.9 * (0.5 + 0.5 * var(--text-scale))); }
-.plate-sheet .plate-preview { --plate-zoom: calc(1.1 * (0.5 + 0.5 * var(--text-scale))); }
-.profile-plate,
-.profile-name,
-.card-name {
-  --plate-zoom: calc(1.15 * (0.5 + 0.5 * var(--text-scale)));
-  --plate-gap: var(--space-2);
-}
-/* a name as long as names may be (20 letters, no spaces) wraps above its rule */
+/* a name as long as names may be (20 letters, no spaces) wraps inside its plate */
 .name-plate .plate-text {
   white-space: normal;
   overflow-wrap: anywhere;
 }
-/* each plate: its metal, its band's height (plates.ts RULES h), its narrowest width (ends +
-   centre), and the height of its lines alone (leaderboard rows) */
-.plate-1 { --plate: var(--plate-bronze); --plate-h: 10px; --plate-min: 40px; --plate-rule: 7px; }
-.plate-2 { --plate: var(--plate-silver); --plate-h: 13px; --plate-min: 50px; --plate-rule: 8px; }
-.plate-3 { --plate: var(--plate-gold); --plate-h: 13px; --plate-min: 62px; --plate-rule: 8px; }
-.plate-4 { --plate: var(--plate-diamond); --plate-h: 16px; --plate-min: 70px; --plate-rule: 11px; }
-.plate-5 { --plate: var(--plate-elo); --plate-h: 20px; --plate-min: 80px; --plate-rule: 11px; }
-/* on a chosen card or your own leaderboard row: the chosen step (deeper on the light theme's green) */
-:is(.plate-card.state-yours, .lb-row.is-me) .plate-1 { --plate: var(--plate-bronze-chosen); }
-:is(.plate-card.state-yours, .lb-row.is-me) .plate-2 { --plate: var(--plate-silver-chosen); }
-:is(.plate-card.state-yours, .lb-row.is-me) .plate-3 { --plate: var(--plate-gold-chosen); }
-:is(.plate-card.state-yours, .lb-row.is-me) .plate-4 { --plate: var(--plate-diamond-chosen); }
-:is(.plate-card.state-yours, .lb-row.is-me) .plate-5 { --plate: var(--plate-elo-chosen); }
+/* a short name still gets a frame wide enough for its ornaments and its sun (rows have no medallion) */
+.name-plate.has-medal:not(.tier-0) {
+  min-width: calc(var(--medal-d) * 3);
+}
+/* the bare medallion (below level 5, or no plate worn): under the name, no frame */
+.name-plate.tier-0 {
+  padding: 0 0 calc(var(--medal-d) + var(--space-1));
+  margin-bottom: 0;
+}
+/* shaped ends (and a point's tips) reach out: room on the sides */
+.name-plate.has-end {
+  padding-inline: 34px;
+  margin-inline: 12px;
+}
+/* an ornament on top rises above the frame: room for it */
+.name-plate.has-top {
+  margin-top: 10px;
+}
+/* the crown rises higher (Starforged), and its three rings take a larger medallion */
+.name-plate.tier-9 {
+  --medal-d: calc(48px * var(--text-scale));
+  margin-top: 18px;
+}
+.plate-card .name-plate.tier-9 {
+  --medal-d: calc(40px * var(--text-scale));
+}
+
+/* the bands: one line colour each, a deeper step on a chosen card (the light theme's green) */
+.band-ink { --plate: var(--plate-ink); }
+.band-steel { --plate: var(--plate-steel); }
+.band-gilt { --plate: var(--plate-gilt); }
+.band-star { --plate: var(--plate-star); }
+.band-starfire { --plate: var(--plate-starfire); }
+.plate-card.state-yours .band-ink { --plate: var(--plate-ink-chosen); }
+.plate-card.state-yours .band-steel { --plate: var(--plate-steel-chosen); }
+.plate-card.state-yours .band-gilt { --plate: var(--plate-gilt-chosen); }
+.plate-card.state-yours .band-star { --plate: var(--plate-star-chosen); }
+.plate-card.state-yours .band-starfire { --plate: var(--plate-starfire-chosen); }
+
 .plate-frame {
   position: absolute;
-  /* see-through, so the rule sits back behind the name (decoration: the name is always written) */
-  opacity: var(--plate-opacity);
-  left: -16px;
-  right: -16px;
-  bottom: -16px;
-  padding: 16px;
+  inset: -24px -24px;
   color: var(--plate);
+  opacity: var(--plate-opacity);
   pointer-events: none;
-  /* worn, but never below 60% of the metal, so thin parallel lines don't break into dots */
-  -webkit-mask: url('../art/plate-wear.webp') 0 0 / 128px 128px repeat, linear-gradient(rgb(0 0 0 / 0.6) 0 0);
-  -webkit-mask-composite: source-over;
-  mask: url('../art/plate-wear.webp') 0 0 / 128px 128px repeat, linear-gradient(rgb(0 0 0 / 0.6) 0 0);
-  mask-composite: add;
+  /* worn in specks and patches, every plate alike (owner: grainy, just traces of metal) */
+  -webkit-mask: url('../art/plate-wear.webp') 0 0 / 128px 128px repeat;
+  mask: url('../art/plate-wear.webp') 0 0 / 128px 128px repeat;
 }
-/* end · lines · centre · lines · end, the centre always in the middle */
 .plate-box {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr) auto;
-  align-items: start;
-  height: calc(var(--plate-h) * var(--plate-zoom, 1));
+  --plate-line: 1.5px;
+  position: absolute;
+  inset: 24px;
+}
+/* the straight lines are inset shadows, not borders (Chrome rounds a 1.5px border down to 1px):
+   centred 0.5px (outer) and 3.5px (inner) in, as the ornaments are drawn */
+.plate-box::before,
+.plate-box::after {
+  content: '';
+  position: absolute;
+  inset: -0.25px;
+  box-shadow: inset 0 0 0 var(--plate-line) currentColor;
+}
+.plate-box::after {
+  inset: 2.75px;
+}
+/* one line on Riveted, two from Banded */
+.tier-1 .plate-box::after {
+  content: none;
+}
+/* bevelled corners: the lines are cut there (plates.ts CORNERS.bevel draws the edge) */
+.corner-bevel .plate-box::before {
+  --cut: 8px;
+}
+.corner-bevel .plate-box::after {
+  --cut: 6px;
+}
+.corner-bevel .plate-box::before,
+.corner-bevel .plate-box::after {
+  clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut)),
+    calc(100% - var(--cut)) 100%, var(--cut) 100%, 0 calc(100% - var(--cut)), 0 var(--cut));
+}
+/* shaped ends: the straight lines stop where the ends begin (26px in) */
+.has-end .plate-box::before,
+.has-end .plate-box::after {
+  left: 26px;
+  right: 26px;
+  box-shadow: inset 0 var(--plate-line) currentColor, inset 0 calc(-1 * var(--plate-line)) currentColor;
+}
+@media (forced-colors: active) {
+  .plate-box::before,
+  .plate-box::after {
+    box-shadow: none;
+    border: 1px solid CanvasText;
+  }
+  .has-end .plate-box::before,
+  .has-end .plate-box::after {
+    border-inline: 0;
+  }
+  /* drawn whole and solid: no see-through, no wear */
+  .plate-frame,
+  .medal-sun {
+    opacity: 1;
+    -webkit-mask: none;
+    mask: none;
+  }
 }
 .plate-box svg {
-  display: block;
+  position: absolute;
   overflow: visible;
   fill: none;
   stroke: currentColor;
@@ -77,71 +138,155 @@
   fill: currentColor;
   stroke: none;
 }
-/* (sizes set here too: other rules stretch icons to their box) the ends and the centre at their
-   drawn size, the lines across their column at the height they're drawn for */
-.plate-box svg:not(.plate-lines) {
-  width: auto;
-  height: calc(var(--plate-h) * var(--plate-zoom, 1));
-}
-.plate-box .plate-lines {
-  width: 100%;
-  height: calc(var(--plate-rule) * var(--plate-zoom, 1));
-  stroke-width: calc(1.5px * var(--plate-zoom, 1));
-  stroke-linecap: square;
-}
-.plate-box .e-r {
-  transform: scaleX(-1);
-}
-.plate-box .ring {
+.plate-box svg .ring {
   opacity: 0.6;
 }
-/* Starforged's glow (not on leaderboard rows: there it was one prestige mark too many, M31) */
-.plate-5:not(.lb-name) .plate-box {
+/* (sizes set here too: other rules stretch icons to their box) */
+.plate-box .plate-corner { width: 21px; height: 21px; }
+.plate-corner { top: -5px; left: -5px; }
+.plate-corner.c-tr { left: auto; right: -5px; transform: scaleX(-1); }
+.plate-corner.c-bl { top: auto; bottom: -5px; transform: scaleY(-1); }
+.plate-corner.c-br { top: auto; left: auto; bottom: -5px; right: -5px; transform: scale(-1); }
+/* on a tab end the corners are its shoulders, 8px in (plates.ts ENDS.tab) */
+.end-tab .plate-corner { left: 3px; }
+.end-tab .plate-corner:is(.c-tr, .c-br) { left: auto; right: 3px; }
+.plate-box .plate-side { width: 20px; height: 20px; top: calc(50% - 10px); left: -10px; }
+.plate-box .plate-side.s-r { left: auto; right: -10px; transform: scaleX(-1); }
+.plate-box .plate-end,
+.plate-box .plate-inner { left: 0; width: 26px; }
+.plate-box .plate-end { top: 0.5px; height: calc(100% - 1px); }
+.plate-box .plate-inner { top: 3.5px; height: calc(100% - 7px); }
+.plate-box .e-r { left: auto; right: 0; transform: scaleX(-1); }
+.plate-box .plate-tip { width: 21px; height: 14px; top: calc(50% - 7px); left: -13.5px; }
+.plate-box .plate-tip.t-r { left: auto; right: -13.5px; transform: scaleX(-1); }
+.plate-box .plate-crown { width: 44px; height: 22px; top: -21px; left: calc(50% - 22px); }
+.plate-box .plate-top { width: 44px; height: 20px; top: -11px; left: calc(50% - 22px); }
+/* the top bands glow (dark only: the token is transparent on light; never on rows) */
+:is(.band-star, .band-starfire):not(.lb-name) .plate-box {
   filter: drop-shadow(0 0 2px var(--plate-glow));
 }
-.plate-sheet,
-.mend-sheet {
+
+/* The medallion: the level on a disc set into the frame's foot, rings by tier; text, so opaque,
+   never worn and never glowing. */
+.plate-medal {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  display: grid;
+  place-items: center;
+  width: var(--medal-d);
+  height: var(--medal-d);
+  border-radius: 50%;
+  background: var(--medal-fill);
+  box-shadow: inset 0 0 0 1.5px var(--plate, var(--plate-ink));
+  transform: translate(-50%, 50%);
+  color: var(--medal-ink);
+}
+.plate-medal.rings-2 {
+  box-shadow: inset 0 0 0 1.5px var(--plate), inset 0 0 0 3.5px var(--medal-fill), inset 0 0 0 5px var(--plate);
+}
+.plate-medal.rings-3 {
+  box-shadow: inset 0 0 0 1.5px var(--plate), inset 0 0 0 3.5px var(--medal-fill), inset 0 0 0 5px var(--plate),
+    inset 0 0 0 7px var(--medal-fill), inset 0 0 0 8.5px var(--plate);
+}
+/* the bare medallion sits under the name rather than on a frame's line */
+.tier-0 > .plate-medal {
+  transform: translateX(-50%);
+}
+.medal-num {
+  position: relative;
+  font-family: var(--serif);
+  font-size: var(--fs-label);
+  font-weight: 400;
+  font-variant-numeric: lining-nums tabular-nums;
+  line-height: 1;
+  letter-spacing: 0;
+  /* the line trimmed to the figures' own height (lining figures: cap height to baseline), so the
+     disc centres the ink, not Federo's uneven ascent and descent */
+  text-box: trim-both cap alphabetic;
+}
+/* three and four figures step down so they sit inside the rings */
+.plate-medal[data-digits='3'] .medal-num { font-size: var(--fs-small); }
+.plate-medal[data-digits='4'] .medal-num { font-size: var(--fs-caption); }
+/* the hanging sun reaches a disc's width below its centre: room for it */
+.name-plate.has-sun {
+  margin-bottom: calc(var(--medal-d) + var(--space-1));
+}
+/* the hanging sun (Sunburst on): rays below the disc, in the band's metal */
+.medal-sun {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  /* twice the disc: the rays start just outside it (plates.ts rays from 13 of 24) */
+  width: calc(var(--medal-d) * 2);
+  height: calc(var(--medal-d) * 2);
+  transform: translate(-50%, -50%);
+  color: var(--plate);
+  opacity: var(--plate-opacity);
+  pointer-events: none;
+  -webkit-mask: url('../art/plate-wear.webp') 0 0 / 128px 128px repeat;
+  mask: url('../art/plate-wear.webp') 0 0 / 128px 128px repeat;
+}
+.medal-sun svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+}
+@media (forced-colors: active) {
+  .plate-medal {
+    border: 1.5px solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
+  }
+}
+
+/* Large text: the ornaments outside the frame give way to the name */
+html[data-large-text] .plate-box :is(.plate-tip, .plate-crown) {
+  display: none;
+}
+
+/* The Name plates page (Profile > Name plates, screens/plates.ts): the ladder by band, a card per
+   plate drawn round its own name. Collected plates are buttons that equip; locked ones are
+   blueprints (the outline in ink, no metal) with the level that brings them. */
+.plates-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: 6px 0 var(--space-5);
+}
+.plates-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
   text-align: center;
 }
-/* titles clear of the close button */
-.plate-sheet h2,
-.mend-sheet h2 {
-  padding: 0 44px;
+.plates-head .name-plate {
+  font-size: var(--fs-title);
+  font-weight: 800;
 }
-/* Name plates on the Forge page (forge.ts platesSection): a card per plate, the plate drawn
-   under its own name; the next one is a button, ready to get with an accent outline. */
-.forge-plates {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-.forge-plates .forge-heading-row {
-  margin-top: var(--space-3);
-}
-/* Spirits (forge.ts spiritsSection): how close the next one is, and Call a Spirit. */
-.forge-spirits {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-.forge-spirits .forge-heading-row {
-  margin-top: var(--space-3);
-}
-.forge-spirits .forge-subheading {
-  margin-top: var(--space-2);
+.plates-intro {
   font-family: var(--serif);
-  font-size: var(--fs-body);
-  font-weight: 400;
+  font-size: var(--fs-small);
   color: var(--muted);
 }
-.forge-spirits .btn {
-  align-self: flex-start;
+.plate-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
 }
-.sheet-icon.spirit {
-  background: var(--surface-2);
-  color: var(--text);
+.plate-group h2 {
+  font-size: var(--fs-body);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
-/* two columns on a phone, four when wide, Starforged across the row below; one column at large text */
 .plate-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -149,19 +294,20 @@
 }
 @media (min-width: 600px) {
   .plate-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 html[data-large-text] .plate-grid {
   grid-template-columns: 1fr;
 }
 .plate-card {
+  --medal-d: calc(32px * var(--text-scale));
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--space-1);
-  padding: var(--space-5) var(--space-2) var(--space-3);
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-3) var(--space-3);
   border: 0;
   border-radius: var(--radius-lg);
   background: var(--surface);
@@ -171,44 +317,146 @@ html[data-large-text] .plate-grid {
 }
 button.plate-card {
   cursor: var(--cursor-pointer);
-}
-/* the top plate gets the whole row */
-.plate-card-5 {
-  grid-column: 1 / -1;
-}
-/* every plate card you can tap (one you own to equip, the next to get) shares one edge */
-.plate-card:is(.state-ready, .state-owned) {
   box-shadow: inset 0 0 0 2px var(--field-border);
+}
+button.plate-card:active {
+  background: var(--surface-2);
 }
 .plate-card.state-yours {
   background: var(--chosen-bg);
+  --muted: var(--muted-chosen);
 }
-.plate-card.state-yours .part-state,
-.plate-card.state-owned .part-state,
-.plate-card.state-ready .part-state {
-  color: var(--text);
+/* the top plate across the row */
+.plate-card.tier-card-9 {
+  grid-column: 1 / -1;
+  padding-top: calc(var(--space-6) + 12px);
 }
-/* "Unequip plate" under the cards while one is equipped, or the line saying none is */
-.forge-plates .plate-none {
-  align-self: center;
-}
-/* the cards name the plate ("Bronze"), one word that shouldn't break; the sheet shows long player names */
-.plate-card .plate-sample .plate-text {
-  overflow-wrap: normal;
-}
-.plate-sample {
-  margin-bottom: var(--space-2);
+.plate-card .name-plate {
+  --medal-d: calc(32px * var(--text-scale));
   font-size: var(--fs-small);
   font-weight: 700;
+}
+.plate-card .name-plate .plate-text {
+  overflow-wrap: normal;
   white-space: nowrap;
 }
-.plate-price {
-  font-family: var(--serif);
+.plate-card .medal-num {
   font-size: var(--fs-small);
 }
-.plate-sheet .plate-preview {
-  align-self: center;
-  margin: var(--space-5) 0 var(--space-3);
+.plate-card .plate-medal[data-digits='3'] .medal-num {
+  font-size: var(--fs-caption);
+}
+/* a locked plate: the blueprint (every line in ink, solids drawn open, no wear, no glow) */
+.plate-card.is-blueprint .name-plate {
+  --plate: var(--level-line);
+}
+.plate-card.is-blueprint .plate-frame {
+  opacity: 1;
+  -webkit-mask: none;
+  mask: none;
+}
+.plate-card.is-blueprint .plate-box {
+  filter: none;
+}
+.plate-card.is-blueprint .plate-box svg .solid {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+}
+.plate-card.is-blueprint .medal-sun {
+  opacity: 1;
+  -webkit-mask: none;
+  mask: none;
+}
+.plate-state {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.plate-card.state-yours .plate-state,
+.plate-card.is-blueprint .plate-state {
+  font-weight: 700;
+  color: var(--text);
+}
+.plate-state svg {
+  width: 1.1em;
+  height: 1.1em;
+  flex: none;
+}
+.plate-card .xp-bar {
+  width: 80%;
+}
+.plate-next {
+  font-family: var(--serif);
+  font-size: var(--fs-caption);
+  color: var(--muted);
+}
+/* "New": an outlined chip, the word itself says it */
+.plate-new {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1.5px currentColor;
+  color: var(--text);
+  font-size: var(--fs-caption);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.plate-new svg {
+  width: 1.1em;
+  height: 1.1em;
+}
+
+/* The Profile's way in (plates.ts platesRow): "Name plates", New, and the count */
+.plates-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: min(100%, 16rem);
+}
+.plates-row-title {
+  font-weight: 700;
+}
+.plates-row-count {
+  margin-left: auto;
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+
+/* A new plate as the result's moment (result.ts plateCard): the plate round the player's name */
+.plate-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 2px var(--field-border);
+  text-align: center;
+}
+.plate-hero-title {
+  font-size: var(--fs-body);
+  font-weight: 800;
+}
+.plate-hero .name-plate {
+  margin-top: var(--space-3);
   font-size: var(--fs-label);
   font-weight: 800;
+}
+.plate-hero .name-plate.tier-9 {
+  margin-top: calc(var(--space-3) + 18px);
+}
+.plate-hero-line {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
 }

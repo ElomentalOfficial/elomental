@@ -135,10 +135,15 @@ for (const { id } of SWATCHES) {
  * the solid line: the wear mask takes specks out of it, not its colour.
  */
 const PLATE_SURFACES: [string, string, string?][] = [['page', '--bg'], ['surface', '--surface'], ['surface-2', '--surface-2'], ['profile', '--profile-bg'], ['modal', '--modal-bg']];
-for (const metal of ['bronze', 'silver', 'gold', 'diamond', 'elo']) {
-  for (const [n, t] of PLATE_SURFACES) PAIRS.push([`UI: ${metal} plate vs ${n}`, `--plate-${metal}`, t, 3, undefined, PLATE_OPACITY]);
-  PAIRS.push([`UI: ${metal} plate vs a chosen card`, `--plate-${metal}-chosen`, '--chosen-bg', 3, '--surface', PLATE_OPACITY]);
+const BANDS = ['ink', 'steel', 'gilt', 'star', 'starfire'];
+for (const band of BANDS) {
+  for (const [n, t] of PLATE_SURFACES) PAIRS.push([`UI: ${band} plate vs ${n}`, `--plate-${band}`, t, 3, undefined, PLATE_OPACITY]);
+  PAIRS.push([`UI: ${band} plate vs a chosen card`, `--plate-${band}-chosen`, '--chosen-bg', 3, '--surface', PLATE_OPACITY]);
 }
+// The plate's medallion is text: its number on its disc, and the disc's ring (each band's line,
+// solid, never worn) against it
+for (const [n, t] of PLATE_SURFACES) PAIRS.push([`Level number on its medallion (on ${n})`, '--medal-ink', '--medal-fill', 4.5, t]);
+for (const band of BANDS) PAIRS.push([`UI: ${band} medallion ring vs its disc`, `--plate-${band}`, '--medal-fill', 3]);
 // Ranked rank names (ranks.css): both ends of each rank's gradient are text, on every surface a
 // rank is written on, your own row and the Ranks sheet's chosen line included; the Ranks sheet's
 // share bar fills with the deeper end on its track
@@ -149,10 +154,11 @@ for (let i = 0; i < 5; i++) {
   }
   PAIRS.push([`UI: rank ${i} share bar vs its track`, `--rank-${i}-lo`, '--surface', 3]);
 }
-// the leaderboard's medals (and the top-100 underline) are the plate metals, checked above; on
-// your own row they take the chosen step too
-for (const metal of ['bronze', 'silver', 'gold'])
-  PAIRS.push([`UI: ${metal} medal on your row`, `--plate-${metal}-chosen`, '--chosen-bg', 3, '--surface']);
+// the leaderboard's medals (and the top-100 underline): on the list, and on your own row
+for (const metal of ['bronze', 'silver', 'gold']) {
+  for (const [n, t] of PLATE_SURFACES) PAIRS.push([`UI: ${metal} medal on ${n}`, `--medal-${metal}`, t, 3]);
+  PAIRS.push([`UI: ${metal} medal on your row`, `--medal-${metal}-chosen`, '--chosen-bg', 3, '--surface']);
+}
 
 /**
  * Pairs that may stay under their ratio, and why. Anything else failing is a regression. A key
@@ -179,9 +185,9 @@ for (const s of SWATCHES.filter((s) => !lightFill(s)))
 // Name plates are see-through (PLATE_OPACITY, owner 2026-10-21): measured as drawn, and allowed
 // under 3:1 there, since a plate is decoration under a name that is always written. (High
 // contrast draws them solid; measured at the same opacity here, so on the safe side.)
-for (const metal of ['bronze', 'silver', 'gold', 'diamond', 'elo'])
+for (const band of BANDS)
   for (const n of [...PLATE_SURFACES.map(([n]) => n), 'a chosen card'])
-    ACCEPTED[`UI: ${metal} plate vs ${n}`] = 'decoration under the name, which is always written; see-through by design';
+    ACCEPTED[`UI: ${band} plate vs ${n}`] = 'decoration round the name, which is always written; see-through by design';
 
 /** Why a pair may stay under its ratio in this theme, or undefined. */
 export const accepted = (theme: string, label: string): string | undefined => ACCEPTED[`${theme}: ${label}`] ?? ACCEPTED[label];

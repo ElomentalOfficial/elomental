@@ -9,7 +9,7 @@ import * as copy from '../copy/en.ts';
  * the reason to show.
  */
 
-export type DevAction = 'fill' | 'empty' | 'unlock_all' | 'clear_parts' | 'plate' | 'elo' | 'next_drop' | 'next_spirit' | 'forget_affinity';
+export type DevAction = 'fill' | 'empty' | 'unlock_all' | 'clear_parts' | 'level' | 'elo' | 'next_drop' | 'next_spirit' | 'forget_affinity';
 
 /** Show the dev tools: a founder with their code given this session, and dev mode on. */
 export const devOn = (): boolean => founderUnlocked() && !!cachedAccount()?.devMode;

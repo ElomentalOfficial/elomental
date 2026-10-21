@@ -29,9 +29,6 @@ export interface Part {
 export const FORGE_COST: Record<Rarity, number> = { common: 100, rare: 250, epic: 600, mythic: 1200 };
 /** Polish brings an avatar to life, once (polish_part): Stardust and a Spirit. */
 export const ALIVE_COST = 6000;
-/** Name plates Bronze, Silver, Gold, Diamond, Starforged (buy_plate), bought in order and kept. */
-export const PLATE_COST = [1000, 2500, 6000, 9000, 14000];
-export const MAX_PLATE = 5;
 /** A Spirit is guaranteed within this many counted solves (private.spirit_roll). */
 export const SPIRIT_GUARANTEE = 500;
 /** Call a Spirit (call_spirit): this, then CALL_STEP more for each one called this season. */
@@ -47,10 +44,6 @@ export interface Forge {
   /** Owned part ids (Happy always), with a first-edition number and polish (1: alive). */
   owned: Map<string, { edition: number | null; polish: number }>;
   polish: Polish;
-  /** Name plate worn: 0 none, 1 Bronze … 4 Diamond, 5 Starforged. */
-  plate: number;
-  /** Plates owned: every one up to this (they're bought in order). */
-  platesOwned: number;
   loadout: Loadout;
   stardust: number;
   spirits: number;
@@ -80,7 +73,7 @@ export async function loadForge(): Promise<Forge | null> {
     supabase.from('parts').select('id, slot, element, rarity, source'),
     supabase.from('player_parts').select('part_id, edition, polish'),
     supabase.from('avatar_loadouts').select('avatar, frame').maybeSingle(),
-    supabase.from('profiles').select('stardust, spirits, affinity, plate, plates_owned, spirit_pity, spirits_called, spirits_called_season').eq('id', uid).single(),
+    supabase.from('profiles').select('stardust, spirits, affinity, spirit_pity, spirits_called, spirits_called_season').eq('id', uid).single(),
     supabase.from('seasons').select('id, ends_at').lte('starts_at', now).gt('ends_at', now).maybeSingle(),
   ]);
   if (parts.error || owned.error || profile.error) return null;
@@ -93,8 +86,6 @@ export async function loadForge(): Promise<Forge | null> {
     parts: (parts.data ?? []) as Part[],
     owned: new Map([[DEFAULT_AVATAR, { edition: null, polish: 0 }], ...(owned.data ?? []).map((o) => [o.part_id as string, { edition: o.edition ?? null, polish: o.polish ?? 0 }] as const)]),
     polish,
-    plate: profile.data.plate ?? 0,
-    platesOwned: profile.data.plates_owned ?? profile.data.plate ?? 0,
     loadout: (loadout.data ?? {}) as Loadout,
     stardust: profile.data.stardust,
     spirits: profile.data.spirits,
@@ -117,9 +108,7 @@ export const equipPart = (slot: Slot, part: string | null) => call('equip_part',
 export const polishPart = (part: string) => call('polish_part', { p_part: part });
 /** Calls a Spirit for Stardust (call_spirit): the price is checked on the server. */
 export const callSpirit = () => call('call_spirit', {});
-/** Buys plate n, the next one (a repeated tap can't buy two), and wears it. */
-export const buyPlate = (n: number) => call('buy_plate', { p_plate: n });
-/** Wears plate n (0: none), any you own. */
+/** Equips name plate n (0: none), any the level has unlocked (level_plates). */
 export const wearPlate = (n: number) => call('wear_plate', { p_plate: n });
 /**
  * Fills in a missed Daily Square this month (YYYY-MM-DD) for MEND_COST Stardust. `badge` is

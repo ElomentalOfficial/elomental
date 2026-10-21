@@ -502,6 +502,23 @@ html[data-large-text] .profile-stats.two {
   .stat-chip .stat-icon {
     display: none;
   }
+  /* the name's plate a size down, so the rank under it stays in the card */
+  .profile-card .name-plate {
+    --medal-d: calc(30px * var(--text-scale));
+    padding-top: var(--space-1);
+    padding-bottom: calc(var(--medal-d) / 2 + var(--space-1));
+    margin-bottom: calc(var(--medal-d) / 2);
+    line-height: 1.1;
+  }
+  .profile-card .profile-name {
+    font-size: var(--fs-label);
+  }
+  .profile-card .name-plate.has-end {
+    margin-inline: var(--space-1);
+  }
+  .profile-card .name-plate.tier-9 {
+    --medal-d: calc(36px * var(--text-scale));
+  }
 }
 .stat-chip {
   display: flex;

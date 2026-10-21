@@ -7,6 +7,7 @@ import type { ClashResult } from '../clash.ts';
 import { clashTable, clashVerdict, shareButton } from '../clashView.ts';
 import { ICONS } from '../icons.ts';
 import { rankName } from '../rankName.ts';
+import { paintPlate } from '../plates.ts';
 import { addToHomeResultNote } from '../install.ts';
 import { TECHNIQUE_BY_ID } from '@elomental/engine';
 import { dailyGoal, nextRank, parMs, promoted, rankTier, type Outcome } from '../profile.ts';
@@ -142,14 +143,16 @@ export function showResult(game: SavedGame, won: boolean, reason: FinishReason, 
     if (outcome.daily.badgeNew && outcome.daily.badge) rows.push(h('p', { class: 'note good', text: copy.result.monthBadgeEarned(badgeMonth(outcome.daily.badge)) }));
   }
 
-  // One moment per result, never a chain (ux-reviewer): a promotion, else a Spirit, else an
-  // Epic or Mythic part, else the level reached, else any part, else the month's badge. The
-  // others shrink to a line: a Spirit to "+1 Spirit" on the strip, a part to a compact row,
-  // a level to its bar.
+  // One moment per result, never a chain (ux-reviewer): a promotion, else a Spirit, else a new
+  // name plate, else an Epic or Mythic part, else the level reached, else any part, else the
+  // month's badge. The others shrink to a line: a Spirit to "+1 Spirit" on the strip, a plate
+  // to a line in the stats, a part to a compact row, a level to its bar.
   const part = outcome.drop;
   const bigPart = !!part && (part.rarity === 'epic' || part.rarity === 'mythic');
+  const plate = outcome.xp?.plate ?? null;
   const hero = promotedNow ? 'promotion'
     : outcome.spirit ? 'spirit'
+    : plate ? 'plate'
     : bigPart ? 'part'
     : outcome.xp?.levelUp ? 'level'
     : part ? 'part'
@@ -167,6 +170,8 @@ export function showResult(game: SavedGame, won: boolean, reason: FinishReason, 
   if (outcome.influence) rewards.append(influenceLine(outcome.influence));
   // the day's limits, said once a day (the strip after that just shows what it pays)
   const caps = capLines(outcome);
+  // a plate a bigger moment outranked is one line in the stats
+  if (plate && hero !== 'plate') rows.push(h('p', { class: 'note good', text: copy.plates.newShort(copy.plates.names[plate]) }));
 
   // A failed Daily can be retried (same square) until it's solved; only a solve marks the day.
   const retryDaily = config.mode === 'daily' && !won;
@@ -195,6 +200,7 @@ export function showResult(game: SavedGame, won: boolean, reason: FinishReason, 
       // the moment: a Spirit's card, or a part cooling out of the forge (full when it's the
       // moment, a compact row when a bigger one holds the card)
       hero === 'spirit' ? spiritCard() : null,
+      hero === 'plate' && outcome.xp ? plateCard(plate!, outcome.xp.level, !!outcome.xp.plateEquipped) : null,
       part ? dropReveal(part, () => void goBack(forgeScreen), hero !== 'part') : null,
       rewards.childElementCount ? rewards : null,
       ...caps,
@@ -301,6 +307,23 @@ function spiritCard(): HTMLElement {
     { class: 'spirit-hero', attrs: { role: 'group', 'aria-label': `${copy.spiritHero.title} ${copy.spiritHero.text}` } },
     h('span', { class: 'spirit-art', html: ICONS.spirit, attrs: { 'aria-hidden': 'true' } }),
     h('span', { class: 'spirit-text', attrs: { 'aria-hidden': 'true' } }, h('strong', { text: copy.spiritHero.title }), h('span', { text: copy.spiritHero.text })),
+  );
+}
+
+/** A plate the level brought: drawn round the player's own name, with the level in its medallion. */
+function plateCard(plate: number, level: number, equipped: boolean): HTMLElement {
+  const name = copy.plates.names[plate];
+  const sample = h('span', { class: 'plate-hero-sample' });
+  paintPlate(sample, cachedAccount()?.name ?? name, plate, level);
+  return h(
+    'div',
+    { class: 'plate-hero', attrs: { role: 'group', 'aria-label': copy.plates.a11yNew(name, level, equipped) } },
+    h('strong', { class: 'plate-hero-title', text: copy.plates.newTitle, attrs: { 'aria-hidden': 'true' } }),
+    h('span', { attrs: { 'aria-hidden': 'true' } }, sample),
+    h('span', { class: 'plate-hero-line', text: copy.plates.newLine(name, level), attrs: { 'aria-hidden': 'true' } }),
+    equipped
+      ? h('span', { class: 'tag plate-new', html: `${ICONS.check}<span>${copy.plates.newEquipped}</span>`, attrs: { 'aria-hidden': 'true' } })
+      : h('span', { class: 'note', text: copy.plates.newElsewhere, attrs: { 'aria-hidden': 'true' } }),
   );
 }
 

@@ -1,5 +1,5 @@
 // Account level (account_level, level_plates): XP for every rated win, no daily cap; L to L+1 costs
-// min(20 x L, 2000); a name plate at levels 5, 10 … 500, equipped on unlock when the newest was worn.
+// min(20 x L, 2000); a name plate at levels 5, 10 … 100 (nine for now), equipped on unlock when the newest was worn.
 import { db, as, check, newPlayer, play, one, old, today, day } from './harness.mjs';
 
 export default async function () {
@@ -16,8 +16,8 @@ export default async function () {
   check(JSON.stringify(at.map((r) => [r.level, r.into_level, r.need])) ===
     JSON.stringify([[1, 0, 20], [1, 19, 20], [2, 0, 40], [2, 39, 40], [3, 0, 60], [99, 1979, 1980], [100, 0, 2000], [101, 0, 2000], [500, 0, 2000]]),
     `the curve: min(20 x L, 2000) XP a level (${JSON.stringify(at)})`);
-  const plates = (await one(`select json_agg(private.plates_at(l) order by o) j from unnest(array[1, 4, 5, 14, 15, 99, 100, 499, 500, 5000]) with ordinality u (l, o)`)).j;
-  check(JSON.stringify(plates) === JSON.stringify([0, 0, 1, 2, 3, 6, 7, 11, 12, 12]), `12 plates, at levels 5, 10 … 500 (${plates})`);
+  const plates = (await one(`select json_agg(private.plates_at(l) order by o) j from unnest(array[1, 4, 5, 14, 15, 34, 35, 99, 100, 5000]) with ordinality u (l, o)`)).j;
+  check(JSON.stringify(plates) === JSON.stringify([0, 0, 1, 2, 3, 4, 5, 8, 9, 9]), `9 plates, at levels 5, 10 … 100 (${plates})`);
 
   // --- XP by mode, on a win
   const x = await newPlayer();
@@ -83,8 +83,8 @@ export default async function () {
     `wear any plate the level has unlocked, none beyond (${perr})`);
   const noPlate = await paced(pl, 'casual', 'easy');
   check(noPlate.xp.plate === null, `a win that unlocks nothing names no plate (${noPlate.xp.plate})`);
-  perr = null; try { await db.exec(`update public.profiles set plate = 13 where id = '${pl}'`); } catch (e) { perr = e.message; }
-  check(perr?.includes('profiles_plate_check'), 'plates stop at 12');
+  perr = null; try { await db.exec(`update public.profiles set plate = 10 where id = '${pl}'`); } catch (e) { perr = e.message; }
+  check(perr?.includes('profiles_plate_check'), 'plates stop at 9');
   const buyGone = (await one(`select count(*)::int n from pg_proc where proname = 'buy_plate'`)).n;
   check(buyGone === 0, 'plates can no longer be bought');
   // the refund: every plate bought before, back in full and in the ledger

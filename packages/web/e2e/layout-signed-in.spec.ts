@@ -61,7 +61,10 @@ for (const device of PHONES_AND_TABLETS) {
       await expect(page.locator('.part-card').first()).toBeVisible();
       found.push(...(await problems(page, 'Forge')));
       await sheet(page, () => page.locator('.part-card').first().click(), 'Part sheet', found);
-      await sheet(page, () => page.locator('.plate-card-4').click(), 'Plate sheet', found);
+      await page.getByRole('button', { name: 'Back', exact: true }).click();
+      await page.locator('.plates-row').click();
+      await expect(page.locator('.plate-card').first()).toBeVisible();
+      found.push(...(await problems(page, 'Name plates')));
       await home(page);
 
       await page.locator('.tile.area-leader').click();
@@ -102,6 +105,10 @@ test('the signed-in screens pass axe', async ({ page }) => {
   await page.locator('.profile-forge').click();
   await expect(page.locator('.part-card').first()).toBeVisible();
   await check('Forge');
+  await page.getByRole('button', { name: 'Back', exact: true }).click();
+  await page.locator('.plates-row').click();
+  await expect(page.locator('.plate-card').first()).toBeVisible();
+  await check('Name plates');
   await home(page);
   await page.locator('.tile.area-leader').click();
   await expect(page.locator('.lb-row-btn').first()).toBeVisible();
@@ -118,8 +125,8 @@ test('Home: the name and rank only, Spirits only once there is one, the Store st
   await expect(page.locator('.tile.area-casual')).toBeVisible();
   // 930 Elo: the rank under the name, and no next-step line under it (owner, 2026-10-21)
   await expect(page.locator('.profile-rank .rank-name')).toHaveText('Adept');
-  // and the account level beside it (340 XP: level 4), read as one literal name
-  await expect(page.locator('.profile-rank .level-badge')).toHaveAccessibleName('Level 4');
+  // and the account level in the plate's medallion (1200 XP: level 11), one literal name
+  await expect(page.locator('.plate-medal').first()).toHaveAccessibleName('Level 11');
   await expect(page.locator('.home-line')).toHaveCount(0);
   // the fixture has 1 Spirit: three chips, the numbers on one line
   await expect(page.locator('.stat-chip:visible')).toHaveCount(3);

@@ -60,8 +60,8 @@ export default async function () {
   await db.query(`select public.dev_action('elo', '1500')`);
   await db.query(`select public.dev_action('level', '100')`);
   const set = (await db.query(`select elo, rank_tier, plate, xp from public.profiles where id = $1`, [fo])).rows[0];
-  check(set.elo === 1500 && set.rank_tier === 4 && set.xp === 99000 && set.plate === 7,
-    `set Elo (and its rank), and a level (its XP, its newest plate: 7 at level 100) (${JSON.stringify(set)})`);
+  check(set.elo === 1500 && set.rank_tier === 4 && set.xp === 99000 && set.plate === 9,
+    `set Elo (and its rank), and a level (its XP, its newest plate: 9 at level 100) (${JSON.stringify(set)})`);
   await db.query(`select public.dev_action('clear_parts')`);
   const none = (await db.query(`select count(*)::int n from public.player_parts where player_id = $1`, [fo])).rows[0].n;
   check(none === 0, 'remove every part');

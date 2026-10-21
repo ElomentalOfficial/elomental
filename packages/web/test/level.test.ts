@@ -1,31 +1,38 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
-import { solveXp, xpLevel } from '../src/xp.ts';
+import { PLATE_LEVELS, platesAt, solveXp, xpLevel, xpTotal } from '../src/xp.ts';
 
-test('the level curve: 50 x L XP from level L to L+1, no top level', () => {
+test('the level curve: min(20 x L, 2000) XP from level L to L+1, no top level', () => {
   const at = (t: number) => { const l = xpLevel(t); return [l.level, l.into, l.need]; };
-  assert.deepEqual(at(0), [1, 0, 50]);
-  assert.deepEqual(at(49), [1, 49, 50]);
-  assert.deepEqual(at(50), [2, 0, 100]);
-  assert.deepEqual(at(150), [3, 0, 150]);
-  // level 98 starts at 25 x 98 x 97 = 237,650; level 99 at 242,550
-  assert.deepEqual(at(242_549), [98, 4899, 4900]);
-  assert.deepEqual(at(242_550), [99, 0, 4950]);
-  // level 632 starts at 9,969,800
-  assert.deepEqual(at(10_000_000), [632, 30_200, 31_600]);
-  // every step costs exactly 50 x L
-  for (let l = 1; l < 300; l++) assert.equal(xpLevel(25 * l * (l - 1)).level, l);
+  assert.deepEqual(at(0), [1, 0, 20]);
+  assert.deepEqual(at(19), [1, 19, 20]);
+  assert.deepEqual(at(20), [2, 0, 40]);
+  assert.deepEqual(at(60), [3, 0, 60]);
+  // level 99 starts at 97,020; level 100 at 99,000; then 2,000 a level
+  assert.deepEqual(at(98_999), [99, 1979, 1980]);
+  assert.deepEqual(at(99_000), [100, 0, 2000]);
+  assert.deepEqual(at(899_000), [500, 0, 2000]);
+  for (let l = 1; l < 700; l++) assert.equal(xpLevel(xpTotal(l)).level, l);
 });
 
-test('XP per win matches the server (migration account_level)', () => {
+test('plates come at levels 5, 10 … 100, nine of them for now', () => {
+  assert.equal(PLATE_LEVELS.length, 9);
+  assert.deepEqual([1, 4, 5, 14, 15, 34, 35, 99, 100, 5000].map(platesAt), [0, 0, 1, 2, 3, 4, 5, 8, 9, 9]);
+});
+
+test('XP and plates match the server (migrations account_level, level_plates)', () => {
   assert.deepEqual(
     [solveXp('casual', 'easy'), solveXp('casual', 'medium'), solveXp('casual', 'hard'), solveXp('clash', 'medium'), solveXp('daily', 'medium'), solveXp('ranked', 'medium')],
     [10, 20, 30, 20, 30, 40],
   );
   const dir = new URL('../../../supabase/migrations/', import.meta.url);
-  const sql = readFileSync(new URL(readdirSync(dir).find((f) => f.endsWith('_account_level.sql'))!, dir), 'utf8');
-  assert.match(sql, /when 'daily' then 30 when 'ranked' then 40/);
-  assert.match(sql, /when 'easy' then 10 when 'medium' then 20 else 30/);
-  assert.match(sql, /need := 50 \* level;/);
+  const read = (end: string) => readFileSync(new URL(readdirSync(dir).find((f) => f.endsWith(end))!, dir), 'utf8');
+  const level = read('_account_level.sql');
+  assert.match(level, /when 'daily' then 30 when 'ranked' then 40/);
+  assert.match(level, /when 'easy' then 10 when 'medium' then 20 else 30/);
+  const plates = read('_level_plates.sql');
+  assert.match(plates, /when l <= 100 then 10 \* l \* \(l - 1\) else 99000 \+ 2000 \* \(l - 100\)/);
+  assert.match(plates, /need := least\(20 \* level, 2000\);/);
+  assert.ok(plates.includes(`array[${PLATE_LEVELS.join(', ')}]`), 'the same plate levels');
 });

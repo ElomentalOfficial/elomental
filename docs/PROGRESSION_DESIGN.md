@@ -14,15 +14,25 @@ leaderboards. Status: **proposal, not built**. Numbers come from a season simula
   every rated win pays XP with **no daily cap** (the owner's call: it keeps players coming back).
   Easy 10, Medium 20, Hard 30 (Casual, Clash, square codes by difficulty), the Daily 30,
   Ranked 40. Losses, forfeits and unrated wins pay none; nothing is taken away.
-- **The curve:** from level L to L+1 costs 50 x L XP, no top level. Rough year one: casual
-  (~100 XP a day) level ~38, regular (~375) ~74, heavy (~1,000) ~121; every session moves the bar.
+- **The curve (level_plates):** from level L to L+1 costs min(20 x L, 2000) XP, no top level
+  (was 50 x L in account_level). Total to reach L: 10L(L-1) to level 100 (99,000), then 2,000 a
+  level; level 500 is 899,000 XP.
 - **Status only:** never spent (not a currency), never a Ranked edge, no Stardust per level, and
-  never on the leaderboard. A level badge in ink (never a metal) beside the rank on Home, the
-  Profile (with its bar) and the player card. Milestone frames around the level (10, 25, 50,
-  100, 200) are the next phase.
+  never on the leaderboard as a number.
+- **Name plates come with the level (level_plates, owner):** no longer bought. Nine plates for
+  now, level 100 the top (owner: the fancy ones within reach; plates past 100 can come later):
+  levels 5, 10, 15, 25, 35, 50, 65, 80 and 100: Riveted (ink; the first plates' Bronze), Banded
+  (steel; their Silver), Cartouche (steel), Fanlight (gilt; their Gold), Colonnade, Sunburst
+  (gilt), Jewelled, Winged (star), Starforged (starfire). Below level 5 (or Blank equipped) the level stands alone
+  in its medallion. A plate is an Art Deco frame round the name with the level in a medallion at
+  its foot, each plate its own idea after the owner's references, richer up the ladder. Every
+  plate is kept; Profile > Name plates holds them all and equips any (`wear_plate`). A new plate
+  is equipped by itself only when the player was wearing their newest. Leaderboard rows show the
+  band as a rule under the name (no frame, no level). Stardust spent on the old bought plates
+  was refunded (ledger 'plate_refund'). The Stardust sink they were is parked (owner: later).
 - **The result, simplified:** one moment per result (a promotion, else a Spirit with its own
-  card, else an Epic or Mythic part, else the level reached, else any part, else the month's
-  badge), the rest a line each; the rewards one row of chips; the level the result's one bar
+  card, else a new name plate, else an Epic or Mythic part, else the level reached, else any
+  part, else the month's badge), the rest a line each; the rewards one row of chips; the level the result's one bar
   ("19 Elo to Apprentice" is words under the Elo, the rank bar on the Profile). Gone from the
   result: the next-part counter, the "Epic within N" line, the key step on wins, and the day's
   cap lines after the first each day.
@@ -54,9 +64,8 @@ it replaces the material-based design in §2, §3.2–3.3, §4.2–4.3, §9–11
   life around day 40 (worst 10%: day 56). **Call a Spirit** for Stardust: 15,000, then 5,000 more for each
   one called this season, only while an owned avatar has no Spirit to wake it.
 - **Stardust sinks, all a look or a convenience:** bring an avatar to life once (6000 Stardust
-  and a Spirit); name plates Bronze, Silver, Gold, Diamond, Starforged (1000/2500/6000/9000/14000,
-  in order, drawn as an Art Deco rule under the name; Diamond added 2026-10-21, Starforged was
-  12000 and "Elomentalist" until the Elomental rank);
+  and a Spirit); (name plates were bought here until level_plates: they now come with the
+  account level, above);
   fill in a missed Daily this month (300, up to 3 a month); Call a Spirit.
 - **Ranked ladder (`ranked_ladder`, 2026-10-21; design and simulation in
   `docs/review/elo-ladder-2026-10-21-economy.md` and `-ux.md`):** five ranks, names only:
