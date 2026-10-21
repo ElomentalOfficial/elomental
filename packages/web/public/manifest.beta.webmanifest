@@ -1,0 +1,16 @@
+{
+  "name": "Elomental Beta",
+  "short_name": "Elo Beta",
+  "description": "Elomental's test site: changes are tried here before they reach the game.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#262721",
+  "icons": [
+    { "src": "beta/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "beta/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "beta/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "beta/apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }
+  ]
+}
