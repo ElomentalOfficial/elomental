@@ -53,7 +53,12 @@ for (const f of files) {
     old.veteranXp = (await db.query(`insert into auth.users default values returning id`)).rows[0].id;
     await db.query(`insert into public.games (user_id, mode, difficulty, seed, rating, started_at, finished_at, won) values
       ($1, 'casual', 'medium', 's', 400, now() - interval '2 days', now() - interval '2 days' + interval '10 minutes', true),
-      ($1, 'ranked', 'hard', 's', 400, now() - interval '1 day', now() - interval '1 day' + interval '10 minutes', false)`, [old.veteranXp]);
+      ($1, 'ranked', 'hard', 's', 400, now() - interval '1 day', now() - interval '1 day' + interval '10 minutes', false),
+      -- a Ranked win with no solve audit (unrated) and a flagged Casual win: no XP either
+      ($1, 'ranked', 'hard', 's', 400, now() - interval '3 days', now() - interval '3 days' + interval '10 minutes', true),
+      ($1, 'casual', 'hard', 'flagged', 400, now() - interval '4 days', now() - interval '4 days' + interval '10 minutes', true)`, [old.veteranXp]);
+    await db.query(`insert into private.review_flags (user_id, game_id, reason)
+      select user_id, id, 'too_quick' from public.games where user_id = $1 and seed = 'flagged'`, [old.veteranXp]);
   }
   if (f === DIAMOND) {
     old.starforged = (await db.query(`insert into auth.users default values returning id`)).rows[0].id;

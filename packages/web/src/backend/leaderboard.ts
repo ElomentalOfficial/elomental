@@ -80,6 +80,8 @@ export interface SearchHit {
 }
 
 export interface PlayerCard {
+  /** The account level (account_level; missing before it). */
+  level?: number;
   missing?: boolean;
   hidden?: boolean;
   id: string;

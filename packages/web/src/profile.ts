@@ -3,6 +3,7 @@ import { cachedAccount } from './backend.ts';
 import { readJson, writeJson } from './storage.ts';
 import * as copy from './copy/en.ts';
 import { PROTECTED_BELOW, along, eloDelta, rankedOpponent } from './elo.ts';
+import type { XpGain } from './level.ts';
 
 /**
  * Player progress. With an account (guests get an anonymous one), every
@@ -273,6 +274,8 @@ export interface Outcome {
   partsCapped?: boolean;
   /** Casual/Clash past the first 20 solves of the day pay 1 Stardust (server only). */
   dustCapped?: boolean;
+  /** XP from a win, and the level it leaves (server only; level.ts). */
+  xp?: XpGain;
 }
 
 /** Why a Ranked win earned no Elo (finish_game): see copy.result.unrated. */

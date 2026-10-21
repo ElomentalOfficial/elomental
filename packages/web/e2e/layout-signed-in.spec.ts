@@ -117,7 +117,9 @@ test('Home: the name and rank only, Spirits only once there is one, the Store st
   await open(page, 100);
   await expect(page.locator('.tile.area-casual')).toBeVisible();
   // 930 Elo: the rank under the name, and no next-step line under it (owner, 2026-10-21)
-  await expect(page.locator('.profile-rank')).toHaveText('Adept');
+  await expect(page.locator('.profile-rank .rank-name')).toHaveText('Adept');
+  // and the account level beside it (340 XP: level 4), read as one literal name
+  await expect(page.locator('.profile-rank .level-badge')).toHaveAccessibleName('Level 4');
   await expect(page.locator('.home-line')).toHaveCount(0);
   // the fixture has 1 Spirit: three chips, the numbers on one line
   await expect(page.locator('.stat-chip:visible')).toHaveCount(3);

@@ -1,5 +1,6 @@
 import type { Difficulty, Move } from '@elomental/engine';
 import type { DailyMonth, Drop, Element, Mode, Outcome, Unrated } from '../profile.ts';
+import type { XpGain } from '../level.ts';
 import { refreshAccount } from './account.ts';
 import { knownError, supabase } from './client.ts';
 import * as copy from '../copy/en.ts';
@@ -152,6 +153,7 @@ export async function finishServerGame(input: {
     influence?: { affinity: Element; amount: number } | null;
     partsCapped?: boolean;
     dustCapped?: boolean;
+    xp?: XpGain | null;
   };
   void refreshAccount();
   return {
@@ -166,6 +168,7 @@ export async function finishServerGame(input: {
       influence: d.influence ?? undefined,
       partsCapped: !!d.partsCapped,
       dustCapped: !!d.dustCapped,
+      xp: d.xp ?? undefined,
     },
   };
 }

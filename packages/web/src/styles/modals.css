@@ -282,17 +282,28 @@ html[data-reduce-motion] .sword-live .sword-flame {
   align-items: center;
   gap: var(--space-2) var(--space-4);
 }
-.reward {
-  display: flex;
+/* each earning a chip (Stardust, a Spirit, influence): one treatment for the set, in the text
+   colour (the screen's one accent is its main button) */
+.reward,
+.rewards .influence-line {
+  display: inline-flex;
   align-items: center;
-  gap: 10px;
-  font-size: var(--fs-body);
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: var(--fs-small);
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
-.reward svg {
-  width: calc(24px * var(--text-scale));
-  height: calc(24px * var(--text-scale));
-  color: var(--accent);
+.reward svg,
+.rewards .influence-line svg {
+  width: 1.25em;
+  height: 1.25em;
+  color: var(--text);
   flex: none;
 }
 /* The avatar (avatar.ts): one whole picture in its frame. A frame's --el is its element's

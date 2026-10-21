@@ -76,6 +76,15 @@
   --avatar-bg: var(--c-highlight);
   --avatar-ring: rgba(255, 255, 229, 0.14);
   --bar-bg: var(--c-highlight-2);
+  /* The account level (level.css): in ink, never a metal, in both themes (these follow
+     --muted and --text, which each theme sets). One bar style for the set. */
+  --level-line: var(--muted);
+  --level-ink: var(--text);
+  --xp-fill: var(--text);
+  --bar-h: 6px;
+  --bar-r: 3px;
+  --dur-fill: 700ms;
+  --ease-fill: cubic-bezier(0.33, 1, 0.68, 1);
   --cell: var(--c-highlight-2);
   /* The selected cell's row and column. */
   --cell-cross: var(--c-lava-highlight);
@@ -164,6 +173,10 @@
   --avatar-bg: var(--c-bright);
   --avatar-ring: var(--c-mud);
   --bar-bg: var(--c-mud);
+  /* the account level, as in the dark theme */
+  --level-line: var(--muted);
+  --level-ink: var(--text);
+  --xp-fill: var(--text);
   --cell: var(--c-mud);
   /* The selected cell's row and column. */
   --cell-cross: var(--c-forest-highlight);

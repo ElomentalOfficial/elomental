@@ -117,6 +117,7 @@ One name per concept. Player-facing text uses exactly these.
 | Difficulty (Casual, Clash) | **Easy**, **Medium**, **Hard** | Beginner, Expert | Ranked has no difficulty label: it uses Elo. |
 | Player strength | **Elo** | elo, ELO, MMR, score | Always capital E. |
 | Puzzle strength | **rating** | difficulty score, level | "rated 1840". |
+| Account progress (permanent, never reset) | **Level** and **XP**: "Level 12", "+40 XP", "340 XP to level 13", "Level 13 reached" | experience, account rank, Forge level, smith rank, "level up" | Reach a level, never "level up". Level is never a rank (Novice to Elomental) or a square's rating. |
 | Ranks | **Novice**, **Apprentice**, **Adept**, **Archmage**, **Elomental** (the top) | divisions (Adept II), Elementalist | Names only, shown under the name. A step up is **Promoted: Archmage**. **Elomental** is a rank only when it names one ("Promoted: Elomental", "Elomental rank"); never a word for a player ("an Elomental"), so it never reads as the app's name. |
 | Currency | **Stardust** | dust, coins, points | |
 | Social | **Follow** / **Following**; the list is **Friends** | add friend, friend request, subscribe | One-way; nothing to accept. |

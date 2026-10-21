@@ -9,9 +9,9 @@ import { ICONS } from '../icons.ts';
 import { rankName } from '../rankName.ts';
 import { addToHomeResultNote } from '../install.ts';
 import { TECHNIQUE_BY_ID } from '@elomental/engine';
-import { dailyGoal, parMs, promoted, rankTier, type Outcome } from '../profile.ts';
-import { rankProgress } from '../rankBar.ts';
-import { dropReveal, influenceLine, progressLine } from '../reward.ts';
+import { dailyGoal, nextRank, parMs, promoted, rankTier, type Outcome } from '../profile.ts';
+import { xpRow } from '../level.ts';
+import { dropReveal, influenceLine } from '../reward.ts';
 import { readJson, writeJson } from '../storage.ts';
 import { formatTime, goBack, h, openModal } from '../ui.ts';
 import { affinityScreen } from './affinity.ts';
@@ -91,20 +91,24 @@ export function showResult(game: SavedGame, won: boolean, reason: FinishReason, 
   let promotedNow = false;
   if (outcome.elo) {
     const delta = outcome.elo.after - outcome.elo.before;
-    const eloRow = statRow(copy.result.elo, copy.result.eloChange(outcome.elo.before, outcome.elo.after), delta > 0 ? 'good' : '');
+    // (in the text colour: the screen's one accent is its main button; the + says it's a gain)
+    const eloRow = statRow(copy.result.elo, copy.result.eloChange(outcome.elo.before, outcome.elo.after));
     // The new rating counts up from the old one.
     countUp(eloRow.querySelector('strong')!, outcome.elo.before, outcome.elo.after, (n) => copy.result.eloChange(outcome.elo!.before, n, delta));
-    // a speed bonus is a small line inside the Elo row, not a block of its own; cuts (a slow
-    // solve, hints) are said there too, never applied in silence
-    const sub = (text: string, cls = 'stat-sub') => eloRow.append(h('span', { class: cls, text }));
+    // a speed bonus or a cut (a slow solve, hints) is a small line inside the Elo row, never
+    // applied in silence; then how far the next rank is, as words (the bar lives on the
+    // Profile: the result has one bar, the level's)
+    const sub = (text: string) => eloRow.append(h('span', { class: 'stat-sub plain', text }));
     if (!outcome.elo.unrated && outcome.elo.bonus > 0) sub(copy.result.speedBonus(Math.round(outcome.elo.bonus * 100)));
-    else if (!outcome.elo.unrated && outcome.elo.bonus < 0) sub(copy.result.slowCut(Math.round((2 * parMs(config.target ?? config.rating)) / 60_000)), 'stat-sub plain');
-    if (!outcome.elo.unrated && outcome.elo.hintCut > 0) sub(copy.game.hintEloCut(Math.round(outcome.elo.hintCut * 100)), 'stat-sub plain');
-    rows.push(eloRow);
+    else if (!outcome.elo.unrated && outcome.elo.bonus < 0) sub(copy.result.slowCut(Math.round((2 * parMs(config.target ?? config.rating)) / 60_000)));
+    if (!outcome.elo.unrated && outcome.elo.hintCut > 0) sub(copy.game.hintEloCut(Math.round(outcome.elo.hintCut * 100)));
     // the rank shown before and after (the server's, with its grace; a local guest's own)
     const tierBefore = outcome.elo.tierBefore ?? rankTier(outcome.elo.before).tier;
     const tierAfter = outcome.elo.tier ?? rankTier(outcome.elo.after).tier;
-    // A step up in rank gets its moment: the new rank's name stamps in, in its colours.
+    const next = nextRank(outcome.elo.after, tierAfter);
+    if (next) sub(copy.common.toNextRank(next.gap, next.label));
+    rows.push(eloRow);
+    // A step up in rank is the result's first moment: the new rank's name stamps in, in its colours.
     promotedNow = !outcome.elo.unrated && promoted(tierBefore, tierAfter);
     if (promotedNow) {
       const tier = rankTier(outcome.elo.after, tierAfter);
@@ -117,11 +121,9 @@ export function showResult(game: SavedGame, won: boolean, reason: FinishReason, 
         ),
       );
     }
-    // how far the next rank is now, on its bar (at the top there's no next)
-    rows.push(rankProgress(outcome.elo.after, tierAfter, 'result-next-rank'));
-    // what made the square hard, once it needed more than singles (after a loss most of all)
+    // what made the square hard, once it needed more than singles: after a loss, where it teaches
     const key = config.hardest ? TECHNIQUE_BY_ID[config.hardest] : null;
-    if (key && key.level > 1) rows.push(h('p', { class: 'note', text: copy.result.keyStep(copy.techniqueName(key.name)) }));
+    if (!won && key && key.level > 1) rows.push(h('p', { class: 'note', text: copy.result.keyStep(copy.techniqueName(key.name)) }));
     if (!won && outcome.elo.comeback) rows.push(h('p', { class: 'note', text: copy.result.comeback }));
     // Only what went well here; no coaching tips (docs/AUDIT.md: a quieter result).
     if (outcome.elo.unrated) {
@@ -140,20 +142,31 @@ export function showResult(game: SavedGame, won: boolean, reason: FinishReason, 
     if (outcome.daily.badgeNew && outcome.daily.badge) rows.push(h('p', { class: 'note good', text: copy.result.monthBadgeEarned(badgeMonth(outcome.daily.badge)) }));
   }
 
+  // One moment per result, never a chain (ux-reviewer): a promotion, else a Spirit, else an
+  // Epic or Mythic part, else the level reached, else any part, else the month's badge. The
+  // others shrink to a line: a Spirit to "+1 Spirit" on the strip, a part to a compact row,
+  // a level to its bar.
+  const part = outcome.drop;
+  const bigPart = !!part && (part.rarity === 'epic' || part.rarity === 'mythic');
+  const hero = promotedNow ? 'promotion'
+    : outcome.spirit ? 'spirit'
+    : bigPart ? 'part'
+    : outcome.xp?.levelUp ? 'level'
+    : part ? 'part'
+    : outcome.daily?.badgeNew ? 'badge'
+    : null;
+
+  // One strip for what was earned: Stardust, a Spirit (when it isn't the moment), influence.
   const rewards = h('div', { class: 'rewards' });
   if (outcome.dust) {
     const amount = h('span', { text: copy.common.plusStardust(outcome.dust) });
     countUp(amount, 0, outcome.dust, copy.common.plusStardust);
     rewards.append(h('div', { class: 'reward' }, h('span', { html: ICONS.dust }), amount));
   }
-  if (outcome.spirit) rewards.append(h('div', { class: 'reward rare', html: `${ICONS.spirit}<span>${copy.common.rareSpirit}</span>` }));
-
-  // One strip for everything earned: Stardust, a Spirit, influence, and (between parts)
-  // how close the next part is.
+  if (outcome.spirit && hero !== 'spirit') rewards.append(h('div', { class: 'reward', html: `${ICONS.spirit}<span>${copy.common.plusSpirit}</span>` }));
   if (outcome.influence) rewards.append(influenceLine(outcome.influence));
-  if (outcome.progress && !outcome.drop) rewards.append(progressLine(outcome.progress));
-  // the day's counted solves are used up: say so, rather than the strip just going quiet
-  rewards.append(...capLines(outcome));
+  // the day's limits, said once a day (the strip after that just shows what it pays)
+  const caps = capLines(outcome);
 
   // A failed Daily can be retried (same square) until it's solved; only a solve marks the day.
   const retryDaily = config.mode === 'daily' && !won;
@@ -179,10 +192,15 @@ export function showResult(game: SavedGame, won: boolean, reason: FinishReason, 
       { class: 'result' },
       h('h2', { class: won ? 'good' : '', text: titles[reason] }),
       h('div', { class: 'stats' }, ...rows),
+      // the moment: a Spirit's card, or a part cooling out of the forge (full when it's the
+      // moment, a compact row when a bigger one holds the card)
+      hero === 'spirit' ? spiritCard() : null,
+      part ? dropReveal(part, () => void goBack(forgeScreen), hero !== 'part') : null,
       rewards.childElementCount ? rewards : null,
-      // last beat: the drop cools out of the forge, then the affinity's share
-      outcome.drop ? dropReveal(outcome.drop, () => void goBack(forgeScreen)) : null,
-      resultExtra(won, !!outcome.drop || promotedNow || !!outcome.daily?.badgeNew),
+      ...caps,
+      // the result's one bar: the level (a win on the server pays XP)
+      outcome.xp ? xpRow(outcome.xp, hero === 'level') : null,
+      resultExtra(won, !!hero),
       h('div', { class: 'actions' }, again, h('button', { class: 'btn', text: copy.common.home, onclick: () => void goBack(homeScreen) })),
     ),
     { dismissible: false },
@@ -255,12 +273,35 @@ function signupPrompt(): HTMLElement | null {
   return box;
 }
 
-/** The day's limits, when this result met one: Stardust after 20 squares, parts after 3. */
+const CAPS_SEEN_KEY = 'elomental:caps-seen';
+
+/**
+ * The day's limits, on the first result that meets each one today (Stardust after 20 squares,
+ * parts after 9); after that the strip simply shows what it pays.
+ */
 function capLines(outcome: Outcome): HTMLElement[] {
+  const today = new Date().toISOString().slice(0, 10);
+  const seen = readJson<Record<string, string>>(CAPS_SEEN_KEY) ?? {};
   const lines: HTMLElement[] = [];
-  if (outcome.dustCapped) lines.push(h('p', { class: 'part-progress', text: copy.result.dustCapped }));
-  if (outcome.partsCapped) lines.push(h('p', { class: 'part-progress', text: copy.result.partsCapped }));
+  const once = (key: string, text: string) => {
+    if (seen[key] === today) return;
+    seen[key] = today;
+    lines.push(h('p', { class: 'cap-line', text }));
+  };
+  if (outcome.dustCapped) once('dust', copy.result.dustCapped);
+  if (outcome.partsCapped) once('parts', copy.result.partsCapped);
+  if (lines.length) writeJson(CAPS_SEEN_KEY, seen);
   return lines;
+}
+
+/** A Spirit as the result's moment: its own card, so it's never read as the part below it. */
+function spiritCard(): HTMLElement {
+  return h(
+    'div',
+    { class: 'spirit-hero', attrs: { role: 'group', 'aria-label': `${copy.spiritHero.title} ${copy.spiritHero.text}` } },
+    h('span', { class: 'spirit-art', html: ICONS.spirit, attrs: { 'aria-hidden': 'true' } }),
+    h('span', { class: 'spirit-text', attrs: { 'aria-hidden': 'true' } }, h('strong', { text: copy.spiritHero.title }), h('span', { text: copy.spiritHero.text })),
+  );
 }
 
 function statRow(label: string, value: string, valueClass = ''): HTMLElement {

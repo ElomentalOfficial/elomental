@@ -8,6 +8,27 @@ leaderboards. Status: **proposal, not built**. Numbers come from a season simula
 > a better fit for a competitive game, with room for lore later. The code, the database and
 > this document keep "affinity" for the same thing.
 
+## Account level, 2026-10-21 (owner; game-economy-designer, ux-reviewer, ui-designer)
+
+- **A permanent level from XP**, never reset, and the one thing that can be ground without end:
+  every rated win pays XP with **no daily cap** (the owner's call: it keeps players coming back).
+  Easy 10, Medium 20, Hard 30 (Casual, Clash, square codes by difficulty), the Daily 30,
+  Ranked 40. Losses, forfeits and unrated wins pay none; nothing is taken away.
+- **The curve:** from level L to L+1 costs 50 x L XP, no top level. Rough year one: casual
+  (~100 XP a day) level ~38, regular (~375) ~74, heavy (~1,000) ~121; every session moves the bar.
+- **Status only:** never spent (not a currency), never a Ranked edge, no Stardust per level, and
+  never on the leaderboard. A level badge in ink (never a metal) beside the rank on Home, the
+  Profile (with its bar) and the player card. Milestone frames around the level (10, 25, 50,
+  100, 200) are the next phase.
+- **The result, simplified:** one moment per result (a promotion, else a Spirit with its own
+  card, else an Epic or Mythic part, else the level reached, else any part, else the month's
+  badge), the rest a line each; the rewards one row of chips; the level the result's one bar
+  ("19 Elo to Apprentice" is words under the Elo, the rank bar on the Profile). Gone from the
+  result: the next-part counter, the "Epic within N" line, the key step on wins, and the day's
+  cap lines after the first each day.
+- Server: migration account_level (profiles.xp, games.xp, private.solve_xp, private.xp_level;
+  finish_game returns 'xp'); the app mirrors the curve in src/xp.ts.
+
 ## Revision, 2026-10-20 (live): simpler for sudoku players
 
 Sudoku and casual-puzzle players skew 35+, play short daily sessions as "me time", and are

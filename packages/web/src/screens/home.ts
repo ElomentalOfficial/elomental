@@ -6,6 +6,7 @@ import { recentWins } from '../backend/leaderboard.ts';
 import { badgeArt, badgeLabel, badgeMonth } from '../badges.ts';
 import { ICONS } from '../icons.ts';
 import { rankName } from '../rankName.ts';
+import { levelBadge, xpLevel } from '../level.ts';
 import { paintPlate } from '../plates.ts';
 import { readJson, writeJson } from '../storage.ts';
 import { profileScreen } from './profile.ts';
@@ -84,7 +85,9 @@ export function homeScreen(): Screen {
     paintPlate(nameEl, p.name, cachedAccount()?.plate ?? 0);
     // the rank's name in its colours, after the player's title if they have one
     const tier = rankTier(p.elo, p.tier);
-    rankEl.replaceChildren(rankName(tier.tier, tier.label, p.title));
+    // and the account level beside it, once there's an account to keep it
+    const account = cachedAccount();
+    rankEl.replaceChildren(rankName(tier.tier, tier.label, p.title), account ? levelBadge(xpLevel(account.xp ?? 0).level) : '');
     eloChip.querySelector('strong')!.textContent = copy.formatNumber(p.elo);
     dustChip.querySelector('strong')!.textContent = copy.formatNumber(p.dust);
     spiritChip.querySelector('strong')!.textContent = copy.formatNumber(p.spirits);

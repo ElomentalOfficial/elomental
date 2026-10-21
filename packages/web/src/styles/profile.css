@@ -28,6 +28,11 @@
 /* the title and rank under the name, at its size: the name stays first by its weight (as on
    Home, .profile-rank) */
 .profile-tier {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1) var(--space-2);
   font-family: var(--serif);
   font-size: var(--fs-title);
 }

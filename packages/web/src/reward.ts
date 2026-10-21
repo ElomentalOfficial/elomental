@@ -24,13 +24,16 @@ export const partElement = (id: string): Element | null => (id.split('-')[1] ===
 
 export const rarityName = (r: Rarity): string => copy.forge.rarities[r];
 
-/** onOpenForge: where the link under the part goes (the result passes the Forge). */
-export function dropReveal(drop: Drop, onOpenForge?: () => void): HTMLElement {
+/**
+ * onOpenForge: where the link under the part goes (the result passes the Forge). `compact`:
+ * a small row (another moment holds the result), the whole row the way into the Forge.
+ */
+export function dropReveal(drop: Drop, onOpenForge?: () => void, compact = false): HTMLElement {
   const name = partName(drop.part);
   const element = partElement(drop.part);
   const card = h(
     'button',
-    { class: `part-reveal rarity-${drop.rarity}`, attrs: { type: 'button', 'aria-label': copy.forge.a11yDrop(name, rarityName(drop.rarity)) } },
+    { class: `part-reveal rarity-${drop.rarity}${compact ? ' compact' : ''}`, attrs: { type: 'button', 'aria-label': copy.forge.a11yDrop(name, rarityName(drop.rarity)) } },
     h('span', { class: 'reveal-flare', attrs: { 'aria-hidden': 'true' } }),
     h('span', { class: 'reveal-art', html: partSvg(drop.part), attrs: { 'aria-hidden': 'true' } }),
     h(
@@ -46,6 +49,10 @@ export function dropReveal(drop: Drop, onOpenForge?: () => void): HTMLElement {
       ),
     ),
   );
+  if (compact) {
+    if (onOpenForge) card.addEventListener('click', onOpenForge);
+    return h('div', { class: 'drop' }, card, drop.duplicate ? h('p', { class: 'drop-note', text: copy.forge.duplicate(drop.stardust) }) : null);
+  }
   // A tap skips the reveal to its end state.
   card.addEventListener('click', () => {
     for (const el of [card, ...card.querySelectorAll('*')]) {
@@ -58,24 +65,9 @@ export function dropReveal(drop: Drop, onOpenForge?: () => void): HTMLElement {
   if (onOpenForge) notes.push(h('button', { class: 'link-btn drop-forge', text: copy.forge.openForge, attrs: { type: 'button' }, onclick: onOpenForge }));
   if (drop.duplicate) notes.push(h('p', { class: 'drop-note', text: copy.forge.duplicate(drop.stardust) }));
   if (drop.pity) notes.push(h('p', { class: 'drop-note good', text: copy.forge.pityHit(rarityName(drop.pity)) }));
-  // the nearest guarantee, only once it's close (3 parts or fewer); honest once every part of
-  // that rarity is owned (it can only bring Stardust then)
-  const g = drop.guarantee;
-  const owned = (r: 'epic' | 'mythic', dust: number) => h('p', { class: 'drop-pity', text: copy.forge.guaranteeOwned(rarityName(r), dust) });
-  if (g.mythic <= 3) notes.push(drop.complete?.mythic ? owned('mythic', 300) : h('p', { class: 'drop-pity', text: copy.forge.guaranteeTop(rarityName('mythic'), g.mythic) }));
-  else if (g.epic <= 3) notes.push(drop.complete?.epic ? owned('epic', 120) : h('p', { class: 'drop-pity', text: copy.forge.guarantee(rarityName('epic'), g.epic) }));
+  // (the "Epic within N" guarantee lives on the Forge now: the result keeps only what explains
+  // this drop)
   return h('div', { class: 'drop' }, card, ...notes);
-}
-
-/** Toward the next part: three steps, filled as squares are solved. */
-export function progressLine(progress: { count: number; every: number }): HTMLElement {
-  const text = progress.count === 0 ? copy.forge.progressDone : copy.forge.progress(progress.count, progress.every);
-  return h(
-    'p',
-    { class: 'part-progress' },
-    h('span', { class: 'part-steps', attrs: { 'aria-hidden': 'true' } }, ...Array.from({ length: progress.every }, (_, i) => h('i', { class: i < progress.count ? 'done' : '' }))),
-    h('span', { text }),
-  );
 }
 
 /** "+5 influence for Fire", with the element's mark. */

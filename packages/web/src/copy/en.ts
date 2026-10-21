@@ -71,6 +71,8 @@ export const common = {
   /** A title shown before the rank's name ("Founder · Archmage", rankName.ts), and read out with it. */
   titleBeforeRank: (title: string) => `${title} · `,
   titledRank: (title: string, rank: string) => `${title}, ${rank}`,
+  /** Up to 1 Spirit on the result's strip (when a bigger moment holds the card). */
+  plusSpirit: '+1 Spirit',
   /** How far the next rank is (profile.ts nextRank). */
   toNextRank: (gap: number, label: string) => `${gap} Elo to ${label}`,
 };
@@ -440,6 +442,25 @@ export const affinity = {
 };
 
 // --- Results ---------------------------------------------------------------
+
+// --- Account level --------------------------------------------------------------
+// level.ts: a permanent level from XP. "Level" and "XP"; never "level up" (the glossary keeps
+// that out), never "level" for a rank or a square's rating.
+export const level = {
+  /** Above the number in the badge */
+  cap: 'Level',
+  label: (n: number) => `Level ${n}`,
+  gain: (xp: number) => `+${formatNumber(xp)} XP`,
+  toNext: (xp: number, next: number) => `${formatNumber(xp)} XP to level ${next}`,
+  reached: (n: number) => `Level ${n} reached`,
+  a11y: (n: number, gained: number, left: number) => `Level ${n}. +${formatNumber(gained)} XP. ${formatNumber(left)} XP to level ${n + 1}.`,
+};
+
+/** The Spirit as the result's one moment (its own card, not a line over a part's). */
+export const spiritHero = {
+  title: 'Rare drop: a Spirit!',
+  text: 'Brings an avatar to life.',
+};
 
 export const result = {
   titles: { solved: 'Solved', mistakes: 'Out of mistakes', concede: 'Conceded' } as Record<string, string>,
@@ -988,7 +1009,7 @@ export const leaderboard = {
 
   // The factions this month
   affinitiesOf: (month: string) => `Factions · ${month}`,
-  level: 'Level so far: nobody leads yet.',
+  level: 'Tied so far: nobody leads yet.',
   nobody: 'No influence yet this month.',
   daysLeft: (d: number) => (d <= 1 ? 'Last day' : `${d} days left`),
   prize: 'Everyone on the winning side with 5 or more squares this month gets a badge and 300 Stardust',

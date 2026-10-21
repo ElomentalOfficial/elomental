@@ -10,6 +10,7 @@ import { rankName } from '../rankName.ts';
 import { paintPlate } from '../plates.ts';
 import { dailyGoal, dailyKey, loadProfile, rankTier } from '../profile.ts';
 import { rankProgress } from '../rankBar.ts';
+import { levelBadge, levelProgress, xpLevel } from '../level.ts';
 import { closeButton, goBack, h, mount, openModal, subPage, toast, type Screen } from '../ui.ts';
 import { affinityScreen } from './affinity.ts';
 import { forgeScreen } from './forge.ts';
@@ -88,8 +89,11 @@ export function profileScreen(start?: { at?: 'badges' }): Screen {
           'p',
           { class: 'profile-tier' },
           rankName(tier.tier, tier.label, p.title),
+          // the account level beside the rank (a number in ink; the rank a coloured word)
+          account ? levelBadge(xpLevel(account.xp ?? 0).level) : null,
         ),
         nextUp,
+        account ? levelProgress(account.xp ?? 0) : null,
         side,
         // the Forge, in sight without scrolling (Home has no tile for it)
         forgeBtn,

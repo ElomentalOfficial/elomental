@@ -12,8 +12,11 @@
 -- * profiles.xp holds the total, games.xp each game's share (so sum(games.xp) = profiles.xp);
 --   no ledger row, as the ledger is for what can be spent.
 -- * finish_game returns 'xp': {gained, total, level, into, need, levelUp} on a win.
--- * Backfill: every past win under the same rule (flagged games and Ranked wins that didn't
---   raise the Elo, which is how an unrated win shows in history, earn none).
+-- * A pace guard, not a cap (backend-security-reviewer): no XP when another XP-paying win
+--   finished within this game's minimum solve time, so a script can't finish games side by side
+--   for XP. Dev mode earns none.
+-- * Backfill: every past win under the same rule (flagged games and Ranked wins without a solve
+--   audit earn none).
 
 alter table public.profiles add column xp integer not null default 0 check (xp >= 0);
 alter table public.games add column xp smallint not null default 0 check (xp >= 0);
@@ -129,9 +132,16 @@ begin
     else
       capped := true;
     end if;
-    -- XP for every rated win, no daily cap (account_level)
-    v_xp := private.solve_xp(g);
-    p.xp := p.xp + v_xp;
+    -- XP for every rated win, no daily cap (account_level). A pace guard instead: none when
+    -- another XP-paying win finished within this game's minimum solve time (games are played
+    -- one after another, so a person never meets it; a script finishing games side by side
+    -- does). Dev mode, which skips the speed checks, earns none.
+    if not dev and not exists (select 1 from public.games o
+         where o.user_id = uid and o.id <> g.id and o.xp > 0
+           and o.finished_at > now() - make_interval(secs => min_secs)) then
+      v_xp := private.solve_xp(g);
+      p.xp := p.xp + v_xp;
+    end if;
   end if;
 
   update public.profiles
@@ -214,10 +224,13 @@ end;
 $$;
 
 -- ---------------------------------------------------------------- backfill
+-- every past win, as the rule pays now: not a flagged game, and a Ranked win only with its
+-- solve audit (a Ranked win without one was unrated)
+set local lock_timeout = '5s';
 update public.games g set xp = private.solve_xp(g)
   where g.won and g.finished_at is not null
     and not exists (select 1 from private.review_flags f where f.game_id = g.id)
-    and not (g.mode = 'ranked' and coalesce(g.elo_after, 0) <= coalesce(g.elo_before, 0));
+    and (g.mode <> 'ranked' or exists (select 1 from private.game_audits a where a.game_id = g.id));
 update public.profiles p set xp = s.total
   from (select user_id, sum(xp)::integer as total from public.games group by user_id) s
   where s.user_id = p.id;
