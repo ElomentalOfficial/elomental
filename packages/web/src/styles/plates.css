@@ -174,19 +174,21 @@ button.plate-card {
 .plate-card-5 {
   grid-column: 1 / -1;
 }
-.plate-card.state-ready {
+/* every plate card you can tap (one you own to equip, the next to get) shares one edge */
+.plate-card:is(.state-ready, .state-owned) {
   box-shadow: inset 0 0 0 2px var(--field-border);
 }
 .plate-card.state-yours {
   background: var(--chosen-bg);
 }
 .plate-card.state-yours .part-state,
+.plate-card.state-owned .part-state,
 .plate-card.state-ready .part-state {
   color: var(--text);
 }
-/* A plate you've moved past: its rule fades, the name stays at full contrast ("Replaced" says why). */
-.plate-card.state-replaced .plate-sample > :not(.plate-text) {
-  opacity: 0.45;
+/* "Unequip plate" under the cards while one is equipped, or the line saying none is */
+.forge-plates .plate-none {
+  align-self: center;
 }
 /* the cards name the plate ("Bronze"), one word that shouldn't break; the sheet shows long player names */
 .plate-card .plate-sample .plate-text {

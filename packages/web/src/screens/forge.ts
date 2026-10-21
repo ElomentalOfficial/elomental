@@ -1,6 +1,6 @@
 import { avatarSvg, partSvg } from '../avatar.ts';
 import { loadStandings, type Standing } from '../backend/affinity.ts';
-import { ALIVE_COST, DEFAULT_AVATAR, FORGE_COST, MAX_PLATE, PLATE_COST, SLOTS, avatarsToWake, buyPlate, callSpirit, equipPart, forgePart, loadForge, polishPart, type Forge, type Part } from '../backend/forge.ts';
+import { ALIVE_COST, DEFAULT_AVATAR, FORGE_COST, MAX_PLATE, PLATE_COST, SLOTS, avatarsToWake, buyPlate, callSpirit, equipPart, forgePart, loadForge, polishPart, wearPlate, type Forge, type Part } from '../backend/forge.ts';
 import { ICONS } from '../icons.ts';
 import { paintPlate } from '../plates.ts';
 import { ELEMENTS, RARITIES, loadProfile, type Element, type Rarity } from '../profile.ts';
@@ -197,20 +197,21 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
   }
 
   /**
-   * The five name plates, right under the head: each drawn on its card, bought in order,
-   * each replacing the last. Only the next one is a button; it opens a sheet to confirm.
+   * The five name plates, right under the head: each drawn on its card, bought in order and
+   * kept. A plate you own and don't wear is a button that wears it; the next one opens a sheet
+   * to confirm the purchase.
    */
   function platesSection(f: Forge): HTMLElement {
     const t = copy.forge;
     const card = (n: number) => {
-      const next = n === f.plate + 1;
-      const state = n === f.plate ? 'yours' : n < f.plate ? 'replaced' : next ? (f.stardust >= PLATE_COST[n - 1] ? 'ready' : 'needs') : 'later';
-      const label = state === 'yours' ? t.plateYours
-        : state === 'replaced' ? t.plateReplaced
+      const next = n === f.platesOwned + 1;
+      const state = n === f.plate ? 'yours' : n <= f.platesOwned ? 'owned' : next ? (f.stardust >= PLATE_COST[n - 1] ? 'ready' : 'needs') : 'later';
+      const label = state === 'yours' ? t.plateWearing
+        : state === 'owned' ? t.plateWear
         : state === 'ready' ? t.ready
         : state === 'needs' ? t.plateNeeds
         : t.plateAfter(t.plates[n - 1]);
-      const price = state === 'yours' || state === 'replaced' ? null : t.price(PLATE_COST[n - 1]);
+      const price = state === 'yours' || state === 'owned' ? null : t.price(PLATE_COST[n - 1]);
       const sample = h('span', { class: 'plate-sample' });
       paintPlate(sample, t.plates[n], n);
       const kids = [
@@ -220,16 +221,38 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
       ];
       const cls = `plate-card plate-card-${n} state-${state}`;
       const a11y = `${t.plateA11y(t.plates[n])}. ${label}.${price ? ` ${price}.` : ''}`;
-      if (!next) return h('div', { class: cls, attrs: { role: 'group', 'aria-label': a11y } }, ...kids.map((k) => k && (k.setAttribute('aria-hidden', 'true'), k)));
-      return h('button', { class: cls, attrs: { type: 'button', 'aria-label': a11y }, onclick: () => openPlate(n) }, ...kids.map((k) => k && (k.setAttribute('aria-hidden', 'true'), k)));
+      const hidden = kids.map((k) => k && (k.setAttribute('aria-hidden', 'true'), k));
+      if (state === 'owned') return h('button', { class: cls, attrs: { type: 'button', 'aria-label': a11y }, onclick: () => wear(n) }, ...hidden);
+      if (!next) return h('div', { class: cls, attrs: { role: 'group', 'aria-label': a11y } }, ...hidden);
+      return h('button', { class: cls, attrs: { type: 'button', 'aria-label': a11y }, onclick: () => openPlate(n) }, ...hidden);
     };
     return h(
       'section',
       { class: 'forge-plates' },
-      h('div', { class: 'forge-heading-row' }, h('h2', { class: 'forge-heading', text: t.plateTitle }), h('span', { class: 'forge-count', text: t.plateCount(f.plate, MAX_PLATE) })),
+      h('div', { class: 'forge-heading-row' }, h('h2', { class: 'forge-heading', text: t.plateTitle }), h('span', { class: 'forge-count', text: t.plateCount(f.platesOwned, MAX_PLATE) })),
       h('p', { class: 'forge-intro', text: t.plateIntro }),
       h('div', { class: 'plate-grid' }, ...Array.from({ length: MAX_PLATE }, (_, i) => card(i + 1))),
+      f.plate
+        ? h('button', { class: 'link-btn plate-none', text: t.plateNone, attrs: { type: 'button' }, onclick: () => wear(0) })
+        : f.platesOwned ? h('p', { class: 'note plate-none', text: t.plateNoneWorn }) : null,
     );
+  }
+
+  /**
+   * Equips plate n (0: none), one you own: free and straight away. The plate buttons wait for
+   * the answer (no double tap), and focus lands on the plate now equipped, or on the section's
+   * heading when none is, since the button pressed is redrawn.
+   */
+  function wear(n: number) {
+    const buttons = [...body.querySelectorAll<HTMLButtonElement>('.forge-plates button')];
+    buttons.forEach((b) => (b.disabled = true));
+    void wearPlate(n).then(async (err) => {
+      toast(err ?? (n ? copy.forge.plateBought(copy.forge.plates[n]) : copy.forge.plateNoneDone));
+      await refresh();
+      const target = body.querySelector<HTMLElement>(n ? `.plate-card-${n}` : '.forge-plates .forge-heading');
+      target?.setAttribute('tabindex', '-1');
+      target?.focus();
+    });
   }
 
   /** The next plate: your own name on it, its price, and Get. */
@@ -256,7 +279,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
         closeButton(() => close()),
         h('h2', { text: copy.forge.plateA11y(name) }),
         preview,
-        h('p', { class: 'note', text: f.stardust < cost ? copy.forge.needsMore : copy.forge.plateReplaces }),
+        h('p', { class: 'note', text: f.stardust < cost ? copy.forge.needsMore : copy.forge.plateKeeps }),
         btn,
       ),
     );

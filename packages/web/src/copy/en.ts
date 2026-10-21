@@ -372,15 +372,20 @@ export const forge = {
   plates: ['No plate', 'Bronze', 'Silver', 'Gold', 'Diamond', 'Starforged'] as const,
   plateCount: (n: number, total: number) => `${n} of ${total}`,
   plateA11y: (name: string) => `${name} name plate`,
-  plateReplaced: 'Replaced',
+  /** On a plate card you own but haven't equipped: what tapping it does (the glossary's Equip). */
+  plateWear: 'Equip',
   /** On a plate card, above its price (so not 'Not enough Stardust yet'). */
   plateNeeds: 'Not enough',
   plateAfter: (name: string) => `After ${name}`,
-  plateReplaces: 'It replaces the plate you have now.',
-  plateIntro: 'An ornament under your name on Home and your profile. Each one replaces the last.',
-  plateYours: 'Yours',
+  plateKeeps: 'It’s equipped straight away, and you keep the plates you have.',
+  plateIntro: 'An ornament under your name on Home, your profile and the leaderboard. Every plate you get is yours to keep: equip any of them.',
+  plateWearing: 'Equipped',
   plateBuy: (name: string, stardust: number) => `Get ${name} · ${formatNumber(stardust)} Stardust`,
   plateBought: (name: string) => `Your name now has the ${name} plate.`,
+  plateNone: 'Unequip plate',
+  plateNoneDone: 'Your name has no plate now.',
+  /** Under the plates when you own some and have none equipped. */
+  plateNoneWorn: 'No plate equipped.',
 };
 // --- Profile ---------------------------------------------------------------------
 // Opened from Home's avatar: who you are, how you're doing, and the way into the Forge.
@@ -757,6 +762,7 @@ export const refusals = {
     no_avatar_to_wake: 'Every avatar you own is alive or has a Spirit waiting for it.',
     top_plate: 'You already have the Starforged plate.',
     plate_owned: 'You already have that plate.',
+    plate_not_owned: 'You don’t have that plate yet.',
     plate_order: 'Plates are bought in order. Get the one before it first.',
     no_mends_left: 'You’ve filled in 3 days this month: that’s the most.',
     already_solved: 'That day is already done.',

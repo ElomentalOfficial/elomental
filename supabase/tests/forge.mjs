@@ -59,7 +59,7 @@ export default async function () {
   check(pl.plate === 2 && pl.stardust === 13800 - 3500, `Bronze then Silver plate: 3500 (${JSON.stringify(pl)})`);
   // diamond_plate: five plates, Diamond between Gold and Starforged; Starforged holders keep it
   const top = await newPlayer();
-  await db.exec(`update public.profiles set plate = 3, stardust = 30000 where id = '${top}'`);
+  await db.exec(`update public.profiles set plates_owned = 3, plate = 3, stardust = 30000 where id = '${top}'`);
   await as(top);
   err = null; try { await db.query(`select public.buy_plate(5)`); } catch (e) { err = e.message; }
   check(err?.includes('plate_order'), 'Diamond comes before Starforged');
@@ -69,13 +69,34 @@ export default async function () {
   check(tp.plate === 5 && tp.stardust === 30000 - 9000 - 14000, `Diamond 9000, then Starforged 14000 (${JSON.stringify(tp)})`);
   err = null; try { await db.query(`select public.buy_plate(6)`); } catch (e) { err = e.message; }
   check(err?.includes('top_plate'), 'nothing past Starforged');
-  err = null; try { await db.exec(`update public.profiles set plate = 6 where id = '${top}'`); } catch (e) { err = e.message; }
-  check(err?.includes('profiles_plate_check'), 'plates stop at 5');
+  err = null; try { await db.exec(`update public.profiles set plates_owned = 6 where id = '${top}'`); } catch (e) { err = e.message; }
+  check(err?.includes('profiles_plates_owned_check'), 'plates stop at 5');
   const kept = await one(`select plate from public.profiles where id = $1`, [old.starforged]);
   check(kept.plate === 5, `a Starforged holder keeps Starforged, now plate 5 (${kept.plate})`);
-  await as(old.starforged);
-  err = null; try { await db.query(`select public.buy_plate(4)`); } catch (e) { err = e.message; }
-  check(err?.includes('top_plate'), 'a Starforged holder can\'t buy Diamond under it');
+  // wear_plates: every plate bought stays yours; wear any of them, or none
+  const worn = await one(`select plate, plates_owned from public.profiles where id = $1`, [top]);
+  check(worn.plate === 5 && worn.plates_owned === 5, `buying a plate wears it (${JSON.stringify(worn)})`);
+  await as(top);
+  await db.query(`select public.wear_plate(2)`);
+  const silver = await one(`select plate, plates_owned from public.profiles where id = $1`, [top]);
+  check(silver.plate === 2 && silver.plates_owned === 5, `wear Silver again, keep Starforged (${JSON.stringify(silver)})`);
+  await db.query(`select public.wear_plate(0)`);
+  check((await one(`select plate from public.profiles where id = $1`, [top])).plate === 0, 'or wear none');
+  await db.exec(`update public.profiles set plates_owned = 4 where id = '${top}'`);
+  err = null; try { await db.query(`select public.buy_plate(3)`); } catch (e) { err = e.message; }
+  check(err?.includes('plate_owned'), 'a plate you own isn\'t sold again while you wear none');
+  await db.exec(`update public.profiles set plates_owned = 5 where id = '${top}'`);
+  const owner = await newPlayer();
+  await db.exec(`update public.profiles set plates_owned = 2, plate = 2 where id = '${owner}'`);
+  await as(owner);
+  err = null; try { await db.query(`select public.wear_plate(3)`); } catch (e) { err = e.message; }
+  check(err?.includes('plate_not_owned'), 'only plates you own can be worn');
+  err = null; try { await db.exec(`update public.profiles set plate = 3 where id = '${owner}'`); } catch (e) { err = e.message; }
+  check(err?.includes('profiles_plate_owned'), 'the plate worn is always one you own');
+  const sf = await one(`select plate, plates_owned from public.profiles where id = $1`, [old.starforged]);
+  check(sf.plates_owned === 5, `a Starforged holder owns every plate up to it (${JSON.stringify(sf)})`);
+  const anonWear = (await one(`select has_function_privilege('anon', 'public.wear_plate(integer)', 'execute') a`)).a;
+  check(!anonWear, 'signed-out visitors can\'t wear a plate');
   await as(e0);
   if (today > 4) {
     for (let n = 1; n <= 3; n++) await db.query(`select public.mend_daily($1)`, [day(n)]);
