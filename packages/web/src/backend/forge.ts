@@ -30,8 +30,8 @@ export const FORGE_COST: Record<Rarity, number> = { common: 100, rare: 250, epic
 /** Polish brings an avatar to life, once (polish_part): Stardust and a Spirit. */
 export const ALIVE_COST = 6000;
 /** Name plates Bronze, Silver, Gold, Starforged (buy_plate), bought in order. */
-export const PLATE_COST = [1000, 2500, 6000, 12000];
-export const MAX_PLATE = 4;
+export const PLATE_COST = [1000, 2500, 6000, 9000, 14000];
+export const MAX_PLATE = 5;
 /** A Spirit is guaranteed within this many counted solves (private.spirit_roll). */
 export const SPIRIT_GUARANTEE = 500;
 /** Call a Spirit (call_spirit): this, then CALL_STEP more for each one called this season. */

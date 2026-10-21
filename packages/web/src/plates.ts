@@ -1,112 +1,101 @@
 import { h } from './ui.ts';
 
 /**
- * Name plates (bought with Stardust, forge.ts): an Art Deco border drawn around the name,
- * from a plain Bronze line to the Starforged plate's pointed cartouche with its sunburst crown.
- * The straight lines are CSS (plates.css `.plate-box`, inset shadows), so the border stretches to
- * any name; the ornaments are small SVGs pinned to the corners and the middles, mirrored
- * into place. Their (0, 0) is the outer line's corner. The outer `.plate-frame` is a little
- * larger, so its wear mask covers the ornaments that reach past the lines. Decoration only.
+ * Name plates (bought with Stardust, forge.ts): an Art Deco rule drawn under the name, from
+ * Bronze's single line to Starforged's three lines and hanging sun. One vocabulary for the set
+ * (parallel lines, a dip at the centre), and each plate grows on the one before: more lines, a
+ * richer centre, and its own end, from Bronze's dots to Starforged's ringed gems.
+ *
+ * Each rule is five pieces in a row (plates.css `.plate-box`): an end, the lines, the centre, the
+ * lines, the end mirrored. The ends and the centre are fixed-size SVGs; the lines stretch to the
+ * name's width (non-scaling strokes keep them 1.5px). Every piece shares one y: 0 is the top of
+ * the band, just under the name, and the lines run at the plate's `levels`. The outer
+ * `.plate-frame` is a little larger, so its wear mask and Starforged's glow have room. Decoration
+ * only.
  */
 
-const svg = (cls: string, box: string, size: [number, number], body: string) =>
-  `<svg class="${cls}" viewBox="${box}" width="${size[0]}" height="${size[1]}" aria-hidden="true">${body}</svg>`;
+const svg = (cls: string, w: number, hgt: number, body: string) =>
+  `<svg class="${cls}" viewBox="0 0 ${w} ${hgt}" width="${w}" height="${hgt}" aria-hidden="true">${body}</svg>`;
+const solid = (d: string) => `<path d="${d}" class="solid"/>`;
+const path = (d: string) => `<path d="${d}"/>`;
+/** A diamond centred on (x, y), `r` from the centre to each point. */
+const gem = (x: number, y: number, r: number) => `M${x - r} ${y}L${x} ${y - r}L${x + r} ${y}L${x} ${y + r}Z`;
+/** Short line ends from x to the piece's edge, one per level. */
+const stubs = (from: number, to: number, levels: number[]) => levels.map((y) => `M${from} ${y}H${to}`).join('');
 
-/** Rays and arcs of a quarter fan around the inner corner (3.5, 3.5). */
-function fan(r1: number, r2: number, rays: number[]): string {
-  const c = 3.5;
-  const arc = (r: number) => `<path d="M${c} ${c + r}A${r} ${r} 0 0 0 ${c + r} ${c}"/>`;
-  const ray = (deg: number) => {
-    const a = (deg * Math.PI) / 180;
-    const p = (r: number) => `${(c + r * Math.cos(a)).toFixed(2)} ${(c + r * Math.sin(a)).toFixed(2)}`;
-    return `<path d="M${p(r1)}L${p(r2)}"/>`;
-  };
-  return arc(r1) + arc(r2) + rays.map(ray).join('');
+interface Rule {
+  /** the band's height, and the y of each line */
+  h: number;
+  levels: number[];
+  /** the left end and the centre: width and drawing */
+  end: [number, string];
+  centre: [number, string];
 }
 
-/** One corner per plate (drawn for the top left; the others are mirrors). */
-const CORNERS: Record<number, string> = {
-  // Bronze: a small square box in each corner
-  1: '<path d="M0.5 6.5H6.5V0.5"/>',
-  // Silver: a stepped notch inside the double line, and a solid square at the corner
-  2: '<path d="M3.5 10.5H6.5V6.5H10.5V3.5"/><rect x="-1" y="-1" width="3" height="3" class="solid"/>',
-  // Gold: a sunburst fan in the corner
-  3: fan(6, 10, [22.5, 45, 67.5]) + '<rect x="-1" y="-1" width="3" height="3" class="solid"/>',
-};
-
-/** The middle of the top edge (the bottom is its mirror); y 0 is the outer line. */
-const TOPS: Record<number, string> = {
-  3: '<path d="M0 -3L3 0.5L0 4L-3 0.5Z" class="solid"/>',
-};
-
-/**
- * The middle of the left side (the right is its mirror), each plate in its corners' own
- * vocabulary; x 0.5 is the outer line's centre, y 0 half the name's height. At most 14px tall
- * and 6px past the outer line. Where an open shape takes the line's place, the line breaks
- * behind it (plates.css `--side-gap`) and the path runs 1px into the line's ends.
- */
-const SIDES: Record<number, string> = {
-  // Bronze: an open square box threaded on the line, the size of its corner boxes
-  1: '<path d="M-2.5 -3H3.5V3H-2.5Z"/>',
-  // Silver: the outer line steps out twice, a ziggurat like its stepped corners, round a solid square
-  2: '<path d="M0.5 -7.25V-6.25H-2.5V-3.25H-5V3.25H-2.5V6.25H0.5V7.25"/><rect x="-2.25" y="-1.5" width="3" height="3" class="solid"/>',
-  // Gold: the gem on its top and bottom middles (TOPS), turned to lie across the side
-  3: '<path d="M-3 0L0.5 -3L4 0L0.5 3Z" class="solid"/>',
-};
-
-/**
- * The Starforged plate: a cartouche with pointed ends, like an Art Deco nameplate. Each end is
- * two nested chevrons (the outer and inner lines) stretched to the name's height
- * (non-scaling strokes keep them 1px), with two slim pillars inside; a gem sits on each
- * tip, a sunburst crown rises from the top and a small gem hangs below.
- */
-function starforged(): string {
-  const line = 'vector-effect="non-scaling-stroke"';
-  const end = (cls: string) =>
-    `<svg class="${cls}" viewBox="0 0 26 100" preserveAspectRatio="none" aria-hidden="true">` +
-    `<path ${line} d="M26 0H12L0.5 50L12 100H26"/>` +
-    '</svg>';
-  const inner = (cls: string) =>
-    `<svg class="${cls}" viewBox="0 0 26 100" preserveAspectRatio="none" aria-hidden="true">` +
-    `<path ${line} d="M26 0H13.5L4 50L13.5 100H26"/><path ${line} d="M19 22V78M21.5 30V70"/>` +
-    '</svg>';
-  // on each tip: a gem in a ring, with two chevrons pointing out
-  const tip = (cls: string) =>
-    `<svg class="${cls}" viewBox="-14 -7 21 14" width="21" height="14" aria-hidden="true">` +
-    '<path d="M0 -4.5L3 0L0 4.5L-3 0Z" class="solid"/><circle r="5.5" class="ring"/>' +
-    '<path d="M-7 -4L-10 0L-7 4M-10 -3L-12.5 0L-10 3"/></svg>';
-  // a sunburst crown: a half sun on the top line, long and short rays, a gem on top
-  const rays = [-75, -60, -45, -30, -15, 0, 15, 30, 45, 60, 75]
-    .map((d) => {
-      const a = ((d - 90) * Math.PI) / 180;
-      const p = (r: number) => `${(r * Math.cos(a)).toFixed(2)} ${(r * Math.sin(a)).toFixed(2)}`;
-      return `M${p(8.5)}L${p(d % 30 === 0 ? 15 : 12)}`;
+/** Rays of a half sun hanging from (cx, cy): long on every second ray. */
+function sunRays(cx: number, cy: number, r1: number, short: number, long: number): string {
+  return [-60, -40, -20, 0, 20, 40, 60]
+    .map((d, i) => {
+      const a = (d * Math.PI) / 180;
+      const p = (r: number) => `${(cx + r * Math.sin(a)).toFixed(2)} ${(cy + r * Math.cos(a)).toFixed(2)}`;
+      return `M${p(r1)}L${p(i % 2 ? short : long)}`;
     })
     .join('');
-  const crown =
-    '<svg class="elo-crown" viewBox="-22 -21 44 22" width="44" height="22" aria-hidden="true">' +
-    `<path d="${rays}"/><path d="M-8.5 0.5A8.5 8.5 0 0 1 8.5 0.5"/><path d="M-5 0.5A5 5 0 0 1 5 0.5Z" class="solid"/>` +
-    '<path d="M0 -21L2.5 -18L0 -15L-2.5 -18Z" class="solid"/><path d="M-21 0.5L-17 -3L-13 0.5M13 0.5L17 -3L21 0.5"/></svg>';
-  // below: a gem hanging from a short bar
-  const drop =
-    '<svg class="elo-drop" viewBox="-12 -2 24 11" width="24" height="11" aria-hidden="true">' +
-    '<path d="M-10 2.5H10"/><path d="M0 3L3 6L0 9L-3 6Z" class="solid"/></svg>';  return end('elo-end e-l') + end('elo-end e-r') + inner('elo-inner e-l') + inner('elo-inner e-r') + tip('elo-tip t-l') + tip('elo-tip t-r') + crown + drop;
 }
-/** The border alone, to lay over an element with the `name-plate plate-n` classes. */
+
+const RULES: Record<number, Rule> = {
+  // Bronze: one line running out to a dot and a smaller dot past it, a ring round a dot in the middle
+  1: {
+    h: 10, levels: [5],
+    end: [12, '<circle cx="1.5" cy="5" r="1.25" class="solid"/><circle cx="6" cy="5" r="2.25" class="solid"/>' + path(stubs(9.5, 12, [5]))],
+    centre: [16, '<circle cx="8" cy="5" r="4"/><circle cx="8" cy="5" r="1.75" class="solid"/>' + path('M0 5H4M12 5H16')],
+  },
+  // Silver: two lines; at each end the lower one rises to meet the upper and they run out as
+  // one to a solid square; at the centre the lower one dips into a V round a square
+  2: {
+    h: 13, levels: [3, 6],
+    end: [14, '<rect x="0" y="1.5" width="3" height="3" class="solid"/>' + path('M14 3H3M14 6H9L6 3')],
+    centre: [22, path('M0 3H22M0 6H5L11 12L17 6H22') + '<rect x="9" y="4.75" width="4" height="4" class="solid"/>'],
+  },
+  // Gold: two lines from double chevrons pointing out; a gem parts the upper line, the lower
+  // dips under it
+  3: {
+    h: 13, levels: [3, 6],
+    end: [16, path('M5 1.5L2 4.5L5 7.5M9 1.5L6 4.5L9 7.5') + path(stubs(11.5, 16, [3, 6]))],
+    centre: [26, solid(gem(13, 4.5, 4.5)) + path('M0 3H8.5M17.5 3H26M0 6H6L13 13L20 6H26')],
+  },
+  // Diamond: three lines from a pair of diamonds; a faceted gem (a gem in a diamond) parts the upper two, the lowest dips under
+  4: {
+    h: 16, levels: [3, 6, 9],
+    end: [20, solid(gem(2.5, 6, 2)) + solid(gem(9.5, 6, 3)) + path(stubs(15, 20, [3, 6, 9]))],
+    centre: [30, path(gem(15, 6, 6)) + solid(gem(15, 6, 3)) + path('M0 3H10.5M19.5 3H30M0 6H7.5M22.5 6H30M0 9H6L15 16L24 9H30')],
+  },
+  // Starforged: three lines from a ringed gem; at the centre a half sun hangs from the top line
+  // under a small gem, and the lower lines part round it (the chevrons are Gold's)
+  5: {
+    h: 20, levels: [3, 6, 9],
+    end: [22, solid(gem(8, 6, 4)) + '<circle cx="8" cy="6" r="5.5" class="ring"/>' + path(stubs(15.5, 22, [3, 6, 9]))],
+    centre: [36,
+      path('M0 3H36M0 6H10.5M25.5 6H36M0 9H8M28 9H36') + path('M12 6A6 6 0 0 0 24 6') + solid('M14.5 6A3.5 3.5 0 0 0 21.5 6Z') +
+      path(sunRays(18, 6, 7.5, 10, 12)) + solid(gem(18, 3, 2.5))],
+  },
+};
+
+/** The rule alone, to lay under an element with the `name-plate plate-n` classes. */
 export function plateFrame(plate: number): HTMLElement | null {
-  if (!plate) return null;
-  const frame = (html: string) => h('span', { class: 'plate-frame', attrs: { 'aria-hidden': 'true' } }, h('span', { class: 'plate-box', html }));
-  if (plate === 4) return frame(starforged());
-  const parts: string[] = [];
-  for (const c of ['tl', 'tr', 'bl', 'br']) parts.push(svg(`plate-corner c-${c}`, '-5 -5 21 21', [21, 21], CORNERS[plate]));
-  if (TOPS[plate]) for (const c of ['t', 'b']) parts.push(svg(`plate-mid m-${c}`, '-10 -7 20 14', [20, 14], TOPS[plate]));
-  if (SIDES[plate]) for (const c of ['l', 'r']) parts.push(svg(`plate-side s-${c}`, '-10 -10 20 20', [20, 20], SIDES[plate]));
-  return frame(parts.join(''));
+  const r = RULES[plate];
+  if (!r) return null;
+  const lineH = Math.max(...r.levels) + 2;
+  const lines = `<svg class="plate-lines" viewBox="0 0 10 ${lineH}" width="10" height="${lineH}" preserveAspectRatio="none" aria-hidden="true">` +
+    r.levels.map((y) => `<path vector-effect="non-scaling-stroke" d="M0 ${y}H10"/>`).join('') + '</svg>';
+  const end = (side: string) => svg(`plate-end e-${side}`, r.end[0], r.h, r.end[1]);
+  const html = end('l') + lines + svg('plate-centre', r.centre[0], r.h, r.centre[1]) + lines + end('r');
+  return h('span', { class: 'plate-frame', attrs: { 'aria-hidden': 'true' } }, h('span', { class: 'plate-box', html }));
 }
 
 /** Puts `name` in `el` on its plate (0: no plate). */
 export function paintPlate(el: HTMLElement, name: string, plate: number): void {
-  el.classList.remove('name-plate', 'plate-1', 'plate-2', 'plate-3', 'plate-4');
+  el.classList.remove('name-plate', 'plate-1', 'plate-2', 'plate-3', 'plate-4', 'plate-5');
   if (plate) el.classList.add('name-plate', `plate-${plate}`);
   el.replaceChildren(h('span', { class: 'plate-text', text: name }), plateFrame(plate) ?? '');
 }

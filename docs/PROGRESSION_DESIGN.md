@@ -29,8 +29,9 @@ it replaces the material-based design in §2, §3.2–3.3, §4.2–4.3, §9–11
   life around day 40 (worst 10%: day 56). **Call a Spirit** for Stardust: 15,000, then 5,000 more for each
   one called this season, only while an owned avatar has no Spirit to wake it.
 - **Stardust sinks, all a look or a convenience:** bring an avatar to life once (6000 Stardust
-  and a Spirit); name plates Bronze, Silver, Gold, Starforged (1000/2500/6000/12000, in order;
-  the top one was "Elomentalist" until the Elomental rank);
+  and a Spirit); name plates Bronze, Silver, Gold, Diamond, Starforged (1000/2500/6000/9000/14000,
+  in order, drawn as an Art Deco rule under the name; Diamond added 2026-10-21, Starforged was
+  12000 and "Elomentalist" until the Elomental rank);
   fill in a missed Daily this month (300, up to 3 a month); Call a Spirit.
 - **Ranked ladder (`ranked_ladder`, 2026-10-21; design and simulation in
   `docs/review/elo-ladder-2026-10-21-economy.md` and `-ux.md`):** five ranks, names only:

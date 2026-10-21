@@ -1,5 +1,6 @@
 import { cachedAccount, onAccountChange } from '../backend.ts';
 import { devAction, setDevMode, setFoundersShown, type DevAction } from '../backend/dev.ts';
+import { MAX_PLATE } from '../backend/forge.ts';
 import { loadFounderActivity } from '../backend/founder.ts';
 import { choice, segmented, settingGroup } from '../controls.ts';
 import { RARITIES, type Rarity } from '../profile.ts';
@@ -106,7 +107,7 @@ export function devPanel(section: DevSection, ctx: DevContext): { el: HTMLElemen
       class: 'text-field',
       attrs: { type: 'number', inputmode: 'numeric', min: '0', max: '2000', step: '1', 'aria-labelledby': 'dev-elo' },
     });
-    const plateButtons = [0, 1, 2, 3, 4].map((n) => {
+    const plateButtons = Array.from({ length: MAX_PLATE + 1 }, (_, n) => n).map((n) => {
       const btn = tool(copy.forge.plates[n], 'plate', () => n);
       btn.classList.replace('btn', 'segment');
       return btn;

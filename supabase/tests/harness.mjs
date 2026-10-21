@@ -43,7 +43,13 @@ export const old = {};
 // Just before ranked_ladder, players on the old scale (and a Ranked game each), to check the map.
 const LADDER = files.find((f) => f.endsWith('_ranked_ladder.sql'));
 old.ladder = [];
+// Just before diamond_plate, a player holding Starforged (then plate 4), to check they keep it.
+const DIAMOND = files.find((f) => f.endsWith('_diamond_plate.sql'));
 for (const f of files) {
+  if (f === DIAMOND) {
+    old.starforged = (await db.query(`insert into auth.users default values returning id`)).rows[0].id;
+    await db.query(`update public.profiles set plate = 4 where id = $1`, [old.starforged]);
+  }
   if (f === LADDER) {
     for (const elo of [100, 300, 600, 1200, 2000, 3000, 4800]) {
       const id = (await db.query(`insert into auth.users default values returning id`)).rows[0].id;

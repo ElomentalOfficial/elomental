@@ -1,5 +1,5 @@
 // The Forge and the sinks: forging, equip, bringing an avatar to life, plates, mends, the catalogue, Spirits, and what the move to whole avatars paid back.
-import { db, as, check, newPlayer, play, one, day, today, veteran, players } from './harness.mjs';
+import { db, as, check, newPlayer, play, one, day, today, veteran, players, old } from './harness.mjs';
 
 export default async function () {
   let err = null;
@@ -57,6 +57,23 @@ export default async function () {
   await db.query(`select public.buy_plate(2)`);
   const pl = (await db.query(`select plate, stardust from public.profiles where id = $1`, [e0])).rows[0];
   check(pl.plate === 2 && pl.stardust === 13800 - 3500, `Bronze then Silver plate: 3500 (${JSON.stringify(pl)})`);
+  // diamond_plate: five plates, Diamond between Gold and Starforged; Starforged holders keep it
+  const top = await newPlayer();
+  await db.exec(`update public.profiles set plate = 3, stardust = 30000 where id = '${top}'`);
+  await as(top);
+  err = null; try { await db.query(`select public.buy_plate(5)`); } catch (e) { err = e.message; }
+  check(err?.includes('plate_order'), 'Diamond comes before Starforged');
+  await db.query(`select public.buy_plate(4)`);
+  await db.query(`select public.buy_plate(5)`);
+  const tp = await one(`select plate, stardust from public.profiles where id = $1`, [top]);
+  check(tp.plate === 5 && tp.stardust === 30000 - 9000 - 14000, `Diamond 9000, then Starforged 14000 (${JSON.stringify(tp)})`);
+  err = null; try { await db.query(`select public.buy_plate(6)`); } catch (e) { err = e.message; }
+  check(err?.includes('top_plate'), 'nothing past Starforged');
+  err = null; try { await db.exec(`update public.profiles set plate = 6 where id = '${top}'`); } catch (e) { err = e.message; }
+  check(err?.includes('profiles_plate_check'), 'plates stop at 5');
+  const kept = await one(`select plate from public.profiles where id = $1`, [old.starforged]);
+  check(kept.plate === 5, `a Starforged holder keeps Starforged, now plate 5 (${kept.plate})`);
+  await as(e0);
   if (today > 4) {
     for (let n = 1; n <= 3; n++) await db.query(`select public.mend_daily($1)`, [day(n)]);
     err = null; try { await db.query(`select public.mend_daily($1)`, [day(4)]); } catch (e) { err = e.message; }

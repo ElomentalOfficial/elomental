@@ -58,6 +58,7 @@ export const RAMPS: Ramp[] = [
   { name: 'bronze', what: 'Bronze plate', steps: METAL, anchors: { 400: '#c4875a', 500: '#9a5b2c' } },
   { name: 'silver', what: 'Silver plate', steps: METAL, anchors: { 300: '#b3bac1', 500: '#66707c' } },
   { name: 'gold', what: 'Gold plate, medals', steps: METAL, anchors: { 200: '#f0cd78', 300: { C: 0.115, H: 86 }, 500: '#8f6a12' } },
+  { name: 'diamond', what: 'Diamond plate: ice, a cool cyan clear of Silver, Air and Water', steps: METAL, anchors: { 300: { C: 0.05, H: 200 }, 500: { C: 0.06, H: 205 } } },
   { name: 'star', what: 'Starforged plate (the top plate) and its glow', steps: METAL, anchors: { 200: '#ecd38c', 500: '#946410' } },
 ];
 
@@ -162,13 +163,15 @@ function hcRoles(s: Swatch, t: 'dark' | 'light'): Record<string, string> {
 }
 
 /**
- * The name plates (plates.css), one rule for the set: every metal on the same step in a theme, the
- * Starforged plate one step further from the surface (it is the top plate; its shape says the
- * tier, the metal only how fine it is). `chosen` is the plate on a chosen card or row, a step
+ * The name plates (plates.css), one rule for the set: every metal on the same step in a theme,
+ * the gem plates (Diamond, Starforged) one step further from the surface (their rules say the
+ * tier; the colour only how fine it is). `chosen` is the plate on a chosen card or row, a step
  * deeper on the light theme where that fill is a mid green.
  */
-const PLATES: [string, string][] = [['bronze', 'bronze'], ['silver', 'silver'], ['gold', 'gold'], ['elo', 'star']];
-type PlateTheme = 'dark' | 'light' | 'dark-hc' | 'light-hc';
+const PLATES: [string, string][] = [['bronze', 'bronze'], ['silver', 'silver'], ['gold', 'gold'], ['diamond', 'diamond'], ['elo', 'star']];
+/** The gem plates, a step further out than the metals: Diamond's ice would sit on Silver and Air otherwise. */
+const GEM_PLATES = new Set(['diamond', 'elo']);
+type PlateTheme ='dark' | 'light' | 'dark-hc' | 'light-hc';
 const PLATE_STEP: Record<PlateTheme, { metal: number; top: number; chosen: number; topChosen: number }> = {
   dark: { metal: 300, top: 200, chosen: 300, topChosen: 200 },
   light: { metal: 500, top: 600, chosen: 600, topChosen: 700 },
@@ -178,8 +181,8 @@ const PLATE_STEP: Record<PlateTheme, { metal: number; top: number; chosen: numbe
 function plateRoles(t: PlateTheme): string[] {
   const s = PLATE_STEP[t];
   return [
-    ...PLATES.map(([id, ramp]) => `  --plate-${id}: ${v(ramp, id === 'elo' ? s.top : s.metal)};`),
-    ...PLATES.map(([id, ramp]) => `  --plate-${id}-chosen: ${v(ramp, id === 'elo' ? s.topChosen : s.chosen)};`),
+    ...PLATES.map(([id, ramp]) => `  --plate-${id}: ${v(ramp, GEM_PLATES.has(id) ? s.top : s.metal)};`),
+    ...PLATES.map(([id, ramp]) => `  --plate-${id}-chosen: ${v(ramp, GEM_PLATES.has(id) ? s.topChosen : s.chosen)};`),
     // the Starforged glow: a halo of its own metal on dark; on the pale light surfaces a glow
     // only smudges, so the crown and the cartouche carry the tier there
     `  --plate-glow: ${t.startsWith('dark') ? rgba(PRIM['--c-star-200'], 0.55) : 'transparent'};`,

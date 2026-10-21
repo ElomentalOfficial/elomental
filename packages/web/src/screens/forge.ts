@@ -197,7 +197,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
   }
 
   /**
-   * The four name plates, right under the head: each drawn on its card, bought in order,
+   * The five name plates, right under the head: each drawn on its card, bought in order,
    * each replacing the last. Only the next one is a button; it opens a sheet to confirm.
    */
   function platesSection(f: Forge): HTMLElement {
@@ -228,7 +228,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
       { class: 'forge-plates' },
       h('div', { class: 'forge-heading-row' }, h('h2', { class: 'forge-heading', text: t.plateTitle }), h('span', { class: 'forge-count', text: t.plateCount(f.plate, MAX_PLATE) })),
       h('p', { class: 'forge-intro', text: t.plateIntro }),
-      h('div', { class: 'plate-grid' }, ...[1, 2, 3, 4].map(card)),
+      h('div', { class: 'plate-grid' }, ...Array.from({ length: MAX_PLATE }, (_, i) => card(i + 1))),
     );
   }
 

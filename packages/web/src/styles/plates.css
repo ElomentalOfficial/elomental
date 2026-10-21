@@ -1,88 +1,71 @@
 /* ---------- Name plates and polish (Stardust; a look only) ---------- */
-/* A plate is an Art Deco border around the name (plates.ts): Bronze a single line with
-   square corners, Silver a double line with stepped corners, Gold sunburst fans and gems,
-   the Starforged plate a pointed cartouche with a sunburst crown and a soft glow. The name
-   keeps its own colour; the border is decoration in the plate's metal (--plate: the metals
-   come from the palette, scripts/palette.ts PLATES, one step for all four per theme), worn in
-   specks and patches like the tiles' frames (art/plate-wear.webp, icons/make-plate-wear.mjs;
-   a plain image mask, which Firefox draws as crisply). The lines are 1.5px so the wear
-   doesn't thin them to nothing. */
+/* A plate is an Art Deco rule under the name (plates.ts): Bronze one line and diamonds, up to
+   Starforged's three lines, ringed gems and hanging sun with a soft glow. The name keeps its own
+   colour; the rule is decoration in the plate's metal (--plate: the metals come from the
+   palette, scripts/palette.ts PLATES, one step for all five per theme), worn in specks and
+   patches like the tiles' frames (art/plate-wear.webp, icons/make-plate-wear.mjs; a plain image
+   mask, which Firefox draws as crisply). */
 .name-plate {
   position: relative;
   display: inline-block;
   max-width: 100%;
-  padding: 7px 22px;
-  /* the border takes no more room than the name did */
-  margin: -7px 0;
+  /* never narrower than the rule's own ends and centre */
+  min-width: calc(var(--plate-min) * var(--plate-zoom, 1));
+  /* the rule's band sits under the name, a little apart */
+  padding-bottom: calc(var(--plate-h) * var(--plate-zoom, 1) + var(--plate-gap, var(--space-1)));
+  text-align: center;
 }
-/* a name as long as names may be (20 letters, no spaces) wraps inside its plate */
+/* The rule grows with the name it sits under (--plate-zoom, half following Text size): drawn
+   for a Forge card's small name, larger under the Profile, Home and player card titles. */
+.plate-sample { --plate-zoom: calc(0.5 + 0.5 * var(--text-scale)); }
+.plate-sheet .plate-preview { --plate-zoom: calc(1.25 * (0.5 + 0.5 * var(--text-scale))); }
+.profile-plate,
+.profile-name,
+.card-name {
+  --plate-zoom: calc(1.5 * (0.5 + 0.5 * var(--text-scale)));
+  --plate-gap: var(--space-2);
+}
+/* a name as long as names may be (20 letters, no spaces) wraps above its rule */
 .name-plate .plate-text {
   white-space: normal;
   overflow-wrap: anywhere;
 }
-/* gems and the crown reach past the lines: room so they don't touch what's around (the side
-   ornaments reach up to 6px out) */
-.name-plate.plate-3 {
-  margin: -4px 0 4px;
-}
-.name-plate:is(.plate-1, .plate-2, .plate-3) {
-  max-width: calc(100% - 12px);
-  margin-inline: 6px;
-}
-.name-plate.plate-4 {
-  padding: 8px 32px;
-  margin: 14px 12px 6px;
-}
-.plate-1 { --plate: var(--plate-bronze); --side-gap: 3px; }
-.plate-2 { --plate: var(--plate-silver); --side-gap: 6.25px; }
-.plate-3 { --plate: var(--plate-gold); }
-.plate-4 { --plate: var(--plate-elo); }
+/* each plate: its metal, its band's height (plates.ts RULES h), its narrowest width (ends +
+   centre), and the height of its lines alone (leaderboard rows) */
+.plate-1 { --plate: var(--plate-bronze); --plate-h: 10px; --plate-min: 40px; --plate-rule: 7px; }
+.plate-2 { --plate: var(--plate-silver); --plate-h: 13px; --plate-min: 50px; --plate-rule: 8px; }
+.plate-3 { --plate: var(--plate-gold); --plate-h: 13px; --plate-min: 62px; --plate-rule: 8px; }
+.plate-4 { --plate: var(--plate-diamond); --plate-h: 16px; --plate-min: 70px; --plate-rule: 11px; }
+.plate-5 { --plate: var(--plate-elo); --plate-h: 20px; --plate-min: 80px; --plate-rule: 11px; }
 /* on a chosen card or your own leaderboard row: the chosen step (deeper on the light theme's green) */
 :is(.plate-card.state-yours, .lb-row.is-me) .plate-1 { --plate: var(--plate-bronze-chosen); }
 :is(.plate-card.state-yours, .lb-row.is-me) .plate-2 { --plate: var(--plate-silver-chosen); }
 :is(.plate-card.state-yours, .lb-row.is-me) .plate-3 { --plate: var(--plate-gold-chosen); }
-:is(.plate-card.state-yours, .lb-row.is-me) .plate-4 { --plate: var(--plate-elo-chosen); }
+:is(.plate-card.state-yours, .lb-row.is-me) .plate-4 { --plate: var(--plate-diamond-chosen); }
+:is(.plate-card.state-yours, .lb-row.is-me) .plate-5 { --plate: var(--plate-elo-chosen); }
 .plate-frame {
   position: absolute;
-  inset: -24px -16px;
+  left: -16px;
+  right: -16px;
+  bottom: -16px;
+  padding: 16px;
   color: var(--plate);
   pointer-events: none;
-  -webkit-mask: url('../art/plate-wear.webp') 0 0 / 128px 128px repeat;
-  mask: url('../art/plate-wear.webp') 0 0 / 128px 128px repeat;
+  /* worn, but never below 60% of the metal, so thin parallel lines don't break into dots */
+  -webkit-mask: url('../art/plate-wear.webp') 0 0 / 128px 128px repeat, linear-gradient(rgb(0 0 0 / 0.6) 0 0);
+  -webkit-mask-composite: source-over;
+  mask: url('../art/plate-wear.webp') 0 0 / 128px 128px repeat, linear-gradient(rgb(0 0 0 / 0.6) 0 0);
+  mask-composite: add;
 }
+/* end · lines · centre · lines · end, the centre always in the middle */
 .plate-box {
-  --plate-line: 1.5px;
-  position: absolute;
-  inset: 24px 16px;
-}
-/* the straight lines are inset shadows, not borders: Chrome rounds a 1.5px border down to
-   1px. Each line is centred 0.5px (outer) and 3.5px (inner) in, as the ornaments are drawn. */
-.plate-box::before,
-.plate-box::after {
-  content: '';
-  position: absolute;
-  inset: -0.25px;
-  box-shadow: inset 0 0 0 var(--plate-line) currentColor;
-}
-.plate-box::after {
-  inset: 2.75px;
-}
-@media (forced-colors: active) {
-  .plate-box::before,
-  .plate-box::after {
-    box-shadow: none;
-    border: 1px solid CanvasText;
-  }
-  .plate-4 .plate-box::before,
-  .plate-4 .plate-box::after {
-    border-inline: 0;
-  }
-}
-.plate-1 .plate-box::after {
-  content: none;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr) auto;
+  align-items: start;
+  height: calc(var(--plate-h) * var(--plate-zoom, 1));
 }
 .plate-box svg {
-  position: absolute;
+  display: block;
   overflow: visible;
   fill: none;
   stroke: currentColor;
@@ -92,56 +75,28 @@
   fill: currentColor;
   stroke: none;
 }
-/* (sizes set here too: other rules stretch icons to their box) */
-.plate-box .plate-corner { width: 21px; height: 21px; }
-.plate-box .plate-mid { width: 20px; height: 14px; }
-.plate-corner { top: -5px; left: -5px; }
-.plate-corner.c-tr { left: auto; right: -5px; transform: scaleX(-1); }
-.plate-corner.c-bl { top: auto; bottom: -5px; transform: scaleY(-1); }
-.plate-corner.c-br { top: auto; left: auto; bottom: -5px; right: -5px; transform: scale(-1); }
-.plate-mid { top: -7px; left: calc(50% - 10px); }
-.plate-mid.m-b { top: auto; bottom: -7px; transform: scaleY(-1); }
-/* The sides' middles (plates.ts SIDES): a fixed size pinned at half the height, so a wrapped
-   name keeps them centred. Behind Bronze's open box and Silver's steps the outer line breaks
-   (--side-gap, half the break); Gold's gem lies over it. Leaderboard rows hide the ornaments
-   (leaderboard.css), so their lines stay whole. */
-.plate-box .plate-side { width: 20px; height: 20px; top: calc(50% - 10px); left: -10px; }
-.plate-box .plate-side.s-r { left: auto; right: -10px; transform: scaleX(-1); }
-:is(.plate-1, .plate-2):not(.lb-name) .plate-box::before {
-  --keep: linear-gradient(#000 0 0);
-  -webkit-mask:
-    var(--keep) top / 100% calc(50% - var(--side-gap)) no-repeat,
-    var(--keep) bottom / 100% calc(50% - var(--side-gap)) no-repeat,
-    var(--keep) center / calc(100% - 4px) 100% no-repeat;
-  mask:
-    var(--keep) top / 100% calc(50% - var(--side-gap)) no-repeat,
-    var(--keep) bottom / 100% calc(50% - var(--side-gap)) no-repeat,
-    var(--keep) center / calc(100% - 4px) 100% no-repeat;
+/* (sizes set here too: other rules stretch icons to their box) the ends and the centre at their
+   drawn size, the lines across their column at the height they're drawn for */
+.plate-box svg:not(.plate-lines) {
+  width: auto;
+  height: calc(var(--plate-h) * var(--plate-zoom, 1));
 }
-/* The Starforged plate: the straight lines stop where the pointed ends begin (26px in). */
-/* (not on leaderboard rows: there it was one prestige mark too many, M31) */
-.plate-4:not(.lb-name) .plate-box {
+.plate-box .plate-lines {
+  width: 100%;
+  height: calc(var(--plate-rule) * var(--plate-zoom, 1));
+  stroke-width: calc(1.5px * var(--plate-zoom, 1));
+  stroke-linecap: square;
+}
+.plate-box .e-r {
+  transform: scaleX(-1);
+}
+.plate-box .ring {
+  opacity: 0.6;
+}
+/* Starforged's glow (not on leaderboard rows: there it was one prestige mark too many, M31) */
+.plate-5:not(.lb-name) .plate-box {
   filter: drop-shadow(0 0 2px var(--plate-glow));
 }
-.plate-4 .plate-box::before,
-.plate-4 .plate-box::after {
-  left: 26px;
-  right: 26px;
-  box-shadow: inset 0 var(--plate-line) currentColor, inset 0 calc(-1 * var(--plate-line)) currentColor;
-}
-.plate-box .elo-end,
-.plate-box .elo-inner {
-  left: 0;
-  width: 26px;
-}
-.plate-box .elo-end { top: 0.5px; height: calc(100% - 1px); }
-.plate-box .elo-inner { top: 3.5px; height: calc(100% - 7px); }
-.plate-box .e-r { left: auto; right: 0; transform: scaleX(-1); }
-.plate-box .elo-tip { width: 21px; height: 14px; top: calc(50% - 7px); left: -13.5px; }
-.plate-box .elo-tip.t-r { left: auto; right: -13.5px; transform: scaleX(-1); }
-.plate-box .elo-tip .ring { opacity: 0.6; }
-.plate-box .elo-crown { width: 44px; height: 22px; top: -20.5px; left: calc(50% - 22px); }
-.plate-box .elo-drop { width: 24px; height: 11px; top: calc(100% - 2.5px); left: calc(50% - 12px); }
 .plate-sheet,
 .mend-sheet {
   text-align: center;
@@ -152,7 +107,7 @@
   padding: 0 44px;
 }
 /* Name plates on the Forge page (forge.ts platesSection): a card per plate, the plate drawn
-   around its own name; the next one is a button, ready to get with an accent outline. */
+   under its own name; the next one is a button, ready to get with an accent outline. */
 .forge-plates {
   display: flex;
   flex-direction: column;
@@ -184,10 +139,19 @@
   background: var(--surface-2);
   color: var(--text);
 }
+/* two columns on a phone, four when wide, Starforged across the row below; one column at large text */
 .plate-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(104px * var(--text-scale))), 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-2);
+}
+@media (min-width: 600px) {
+  .plate-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+html[data-large-text] .plate-grid {
+  grid-template-columns: 1fr;
 }
 .plate-card {
   display: flex;
@@ -206,10 +170,9 @@
 button.plate-card {
   cursor: var(--cursor-pointer);
 }
-/* the top plate gets the whole row, with room for its crown */
-.plate-card-4 {
+/* the top plate gets the whole row */
+.plate-card-5 {
   grid-column: 1 / -1;
-  padding-top: var(--space-6);
 }
 .plate-card.state-ready {
   box-shadow: inset 0 0 0 2px var(--field-border);
@@ -221,13 +184,9 @@ button.plate-card {
 .plate-card.state-ready .part-state {
   color: var(--text);
 }
-/* A plate you've moved past: its frame fades, the name stays at full contrast ("Replaced" says why). */
+/* A plate you've moved past: its rule fades, the name stays at full contrast ("Replaced" says why). */
 .plate-card.state-replaced .plate-sample > :not(.plate-text) {
   opacity: 0.45;
-}
-/* Bronze's thin corners leave room for a narrower inset; Gold's and Starforged's art needs theirs */
-.plate-card-1 .plate-sample {
-  padding-inline: var(--space-3);
 }
 /* the cards name the plate ("Bronze"), one word that shouldn't break; the sheet shows long player names */
 .plate-card .plate-sample .plate-text {
