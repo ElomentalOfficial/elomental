@@ -1,0 +1,23 @@
+/* ---------- The beta site's tag (beta.ts) ---------- */
+/* Small, in the bottom left corner, under everything that matters (the update bar covers it). */
+.beta-tag {
+  position: fixed;
+  left: calc(env(safe-area-inset-left) + var(--space-2));
+  bottom: calc(env(safe-area-inset-bottom) + var(--space-2));
+  z-index: 54;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1.5px var(--field-border);
+  color: var(--text);
+  font-size: var(--fs-caption);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+@media (forced-colors: active) {
+  .beta-tag {
+    border: 1px solid CanvasText;
+  }
+}

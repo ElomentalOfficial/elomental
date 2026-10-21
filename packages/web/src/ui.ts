@@ -42,7 +42,9 @@ export function mount(screen: Screen): void {
   closeAllModals();
   current = screen;
   document.getElementById('app')!.replaceChildren(screen.el);
-  document.title = screen.title ? copy.common.pageTitle(screen.title) : copy.common.appName;
+  const title = screen.title ? copy.common.pageTitle(screen.title) : copy.common.appName;
+  // the beta site's tabs say so (beta.ts)
+  document.title = document.documentElement.dataset.env === 'beta' ? copy.common.betaTitle(title) : title;
   const scroller = screen.el.classList.contains('scrollable') ? screen.el : screen.el.querySelector<HTMLElement>(':scope > .sub-body');
   if (scroller) watchEdges(scroller);
 }

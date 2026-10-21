@@ -2,17 +2,23 @@ import { createClient } from '@supabase/supabase-js';
 
 /**
  * The Supabase project. Public by design: the publishable key only reaches
- * what RLS and the function grants allow.
+ * what RLS and the function grants allow. The live project unless a build names
+ * another (the beta site, .github/workflows/beta.yml: VITE_SUPABASE_URL and
+ * VITE_SUPABASE_KEY), so a beta build never touches live players' data.
  */
-export const SUPABASE_URL = 'https://xekeiwaxxsmvalezgtyj.supabase.co';
-export const SUPABASE_KEY = 'sb_publishable_n7EsqEfzlcUCn6GI7YFdxw_Y74WqUwT';
+export const SUPABASE_URL: string = import.meta.env.VITE_SUPABASE_URL || 'https://xekeiwaxxsmvalezgtyj.supabase.co';
+export const SUPABASE_KEY: string = import.meta.env.VITE_SUPABASE_KEY || 'sb_publishable_n7EsqEfzlcUCn6GI7YFdxw_Y74WqUwT';
 
 /**
  * Cloudflare Turnstile site key (public; its secret lives only in Supabase,
  * Authentication → Attack Protection). Widget "Elomental" in Cloudflare → Turnstile,
- * for elomental.online. Empty: no captcha is asked for (captcha.ts).
+ * for elomental.online and beta.elomental.online. Empty: no captcha is asked for
+ * (captcha.ts).
  */
-export const TURNSTILE_SITE_KEY = '0x4AAAAAAFbT-did4rZdUb9s';
+export const TURNSTILE_SITE_KEY: string = import.meta.env.VITE_TURNSTILE_SITE_KEY ?? '0x4AAAAAAFbT-did4rZdUb9s';
+
+/** A beta build (beta.elomental.online, against the beta project): marked as such (beta.ts). */
+export const IS_BETA = import.meta.env.VITE_ENV === 'beta';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
   auth: {

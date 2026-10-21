@@ -15,8 +15,10 @@ import { installUiScale } from './scale.ts';
 import { applyGrain } from './grain.ts';
 import { installAddToHome } from './install.ts';
 import { installUpdateCheck } from './update.ts';
+import { installBetaMark } from './beta.ts';
 
 applyTheme();
+installBetaMark();
 installA11y();
 applyGrain();
 installUiScale();
