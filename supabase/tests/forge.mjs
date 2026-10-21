@@ -73,6 +73,9 @@ export default async function () {
   check(err?.includes('profiles_plate_check'), 'plates stop at 5');
   const kept = await one(`select plate from public.profiles where id = $1`, [old.starforged]);
   check(kept.plate === 5, `a Starforged holder keeps Starforged, now plate 5 (${kept.plate})`);
+  await as(old.starforged);
+  err = null; try { await db.query(`select public.buy_plate(4)`); } catch (e) { err = e.message; }
+  check(err?.includes('top_plate'), 'a Starforged holder can\'t buy Diamond under it');
   await as(e0);
   if (today > 4) {
     for (let n = 1; n <= 3; n++) await db.query(`select public.mend_daily($1)`, [day(n)]);

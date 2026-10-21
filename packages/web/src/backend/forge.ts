@@ -47,7 +47,7 @@ export interface Forge {
   /** Owned part ids (Happy always), with a first-edition number and polish (1: alive). */
   owned: Map<string, { edition: number | null; polish: number }>;
   polish: Polish;
-  /** Name plate: 0 none, 1 Bronze … 4 Starforged. */
+  /** Name plate: 0 none, 1 Bronze … 4 Diamond, 5 Starforged. */
   plate: number;
   loadout: Loadout;
   stardust: number;

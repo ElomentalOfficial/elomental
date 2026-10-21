@@ -135,7 +135,7 @@ One name per concept. Player-facing text uses exactly these.
 | Buying a Spirit | **Call a Spirit**: "Call a Spirit · 15000 Stardust" | buy, summon, purchase | Stardust only, never money. |
 | A square that counts toward parts | **counted square** (the first 9 solved each day) | rated solve, valid solve | |
 | Animating an avatar | **bring to life** (polish, once): "Bring to life · 6000 Stardust and a Spirit"; it's then **Alive** | upgrade, level up, enhance, animate | A look only; never stronger. |
-| Behind the name | **name plate**: Bronze, Silver, Gold, Starforged | banner, badge, frame, Elomentalist | "Frame" is an avatar slot. The top plate was "Elomentalist" until the Elomental rank (2026-10-21): a bought look must never sound like an earned rank. |
+| Under the name | **name plate**: Bronze, Silver, Gold, Diamond, Starforged | banner, badge, frame, Elomentalist | "Frame" is an avatar slot. The top plate was "Elomentalist" until the Elomental rank (2026-10-21): a bought look must never sound like an earned rank. |
 | Missed Daily | **fill in** a missed day: "Fill in October 12?" | mend, repair, buy back, streak freeze | "Mend" is only an internal word. |
 | Your page | **Profile** (from Home's avatar) | account, card | "Account" is sign-in and email (Setup). |
 | Avatar pieces | **part**; slots **Backdrop**, **Sigil**, **Frame**, **Crest**, **Aura** | item, cosmetic, skin | |
