@@ -48,7 +48,14 @@ const DIAMOND = files.find((f) => f.endsWith('_diamond_plate.sql'));
 // Just before account_level, a player with a past Medium Casual win and a Ranked loss, to check
 // the backfill pays the win (20 XP) and not the loss.
 const LEVEL = files.find((f) => f.endsWith('_account_level.sql'));
+// Just before level_plates, a player who bought Bronze and Silver (3,500 Stardust), to check the refund.
+const LEVEL_PLATES = files.find((f) => f.endsWith('_level_plates.sql'));
 for (const f of files) {
+  if (f === LEVEL_PLATES) {
+    old.plateBuyer = (await db.query(`insert into auth.users default values returning id`)).rows[0].id;
+    await db.query(`update public.profiles set plates_owned = 2, plate = 2, stardust = 0 where id = $1`, [old.plateBuyer]);
+    await db.query(`insert into private.ledger (player_id, reason, ref, stardust) values ($1, 'plate', '1', -1000), ($1, 'plate', '2', -2500)`, [old.plateBuyer]);
+  }
   if (f === LEVEL) {
     old.veteranXp = (await db.query(`insert into auth.users default values returning id`)).rows[0].id;
     await db.query(`insert into public.games (user_id, mode, difficulty, seed, rating, started_at, finished_at, won) values
