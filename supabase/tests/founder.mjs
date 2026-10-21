@@ -109,6 +109,21 @@ export default async function () {
   check((await one(`select count(*)::int n from auth.users where id = $1`, [fo])).n === 1, 'remove: a founder\'s account never goes');
   const actions = (await db.query(`select action from private.founder_log where action like 'tester_%'`)).rows.map((r) => r.action);
   check(actions.length === 4, `adding and removing testers is logged (${actions.join(', ')})`);
+  // every session: the account's current email must be a tester's or a founder's
+  const token = async (uid) => (await one(`select public.hook_beta_access_token($1::jsonb) j`, [JSON.stringify({ user_id: uid, claims: { sub: uid, role: 'authenticated' } })])).j;
+  const guest = (await one(`insert into auth.users (is_anonymous) values (true) returning id`)).id;
+  check((await token(guest)).error?.message === 'not_a_tester', 'session: a guest gets no session on beta');
+  check((await token(fo)).claims?.sub === fo, 'session: a founder keeps their claims');
+  await db.query(`select public.beta_tester_add('kept@example.test')`);
+  const kept = (await one(`insert into auth.users (email, email_confirmed_at) values ('kept@example.test', now()) returning id`)).id;
+  check(!!(await token(kept)).claims, 'session: a tester gets one');
+  await db.query(`update auth.users set email = 'elsewhere@example.test' where id = $1`, [kept]);
+  check((await token(kept)).error?.message === 'not_a_tester', 'session: a tester who changed their email to an unlisted one is out');
+  await db.exec(`update private.app_flags set enabled = false where name = 'dev_tools'`);
+  check((await token(guest)).claims?.sub === guest, 'live: the session hook passes everyone');
+  check(JSON.stringify(await hook('stranger@example.test')) === '{}', 'live: the sign-up hook passes everyone');
+  await db.exec(`update private.app_flags set enabled = true where name = 'dev_tools'`);
+  check((await one(`select has_function_privilege('authenticated', 'public.hook_beta_access_token(jsonb)', 'execute') a`)).a === false, 'players can\'t call the session hook');
   await as(plain);
   check((await tryq(`select public.beta_testers()`)).err?.includes('not_admin'), 'players can\'t see the list');
   check((await one(`select has_function_privilege('authenticated', 'public.hook_before_user_created(jsonb)', 'execute') a`)).a === false, 'players can\'t call the hook');
