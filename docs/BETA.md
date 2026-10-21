@@ -49,14 +49,22 @@ The owner's accounts; done once.
    elomental.online is verified for ElomentalOfficial (TXT `_github-pages-challenge-elomentalofficial`).
 4. **Pages.** In `elomental-beta` > Settings > Pages: Source "GitHub Actions"; custom domain
    `beta.elomental.online`; Enforce HTTPS once the certificate is ready.
-5. **Supabase beta: sign-in.** Authentication > URL Configuration: Site URL
-   `https://beta.elomental.online`, and the same under Redirect URLs. Authentication > Sign In /
-   Providers: allow anonymous sign-ins and email, as on live. Email templates as on live
-   (`supabase/templates`).
-6. **Cloudflare Turnstile.** The "Elomental" widget > Hostnames: add `beta.elomental.online`.
-   In the beta project, Authentication > Attack Protection: the same Turnstile secret as live.
-7. **Founders.** Sign in on beta and make your account a founder there (Claude, in the beta
-   project's `private.founders`).
+5. **Supabase beta: sign-in.** Done 2026-10-22: Site URL `https://beta.elomental.online/` and
+   Redirect URL `https://beta.elomental.online/**`; anonymous sign-ins and email on, as on live;
+   custom SMTP as on live (sender name "Elomental Beta"); the three templates from
+   `supabase/templates`.
+6. **No Turnstile on beta**: the beta build sets no site key, so there's no captcha there.
+7. **Founders.** Done 2026-10-22: the owner's email is in the beta project's `private.founders`.
+   Review needs a pinned authenticator: set one up on beta, then pin it
+   (`private.pin_founder_factor`).
+
+## Email (both projects)
+
+Sent through Brevo (the Elomentalgame account), SMTP login `bf6722001@smtp-brevo.com`, from
+`noreply@elomental.online`. elomental.online is authenticated in Brevo (brevo-code TXT, DKIM
+`brevo1`/`brevo2._domainkey`, DMARC `p=none`) and branded: Brevo's tracked links go through
+`mail.elomental.online` (CNAMEs `mail`, `r.mail`, `img.mail`), not `sendibt3.com`, which ad
+blockers stop.
 
 ## Notes
 
