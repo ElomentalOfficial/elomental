@@ -1,5 +1,5 @@
 // Founders: the authenticator gate and dev mode.
-import { db, as, check, newPlayer, play, players } from './harness.mjs';
+import { db, as, check, newPlayer, one, play, players, tryq } from './harness.mjs';
 
 export default async function () {
   let err = null;
@@ -77,5 +77,43 @@ export default async function () {
   await db.exec(`select set_config('test.aal', 'aal1', false)`);
   err = null; try { await db.query(`select public.founder_activity()`); } catch (e) { err = e.message; }
   check(err?.includes('not_admin'), 'the log needs the code too');
+  await db.exec(`select set_config('test.aal', 'aal2', false)`);
+
+  // --- 11. live: no dev tools (the dev_tools flag off), Review only
+  await db.query(`select public.dev_set_mode(true)`);
+  await db.exec(`update private.app_flags set enabled = false where name = 'dev_tools'`);
+  check((await one(`select private.dev_on($1) d`, [fo])).d === false, 'live: dev mode that was on does nothing');
+  check((await tryq(`select public.dev_action('fill')`)).err?.includes('dev_off'), 'live: the dev tools are refused');
+  check((await tryq(`select public.dev_set_mode(true)`)).err?.includes('beta_only'), 'live: dev mode can\'t be turned on');
+  check(!!(await tryq(`select public.dev_set_mode(false)`)).ok, 'live: dev mode can still be turned off');
+  check((await tryq(`select public.dev_show_founders(true)`)).err?.includes('beta_only'), 'live: Show founders can\'t be changed');
+  check((await tryq(`select public.beta_tester_add('x@example.test')`)).err?.includes('beta_only'), 'live: no tester list');
+  await db.exec(`update private.app_flags set enabled = true where name = 'dev_tools'`);
+
+  // --- 12. beta testers: only listed emails (and founders) get an account
+  const hook = async (email) => (await one(`select public.hook_before_user_created($1::jsonb) j`, [JSON.stringify({ user: { email } })])).j;
+  check((await hook('stranger@example.test')).error?.message === 'not_a_tester', 'hook: an email not on the list is refused');
+  check((await hook(null)).error?.http_code === 403, 'hook: a guest (no email) is refused');
+  check(JSON.stringify(await hook('Founder@Example.test')) === '{}', 'hook: a founder always gets in');
+  check((await tryq(`select public.beta_tester_add('not an email')`)).err?.includes('bad_email'), 'add: refuses what isn\'t an email');
+  await db.query(`select public.beta_tester_add('  Tester@Example.TEST ')`);
+  check(JSON.stringify(await hook('tester@example.test')) === '{}', 'hook: a tester gets in (any case, trimmed)');
+  const testerId = (await one(`insert into auth.users (email, email_confirmed_at) values ('tester@example.test', now()) returning id`)).id;
+  const list = (await one(`select public.beta_testers() j`)).j;
+  check(list.length === 1 && list[0].email === 'tester@example.test', `the list shows the tester (${JSON.stringify(list)})`);
+  await db.query(`select public.beta_tester_remove('tester@example.test')`);
+  check((await one(`select count(*)::int n from auth.users where id = $1`, [testerId])).n === 0, 'remove: their beta account goes');
+  check((await hook('tester@example.test')).error?.message === 'not_a_tester', 'remove: and they can\'t sign up again');
+  await db.query(`select public.beta_tester_add('founder@example.test')`);
+  await db.query(`select public.beta_tester_remove('founder@example.test')`);
+  check((await one(`select count(*)::int n from auth.users where id = $1`, [fo])).n === 1, 'remove: a founder\'s account never goes');
+  const actions = (await db.query(`select action from private.founder_log where action like 'tester_%'`)).rows.map((r) => r.action);
+  check(actions.length === 4, `adding and removing testers is logged (${actions.join(', ')})`);
+  await as(plain);
+  check((await tryq(`select public.beta_testers()`)).err?.includes('not_admin'), 'players can\'t see the list');
+  check((await one(`select has_function_privilege('authenticated', 'public.hook_before_user_created(jsonb)', 'execute') a`)).a === false, 'players can\'t call the hook');
+  await as(fo);
+  await db.query(`select public.dev_set_mode(false)`);
+  await db.exec(`select set_config('test.aal', 'aal1', false)`);
   Object.assign(players, { fo });
 }

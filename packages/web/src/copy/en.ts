@@ -821,6 +821,8 @@ export const refusals = {
     not_admin: 'Only founders can use dev mode.',
     dev_off: 'Turn dev mode on first.',
     bad_request: 'That value isn’t allowed.',
+    beta_only: 'This is only on beta.elomental.online.',
+    bad_email: 'Enter an email address.',
   } as Record<string, string>,
   devOffline: 'No connection. Nothing changed.',
   /** choose_affinity */
@@ -957,6 +959,8 @@ export const setup = {
   },
   dev: 'Founder tools',
   devHelp: (on: boolean) => (on ? 'Players to review, and testing tools (dev mode on).' : 'Players to review, and testing tools (dev mode off).'),
+  /** Live: the founder tools are Review only (dev mode is on beta). */
+  devHelpLive: 'Players to review and their games.',
   openDev: 'Open founder tools',
 };
 
@@ -1145,7 +1149,7 @@ export const privacy = {
 
 export const founder = {
   title: 'Founder tools',
-  lockedHelp: 'Review and Dev mode need a code from your authenticator app, on top of your email.',
+  lockedHelp: 'Founder tools need a code from your authenticator app, on top of your email.',
   setUp: 'Set up authenticator',
   unlock: 'Enter code',
   setUpTitle: 'Set up your authenticator',
@@ -1170,18 +1174,40 @@ export const founder = {
     dev_on: 'Dev mode on', dev_off: 'Dev mode off', fill: 'Filled up', empty: 'Emptied', unlock_all: 'Unlocked every part',
     clear_parts: 'Removed every part', plate: 'Name plate', level: 'Level', elo: 'Elo', next_drop: 'Next part', next_spirit: 'Next Spirit',
     forget_affinity: 'Forgot faction', show_founders: 'Founders shown', hide_founders: 'Founders hidden', review_clear: 'Review: cleared', review_restrict: 'Review: restricted', review_lift: 'Review: lifted',
+    tester_add: 'Tester added', tester_remove: 'Tester removed',
   } as Record<string, string>,
 };
 // --- Founder tools (screens/founderConsole.ts; plain, literal) -----------------
 
 export const founderConsole = {
   title: 'Founder tools',
-  groups: { players: 'Players', account: 'My account', activity: 'Activity' },
+  groups: { players: 'Players', account: 'My account', beta: 'Beta', activity: 'Activity' },
   sections: {
     open: 'To review', banned: 'Banned', history: 'History', search: 'Search',
     devmode: 'Dev mode', show: 'Show founders', tools: 'Stardust and parts', account: 'Account',
-    activity: 'Founder activity',
+    testers: 'Testers', activity: 'Founder activity',
   } as Record<string, string>,
+};
+
+// --- Beta testers (founders on beta only; plain, literal) ---------------------
+// screens/dev.ts: who may sign in on beta.elomental.online.
+
+export const testers = {
+  intro: 'Only these emails can sign in on beta. Founders always can.',
+  addTitle: 'Add a tester',
+  addHelp: 'They sign in on beta.elomental.online with this email and the code it gets.',
+  add: 'Add',
+  added: (email: string) => `${email} can sign in on beta now.`,
+  listTitle: 'Testers',
+  empty: 'No testers yet.',
+  notJoined: 'Hasn’t signed in yet',
+  lastSeen: (name: string | null, when: string) => (name ? `${name} · last signed in ${when}` : `Last signed in ${when}`),
+  remove: 'Remove',
+  a11yRemove: (email: string) => `Remove ${email}`,
+  removeTitle: (email: string) => `Remove ${email}?`,
+  removeText: 'They can’t sign in on beta any more, and their beta account and progress are deleted. Live isn’t touched.',
+  removed: (email: string) => `${email} removed.`,
+  loadFailed: 'Couldn’t load the testers. Try again.',
 };
 
 // --- Dev mode (founders only; plain, literal) --------------------------------

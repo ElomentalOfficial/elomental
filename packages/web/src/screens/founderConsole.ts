@@ -1,5 +1,6 @@
 import { onA11yChange } from '../a11y.ts';
 import { cachedAccount, fetchReviewPage, onAccountChange, type ReviewView } from '../backend.ts';
+import { IS_BETA } from '../backend/client.ts';
 import { foundersShown } from '../backend/dev.ts';
 import { ICONS } from '../icons.ts';
 import { readJson, writeJson } from '../storage.ts';
@@ -21,11 +22,19 @@ import * as copy from '../copy/en.ts';
 
 type Section = ReviewView | DevSection | 'search';
 
+// Live is for catching cheaters: Review only. Dev mode and the testers are beta's
+// (migration beta_testers; the server refuses them on live too).
 const GROUPS: { title: string; sections: Section[] }[] = [
   { title: copy.founderConsole.groups.players, sections: ['open', 'banned', 'history'] },
-  { title: copy.founderConsole.groups.account, sections: ['devmode', 'show', 'tools', 'account'] },
+  ...(IS_BETA
+    ? [
+        { title: copy.founderConsole.groups.account, sections: ['devmode', 'show', 'tools', 'account'] as Section[] },
+        { title: copy.founderConsole.groups.beta, sections: ['testers'] as Section[] },
+      ]
+    : []),
   { title: copy.founderConsole.groups.activity, sections: ['activity'] },
 ];
+const SECTIONS = GROUPS.flatMap((g) => g.sections);
 const LAST_KEY = 'elomental:console-section';
 const WIDE = '(min-width: 900px)';
 /** Typing pauses this long before the search opens. */
@@ -199,7 +208,10 @@ export function founderConsole(): Screen {
   }
 
   /** The wide section to open: To review, or the last one used. */
-  const startSection = (): Section => readJson<Section>(LAST_KEY) ?? 'open';
+  const startSection = (): Section => {
+    const last = readJson<Section>(LAST_KEY);
+    return last && SECTIONS.includes(last) ? last : 'open';
+  };
 
   function onLayout() {
     const now = isWide();
@@ -217,10 +229,11 @@ export function founderConsole(): Screen {
   if (wide) open(startSection(), false);
   else render();
   void fetchReviewPage('open', 0, 1).then((page) => setCounts(page.counts)).catch(() => undefined);
-  void foundersShown().then((value) => {
-    shown = value;
-    paintNav();
-  });
+  if (IS_BETA)
+    void foundersShown().then((value) => {
+      shown = value;
+      paintNav();
+    });
 
   return {
     el,

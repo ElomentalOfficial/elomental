@@ -13,13 +13,13 @@ export const db = new PGlite({ extensions: { pg_trgm } });
 
 // --- Supabase stand-ins
 await db.exec(`
-  create role anon; create role authenticated; create role service_role;
+  create role anon; create role authenticated; create role service_role; create role supabase_auth_admin;
   create schema auth; create schema extensions;
   -- stand-in for pgcrypto's gen_random_bytes (live has the real one)
   create function extensions.gen_random_bytes(n integer) returns bytea language sql volatile as $$
     select decode(string_agg(lpad(to_hex(floor(random() * 256)::int), 2, '0'), ''), 'hex') from generate_series(1, n) $$;
   create table auth.users (id uuid primary key default gen_random_uuid(), email text, email_confirmed_at timestamptz, is_anonymous boolean default false,
-    raw_user_meta_data jsonb default '{}', created_at timestamptz default now());
+    raw_user_meta_data jsonb default '{}', created_at timestamptz default now(), last_sign_in_at timestamptz);
   create table auth.mfa_factors (id uuid primary key default gen_random_uuid(), user_id uuid not null, status text not null default 'unverified',
     factor_type text default 'totp', created_at timestamptz default now());
   create table auth.sessions (id uuid primary key default gen_random_uuid(), user_id uuid not null, factor_id uuid, aal text default 'aal1');
@@ -115,6 +115,8 @@ for (const f of files) {
   }
 }
 console.log('all', files.length, 'migrations applied');
+// The tests run as the beta project does (dev tools on); founder.mjs checks live's side.
+await db.exec(`update private.app_flags set enabled = true where name = 'dev_tools'`);
 
 export const SOLVED = '534678912672195348198342567859761423426853791713924856961537284287419635345286179';
 export const as = (uid) => db.exec(`select set_config('test.uid', '${uid}', false)`);

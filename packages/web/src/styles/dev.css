@@ -81,6 +81,23 @@
 .activity-list li:last-child {
   border-bottom: 0;
 }
+/* Beta's testers: the email and its line, with Remove at the end of the row. */
+.tester-list li {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-3);
+}
+.tester-text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.tester-list .link-btn {
+  flex: none;
+}
 .activity-what {
   font-weight: 700;
 }

@@ -29,4 +29,13 @@ export const devAction = (action: DevAction, value?: string | number) =>
  * (migration show_founders): one switch for all founders. They still earn no influence or prizes.
  */
 export const foundersShown = () => rpcData<boolean>('founders_shown');
+
+/**
+ * Beta testers (migration beta_testers): the emails that may sign in on beta. Founders on
+ * beta only; the server checks both. Removing one also deletes their beta account.
+ */
+export interface Tester { email: string; addedAt: string; name: string | null; lastSeen: string | null }
+export const loadTesters = () => rpcData<Tester[]>('beta_testers');
+export const addTester = (email: string) => rpcCall('beta_tester_add', { p_email: email }, copy.refusals.dev, copy.refusals.devOffline);
+export const removeTester = (email: string) => rpcCall('beta_tester_remove', { p_email: email }, copy.refusals.dev, copy.refusals.devOffline);
 export const setFoundersShown = (on: boolean) => rpcCall('dev_show_founders', { p_on: on }, copy.refusals.dev, copy.refusals.devOffline);

@@ -21,6 +21,7 @@ import { closeButton, goBack, h, mount, openModal, subPage, toast, type Screen }
 import { accessibilityScreen } from './accessibility.ts';
 import { homeScreen } from './home.ts';
 import { founderUnlocked, hasAuthenticator, startEnrolment, verifyCode } from '../backend/founder.ts';
+import { IS_BETA } from '../backend/client.ts';
 import * as copy from '../copy/en.ts';
 
 export function setupScreen(): Screen {
@@ -224,7 +225,7 @@ function devSection(): HTMLElement {
   );
   const paint = () => {
     section.hidden = !founderUnlocked();
-    help.textContent = copy.setup.devHelp(!!cachedAccount()?.devMode);
+    help.textContent = IS_BETA ? copy.setup.devHelp(!!cachedAccount()?.devMode) : copy.setup.devHelpLive;
   };
   paint();
   const stop = onAccountChange(() => {

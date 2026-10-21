@@ -1,20 +1,20 @@
 import { cachedAccount, onAccountChange } from '../backend.ts';
-import { devAction, setDevMode, setFoundersShown, type DevAction } from '../backend/dev.ts';
+import { addTester, devAction, loadTesters, removeTester, setDevMode, setFoundersShown, type DevAction, type Tester } from '../backend/dev.ts';
 import { loadFounderActivity } from '../backend/founder.ts';
 import { choice, segmented, settingGroup } from '../controls.ts';
 import { RARITIES, type Rarity } from '../profile.ts';
 import { rarityName } from '../reward.ts';
-import { h, toast } from '../ui.ts';
+import { h, openModal, toast } from '../ui.ts';
 import { PLATE_LEVELS, xpLevel } from '../xp.ts';
 import * as copy from '../copy/en.ts';
 
 /**
  * The founder tools' own sections (founderConsole.ts lays them out; the server checks every
  * call): the Dev mode switch, Show founders to players, the testing tools that change the
- * founder's own account for real, and the founders' activity log. While dev mode is on, games
- * also show Solve now and Lose now (game.ts).
+ * founder's own account for real, beta's testers, and the founders' activity log. While dev mode
+ * is on, games also show Solve now and Lose now (game.ts). All but the log are beta only.
  */
-export type DevSection = 'devmode' | 'show' | 'tools' | 'account' | 'activity';
+export type DevSection = 'devmode' | 'show' | 'tools' | 'account' | 'testers' | 'activity';
 
 /** What the console shares with a section: the Show founders state, and "something changed". */
 export interface DevContext {
@@ -137,6 +137,8 @@ export function devPanel(section: DevSection, ctx: DevContext): { el: HTMLElemen
       const level = xpLevel(cachedAccount()?.xp ?? 0).level;
       levelButtons.forEach((b, i) => b.classList.toggle('on', levels[i] === level));
     };
+  } else if (section === 'testers') {
+    el = testersSection();
   } else {
     // what founders did lately (Dev mode and Review), to spot anything that wasn't you
     const activity = h('ul', { class: 'activity-list' }, h('li', { text: copy.common.loading }));
@@ -161,4 +163,77 @@ export function devPanel(section: DevSection, ctx: DevContext): { el: HTMLElemen
     paint();
   });
   return { el, destroy: stop };
+}
+
+/** Beta's testers: add an email, see who has signed in, remove one (with their beta account). */
+function testersSection(): HTMLElement {
+  const t = copy.testers;
+  const when = (iso: string) => new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+  const field = h('input', {
+    class: 'text-field',
+    attrs: { type: 'email', inputmode: 'email', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', placeholder: copy.account.emailPlaceholder, 'aria-labelledby': 'tester-add' },
+  });
+  const add = h('button', { class: 'btn btn-primary', text: t.add, attrs: { type: 'button' } });
+  const submit = () => {
+    const email = field.value.trim().toLowerCase();
+    if (!/^\S+@\S+\.\S+$/.test(email)) return toast(copy.refusals.dev.bad_email);
+    add.disabled = true;
+    void addTester(email).then((err) => {
+      add.disabled = false;
+      if (err) return toast(err);
+      field.value = '';
+      toast(t.added(email));
+      void load();
+    });
+  };
+  add.addEventListener('click', submit);
+  field.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') submit();
+  });
+
+  const list = h('ul', { class: 'activity-list tester-list' }, h('li', { text: copy.common.loading }));
+  const confirmRemove = (email: string) => {
+    const status = h('p', { class: 'note', attrs: { role: 'status' } });
+    const go = h('button', { class: 'btn btn-primary', text: t.remove, attrs: { type: 'button' } });
+    const close = openModal(
+      h('div', { class: 'sheet review-confirm' },
+        h('h2', { text: t.removeTitle(email) }),
+        h('p', { text: t.removeText }),
+        status,
+        go,
+        h('button', { class: 'btn', text: copy.common.cancel, attrs: { type: 'button' }, onclick: () => close() })),
+    );
+    go.addEventListener('click', () => {
+      go.disabled = true;
+      void removeTester(email).then((err) => {
+        if (err) {
+          status.textContent = err;
+          go.disabled = false;
+          return;
+        }
+        close();
+        toast(t.removed(email));
+        void load();
+      });
+    });
+  };
+  const row = (tester: Tester) =>
+    h('li', {},
+      h('div', { class: 'tester-text' },
+        h('span', { class: 'activity-what', text: tester.email }),
+        h('span', { class: 'activity-who', text: tester.lastSeen ? t.lastSeen(tester.name, when(tester.lastSeen)) : t.notJoined })),
+      h('button', { class: 'link-btn', text: t.remove, attrs: { type: 'button', 'aria-label': t.a11yRemove(tester.email) }, onclick: () => confirmRemove(tester.email) }));
+  async function load() {
+    const testers = await loadTesters();
+    list.replaceChildren(
+      ...(testers === null ? [h('li', { text: t.loadFailed })] : testers.length ? testers.map(row) : [h('li', { text: t.empty })]),
+    );
+  }
+  void load();
+
+  return h('div', { class: 'console-section' },
+    h('p', { class: 'page-intro', text: t.intro }),
+    h('div', { class: 'setting choice-list' }, choice('tester-add', t.addTitle, t.addHelp, h('div', { class: 'dev-row' }, field, add))),
+    settingGroup(t.listTitle, [list]));
 }
