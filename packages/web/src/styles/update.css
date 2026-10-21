@@ -1,0 +1,50 @@
+/* ---------- A new version is ready (update.ts) ---------- */
+/* A quiet bar at the foot of the screen: the line, Refresh and close. Never over a game. */
+.update-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(env(safe-area-inset-bottom) + var(--space-4));
+  z-index: 55;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: fit-content;
+  max-width: calc(100vw - 2 * var(--space-4));
+  margin: 0 auto;
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 2px var(--field-border), 0 6px 20px var(--shadow);
+  color: var(--text);
+  font-size: var(--fs-small);
+  font-weight: 700;
+}
+.update-text {
+  flex: 1 1 auto;
+}
+/* (buttons are full width elsewhere) */
+.update-bar .btn {
+  flex: none;
+  width: auto;
+  min-width: 0;
+  padding-inline: var(--space-4);
+}
+.update-bar .close-btn {
+  position: static;
+  flex: none;
+}
+/* a game, or the sign-in check asking for its tick (same spot, pages.css .captcha), comes first */
+body:is(:has(.screen.game), :has(.captcha:not(:empty))) .update-bar {
+  display: none;
+}
+html[data-large-text] .update-bar {
+  flex-wrap: wrap;
+  justify-content: center;
+  text-align: center;
+}
+@media (forced-colors: active) {
+  .update-bar {
+    border: 2px solid CanvasText;
+  }
+}

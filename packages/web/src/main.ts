@@ -14,6 +14,7 @@ import { installStandaloneFixes } from './viewport.ts';
 import { installUiScale } from './scale.ts';
 import { applyGrain } from './grain.ts';
 import { installAddToHome } from './install.ts';
+import { installUpdateCheck } from './update.ts';
 
 applyTheme();
 installA11y();
@@ -23,6 +24,7 @@ installZoomGuards();
 installWheelScroll();
 installStandaloneFixes();
 installAddToHome();
+installUpdateCheck();
 initBackend();
 
 // Results that finished without a connection (backend/pending.ts): sent on launch and

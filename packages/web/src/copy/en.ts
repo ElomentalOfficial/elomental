@@ -34,6 +34,9 @@ export function pick<T>(lines: readonly T[], key: string): T {
 
 export const common = {
   appName: 'Elomental',
+  /** A new deploy is out while the app was open (update.ts). */
+  updateReady: 'A new version of Elomental is ready.',
+  updateRefresh: 'Refresh',
   /** The browser tab and window title for a screen. */
   pageTitle: (screen: string) => `${screen} · Elomental`,
   tagline: 'Competitive sudoku',
