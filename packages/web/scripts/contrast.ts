@@ -46,22 +46,7 @@ export const PAIRS: Pair[] = [
   ['Ranked tile label (Bright on Lava)', '--c-bright', '--c-lava', 4.5],
   // Rarities, elements and Home tones: every role of each on every surface, below (SWATCHES)
   ['Chosen card text (wearing, your plate)', '--text', '--chosen-bg', 4.5, '--surface'],
-  ['Name plate border (bronze) on chosen card', '--plate-bronze', '--chosen-bg', 3, '--surface'],
-  ['Name plate border (silver) on chosen card', '--plate-silver', '--chosen-bg', 3, '--surface'],
-  ['Name plate border (gold) on chosen card', '--plate-gold', '--chosen-bg', 3, '--surface'],
-  ['Name plate border (elo) on chosen card', '--plate-elo', '--chosen-bg', 3, '--surface'],
-  ['Name plate border (bronze) on --surface', '--plate-bronze', '--surface', 3],
-  ['Name plate border (bronze) on --profile-bg', '--plate-bronze', '--profile-bg', 3],
-  ['Name plate border (bronze) on --modal-bg', '--plate-bronze', '--modal-bg', 3],
-  ['Name plate border (silver) on --surface', '--plate-silver', '--surface', 3],
-  ['Name plate border (silver) on --profile-bg', '--plate-silver', '--profile-bg', 3],
-  ['Name plate border (silver) on --modal-bg', '--plate-silver', '--modal-bg', 3],
-  ['Name plate border (gold) on --surface', '--plate-gold', '--surface', 3],
-  ['Name plate border (gold) on --profile-bg', '--plate-gold', '--profile-bg', 3],
-  ['Name plate border (gold) on --modal-bg', '--plate-gold', '--modal-bg', 3],
-  ['Name plate border (elo) on --surface', '--plate-elo', '--surface', 3],
-  ['Name plate border (elo) on --profile-bg', '--plate-elo', '--profile-bg', 3],
-  ['Name plate border (elo) on --modal-bg', '--plate-elo', '--modal-bg', 3],
+  // Name plates: every metal on every surface a plate sits on, below (PLATE_SURFACES)
   ['Profile text', '--profile-text', '--profile-bg', 4.5],
   ['Stat chip label', '--muted', '--chip-bg', 4.5, '--profile-bg'],
   ['Primary button text', '--primary-text', '--primary-bg', 4.5],
@@ -132,6 +117,20 @@ for (const { id } of SWATCHES) {
   PAIRS.push([`${id}: text on wash (page)`, '--text', `--${id}-wash`, 4.5, '--bg']);
   PAIRS.push([`${id}: ink on wash (card)`, `--${id}-ink`, `--${id}-wash`, 4.5, '--surface']);
 }
+/**
+ * Where a name plate is drawn: Home and the leaderboard on the page, Profile, Forge cards, the
+ * plate sheet, and a chosen card or your own row (its own step, --plate-*-chosen). Measured on
+ * the solid line: the wear mask takes specks out of it, not its colour.
+ */
+const PLATE_SURFACES: [string, string, string?][] = [['page', '--bg'], ['surface', '--surface'], ['surface-2', '--surface-2'], ['profile', '--profile-bg'], ['modal', '--modal-bg']];
+for (const metal of ['bronze', 'silver', 'gold', 'elo']) {
+  for (const [n, t] of PLATE_SURFACES) PAIRS.push([`UI: ${metal} plate vs ${n}`, `--plate-${metal}`, t, 3]);
+  PAIRS.push([`UI: ${metal} plate vs a chosen card`, `--plate-${metal}-chosen`, '--chosen-bg', 3, '--surface']);
+}
+// the leaderboard's medals (and the top-100 underline) are the plate metals, checked above; on
+// your own row they take the chosen step too
+for (const metal of ['bronze', 'silver', 'gold'])
+  PAIRS.push([`UI: ${metal} medal on your row`, `--plate-${metal}-chosen`, '--chosen-bg', 3, '--surface']);
 
 /**
  * Pairs that may stay under their ratio, and why. Anything else failing is a regression. A key

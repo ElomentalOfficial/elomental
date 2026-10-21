@@ -118,6 +118,7 @@
   --c-flame-800: #522a1f; /* L 0.335 C 0.063 H 36 */
   --c-flame-900: #3a2019; /* L 0.276 C 0.043 H 36 */
   /* bronze: Bronze plate */
+  --c-bronze-100: #f8e1d0; /* L 0.924 C 0.034 H 59 */
   --c-bronze-200: #f1caae; /* L 0.865 C 0.058 H 58 */
   --c-bronze-300: #dea57d; /* L 0.766 C 0.086 H 56 */
   --c-bronze-400: #c4875a; /* L 0.675 C 0.096 H 57 · existing */
@@ -125,20 +126,23 @@
   --c-bronze-600: #7c4213; /* L 0.443 C 0.099 H 55 */
   --c-bronze-700: #653409; /* L 0.381 C 0.087 H 55 */
   /* silver: Silver plate */
+  --c-silver-100: #e2e5e8; /* L 0.920 C 0.005 H 248 */
   --c-silver-200: #cdd2d7; /* L 0.861 C 0.009 H 248 */
   --c-silver-300: #b3bac1; /* L 0.786 C 0.013 H 248 · existing */
   --c-silver-400: #8c96a0; /* L 0.668 C 0.019 H 248 */
   --c-silver-500: #66707c; /* L 0.541 C 0.022 H 253 · existing */
   --c-silver-600: #49525c; /* L 0.434 C 0.020 H 251 */
   --c-silver-700: #3a424b; /* L 0.375 C 0.019 H 251 */
-  /* gold: Gold plate, medals, the light plate glow */
+  /* gold: Gold plate, medals */
+  --c-gold-100: #f7e3b3; /* L 0.920 C 0.066 H 88 */
   --c-gold-200: #f0cd78; /* L 0.860 C 0.112 H 88 · existing */
-  --c-gold-300: #c9a54e; /* L 0.737 C 0.114 H 87 · existing */
-  --c-gold-400: #b79034; /* L 0.673 C 0.117 H 85 */
+  --c-gold-300: #d2ac55; /* L 0.761 C 0.115 H 86 */
+  --c-gold-400: #b78f34; /* L 0.671 C 0.117 H 84 */
   --c-gold-500: #8f6a12; /* L 0.548 C 0.107 H 83 · existing */
   --c-gold-600: #6a4c00; /* L 0.437 C 0.090 H 82 */
   --c-gold-700: #553d00; /* L 0.377 C 0.077 H 83 */
-  /* star: Starforged plate (the top plate) */
+  /* star: Starforged plate (the top plate) and its glow */
+  --c-star-100: #f3e4bc; /* L 0.921 C 0.055 H 90 */
   --c-star-200: #ecd38c; /* L 0.872 C 0.094 H 91 · existing */
   --c-star-300: #d7ab47; /* L 0.763 C 0.127 H 85 */
   --c-star-400: #be8c2a; /* L 0.672 C 0.125 H 80 */
@@ -266,6 +270,16 @@
   --tone-crimson-wash: rgba(148, 88, 86, 0.18);
   --tone-crimson-mark: var(--tone-crimson-fill);
   --tone-crimson-edge: var(--tone-crimson-fill);
+  /* name plates */
+  --plate-bronze: var(--c-bronze-300);
+  --plate-silver: var(--c-silver-300);
+  --plate-gold: var(--c-gold-300);
+  --plate-elo: var(--c-star-200);
+  --plate-bronze-chosen: var(--c-bronze-300);
+  --plate-silver-chosen: var(--c-silver-300);
+  --plate-gold-chosen: var(--c-gold-300);
+  --plate-elo-chosen: var(--c-star-200);
+  --plate-glow: rgba(236, 211, 140, 0.55);
 }
 
 :root[data-theme='light'] {
@@ -324,6 +338,16 @@
   --tone-crimson-wash: rgba(148, 88, 86, 0.14);
   --tone-crimson-mark: var(--tone-crimson-fill);
   --tone-crimson-edge: var(--c-crimson-700);
+  /* name plates */
+  --plate-bronze: var(--c-bronze-500);
+  --plate-silver: var(--c-silver-500);
+  --plate-gold: var(--c-gold-500);
+  --plate-elo: var(--c-star-600);
+  --plate-bronze-chosen: var(--c-bronze-600);
+  --plate-silver-chosen: var(--c-silver-600);
+  --plate-gold-chosen: var(--c-gold-600);
+  --plate-elo-chosen: var(--c-star-700);
+  --plate-glow: transparent;
 }
 
 /* High contrast: one step stronger (ink 7:1 or near it, lines 4.5:1) */
@@ -351,6 +375,16 @@
   --tone-forest-line: var(--c-forest-300);
   --tone-crimson-ink: var(--c-crimson-200);
   --tone-crimson-line: var(--c-crimson-300);
+  /* name plates */
+  --plate-bronze: var(--c-bronze-200);
+  --plate-silver: var(--c-silver-200);
+  --plate-gold: var(--c-gold-200);
+  --plate-elo: var(--c-star-100);
+  --plate-bronze-chosen: var(--c-bronze-200);
+  --plate-silver-chosen: var(--c-silver-200);
+  --plate-gold-chosen: var(--c-gold-200);
+  --plate-elo-chosen: var(--c-star-100);
+  --plate-glow: rgba(236, 211, 140, 0.55);
 }
 
 :root[data-contrast='high'][data-theme='light'] {
@@ -379,4 +413,14 @@
   --tone-forest-line: var(--c-forest-600);
   --tone-crimson-ink: var(--c-crimson-700);
   --tone-crimson-line: var(--c-crimson-600);
+  /* name plates */
+  --plate-bronze: var(--c-bronze-600);
+  --plate-silver: var(--c-silver-600);
+  --plate-gold: var(--c-gold-600);
+  --plate-elo: var(--c-star-700);
+  --plate-bronze-chosen: var(--c-bronze-700);
+  --plate-silver-chosen: var(--c-silver-700);
+  --plate-gold-chosen: var(--c-gold-700);
+  --plate-elo-chosen: var(--c-star-700);
+  --plate-glow: transparent;
 }

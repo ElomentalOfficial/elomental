@@ -2,9 +2,11 @@
 /* A plate is an Art Deco border around the name (plates.ts): Bronze a single line with
    square corners, Silver a double line with stepped corners, Gold sunburst fans and gems,
    the Starforged plate a pointed cartouche with a sunburst crown and a soft glow. The name
-   keeps its own colour; the border is decoration in the plate's metal (--plate), a little
-   see-through and worn in specks and patches like the tiles' frames (art/plate-wear.webp,
-   icons/make-plate-wear.mjs; a plain image mask, which Firefox draws as crisply). */
+   keeps its own colour; the border is decoration in the plate's metal (--plate: the metals
+   come from the palette, scripts/palette.ts PLATES, one step for all four per theme), worn in
+   specks and patches like the tiles' frames (art/plate-wear.webp, icons/make-plate-wear.mjs;
+   a plain image mask, which Firefox draws as crisply). The lines are 1.5px so the wear
+   doesn't thin them to nothing. */
 .name-plate {
   position: relative;
   display: inline-block;
@@ -18,40 +20,63 @@
   white-space: normal;
   overflow-wrap: anywhere;
 }
-/* gems and the crown reach past the lines: room so they don't touch what's around */
+/* gems and the crown reach past the lines: room so they don't touch what's around (the side
+   ornaments reach up to 6px out) */
 .name-plate.plate-3 {
   margin: -4px 0 4px;
+}
+.name-plate:is(.plate-1, .plate-2, .plate-3) {
+  max-width: calc(100% - 12px);
+  margin-inline: 6px;
 }
 .name-plate.plate-4 {
   padding: 8px 32px;
   margin: 14px 12px 6px;
 }
-.plate-1 { --plate: var(--plate-bronze); }
-.plate-2 { --plate: var(--plate-silver); }
+.plate-1 { --plate: var(--plate-bronze); --side-gap: 3px; }
+.plate-2 { --plate: var(--plate-silver); --side-gap: 6.25px; }
 .plate-3 { --plate: var(--plate-gold); }
 .plate-4 { --plate: var(--plate-elo); }
+/* on a chosen card or your own leaderboard row: the chosen step (deeper on the light theme's green) */
+:is(.plate-card.state-yours, .lb-row.is-me) .plate-1 { --plate: var(--plate-bronze-chosen); }
+:is(.plate-card.state-yours, .lb-row.is-me) .plate-2 { --plate: var(--plate-silver-chosen); }
+:is(.plate-card.state-yours, .lb-row.is-me) .plate-3 { --plate: var(--plate-gold-chosen); }
+:is(.plate-card.state-yours, .lb-row.is-me) .plate-4 { --plate: var(--plate-elo-chosen); }
 .plate-frame {
   position: absolute;
   inset: -24px -16px;
   color: var(--plate);
-  opacity: var(--plate-opacity, 1);
   pointer-events: none;
   -webkit-mask: url('../art/plate-wear.webp') 0 0 / 128px 128px repeat;
   mask: url('../art/plate-wear.webp') 0 0 / 128px 128px repeat;
 }
 .plate-box {
+  --plate-line: 1.5px;
   position: absolute;
   inset: 24px 16px;
 }
+/* the straight lines are inset shadows, not borders: Chrome rounds a 1.5px border down to
+   1px. Each line is centred 0.5px (outer) and 3.5px (inner) in, as the ornaments are drawn. */
 .plate-box::before,
 .plate-box::after {
   content: '';
   position: absolute;
-  inset: 0;
-  border: 1px solid currentColor;
+  inset: -0.25px;
+  box-shadow: inset 0 0 0 var(--plate-line) currentColor;
 }
 .plate-box::after {
-  inset: 3px;
+  inset: 2.75px;
+}
+@media (forced-colors: active) {
+  .plate-box::before,
+  .plate-box::after {
+    box-shadow: none;
+    border: 1px solid CanvasText;
+  }
+  .plate-4 .plate-box::before,
+  .plate-4 .plate-box::after {
+    border-inline: 0;
+  }
 }
 .plate-1 .plate-box::after {
   content: none;
@@ -61,7 +86,7 @@
   overflow: visible;
   fill: none;
   stroke: currentColor;
-  stroke-width: 1;
+  stroke-width: 1.5;
 }
 .plate-box svg .solid {
   fill: currentColor;
@@ -76,6 +101,23 @@
 .plate-corner.c-br { top: auto; left: auto; bottom: -5px; right: -5px; transform: scale(-1); }
 .plate-mid { top: -7px; left: calc(50% - 10px); }
 .plate-mid.m-b { top: auto; bottom: -7px; transform: scaleY(-1); }
+/* The sides' middles (plates.ts SIDES): a fixed size pinned at half the height, so a wrapped
+   name keeps them centred. Behind Bronze's open box and Silver's steps the outer line breaks
+   (--side-gap, half the break); Gold's gem lies over it. Leaderboard rows hide the ornaments
+   (leaderboard.css), so their lines stay whole. */
+.plate-box .plate-side { width: 20px; height: 20px; top: calc(50% - 10px); left: -10px; }
+.plate-box .plate-side.s-r { left: auto; right: -10px; transform: scaleX(-1); }
+:is(.plate-1, .plate-2):not(.lb-name) .plate-box::before {
+  --keep: linear-gradient(#000 0 0);
+  -webkit-mask:
+    var(--keep) top / 100% calc(50% - var(--side-gap)) no-repeat,
+    var(--keep) bottom / 100% calc(50% - var(--side-gap)) no-repeat,
+    var(--keep) center / calc(100% - 4px) 100% no-repeat;
+  mask:
+    var(--keep) top / 100% calc(50% - var(--side-gap)) no-repeat,
+    var(--keep) bottom / 100% calc(50% - var(--side-gap)) no-repeat,
+    var(--keep) center / calc(100% - 4px) 100% no-repeat;
+}
 /* The Starforged plate: the straight lines stop where the pointed ends begin (26px in). */
 /* (not on leaderboard rows: there it was one prestige mark too many, M31) */
 .plate-4:not(.lb-name) .plate-box {
@@ -85,8 +127,7 @@
 .plate-4 .plate-box::after {
   left: 26px;
   right: 26px;
-  border-left: 0;
-  border-right: 0;
+  box-shadow: inset 0 var(--plate-line) currentColor, inset 0 calc(-1 * var(--plate-line)) currentColor;
 }
 .plate-box .elo-end,
 .plate-box .elo-inner {
@@ -100,7 +141,8 @@
 .plate-box .elo-tip.t-r { left: auto; right: -13.5px; transform: scaleX(-1); }
 .plate-box .elo-tip .ring { opacity: 0.6; }
 .plate-box .elo-crown { width: 44px; height: 22px; top: -20.5px; left: calc(50% - 22px); }
-.plate-box .elo-drop { width: 24px; height: 11px; top: calc(100% - 2.5px); left: calc(50% - 12px); }.plate-sheet,
+.plate-box .elo-drop { width: 24px; height: 11px; top: calc(100% - 2.5px); left: calc(50% - 12px); }
+.plate-sheet,
 .mend-sheet {
   text-align: center;
 }

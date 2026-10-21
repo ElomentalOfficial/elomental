@@ -3,7 +3,7 @@ import { h } from './ui.ts';
 /**
  * Name plates (bought with Stardust, forge.ts): an Art Deco border drawn around the name,
  * from a plain Bronze line to the Starforged plate's pointed cartouche with its sunburst crown.
- * The straight lines are CSS borders (styles.css `.plate-box`), so the border stretches to
+ * The straight lines are CSS (plates.css `.plate-box`, inset shadows), so the border stretches to
  * any name; the ornaments are small SVGs pinned to the corners and the middles, mirrored
  * into place. Their (0, 0) is the outer line's corner. The outer `.plate-frame` is a little
  * larger, so its wear mask covers the ornaments that reach past the lines. Decoration only.
@@ -37,6 +37,21 @@ const CORNERS: Record<number, string> = {
 /** The middle of the top edge (the bottom is its mirror); y 0 is the outer line. */
 const TOPS: Record<number, string> = {
   3: '<path d="M0 -3L3 0.5L0 4L-3 0.5Z" class="solid"/>',
+};
+
+/**
+ * The middle of the left side (the right is its mirror), each plate in its corners' own
+ * vocabulary; x 0.5 is the outer line's centre, y 0 half the name's height. At most 14px tall
+ * and 6px past the outer line. Where an open shape takes the line's place, the line breaks
+ * behind it (plates.css `--side-gap`) and the path runs 1px into the line's ends.
+ */
+const SIDES: Record<number, string> = {
+  // Bronze: an open square box threaded on the line, the size of its corner boxes
+  1: '<path d="M-2.5 -3H3.5V3H-2.5Z"/>',
+  // Silver: the outer line steps out twice, a ziggurat like its stepped corners, round a solid square
+  2: '<path d="M0.5 -7.25V-6.25H-2.5V-3.25H-5V3.25H-2.5V6.25H0.5V7.25"/><rect x="-2.25" y="-1.5" width="3" height="3" class="solid"/>',
+  // Gold: the gem on its top and bottom middles (TOPS), turned to lie across the side
+  3: '<path d="M-3 0L0.5 -3L4 0L0.5 3Z" class="solid"/>',
 };
 
 /**
@@ -85,6 +100,7 @@ export function plateFrame(plate: number): HTMLElement | null {
   const parts: string[] = [];
   for (const c of ['tl', 'tr', 'bl', 'br']) parts.push(svg(`plate-corner c-${c}`, '-5 -5 21 21', [21, 21], CORNERS[plate]));
   if (TOPS[plate]) for (const c of ['t', 'b']) parts.push(svg(`plate-mid m-${c}`, '-10 -7 20 14', [20, 14], TOPS[plate]));
+  if (SIDES[plate]) for (const c of ['l', 'r']) parts.push(svg(`plate-side s-${c}`, '-10 -10 20 20', [20, 20], SIDES[plate]));
   return frame(parts.join(''));
 }
 

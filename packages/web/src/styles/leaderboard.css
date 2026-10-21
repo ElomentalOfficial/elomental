@@ -324,10 +324,17 @@ html[data-large-text] .lb-tabs .segment:last-child {
 .medal-1 { --medal: var(--plate-gold); }
 .medal-2 { --medal: var(--plate-silver); }
 .medal-3 { --medal: var(--plate-bronze); }
+/* on your own row the metals take the chosen step, as the plate beside them does */
+.lb-row.is-me .medal-1 { --medal: var(--plate-gold-chosen); }
+.lb-row.is-me .medal-2 { --medal: var(--plate-silver-chosen); }
+.lb-row.is-me .medal-3 { --medal: var(--plate-bronze-chosen); }
 /* 4–100: a quiet underline in gold */
 .lb-place.top100 {
   text-decoration: underline 2px var(--plate-gold);
   text-underline-offset: 4px;
+}
+.lb-row.is-me .lb-place.top100 {
+  text-decoration-color: var(--plate-gold-chosen);
 }
 .lb-avatar {
   width: 44px;
@@ -351,8 +358,9 @@ html[data-large-text] .lb-tabs .segment:last-child {
 /* plates on rows: the plainer frames only fit in a row's height, so rows show the name's
    plate as a compact border (the full ornament shows on the card) */
 .lb-name.name-plate {
+  max-width: 100%;
   padding: 4px 10px;
-  margin: 0;
+  margin: 0 0 var(--space-1);
   overflow: visible;
 }
 /* a long name ends in … inside its plate rather than running past the row */
@@ -369,14 +377,20 @@ html[data-large-text] .lb-tabs .segment:last-child {
 /* the cartouche's pointed ends hide too: its lines close into a plain double frame */
 .lb-name.plate-4 .plate-box::before,
 .lb-name.plate-4 .plate-box::after {
-  left: 0;
-  right: 0;
-  border-left: 1px solid currentColor;
-  border-right: 1px solid currentColor;
+  left: -0.25px;
+  right: -0.25px;
+  box-shadow: inset 0 0 0 var(--plate-line) currentColor;
 }
 .lb-name.plate-4 .plate-box::after {
-  left: 3px;
-  right: 3px;
+  left: 2.75px;
+  right: 2.75px;
+}
+/* forced colours draw the lines as borders (plates.css): the closed frame needs its sides back */
+@media (forced-colors: active) {
+  .lb-name.plate-4 .plate-box::before,
+  .lb-name.plate-4 .plate-box::after {
+    border-inline: 1px solid CanvasText;
+  }
 }
 .lb-sub {
   display: inline-flex;

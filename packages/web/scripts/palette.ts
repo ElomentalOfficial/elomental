@@ -24,6 +24,7 @@ import { oklch, parseHex, solveY, toHex } from './colour.ts';
 /** WCAG relative luminance of each step. */
 const BANDS: Record<number, number> = { 50: 0.95, 100: 0.78, 200: 0.64, 300: 0.44, 400: 0.3, 500: 0.14, 600: 0.082, 700: 0.052, 800: 0.035, 900: 0.02, 950: 0.0075 };
 const STEPS = [100, 200, 300, 400, 500, 600, 700, 800, 900];
+const METAL = [100, 200, 300, 400, 500, 600, 700];
 /** How much of a hue's chroma each step carries: tints and shades are quieter, as in the Figma set. */
 const PROFILE: Record<number, number> = { 50: 0.2, 100: 0.35, 200: 0.6, 300: 0.9, 375: 1, 400: 1, 425: 1, 450: 1, 500: 1, 600: 0.95, 700: 0.85, 800: 0.45, 900: 0.3, 950: 0.2 };
 const FLAT: Record<number, number> = Object.fromEntries(Object.keys(PROFILE).map((k) => [k, 1]));
@@ -53,10 +54,11 @@ export const RAMPS: Ramp[] = [
   { name: 'azure', what: 'Rare: a deep slate blue', steps: STEPS, anchors: { 500: { C: 0.0731, H: 249.5, Y: 0.15 } } },
   { name: 'amethyst', what: 'Epic: heather', steps: STEPS, anchors: { 500: '#6f4b81' } },
   { name: 'flame', what: 'Mythic: the forge-heart flame, a light fill', steps: STEPS, anchors: { 400: { C: 0.14, H: 36 } } },
-  { name: 'bronze', what: 'Bronze plate', steps: [200, 300, 400, 500, 600, 700], anchors: { 400: '#c4875a', 500: '#9a5b2c' } },
-  { name: 'silver', what: 'Silver plate', steps: [200, 300, 400, 500, 600, 700], anchors: { 300: '#b3bac1', 500: '#66707c' } },
-  { name: 'gold', what: 'Gold plate, medals, the light plate glow', steps: [200, 300, 400, 500, 600, 700], anchors: { 200: '#f0cd78', 300: '#c9a54e', 500: '#8f6a12' } },
-  { name: 'star', what: 'Starforged plate (the top plate)', steps: [200, 300, 400, 500, 600, 700], anchors: { 200: '#ecd38c', 500: '#946410' } },
+  // the metals: 100 for the High contrast Starforged plate on dark, 700 for it on light
+  { name: 'bronze', what: 'Bronze plate', steps: METAL, anchors: { 400: '#c4875a', 500: '#9a5b2c' } },
+  { name: 'silver', what: 'Silver plate', steps: METAL, anchors: { 300: '#b3bac1', 500: '#66707c' } },
+  { name: 'gold', what: 'Gold plate, medals', steps: METAL, anchors: { 200: '#f0cd78', 300: { C: 0.115, H: 86 }, 500: '#8f6a12' } },
+  { name: 'star', what: 'Starforged plate (the top plate) and its glow', steps: METAL, anchors: { 200: '#ecd38c', 500: '#946410' } },
 ];
 
 function bandY(step: number): number {
@@ -159,6 +161,31 @@ function hcRoles(s: Swatch, t: 'dark' | 'light'): Record<string, string> {
   };
 }
 
+/**
+ * The name plates (plates.css), one rule for the set: every metal on the same step in a theme, the
+ * Starforged plate one step further from the surface (it is the top plate; its shape says the
+ * tier, the metal only how fine it is). `chosen` is the plate on a chosen card or row, a step
+ * deeper on the light theme where that fill is a mid green.
+ */
+const PLATES: [string, string][] = [['bronze', 'bronze'], ['silver', 'silver'], ['gold', 'gold'], ['elo', 'star']];
+type PlateTheme = 'dark' | 'light' | 'dark-hc' | 'light-hc';
+const PLATE_STEP: Record<PlateTheme, { metal: number; top: number; chosen: number; topChosen: number }> = {
+  dark: { metal: 300, top: 200, chosen: 300, topChosen: 200 },
+  light: { metal: 500, top: 600, chosen: 600, topChosen: 700 },
+  'dark-hc': { metal: 200, top: 100, chosen: 200, topChosen: 100 },
+  'light-hc': { metal: 600, top: 700, chosen: 700, topChosen: 700 },
+};
+function plateRoles(t: PlateTheme): string[] {
+  const s = PLATE_STEP[t];
+  return [
+    ...PLATES.map(([id, ramp]) => `  --plate-${id}: ${v(ramp, id === 'elo' ? s.top : s.metal)};`),
+    ...PLATES.map(([id, ramp]) => `  --plate-${id}-chosen: ${v(ramp, id === 'elo' ? s.topChosen : s.chosen)};`),
+    // the Starforged glow: a halo of its own metal on dark; on the pale light surfaces a glow
+    // only smudges, so the crown and the cartouche carry the tier there
+    `  --plate-glow: ${t.startsWith('dark') ? rgba(PRIM['--c-star-200'], 0.55) : 'transparent'};`,
+  ];
+}
+
 /** The old palette names, so every existing rule keeps working. */
 const ALIASES: [string, string][] = [
   ['--c-bg', '--c-stone-900'],
@@ -215,11 +242,11 @@ export function paletteCss(): string {
       '  /* the fill under its short name */',
       ...SWATCHES.filter((s) => !s.id.startsWith('tone-')).map((s) => `  --${s.id}: var(--${s.id}-fill);`),
     ]),
-    block(":root,\n:root[data-theme='dark']", perSwatch((s) => themeRoles(s, 'dark'))),
-    block(":root[data-theme='light']", perSwatch((s) => themeRoles(s, 'light'))),
+    block(":root,\n:root[data-theme='dark']", [...perSwatch((s) => themeRoles(s, 'dark')), '  /* name plates */', ...plateRoles('dark')]),
+    block(":root[data-theme='light']", [...perSwatch((s) => themeRoles(s, 'light')), '  /* name plates */', ...plateRoles('light')]),
     '/* High contrast: one step stronger (ink 7:1 or near it, lines 4.5:1) */\n',
-    block(":root[data-contrast='high'][data-theme='dark']", perSwatch((s) => hcRoles(s, 'dark'))),
-    block(":root[data-contrast='high'][data-theme='light']", perSwatch((s) => hcRoles(s, 'light'))),
+    block(":root[data-contrast='high'][data-theme='dark']", [...perSwatch((s) => hcRoles(s, 'dark')), '  /* name plates */', ...plateRoles('dark-hc')]),
+    block(":root[data-contrast='high'][data-theme='light']", [...perSwatch((s) => hcRoles(s, 'light')), '  /* name plates */', ...plateRoles('light-hc')]),
   ].join('\n');
 }
 
