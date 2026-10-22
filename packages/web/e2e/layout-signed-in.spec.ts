@@ -143,6 +143,25 @@ test('Home: the card holds you, your Level and Elo, your badges; the Forge tile 
   await expect(page.getByText('The Store opens soon.')).toBeVisible();
 });
 
+test('Forge: blueprints forge at their price, the rest at the full one', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await open(page, 100);
+  await page.locator('.tile.area-forge').click();
+  await expect(page.locator('.part-card').first()).toBeVisible();
+  // the fixture holds a Common avatar blueprint (free) and an Epic frame blueprint (200)
+  const bored = page.locator('.part-card', { hasText: 'Bored' });
+  await expect(bored).toHaveAccessibleName(/Blueprint: ready to forge/);
+  await bored.click();
+  await expect(page.getByRole('dialog')).toContainText('Free with your blueprint');
+  await page.keyboard.press('Escape');
+  await page.locator('.part-card', { hasText: 'Ember Frame III' }).click();
+  await expect(page.getByRole('dialog')).toContainText('With your blueprint: 200 Stardust');
+  await page.keyboard.press('Escape');
+  // a part without one: the full price
+  await page.locator('.part-card', { hasText: 'Tide Frame III' }).click();
+  await expect(page.getByRole('dialog')).toContainText('900 Stardust');
+});
+
 test('Home: the month your side won shows once, then never again', async ({ page }) => {
   await signedIn(page, { monthWon: true });
   await page.goto('/');

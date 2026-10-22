@@ -6,24 +6,46 @@ export default async function () {
   // --- 5. forging with Stardust, equip
   const e0 = await newPlayer();
   for (let i = 0; i < 3; i++) await play(e0, 'casual', 'medium');
+  // (the 3rd solve dropped a blueprint: start from none)
+  await db.exec(`delete from public.player_blueprints where player_id = '${e0}'`);
   await db.exec(`update public.profiles set stardust = 2000, spirits = 0 where id = '${e0}'`);
   await as(e0);
   const common = (await db.query(`select id from public.parts where rarity = 'common' and source = 'craft' and id not in (select part_id from public.player_parts where player_id = $1) limit 1`, [e0])).rows[0].id;
   await db.query(`select public.forge_part($1)`, [common]);
   const sd = (await db.query(`select stardust from public.profiles where id = $1`, [e0])).rows[0].stardust;
-  check(sd === 1900, `forging a Common costs 100 Stardust (${2000 - sd})`);
+  check(sd === 1850, `forging a Common without a blueprint costs 150 Stardust (${2000 - sd})`);
   err = null; try { await db.query(`select public.forge_part($1)`, [common]); } catch (e) { err = e.message; }
   check(err?.includes('already_owned'), 'cannot forge it twice');
   const mythic = (await db.query(`select id from public.parts where rarity = 'mythic' limit 1`)).rows[0].id;
-  // (one of the 3 solves above may have dropped it)
   await db.exec(`delete from public.player_parts where player_id = '${e0}' and part_id = '${mythic}'`);
-  await db.exec(`update public.profiles set stardust = 1000 where id = '${e0}'`);
+  await db.exec(`update public.profiles set stardust = 1700 where id = '${e0}'`);
   err = null; try { await db.query(`select public.forge_part($1)`, [mythic]); } catch (e) { err = e.message; }
-  check(err?.includes('not_enough_stardust'), 'Mythic: 1200 Stardust, not affordable with 1000');
+  check(err?.includes('not_enough_stardust'), 'Mythic without a blueprint: 1800 Stardust, not affordable with 1700');
   await db.exec(`update public.profiles set stardust = 1900 where id = '${e0}'`);
   await db.query(`select public.forge_part($1)`, [mythic]);
   const after = (await db.query(`select stardust, spirits from public.profiles where id = $1`, [e0])).rows[0];
-  check(after.stardust === 700 && after.spirits === 0, `Mythic: 1200 Stardust, no Spirit needed (${JSON.stringify(after)})`);
+  check(after.stardust === 100 && after.spirits === 0, `Mythic: 1800 Stardust, no Spirit needed (${JSON.stringify(after)})`);
+
+  // --- blueprints (migration blueprints): forged cheaply, used up; a Common is free
+  const bpPrice = async (rarity, price) => {
+    const part = (await one(`select id from public.parts where rarity = $1 and source = 'craft' and season_id = private.parts_season()
+      and not private.has_part($2, id) limit 1`, [rarity, e0])).id;
+    await db.query(`insert into public.player_blueprints (player_id, part_id) values ($1, $2)`, [e0, part]);
+    await db.exec(`update public.profiles set stardust = 1000 where id = '${e0}'`);
+    const j = (await one(`select public.forge_part($1) j`, [part])).j;
+    const left = (await one(`select stardust from public.profiles where id = $1`, [e0])).stardust;
+    const still = (await one(`select count(*)::int n from public.player_blueprints where player_id = $1 and part_id = $2`, [e0, part])).n;
+    check(1000 - left === price && j.stardust === price && still === 0, `a ${rarity} blueprint forges for ${price} and is used up (${1000 - left}, ${still} left)`);
+  };
+  await bpPrice('common', 0);
+  await bpPrice('rare', 50);
+  await bpPrice('epic', 200);
+  await bpPrice('mythic', 500);
+  // a drop of a part you hold as a blueprint is a duplicate: Stardust, no second blueprint
+  const held = (await one(`select id from public.parts where rarity = 'common' and source = 'craft' and season_id = private.parts_season()
+    and not private.has_part($1, id) limit 1`, [e0])).id;
+  await db.query(`insert into public.player_blueprints (player_id, part_id) values ($1, $2)`, [e0, held]);
+  check(await one(`select private.has_part($1, $2) h`, [e0, held]).then((r) => r.h), 'a blueprint counts as having the part');
   await db.query(`select public.equip_part('${common.split('-')[1]}', $1)`, [common]);
   const eq = (await db.query(`select * from public.avatar_loadouts where player_id = $1`, [e0])).rows[0];
   check(Object.values(eq).includes(common), 'equipped it');

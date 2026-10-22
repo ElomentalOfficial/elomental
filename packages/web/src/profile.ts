@@ -312,6 +312,9 @@ export interface Drop {
   pity: 'epic' | 'mythic' | null;
   /** Another faction's frame (faction_drops): yours to wear, shown as a gift. */
   gift?: boolean;
+  /** It came as a blueprint (blueprints), to forge for `forge` Stardust. */
+  blueprint?: boolean;
+  forge?: number | null;
   /** Parts left until each guarantee. */
   guarantee: { epic: number; mythic: number };
   /** Every part of that rarity is owned (economy_pace): its guarantee only brings Stardust. */

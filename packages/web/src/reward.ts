@@ -32,10 +32,14 @@ export function dropReveal(drop: Drop, onOpenForge?: () => void, compact = false
   const name = partName(drop.part);
   const element = partElement(drop.part);
   const gift = !!drop.gift && !!element && !drop.duplicate;
-  const label = gift ? copy.forge.a11yGift(name, rarityName(drop.rarity), copy.forge.elements[element!]) : copy.forge.a11yDrop(name, rarityName(drop.rarity));
+  // a drop is a blueprint (blueprints); older results were whole parts
+  const blueprint = !!drop.blueprint && !drop.duplicate;
+  const label = gift ? copy.forge.a11yGift(name, rarityName(drop.rarity), copy.forge.elements[element!])
+    : blueprint ? copy.forge.a11yBlueprint(name, rarityName(drop.rarity))
+    : copy.forge.a11yDrop(name, rarityName(drop.rarity));
   const card = h(
     'button',
-    { class: `part-reveal rarity-${drop.rarity}${compact ? ' compact' : ''}`, attrs: { type: 'button', 'aria-label': label } },
+    { class: `part-reveal rarity-${drop.rarity}${blueprint ? ' is-blueprint' : ''}${compact ? ' compact' : ''}`, attrs: { type: 'button', 'aria-label': label } },
     h('span', { class: 'reveal-flare', attrs: { 'aria-hidden': 'true' } }),
     h('span', { class: 'reveal-art', html: partSvg(drop.part), attrs: { 'aria-hidden': 'true' } }),
     h(
@@ -50,7 +54,7 @@ export function dropReveal(drop: Drop, onOpenForge?: () => void, compact = false
         // another faction's frame reads as a gift: "A gift from Fire"; otherwise "New part · Air"
         h('span', { text: gift
           ? copy.forge.gift(copy.forge.elements[element!])
-          : [drop.duplicate ? null : copy.forge.newPart, element ? copy.forge.elements[element] : copy.forge.slots.avatar].filter(Boolean).join(' · ') }),
+          : [drop.duplicate ? null : blueprint ? copy.forge.blueprint : copy.forge.newPart, element ? copy.forge.elements[element] : copy.forge.slots.avatar].filter(Boolean).join(' · ') }),
       ),
     ),
   );
@@ -66,7 +70,8 @@ export function dropReveal(drop: Drop, onOpenForge?: () => void, compact = false
   });
 
   const notes: HTMLElement[] = [];
-  // the way into the Forge, right where the player cares about parts
+  // what forging the blueprint costs, then the way into the Forge, right where it matters
+  if (blueprint && drop.forge != null) notes.push(h('p', { class: 'drop-note', text: copy.forge.blueprintNote(drop.forge) }));
   if (onOpenForge) notes.push(h('button', { class: 'link-btn drop-forge', text: copy.forge.openForge, attrs: { type: 'button' }, onclick: onOpenForge }));
   if (drop.duplicate) notes.push(h('p', { class: 'drop-note', text: copy.forge.duplicate(drop.stardust) }));
   if (drop.pity) notes.push(h('p', { class: 'drop-note good', text: copy.forge.pityHit(rarityName(drop.pity)) }));

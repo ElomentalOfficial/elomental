@@ -115,6 +115,8 @@ export async function signedIn(page: Page, opts: { affinity?: string | null; tex
     profiles: [profile], parts: catalogue(),
     player_parts: [['s0-avatar-calm', 1], ['s0-avatar-silly', 0], ['s0-avatar-disappointed', 0], ['s0-frame-fire-2', 0]].map(([id, polish]) => ({ part_id: id, edition: null, polish })),
     avatar_loadouts: [{ avatar: 's0-avatar-calm', frame: 's0-frame-fire-2' }],
+    // blueprints (migration blueprints): a free Common avatar, an Epic frame for 200
+    player_blueprints: [{ part_id: 's0-avatar-bored' }, { part_id: 's0-frame-fire-3' }],
     player_badges: [{ badge: 'daily-2026-10', earned_at: '2026-10-20' }, { badge: 'win-2026-09-fire', earned_at: '2026-10-01' }],
     games: [], daily_mends: [], seasons: [{ id: 0, starts_at: new Date(Date.now() - 2 * 86400000).toISOString() }],
   };

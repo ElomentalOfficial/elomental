@@ -147,8 +147,16 @@ html[data-large-text] .part-grid {
 }
 /* (labels stay in the text colour for contrast; the outline and wash carry the accent) */
 .part-card.state-ready .part-state,
+.part-card.state-blueprint .part-state,
 .part-card.state-wearing .part-state {
   color: var(--text);
+}
+/* a blueprint (blueprints): a dashed outline, as a plan is drawn; the words "Blueprint: ready
+   to forge" carry it. Its art shows in full: it's on its way to being yours */
+.part-card:is(.state-blueprint, .state-blueprint-needs) {
+  box-shadow: none;
+  outline: 2px dashed var(--field-border);
+  outline-offset: -2px;
 }
 /* ready: a neutral outline (the accent stays for the screen's primary action, M24); the words
    "Ready to forge" carry it. wearing: filled with a wash of the accent */
@@ -337,6 +345,12 @@ html[data-large-text] .part-grid {
   -webkit-tap-highlight-color: transparent;
   transform-origin: 50% 50%;
   animation: reveal-turn 0.55s cubic-bezier(0.2, 0.8, 0.3, 1.15) var(--start) both;
+}
+/* a blueprint (blueprints): the rarity's ring drawn dashed, as a plan is; "Blueprint" says it */
+.part-reveal.is-blueprint {
+  box-shadow: none;
+  outline: 2px dashed var(--rc-line);
+  outline-offset: -2px;
 }
 @keyframes reveal-turn {
   from {

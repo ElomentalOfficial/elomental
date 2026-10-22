@@ -25,8 +25,10 @@ export interface Part {
   source: 'craft' | 'starter' | 'rank' | 'achievement' | 'event' | 'daily';
 }
 
-/** Stardust to forge a part (private.forge_cost). */
-export const FORGE_COST: Record<Rarity, number> = { common: 100, rare: 250, epic: 600, mythic: 1200 };
+/** Stardust to forge a part without its blueprint (private.forge_cost). */
+export const FORGE_COST: Record<Rarity, number> = { common: 150, rare: 375, epic: 900, mythic: 1800 };
+/** Stardust to forge a part from its blueprint (private.blueprint_cost): a Common is one tap. */
+export const BLUEPRINT_COST: Record<Rarity, number> = { common: 0, rare: 50, epic: 200, mythic: 500 };
 /** Polish brings an avatar to life, once (polish_part): Stardust and a Spirit. */
 export const ALIVE_COST = 6000;
 /** A Spirit is guaranteed within this many counted solves (private.spirit_roll). */
@@ -44,6 +46,8 @@ export interface Forge {
   /** Owned part ids (Happy always), with a first-edition number and polish (1: alive). */
   owned: Map<string, { edition: number | null; polish: number }>;
   polish: Polish;
+  /** Part ids you hold a blueprint for (blueprints): forged cheaply, then gone. */
+  blueprints: Set<string>;
   loadout: Loadout;
   stardust: number;
   spirits: number;
@@ -71,14 +75,15 @@ export async function loadForge(): Promise<Forge | null> {
   const uid = session.session?.user.id;
   if (!uid) return null;
   const now = new Date().toISOString();
-  const [parts, owned, loadout, profile, season] = await Promise.all([
+  const [parts, owned, blueprints, loadout, profile, season] = await Promise.all([
     supabase.from('parts').select('id, slot, element, rarity, source'),
     supabase.from('player_parts').select('part_id, edition, polish'),
+    supabase.from('player_blueprints').select('part_id'),
     supabase.from('avatar_loadouts').select('avatar, frame').maybeSingle(),
     supabase.from('profiles').select('stardust, spirits, affinity, spirit_pity, spirits_called, spirits_called_season').eq('id', uid).single(),
     supabase.from('seasons').select('id, name, ends_at').lte('starts_at', now).gt('ends_at', now).maybeSingle(),
   ]);
-  if (parts.error || owned.error || profile.error) return null;
+  if (parts.error || owned.error || blueprints.error || profile.error) return null;
   const seasonId = season.data?.id ?? 0;
   const calledThisSeason = profile.data.spirits_called_season === seasonId ? (profile.data.spirits_called ?? 0) : 0;
   const polish: Polish = Object.fromEntries((owned.data ?? []).filter((o) => o.polish).map((o) => [o.part_id as string, o.polish as number]));
@@ -88,6 +93,7 @@ export async function loadForge(): Promise<Forge | null> {
     parts: (parts.data ?? []) as Part[],
     owned: new Map([[DEFAULT_AVATAR, { edition: null, polish: 0 }], ...(owned.data ?? []).map((o) => [o.part_id as string, { edition: o.edition ?? null, polish: o.polish ?? 0 }] as const)]),
     polish,
+    blueprints: new Set((blueprints.data ?? []).map((b) => b.part_id as string)),
     loadout: (loadout.data ?? {}) as Loadout,
     stardust: profile.data.stardust,
     spirits: profile.data.spirits,

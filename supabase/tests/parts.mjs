@@ -23,8 +23,7 @@ export default async function () {
     if (d.gift !== (slot === 'frame' && element !== 'air')) giftFlagOk = false;
     // a gift at a rarity only once the player owns their own faction's frame at that rarity
     if (d.gift) {
-      const own = (await one(`select count(*)::int n from public.player_parts pp join public.parts pt on pt.id = pp.part_id
-        where pp.player_id = $1 and pt.element = 'air' and pt.rarity = $2`, [a, d.rarity])).n;
+      const own = (await one(`select count(*)::int n from public.parts pt where pt.element = 'air' and pt.rarity = $2 and private.has_part($1, pt.id)`, [a, d.rarity])).n;
       if (!own) giftBeforeOwn = true;
     }
     if (d.duplicate) dupes++;
@@ -35,8 +34,10 @@ export default async function () {
   check(drops === 300 && progressOk, 'exactly every 3rd solve drops a part, and the counter matches');
   check(maxGapEpic <= 9, `Epic or better within 10 parts (longest wait ${maxGapEpic})`);
   check(maxGapMythic <= 24, `Mythic within 25 parts (longest wait ${maxGapMythic})`);
-  const owned = (await db.query(`select count(*)::int n from public.player_parts where player_id = $1`, [a])).rows[0].n;
-  check(owned === 27, `300 parts collect the whole 27-part set, every faction's frames included (${owned})`);
+  const owned = (await db.query(`select count(*)::int n from public.parts pt where pt.source = 'craft' and private.has_part($1, pt.id)`, [a])).rows[0].n;
+  const owned0 = (await db.query(`select count(*)::int n from public.player_parts where player_id = $1`, [a])).rows[0].n;
+  check(owned0 === 0, `drops bring blueprints, not parts (${owned0} parts owned without forging)`);
+  check(owned === 27, `300 drops bring the whole 27-part set as blueprints, every faction's frames included (${owned})`);
   check(giftFlagOk, 'a drop is a gift exactly when it is another faction\'s frame');
   check(!giftBeforeOwn, 'another faction\'s frame never drops before your own faction\'s at that rarity');
 

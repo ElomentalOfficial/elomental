@@ -309,6 +309,9 @@ export const forge = {
 
   // The result pop-up (reward.ts)
   newPart: 'New part',
+  /** A drop is a blueprint you forge with Stardust (blueprints). */
+  blueprint: 'Blueprint',
+  blueprintNote: (stardust: number) => (stardust ? `Forge it for ${formatNumber(stardust)} Stardust.` : 'Free to forge: one tap in the Forge.'),
   /** Another faction's frame, once your own faction's at that rarity is yours (faction_drops). */
   gift: (element: string) => `A gift from ${element}`,
   openForge: 'Open the Forge',
@@ -326,16 +329,21 @@ export const forge = {
   influence: (n: number, element: string) => `+${n} influence for ${element}`,
   /** Screen readers hear the part as one literal line. */
   a11yDrop: (name: string, rarity: string) => `New part: ${name}, ${rarity}.`,
-  a11yGift: (name: string, rarity: string, element: string) => `A gift from ${element}: ${name}, ${rarity}.`,
+  a11yBlueprint: (name: string, rarity: string) => `Blueprint: ${name}, ${rarity}.`,
+  a11yGift: (name: string, rarity: string, element: string) => `A gift from ${element}: blueprint for ${name}, ${rarity}.`,
 
   // The Forge page (screens/forge.ts)
   title: 'Forge',
-  intro: 'Every 3rd square you solve brings an avatar or a frame. Forge any you’re missing with Stardust.',
+  intro: 'Every 3rd square you solve brings a blueprint for an avatar or a frame. Forge it cheaply with Stardust, or forge any part without one for more.',
   parts: 'Parts',
   collected: (n: number, total: number) => `${n} of ${total} collected`,
   wearing: 'Equipped',
   owned: 'Owned',
   ready: 'Ready to forge',
+  blueprintReady: 'Blueprint: ready to forge',
+  blueprintNeeds: 'Blueprint: not enough Stardust yet',
+  /** The sheet's price with a blueprint in hand. */
+  blueprintPrice: (stardust: number) => (stardust ? `With your blueprint: ${formatNumber(stardust)} Stardust` : 'Free with your blueprint'),
   needsMore: 'Not enough Stardust yet',
   price: (stardust: number) => `${formatNumber(stardust)} Stardust`,
   forge: 'Forge',
@@ -349,13 +357,13 @@ export const forge = {
   // The odds sheet: plain and exact, no jokes.
   oddsButton: 'How parts work',
   oddsTitle: 'How parts work',
-  oddsIntro: 'Every 3rd solved, rated square brings one part. These are the odds of its rarity.',
+  oddsIntro: 'Every 3rd solved, rated square brings one blueprint. These are the odds of its rarity.',
   oddsPityTitle: 'Guarantees',
   oddsPity: ['Epic or better within 10 parts.', 'Mythic within 25 parts.'],
   oddsDupeTitle: 'Parts you already have',
-  oddsDupe: 'A part you don’t have is much likelier than one you already own. One you already own turns into Stardust: 20 for Common, 50 Rare, 120 Epic, 300 Mythic.',
+  oddsDupe: 'A part you don’t have is much likelier than one you already have. One you already own, or hold as a blueprint, turns into Stardust: 20 for Common, 50 Rare, 120 Epic, 300 Mythic.',
   oddsForgeTitle: 'Forging',
-  oddsForge: 'Any part you’re missing can be forged: 100 Stardust for Common, 250 Rare, 600 Epic, 1200 Mythic.',
+  oddsForge: 'With its blueprint a part forges cheaply: Common free, Rare 50 Stardust, Epic 200, Mythic 500. Without one, any part you’re missing costs 150 for Common, 375 Rare, 900 Epic, 1800 Mythic.',
   oddsPaceTitle: 'Each day',
   oddsPace: 'Your first 9 solved squares each day count toward parts: up to 3 parts a day.',
   oddsSpiritTitle: 'Spirit',

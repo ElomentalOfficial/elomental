@@ -1,6 +1,6 @@
 import { avatarSvg, partSvg } from '../avatar.ts';
 import { loadStandings, type Standing } from '../backend/affinity.ts';
-import { ALIVE_COST, DEFAULT_AVATAR, FORGE_COST, SLOTS, avatarsToWake, callSpirit, equipPart, forgePart, loadForge, polishPart, type Forge, type Part } from '../backend/forge.ts';
+import { ALIVE_COST, BLUEPRINT_COST, DEFAULT_AVATAR, FORGE_COST, SLOTS, avatarsToWake, callSpirit, equipPart, forgePart, loadForge, polishPart, type Forge, type Part } from '../backend/forge.ts';
 import { ICONS } from '../icons.ts';
 import { ELEMENTS, RARITIES, loadProfile, type Element, type Rarity } from '../profile.ts';
 import { partName, rarityName } from '../reward.ts';
@@ -11,13 +11,13 @@ import * as copy from '../copy/en.ts';
 /**
  * The Forge (docs/PROGRESSION_DESIGN.md, revised): your avatar, your Stardust and Spirits,
  * and the season's avatars and frames (name plates come with the level: the Profile's Name
- * plates page, screens/plates.ts): wearing, owned, ready to forge, or
+ * plates page, screens/plates.ts): wearing, owned, a blueprint to forge, ready to forge, or
  * not yet affordable. A part opens a sheet with its price and the one action that fits; an
- * avatar you own can be brought to life (polished) once. Parts arrive every 3rd solved
- * square; Stardust forges any that are missing. Spent on the server.
+ * avatar you own can be brought to life (polished) once. Blueprints arrive every 3rd solved
+ * square and forge cheaply; Stardust forges any part without one for more. Spent on the server.
  */
 
-type State = 'wearing' | 'owned' | 'ready' | 'needs';
+type State = 'wearing' | 'owned' | 'blueprint' | 'blueprint-needs' | 'ready' | 'needs';
 
 /** What's worn in a slot (Happy when no avatar is). */
 const worn = (f: Forge, slot: Part['slot']) => f.loadout[slot] ?? (slot === 'avatar' ? DEFAULT_AVATAR : null);
@@ -25,10 +25,14 @@ const worn = (f: Forge, slot: Part['slot']) => f.loadout[slot] ?? (slot === 'ava
 function stateOf(f: Forge, p: Part): State {
   if (worn(f, p.slot) === p.id) return 'wearing';
   if (f.owned.has(p.id)) return 'owned';
+  if (f.blueprints.has(p.id)) return f.stardust >= BLUEPRINT_COST[p.rarity] ? 'blueprint' : 'blueprint-needs';
   return f.stardust >= FORGE_COST[p.rarity] ? 'ready' : 'needs';
 }
 
-const price = (r: Rarity) => copy.forge.price(FORGE_COST[r]);
+/** What forging it costs you now: its blueprint's price, or the full one. */
+const costOf = (f: Forge, p: Part) => (f.blueprints.has(p.id) ? BLUEPRINT_COST : FORGE_COST)[p.rarity];
+const price = (f: Forge, p: Part) => (f.blueprints.has(p.id) ? copy.forge.blueprintPrice(BLUEPRINT_COST[p.rarity]) : copy.forge.price(FORGE_COST[p.rarity]));
+const forgeable = (s: State) => s === 'ready' || s === 'needs' || s === 'blueprint' || s === 'blueprint-needs';
 /** "Fire · Frame" for a frame, "Avatar" for an avatar. */
 const kind = (p: Part) => (p.element ? `${copy.forge.elements[p.element]} · ${copy.forge.slots[p.slot]}` : copy.forge.slots[p.slot]);
 const order = (p: Part) => (p.element ? ELEMENTS.indexOf(p.element) : 0);
@@ -101,6 +105,8 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
   function stateLabel(state: State): string {
     return state === 'wearing' ? copy.forge.wearing
       : state === 'owned' ? copy.forge.owned
+      : state === 'blueprint' ? copy.forge.blueprintReady
+      : state === 'blueprint-needs' ? copy.forge.blueprintNeeds
       : state === 'ready' ? copy.forge.ready
       : copy.forge.needsMore;
   }
@@ -141,9 +147,9 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
         await refresh();
       });
     };
-    if (state === 'ready' || state === 'needs') {
+    if (forgeable(state)) {
       const btn = h('button', { class: 'btn btn-primary', text: copy.forge.forge });
-      if (state === 'needs') btn.disabled = true;
+      if (f.stardust < costOf(f, p)) btn.disabled = true;
       else btn.addEventListener('click', () => busy(btn, () => forgePart(p.id), copy.forge.forged(name)));
       action = btn;
     } else if (state === 'owned') {
@@ -188,7 +194,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
         h('span', { class: 'part-sheet-art', html: partSvg(p.id, polish), attrs: { 'aria-hidden': 'true' } }),
         h('h2', { text: name }),
         h('p', { class: 'part-sheet-meta' }, rarityTag(p.rarity), kind(p), edition ? ` · ${copy.forge.edition(edition)}` : '', polish ? ` · ${copy.forge.alive}` : ''),
-        state === 'ready' || state === 'needs' ? h('p', { class: 'part-price', text: price(p.rarity) }) : null,
+        forgeable(state) ? h('p', { class: 'part-price', text: price(f, p) }) : null,
         action,
         life,
       ),
