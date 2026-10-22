@@ -208,8 +208,9 @@ export async function goBack(next: () => Screen): Promise<void> {
   const leaving = current?.el;
   closeAllModals();
   if (leaving && !reducedMotion()) {
-    // The game's banner (wide layouts) rolls up out of sight first, so it doesn't swing with the page.
-    const banner = leaving.querySelector<HTMLElement>('.brand-banner');
+    // The game's banner and a page's banner (wide layouts) roll up out of sight first, so they don't
+    // swing with the page.
+    const banner = leaving.querySelector<HTMLElement>('.brand-banner, .page-banner');
     const rollUp = !!banner && banner.offsetParent !== null;
     if (rollUp) {
       await banner!
