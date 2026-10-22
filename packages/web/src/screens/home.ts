@@ -32,6 +32,7 @@ import { dailyScreen } from './daily.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
 import { setupScreen } from './setup.ts';
 import { betaTag } from '../beta.ts';
+import { showAwayNews } from '../awayNews.ts';
 import * as copy from '../copy/en.ts';
 
 /** Layout from the Figma home frame: profile card with the Setup notch, then the mode tiles. */
@@ -117,6 +118,8 @@ export function homeScreen(): Screen {
   paintProfile();
   const stopProfile = onAccountChange(paintProfile);
   if (signedIn()) void refreshAccount();
+  // a season or faction month ended while the player was away: say what came of it, once
+  showAwayNews();
   // the leaderboard is split off the main script (lazy.ts): fetched ahead, it opens at once
   if (signedIn()) prefetch(() => import('./leaderboard.ts'));
   // The Store stays, so players know it's coming (the owner's call on D1); the Forge is on the Profile.

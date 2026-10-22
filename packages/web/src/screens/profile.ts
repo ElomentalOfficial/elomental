@@ -153,9 +153,9 @@ export function profileScreen(start?: { at?: 'badges' }): Screen {
       collection.textContent = copy.profile.season(have, craftable.length);
       bar.firstElementChild!.setAttribute('style', `width:${(have / Math.max(1, craftable.length)) * 100}%`);
       // when the season (and its set) ends
-      if (f.seasonEnds) {
+      if (f.seasonEnds && f.seasonName) {
         const until = new Date(f.seasonEnds).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
-        bar.after(h('p', { class: 'note profile-season-end', text: copy.profile.seasonUntil(until) }));
+        bar.after(h('p', { class: 'note profile-season-end', text: copy.profile.seasonUntil(f.seasonName, until) }));
       }
       avatar.innerHTML = avatarSvg(f.loadout, f.polish);
     });

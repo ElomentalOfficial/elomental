@@ -12,6 +12,11 @@ import * as copy from './copy/en.ts';
 
 const WIN = /^win-(\d{4})-(\d{2})-(fire|water|earth|air)$/;
 const DAILY = /^daily-(\d{4})-(\d{2})$/;
+/** The best rank reached in a season (migration cycles): 'season-0-adept'. */
+const SEASON = /^season-(\d+)-(novice|apprentice|adept|archmage|elomental)$/;
+const RANK_IDS = ['novice', 'apprentice', 'adept', 'archmage', 'elomental'];
+/** Season 0 is Alpha; later seasons go by number until they're named. */
+const SEASON_NAMES: Record<string, string> = { '0': 'Alpha' };
 
 const monthOf = (year: string, month: string, withYear: boolean) =>
   new Date(Number(year), Number(month) - 1, 1).toLocaleString('en-GB', withYear ? { month: 'long', year: 'numeric' } : { month: 'long' });
@@ -20,6 +25,8 @@ const monthOf = (year: string, month: string, withYear: boolean) =>
 export function badgeLabel(badge: string): { text: string; element: Element | null } {
   const d = badge.match(DAILY);
   if (d) return { text: copy.badges.daily(monthOf(d[1], d[2], true)), element: null };
+  const s = badge.match(SEASON);
+  if (s) return { text: copy.badges.season(copy.seasonName(Number(s[1]), SEASON_NAMES[s[1]]), copy.common.ranks[RANK_IDS.indexOf(s[2])]), element: null };
   const m = badge.match(WIN);
   if (!m) return { text: copy.badges.unknown, element: null };
   const element = m[3] as Element;

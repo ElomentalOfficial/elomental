@@ -98,12 +98,12 @@ it replaces the material-based design in §2, §3.2–3.3, §4.2–4.3, §9–11
   with the most influence per counted member wins the month (ties: all win), and its members with 5+
   solves get 300 Stardust and a dated badge.
 - **Seasons:** two a year (Jan–Jun, Jul–Dec) from Season 1. **Season Alpha** (`Season 0`, `s0-`
-  ids internal) runs to **1 July 2027**; the Profile shows the date. Only the season board
-  resets; Elo never does.
-- **Season rollover, to plan:** `private.current_season()` falls back to 0 when no season row
-  matches, so nothing breaks on 1 July 2027, but nothing rolls over either. A migration must add
-  the Season 1 row and its parts before then (D3: end Season Alpha on 1 January 2027 instead,
-  if Season 1's art is ready).
+  ids internal) runs to **1 July 2027**; the Profile shows the date. At each season's end Elo is
+  soft-reset (40% of the Elo above 100 kept, only for players who played Ranked), and the season's badge goes to the highest rank won 3 times (docs/WIPE_SYSTEM.md,
+  migration `cycles`, 2026-10-22).
+- **Season rollover:** automatic since migration `cycles`: the hourly `run_cycles` closes an ended
+  season and opens the next (6 months by default). Parts follow the newest season that has a set,
+  so Season 1 can open before its art; add its parts in a migration when they're ready.
 - **Profile:** opened from Home's avatar: avatar, name on its plate, rank and the distance to
   the next, the Forge button, stats, the season's set, badges.
 

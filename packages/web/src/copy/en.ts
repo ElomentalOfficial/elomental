@@ -434,7 +434,7 @@ export const profile = {
   collection: 'Collection',
   season: (n: number, total: number) => `Season Alpha: ${n} of ${total} parts`,
   /** When the season ends (L23): "until 1 July 2027". */
-  seasonUntil: (date: string) => `Season Alpha ends on ${date}.`,
+  seasonUntil: (season: string, date: string) => `${season} ends on ${date}.`,
   collectionOffline: 'Your parts show here when you’re online.',
   forge: 'Forge',
   guestNote: 'Sign up to keep your avatar, parts and Elo on any device.',
@@ -1108,12 +1108,33 @@ export const leaderboard = {
   },
 };
 
+// Seasons and the faction month ending (migration cycles; plain, proud on a win, kind otherwise)
+
+/** "Season Alpha", or "Season 1" for a season without a name yet. */
+export const seasonName = (id: number, name?: string | null) => `Season ${name ?? id}`;
+
+export const away = {
+  title: 'While you were away',
+  /** One line per season that ended. */
+  season: (season: string, rank: string | null) =>
+    rank ? `${season} ended. Your best rank: ${rank}.` : `${season} ended.`,
+  seasonBadge: (badge: string) => `You earned the ${badge} badge.`,
+  seasonElo: (before: number, after: number) => `Elo ${before} → ${after} for the new season.`,
+  /** One line per faction month your side played. */
+  monthWon: (month: string, side: string, badge: boolean) =>
+    badge ? `${month}: ${side} won. You earned its badge and Stardust.` : `${month}: ${side} won.`,
+  monthLost: (month: string, side: string) => `${month}: ${side} didn’t win. A new month has started.`,
+  ok: 'Continue',
+};
+
 // Badges (badges.ts): earned now; the store and events later.
 export const badges = {
   title: 'Badges',
   unknown: 'Badge',
   /** 'daily-2026-10': 20 Daily squares in October 2026. */
   daily: (month: string) => `Daily Square, ${month}`,
+  /** 'season-0-adept': the best rank reached in Season Alpha (migration cycles). */
+  season: (season: string, rank: string) => `${season} · ${rank}`,
   none: 'No badges yet. Solve 20 Daily squares in a month, or win a month with your faction, to earn one.',
   noneOther: 'No badges yet.',
   choose: 'Choose three',

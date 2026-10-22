@@ -54,6 +54,8 @@ export interface Forge {
   callCost: number;
   /** When the season ends (ISO), or null. */
   seasonEnds: string | null;
+  /** "Season Alpha" (copy.seasonName); null between seasons. */
+  seasonName: string | null;
 }
 
 /** Avatars you own (Happy too) that have no Spirit to wake them yet, counting the Spirits you hold. */
@@ -74,7 +76,7 @@ export async function loadForge(): Promise<Forge | null> {
     supabase.from('player_parts').select('part_id, edition, polish'),
     supabase.from('avatar_loadouts').select('avatar, frame').maybeSingle(),
     supabase.from('profiles').select('stardust, spirits, affinity, spirit_pity, spirits_called, spirits_called_season').eq('id', uid).single(),
-    supabase.from('seasons').select('id, ends_at').lte('starts_at', now).gt('ends_at', now).maybeSingle(),
+    supabase.from('seasons').select('id, name, ends_at').lte('starts_at', now).gt('ends_at', now).maybeSingle(),
   ]);
   if (parts.error || owned.error || profile.error) return null;
   const seasonId = season.data?.id ?? 0;
@@ -93,6 +95,7 @@ export async function loadForge(): Promise<Forge | null> {
     spiritIn: Math.max(1, SPIRIT_GUARANTEE - (profile.data.spirit_pity ?? 0)),
     callCost: CALL_COST + CALL_STEP * calledThisSeason,
     seasonEnds: season.data?.ends_at ?? null,
+    seasonName: season.data ? copy.seasonName(season.data.id, season.data.name) : null,
   };
 }
 
