@@ -389,8 +389,8 @@ html[data-reduce-motion] .dealt {
   margin-bottom: 2px;
 }
 
-/* A hero icon you can spin (spin.ts): the face, a mirrored back, and copies stacked behind the face
-   for its edge, each a little darker, all turning together in 3D */
+/* A hero icon you can turn (spin.ts): the face, and a few copies stacked close behind it for a slim
+   edge, darker, all turning together in 3D */
 .spin {
   display: grid;
   place-items: center;
@@ -423,10 +423,4 @@ html[data-reduce-motion] .dealt {
 }
 .spin-edge {
   filter: brightness(0.55);
-}
-/* the back: the same picture seen from behind, deeper, as the reverse of a struck medal */
-.spin-back {
-  transform: translateZ(calc(-8 * 1.6px - 1px)) rotateY(180deg);
-  filter: brightness(0.8);
-  backface-visibility: hidden;
 }
