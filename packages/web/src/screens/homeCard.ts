@@ -36,6 +36,8 @@ export function homeCard(): HomeCard {
   /** Your badges when you haven't chosen three: your newest, fetched once a visit to Home. */
   let newest: string[] | null = null;
   let fetching = false;
+  /** The name as painted, for fitting it to its cell (draw). */
+  let shown = '';
   const avatar = h('button', { class: 'avatar avatar-btn worn', attrs: { type: 'button', 'aria-label': copy.profile.a11yAvatar } });
   const portrait = h('div', { class: 'pc-cell pc-portrait' }, avatar);
 
@@ -74,8 +76,12 @@ export function homeCard(): HomeCard {
     const account = cachedAccount();
     avatar.innerHTML = avatarSvg(cachedLoadout(), cachedPolish());
     // the name inside its plate (plates.ts); the level has its own cell
+    shown = p.name;
     paintPlate(nameEl, p.name, account?.plate ?? 0, null);
     nameEl.classList.toggle('plate-inline', nameEl.classList.contains('name-plate'));
+    // a long name that has to wrap breaks after its _ or -, not inside a word
+    const label = nameEl.querySelector('.plate-text') ?? nameEl;
+    if (/[_-]./.test(p.name)) label.replaceChildren(...p.name.split(/(?<=[_-])/).flatMap((part, i) => (i ? [h('wbr'), part] : [part])));
     const tier = rankTier(p.elo, p.tier);
     rankEl.replaceChildren(rankName(tier.tier, tier.label, p.title));
     levelNum.textContent = String(account ? xpLevel(account.xp ?? 0).level : 1);
@@ -116,8 +122,28 @@ export function homeCard(): HomeCard {
     if (!el.isConnected || !el.offsetWidth) return;
     // the name's plate: the rule runs through the name's middle, its ends with room to show
     const text = nameEl.querySelector<HTMLElement>('.plate-text');
+    const room = name.clientWidth / zoomOf(name.firstElementChild!) - 16;
+    // a long name shrinks to keep to one line, down to the label size; past that it wraps after
+    // its _ or - (see paint), sized so its longest part keeps to a line, down to the body size
+    // (both still over the title's)
+    nameEl.style.fontSize = '';
+    const measure = (s: string) => {
+      const probe = h('span', { text: s });
+      probe.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap';
+      nameEl.append(probe);
+      const w = probe.offsetWidth;
+      probe.remove();
+      return w;
+    };
+    const full = measure(shown);
+    const fit = Math.min(room - (text ? 2 * 20 : 0), text ? parseFloat(getComputedStyle(text).maxWidth) || Infinity : Infinity);
+    if (full > fit) {
+      const size = parseFloat(getComputedStyle(nameEl).fontSize);
+      const longest = Math.max(...shown.split(/(?<=[_-])/).map(measure));
+      const one = (size * fit) / full;
+      nameEl.style.fontSize = `${one >= (size * 20) / 30 ? one : Math.max((size * 16) / 30, Math.min((size * 20) / 30, (size * fit) / longest))}px`;
+    }
     if (text && nameEl.classList.contains('plate-inline')) {
-      const room = name.clientWidth / zoomOf(name.firstElementChild!) - 16;
       const tw = text.offsetWidth;
       nameEl.style.setProperty('--medal-d', `${tw + 26}px`);
       nameEl.style.setProperty('--plate-pad', `${Math.max(20, Math.min(56, (room - tw) / 2))}px`);

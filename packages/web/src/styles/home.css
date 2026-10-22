@@ -273,16 +273,21 @@
   gap: var(--space-1);
   max-width: 100%;
 }
-/* a long name (up to 20 letters) shrinks a little to keep to its cell */
+/* the name leads: the display serif, well above the title (owner: substantially bigger); a long
+   name (up to 20 letters) is fitted to its cell, never below the label size (homeCard.ts draw) */
 .pc-name .profile-name {
   font-family: var(--serif);
-  font-size: min(var(--fs-title), 11cqi);
+  font-size: var(--fs-display);
   font-weight: 400;
   text-transform: none;
   letter-spacing: 0.01em;
 }
+/* the title and rank: the sans, smaller and spaced, so it reads apart from the name */
 .pc-name .profile-rank {
-  font-size: var(--fs-body);
+  font-family: var(--font);
+  font-size: var(--fs-small);
+  font-weight: 600;
+  letter-spacing: 0.04em;
 }
 /* Level and Elo: the givens. A number grows only as far as its cell has room for. */
 .pc-level {

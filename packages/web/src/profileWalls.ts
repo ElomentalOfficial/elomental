@@ -51,7 +51,7 @@ type Terminal = keyof typeof TERMS;
  * dashes and breaks (the frame's lengths, never a short repeating pattern), seeded so a card
  * draws the same every time.
  */
-function pen(u: number) {
+function pen(u: number, lineUnit = u) {
   const n = (v: number) => (v * u).toFixed(2);
   const scaled = (path: string) => path.replace(/-?\d+(\.\d+)?/g, (v) => n(Number(v)));
   let seed = 20261022;
@@ -69,7 +69,7 @@ function pen(u: number) {
     }
     return parts.join(' ');
   };
-  const lw = 1.3 * u;
+  const lw = 1.3 * lineUnit;
   const worn = (d: string, w = lw) =>
     `<path d="${d}" fill="none" stroke="currentColor" stroke-width="${w.toFixed(2)}" stroke-dasharray="${wear()}"/>`;
   const solid = (d: string) => `<path d="${d}" fill="currentColor"/>`;
@@ -178,6 +178,21 @@ export function bannerPlace(width: number, unit: number, w: number): { cx: numbe
 
 const sideBySide = (a: Box, b: Box) => a.right <= b.left + 0.5;
 
+/** The ornaments' size against the tile corners' (owner, 2026-10-22: smaller). */
+const ORN = 0.65;
+/** Junction ornaments, drawn whole about their centre (units); JUNCTION_R is how far they reach. */
+const JUNCTION_R = 8;
+const JUNCTIONS = {
+  // nested lozenges, a gem at the heart
+  lozenge: (p: Pen) => p.worn(p.scaled('M0 -8 L8 0 L0 8 L-8 0 Z M0 -4.5 L4.5 0 L0 4.5 L-4.5 0 Z')) + p.gem(0, 0, 1.8),
+  // a ring with eight short rays, a rivet at the heart
+  rosette: (p: Pen) => {
+    let d = `M${p.n(4)} 0 A${p.n(4)} ${p.n(4)} 0 1 1 ${p.n(-4)} 0 A${p.n(4)} ${p.n(4)} 0 1 1 ${p.n(4)} 0 `;
+    for (let a = 0; a < 360; a += 45) d += p.ray(a, 5.5, 8);
+    return p.worn(d) + p.dot(0, 0, 1.4);
+  },
+};
+
 export function cardWalls(c: CardLayout): string {
   const p = pen(c.unit);
   const E = 11 * c.unit, W = c.width, H = c.height;
@@ -210,16 +225,30 @@ export function cardWalls(c: CardLayout): string {
     }
   });
 
+  // the ornaments drawn at 0.65 of their size, their lines as fine as the walls'
+  const small = pen(c.unit * ORN, c.unit);
+  // two small ornaments where the Level and Elo wall meets the walls above and below it, each its own
+  const mid = walls.find((w) => w.o === 'v' && Math.abs(w.a - yMid) < 0.5 && Math.abs(w.b - yFloor) < 0.5);
+  const junctions = mid ? [{ x: mid.at, y: yMid, draw: JUNCTIONS.lozenge }, { x: mid.at, y: yFloor, draw: JUNCTIONS.rosette }] : [];
+  const JR = JUNCTION_R * c.unit * ORN + AIR;
+  walls.forEach((w, i) => {
+    for (const j of junctions) {
+      const along = w.o === 'h' ? j.x : j.y, across = w.o === 'h' ? j.y : j.x;
+      if (Math.abs(w.at - across) < 0.5 && along >= w.a - 0.5 && along <= w.b + 0.5) cuts[i].push([along - JR, along + JR]);
+    }
+  });
+
   let marks = '', lines = '', defs = '';
+  for (const j of junctions) marks += `<g transform="translate(${j.x.toFixed(1)} ${j.y.toFixed(1)})">${j.draw(small)}</g>`;
   walls.forEach((w, i) => {
     const limit = w.o === 'v' ? H - E : W - E;
     ([[w.a, Math.abs(w.a - E) < 0.5, w.o === 'v' ? 0 : -90, 1], [w.b, Math.abs(w.b - limit) < 0.5, w.o === 'v' ? 180 : 90, -1]] as const).forEach(([pos, atFrame, rot, dir], j) => {
       const name = w.ends[j];
       const x = w.o === 'v' ? w.at : pos, y = w.o === 'v' ? pos : w.at;
       if (!name || !atFrame || !clear(x, y)) return;
-      const reach = TERMS[name].reach * c.unit;
+      const reach = TERMS[name].reach * c.unit * ORN;
       cuts[i].push(dir > 0 ? [pos - 4 * c.unit, pos + reach] : [pos - reach, pos + 4 * c.unit]);
-      marks += `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rot})">${TERMS[name].draw(p)}</g>`;
+      marks += `<g transform="translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rot})">${TERMS[name].draw(small)}</g>`;
     });
     const span = STYLES[w.style].hw(p) + 2.5 * c.unit;
     const holes = cuts[i].map(([c0, c1]) => (w.o === 'v'
