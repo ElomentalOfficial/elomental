@@ -70,7 +70,8 @@
   position: relative;
   isolation: isolate;
 }
-/* A soft contact shadow under every Home icon, as if it rests on the tile. */
+/* A soft contact shadow under every Home icon, as if it rests on the tile: faint, a hint
+   of weight rather than a mark of its own. */
 .tile-icon::after {
   content: '';
   position: absolute;
@@ -82,7 +83,7 @@
   max-height: 10px;
   transform: translateX(-50%);
   border-radius: 50%;
-  background: color-mix(in srgb, var(--c-lava-highlight) 40%, transparent);
+  background: color-mix(in srgb, var(--c-lava-highlight) 20%, transparent);
   filter: blur(1.5px);
   pointer-events: none;
 }
@@ -96,7 +97,7 @@
 }
 /* On the dark grey tiles the shadow needs more ink to show at all. */
 :root[data-theme='dark'] :is(.area-store, .area-leader, .area-setup, .area-forge) .tile-icon::after {
-  background: color-mix(in srgb, var(--c-bg) 85%, transparent);
+  background: color-mix(in srgb, var(--c-bg) 43%, transparent);
 }
 /* Home buttons use the serif (Federo), like the rest of the app's labels. */
 .tile-label {
