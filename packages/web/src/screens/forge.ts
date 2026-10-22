@@ -1,6 +1,7 @@
 import { avatarSvg, partSvg } from '../avatar.ts';
 import { loadStandings, type Standing } from '../backend/affinity.ts';
 import { ALIVE_COST, BLUEPRINT_COST, DEFAULT_AVATAR, FORGE_COST, GILD_COST, MAX_MARKS, SLOTS, gildPart, marksOf, avatarsToWake, callSpirit, equipPart, forgePart, loadForge, polishPart, type Forge, type Part } from '../backend/forge.ts';
+import forgeHero from '../art/screens/forge.svg';
 import { ICONS } from '../icons.ts';
 import { ELEMENTS, RARITIES, loadProfile, type Element, type Rarity } from '../profile.ts';
 import { partName, rarityName } from '../reward.ts';
@@ -53,7 +54,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
       className: 'forge',
       title: copy.forge.title,
       onBack: () => void goBack(back),
-      banner: { art: h('span', { class: 'forge-banner-art', html: ICONS.forge }), help: copy.forge.bannerHelp, foot: purse },
+      banner: { art: h('img', { class: 'banner-hero', attrs: { src: forgeHero, alt: '' } }), help: copy.forge.bannerHelp, foot: purse },
     },
     body,
   );

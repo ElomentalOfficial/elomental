@@ -160,12 +160,21 @@
     place-items: center;
     margin-block: var(--space-2);
   }
+  /* a page's own hero icon (art/screens): drawn whole, as large as the slot allows */
+  .banner-hero {
+    display: block;
+    object-fit: contain;
+  }
   .banner-art > :not(.lb-banner-art) {
     width: min(var(--hero), 100%) !important;
     height: 100% !important;
     max-height: none !important;
     aspect-ratio: auto !important;
     transform: none !important;
+  }
+  /* (a wide hero takes the banner's whole width) */
+  .banner-art > .banner-hero {
+    width: 100% !important;
   }
   .banner-art > * {
     max-width: 100%;
