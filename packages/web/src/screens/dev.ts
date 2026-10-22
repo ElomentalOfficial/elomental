@@ -97,7 +97,8 @@ export function devPanel(section: DevSection, ctx: DevContext): { el: HTMLElemen
             btn.classList.replace('btn', 'segment');
             return btn;
           }))),
-        tool(t.nextSpirit, 'next_spirit'),
+        // its own item in the card, so the hairline and gap between items apply
+        h('div', { class: 'choice' }, tool(t.nextSpirit, 'next_spirit')),
       ));
     paint = () => {
       for (const b of tools) b.disabled = !on();
