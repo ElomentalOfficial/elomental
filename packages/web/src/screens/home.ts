@@ -49,8 +49,7 @@ export function homeScreen(): Screen {
   };
 
   function tile(area: string, icon: string, label: string, onTap: (el: HTMLElement) => void, ...extra: (HTMLElement | null)[]) {
-    // a tile without its art yet (the Forge) shows its name alone
-    const face = h('span', { class: 'tile-face' }, icon ? h('span', { class: 'tile-icon', html: icon }) : null, h('span', { class: 'tile-label', text: label }));
+    const face = h('span', { class: 'tile-face' }, h('span', { class: 'tile-icon', html: icon }), h('span', { class: 'tile-label', text: label }));
     const el = h('button', { class: `tile area-${area}` }, face, ...extra);
     el.addEventListener('click', () => onTap(el));
     enableTilt(el);
@@ -121,7 +120,7 @@ export function homeScreen(): Screen {
   const casual = tile('casual', ICONS.casual, copy.home.tiles.casual, (el) => leave(el, () => mount(casualScreen())));
   const ranked = tile('ranked', ICONS.ranked, copy.home.tiles.ranked, (el) => openRanked((go) => leave(el, go)));
   // Forge and Setup share the top row (the owner's Home frame): the Forge in reach without the Profile.
-  const forge = tile('forge', '', copy.home.tiles.forge, (el) => leave(el, () => mount(forgeScreen())));
+  const forge = tile('forge', ICONS.forge, copy.home.tiles.forge, (el) => leave(el, () => mount(forgeScreen())));
   const setup = tile('setup', ICONS.setup, copy.home.tiles.setup, (el) => leave(el, () => mount(setupScreen())), betaTag());
 
   const tiles = [forge, setup, profileCard, daily, store, leader, casual, ranked];

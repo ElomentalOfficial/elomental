@@ -90,6 +90,10 @@
     width: 56px;
     height: 56px;
   }
+  .area-forge .tile-icon {
+    width: 96px;
+    height: 73px;
+  }
   .area-daily .tile-icon {
     width: 64px;
     height: 70px;

@@ -95,7 +95,7 @@
   bottom: 2px;
 }
 /* On the dark grey tiles the shadow needs more ink to show at all. */
-:root[data-theme='dark'] :is(.area-store, .area-leader, .area-setup) .tile-icon::after {
+:root[data-theme='dark'] :is(.area-store, .area-leader, .area-setup, .area-forge) .tile-icon::after {
   background: color-mix(in srgb, var(--c-bg) 85%, transparent);
 }
 /* Home buttons use the serif (Federo), like the rest of the app's labels. */
@@ -167,9 +167,15 @@
   width: 70px;
   height: 45px;
 }
-/* The Forge: a wide tile, its name alone until it has its own art. */
+/* The Forge: a wide tile, label on the left and the anvil on the right, like the Store. */
 .area-forge {
   grid-area: forge;
+  flex-direction: row-reverse;
+  gap: 32px;
+}
+.area-forge .tile-icon {
+  width: 70px;
+  height: 53px;
 }
 /* Setup: a small tile, tight, since the cog's shadow and the label's line box already add
    space between them. */
