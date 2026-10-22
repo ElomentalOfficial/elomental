@@ -1238,7 +1238,7 @@ html:not([data-large-text]) .daily-art {
   }
 }
 /*
- * Daily on a wide screen (daily.ts, banner.css): the calendar on the crimson banner with the
+ * Daily on a wide screen (daily.ts, banner.css): the calendar on the banner with the
  * month's count at its foot; the month beside today's door (one click plays it) and the badge.
  */
 @media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {

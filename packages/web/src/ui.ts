@@ -69,16 +69,14 @@ wideMedia.addEventListener('change', () => {
 });
 
 /**
- * A wide page's banner (pageBanner.ts): hung from the top edge on the left, it carries Back
- * and the title, the page's own art, a line on what the page is for, and something of
+ * A wide page's banner (pageBanner.ts): the splash ribbon hung from the top edge on the left, it
+ * carries Back and the title, the page's own art, a line on what the page is for, and something of
  * yours at its foot. Phones keep the plain header.
  */
 export interface Banner {
   art?: Child;
   help?: string;
   foot?: Child;
-  /** Casual's banner wears its Home tile's green, Daily's its crimson; the others their grey. */
-  tone?: 'forest' | 'crimson';
 }
 
 /**
@@ -100,7 +98,7 @@ export function subPage(options: { className: string; title: string | HTMLElemen
   const banner = options.banner && wideLayout() ? pageBanner(header, options.banner) : null;
   return h(
     'div',
-    { class: `screen sub ${options.className}${banner ? ` has-banner${options.banner?.tone ? ` banner-${options.banner.tone}` : ''}` : ''}` },
+    { class: `screen sub ${options.className}${banner ? ' has-banner' : ''}` },
     banner ?? header,
     h('div', { class: 'sub-body scrollable' }, ...body),
   );

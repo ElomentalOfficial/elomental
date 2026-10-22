@@ -1,9 +1,10 @@
 /* ---------- Banner pages (wide screens) ---------- */
 /*
  * On a wide screen Casual, the Leaderboard and Setup (and Setup's pages) are a banner and a
- * field (ui.ts subPage `banner`, pageBanner.ts). The banner hangs from the top edge on the
- * left with a notched tail, in its Home tile's colour, carrying Back, the title, the page's
- * own art, its line and something of yours at its foot; it stays put. The field beside it
+ * field (ui.ts subPage `banner`, pageBanner.ts). The banner is the splash ribbon (ribbon.ts:
+ * its torn sides and tail) in the theme's accent, as on the splash and the game screen; it hangs
+ * from the top edge on the left, carrying Back, the title, the page's own art, its line and
+ * something of yours at its foot, and it stays put. The field beside it
  * scrolls, and what you can do there is a door: a big framed card that does its one thing
  * when clicked. They're laid out at the window's own size, not zoomed (wide.css zooms the
  * other pages), so the type scale keeps its steps and Text size works as on a phone.
@@ -34,16 +35,40 @@
     flex-direction: column;
     align-items: center;
     gap: var(--space-3);
-    padding: max(var(--space-5), env(safe-area-inset-top)) var(--space-5) calc(56px + var(--space-5));
-    background: var(--tile);
-    color: var(--tile-text);
-    /* the focus ring in the banner's own ink: the page's --focus can match a coloured cloth (light
-       theme's crimson on Daily's banner) */
-    --focus: currentColor;
+    /* (the torn tail takes the ribbon's lowest 15%: the foot ends above it) */
+    padding: max(var(--space-5), env(safe-area-inset-top)) var(--space-5) calc((100dvh - var(--space-6)) * 0.15 + var(--space-3));
+    background: var(--accent);
+    color: var(--on-accent);
+    -webkit-mask: var(--ribbon) 0 0 / 100% 100% no-repeat;
+    mask: var(--ribbon) 0 0 / 100% 100% no-repeat;
     text-align: center;
-    /* the notched tail: as deep as pageBanner.ts TAIL */
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 56px), 0 100%);
     overflow: hidden;
+    /* Everything on the cloth is in its ink: the page's colours are for the page (the accent, a
+       crimson focus ring and the rank metals would vanish or clash on it) */
+    --focus: currentColor;
+    --text: var(--on-accent);
+    --muted: var(--on-accent);
+    --accent-text: var(--on-accent);
+    --xp-fill: var(--on-accent);
+    --level-ink: var(--on-accent);
+    --primary-bg: var(--on-accent);
+    --primary-text: var(--accent);
+  }
+  /* the Home art drawn for the dark grey tiles, in both themes: the cloth is always deep */
+  :root[data-theme] .page-banner .ic-light {
+    display: none;
+  }
+  :root[data-theme] .page-banner .ic-dark {
+    display: block;
+  }
+  /* a rank or a plate on the cloth: in its ink (its metal shows in the field and on Home) */
+  .page-banner .rank-name {
+    color: currentColor;
+    background: none;
+    -webkit-text-fill-color: currentColor;
+  }
+  .page-banner .name-plate {
+    --plate: currentColor;
   }
   /* The installed app draws under the status bar: the cloth still hangs from the very top, over
      the status strip (base.css #status-tint), its contents and the field's start clear of it */
@@ -57,14 +82,7 @@
   html.standalone .screen.sub.has-banner > .sub-body {
     padding-top: max(var(--field-y), calc(var(--status-clear) + var(--status-gap)));
   }
-  .banner-forest > .page-banner {
-    background: var(--tone-forest-fill);
-    color: var(--tone-forest-on);
-  }
-  .banner-crimson > .page-banner {
-    background: var(--tone-crimson-fill);
-    color: var(--tone-crimson-on);
-  }
+
   /* the tiles' grain, faint over the cloth */
   .page-banner::before {
     content: '';
@@ -76,25 +94,7 @@
     opacity: 0.065;
     pointer-events: none;
   }
-  .banner-lines {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-  }
-  .banner-lines svg {
-    display: block;
-  }
-  .banner-line {
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.5;
-    opacity: 0.1;
-  }
-  .banner-line.inner {
-    stroke-width: 1;
-    opacity: 0.065;
-  }
+
   /* Back at the top corner, the title under it */
   .page-banner .subbar {
     align-self: stretch;

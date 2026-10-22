@@ -1089,7 +1089,7 @@ html[data-large-text] .lb-me .lb-avatar {
     margin-top: 3px;
     padding-top: var(--space-2);
     color: var(--el-on);
-    /* the notched tail of every banner in the app, with every filled shape's rim (palette
+    /* a pennant's notched tail, with every filled shape's rim (palette
        -edge): the rim is the pennant, its fill a step inside (a clip-path hides borders) */
     position: relative;
     isolation: isolate;

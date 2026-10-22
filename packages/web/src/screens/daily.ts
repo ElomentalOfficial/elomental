@@ -281,7 +281,7 @@ export function dailyScreen(): Screen {
   );
   const resetNote = h('p', { class: 'reset-note', text: copy.daily.nextIn(hours, minutes) });
 
-  // Wide screens (banner.css): the calendar on the crimson banner with the month's count at its
+  // Wide screens (banner.css): the calendar on the banner with the month's count at its
   // foot; the month beside today's door (its square, waiting or new: one click plays it) and the
   // month's badge. Phones: header, then one block centred below it: the month card, the month's
   // badge and the play button.
@@ -303,7 +303,6 @@ export function dailyScreen(): Screen {
       title: copy.daily.title,
       onBack: () => void goBack(homeScreen),
       banner: {
-        tone: 'crimson',
         art: wide ? tearOffCalendar() : null,
         help: copy.daily.bannerHelp,
         // every Daily you've solved (the month is in the card beside it), as Casual counts its squares

@@ -44,15 +44,13 @@ export const PAIRS: Pair[] = [
   ['Daily tile label (Bright on Crimson)', '--c-bright', '--c-crimson', 4.5],
   ['Casual tile label (Bright on Forest)', '--c-bright', '--c-forest', 4.5],
   ['Ranked tile label (Bright on Lava)', '--c-bright', '--c-lava', 4.5],
-  // Wide pages (banner.css): the banner carries its tile's colours (above); the rest is new
-  ['Back button on a banner (12% of its ink)', '--tile-text', '--tile', 3],
+  // Wide pages (banner.css): the banner is the splash ribbon in the accent, everything on it in its ink
+  ['Text on a banner (its ink)', '--on-accent', '--accent', 4.5],
+  ['Button on a banner (the accent on its ink)', '--accent', '--on-accent', 4.5],
   ['Privacy door eye (inked disc)', '--surface', '--text', 3],
   ['Podium step number', '--text', '--surface-2', 4.5],
   ['Podium step of your own place', '--text', '--chosen-bg', 4.5, '--surface'],
-  ['UI: focus ring on a banner (its ink)', '--tile-text', '--tile', 3],
-  ['Muted text on a banner', '--muted', '--tile', 4.5],
-  ['UI: rank bar fill on a banner', '--accent-text', '--tile', 3],
-  ['UI: XP bar fill on a banner', '--xp-fill', '--tile', 3],
+  ['UI: focus ring and bars on a banner (its ink)', '--on-accent', '--accent', 3],
   // Rarities, elements and Home tones: every role of each on every surface, below (SWATCHES)
   ['Chosen card text (wearing, your plate)', '--text', '--chosen-bg', 4.5, '--surface'],
   // Name plates: every metal on every surface a plate sits on, below (PLATE_SURFACES)
@@ -161,8 +159,6 @@ for (let i = 0; i < 5; i++) {
   for (const end of ['hi', 'lo']) {
     for (const [n, t] of PLATE_SURFACES) PAIRS.push([`rank ${i} name (${end}) on ${n}`, `--rank-${i}-${end}`, t, 4.5]);
     PAIRS.push([`rank ${i} name (${end}) on a chosen row`, `--rank-${i}-${end}`, '--chosen-bg', 4.5, '--surface']);
-    // the Profile's banner (wide screens)
-    PAIRS.push([`rank ${i} name (${end}) on a banner`, `--rank-${i}-${end}`, '--tile', 4.5]);
   }
   PAIRS.push([`UI: rank ${i} share bar vs its track`, `--rank-${i}-lo`, '--surface', 3]);
 }

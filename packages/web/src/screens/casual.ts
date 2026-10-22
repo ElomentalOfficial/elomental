@@ -136,7 +136,6 @@ export function casualScreen(): Screen {
       title: say.title,
       onBack: () => void goBack(homeScreen),
       banner: {
-        tone: 'forest',
         art: playfulFeather(),
         help: say.text,
         foot: solved ? h('p', { class: 'banner-stat' }, h('strong', { text: copy.formatNumber(solved) }), h('span', { text: say.solved })) : null,
@@ -181,7 +180,7 @@ export function casualScreen(): Screen {
 }
 
 /**
- * Casual on a wide screen (banner.css): the feather on the green banner, and every way to
+ * Casual on a wide screen (banner.css): the feather on the banner, and every way to
  * play a door of its own. Your waiting square on top, then a door per difficulty, each with
  * a square as sparse as its own (one click plays it), then Clash and Square code.
  */
