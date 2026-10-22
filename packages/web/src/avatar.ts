@@ -1,11 +1,11 @@
 import { DEFAULT_AVATAR, type Loadout, type Polish } from './backend/forge.ts';
 import type { Element } from './profile.ts';
-import fireEmblem from './art/elements/fire.svg';
-import waterEmblem from './art/elements/water.svg';
-import earthEmblem from './art/elements/earth.svg';
-import airEmblem from './art/elements/air.svg';
+import fireEmblem from './art/elements/fire.png';
+import waterEmblem from './art/elements/water.png';
+import earthEmblem from './art/elements/earth.png';
+import airEmblem from './art/elements/air.png';
 
-/** The factions' full-colour emblems (the owner's art, manual_assets/faction_assets). */
+/** The factions' full-colour emblems (the owner's art, baked to PNG by scripts/emblems.ts). */
 const EMBLEMS: Record<Element, string> = { fire: fireEmblem, water: waterEmblem, earth: earthEmblem, air: airEmblem };
 
 /** The avatar pictures (art/faces/<name>.svg, icons/make-faces.mjs), by name. */
