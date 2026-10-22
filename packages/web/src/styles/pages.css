@@ -601,6 +601,14 @@ html[data-large-text] .lb-me .lb-jump {
   white-space: pre-wrap;
   color: var(--muted);
 }
+/* Setup's last line: which build this is (vite.config.ts). */
+.build-line {
+  margin-top: var(--space-2);
+  font-size: var(--fs-caption);
+  text-align: center;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
 .segmented {
   display: grid;
   grid-template-columns: 1fr 1fr;

@@ -1,4 +1,37 @@
+import { execSync } from 'node:child_process';
 import { defineConfig, type Plugin } from 'vite';
+
+/**
+ * The build's name: its number (the commits up to it, so it only goes up, and live and beta
+ * built from the same code share it), the commit's date and short hash. Shown at the bottom of
+ * Setup and published as build.json on each site, so "live is on 405, beta on 412" reads at a
+ * glance (docs/BETA.md). The deploys check out the whole history for the count.
+ */
+const git = (args: string) => {
+  try {
+    return execSync(`git ${args}`, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+  } catch {
+    return '';
+  }
+};
+const BUILD = {
+  number: git('rev-list --count HEAD') || '0',
+  sha: git('rev-parse --short=7 HEAD') || 'local',
+  date: git('log -1 --format=%cs') || new Date().toISOString().slice(0, 10),
+};
+process.env.VITE_BUILD_NUMBER = BUILD.number;
+process.env.VITE_BUILD_SHA = BUILD.sha;
+process.env.VITE_BUILD_DATE = BUILD.date;
+
+/** build.json next to index.html: which build a site serves, and whether it's beta. */
+const buildFile = (): Plugin => ({
+  name: 'build-file',
+  apply: 'build',
+  generateBundle() {
+    const env = process.env.VITE_ENV === 'beta' ? 'beta' : 'live';
+    this.emitFile({ type: 'asset', fileName: 'build.json', source: `${JSON.stringify({ ...BUILD, number: Number(BUILD.number), env })}\n` });
+  },
+});
 
 /**
  * A beta build (VITE_ENV=beta: beta.elomental.online) installs as its own app: the beta
@@ -24,5 +57,5 @@ export default defineConfig({
   base: './',
   build: { target: 'es2022' },
   worker: { format: 'es' },
-  plugins: [betaHome()],
+  plugins: [betaHome(), buildFile()],
 });

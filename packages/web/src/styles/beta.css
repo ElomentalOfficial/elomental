@@ -1,10 +1,23 @@
 /* ---------- The beta site's tag (beta.ts) ---------- */
-/* Small, in the bottom left corner, under everything that matters (the update bar covers it). */
+/*
+ * Small, in the bottom left corner, in the strip below every screen's content, so it never
+ * covers a button or tile (the update bar covers it). On iPhones that strip is the home-bar
+ * area screens already keep free; where it's thinner than the tag, beta keeps the difference
+ * free at the bottom of #app.
+ */
+html[data-env='beta'] {
+  --beta-tag-h: calc(var(--fs-caption) * 1.25 + 4px);
+  --beta-strip: max(0px, calc(var(--beta-tag-h) + var(--space-2) - env(safe-area-inset-bottom)));
+}
+html[data-env='beta'] #app {
+  padding-bottom: var(--beta-strip);
+}
 .beta-tag {
   position: fixed;
   left: calc(env(safe-area-inset-left) + var(--space-2));
-  bottom: calc(env(safe-area-inset-bottom) + var(--space-2));
+  bottom: max(var(--space-1), calc(env(safe-area-inset-bottom) - var(--beta-tag-h) - 2px));
   z-index: 54;
+  line-height: 1.25;
   padding: 2px var(--space-2);
   border-radius: var(--radius);
   background: var(--surface-2);

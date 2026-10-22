@@ -26,6 +26,15 @@ after every push to `beta`, also pushes a one-line nudge there (about a minute e
 Deploy beta.elomental.online > Run workflow. Once a month it makes an empty commit, because GitHub
 pauses timed workflows in repositories without activity for 60 days.
 
+## Build names
+
+Every build is named by its number, the commit's date and short hash: **Build 412 · 22 Oct 2026
+· 8a78566** (beta: "Beta build …"). The number is the count of commits up to that build, so it
+only goes up, and live and beta built from the same code share it. It's at the bottom of Setup,
+and each site publishes it as `build.json`. `npm run builds` shows both and how far apart they
+are ("beta is 7 commits ahead of live"). Stamped by `packages/web/vite.config.ts`; both deploys
+check out the whole history so the count is right.
+
 ## How a change goes live
 
 1. Work lands on `beta`: it deploys to beta.elomental.online against the beta project; a new

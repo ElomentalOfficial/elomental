@@ -962,6 +962,8 @@ export const setup = {
   /** Live: the founder tools are Review only (dev mode is on beta). */
   devHelpLive: 'Players to review and their games.',
   openDev: 'Open founder tools',
+  /** The bottom of Setup: which build this is (vite.config.ts), e.g. "Build 412 · 22 Oct 2026 · 8a78566". */
+  build: (n: string, date: string, sha: string, beta: boolean) => `${beta ? 'Beta build' : 'Build'} ${n} · ${date} · ${sha}`,
 };
 
 // --- Leaderboard (screens/leaderboard.ts, playerCard.ts) ------------------------
