@@ -55,16 +55,20 @@
     display: none;
   }
   .home-grid .tile-face,
-  .profile-main,
-  .profile-stats {
+  .pc-in {
     zoom: var(--wide-zoom, 1);
+  }
+  /* the card's badges are pictures: they grow with the window, never with Text size */
+  :is(.pc-badge-art, .pc-socket) {
+    zoom: calc(var(--wide-zoom, 1) * var(--wide-icon-zoom, 1));
   }
   .profile-card,
   .area-forge {
     margin-right: var(--gap);
   }
+  /* the card is wide here: the portrait takes a little less of it */
   .profile-card {
-    padding: 28px 24px 24px;
+    grid-template-columns: minmax(0, 42fr) minmax(0, 58fr);
   }
   /* Leaderboard is as tall as the play tiles here: it stacks its icon over the
      label like them, so the label fits. */
@@ -161,22 +165,8 @@
   html[data-large-text] .home-grid > .tile .tile-label {
     font-size: min(var(--fs-label), 13cqi);
   }
-  html[data-large-text] :is(.home-grid .tile-icon, .profile-card .avatar) {
+  html[data-large-text] .home-grid .tile-icon {
     zoom: var(--wide-icon-zoom, 1);
-  }
-  html[data-large-text] .profile-stats {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  html[data-large-text] .stat-chip {
-    flex-direction: column;
-    align-items: center;
-    padding: 10px 4px;
-    min-width: 0;
-    container-type: inline-size;
-  }
-  /* STARDUST is one word: it grows only as far as its chip has room for. */
-  html[data-large-text] .stat-chip span:last-child {
-    font-size: min(var(--fs-small), 13cqi);
   }
   /* The other pages keep their phone column, a little larger. */
   .screen.daily,

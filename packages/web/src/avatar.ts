@@ -11,6 +11,8 @@ import airEmblem from './art/elements/air.svg';
  * Safari draw badly (a white fringe, low resolution).
  */
 const EMBLEMS: Record<Element, string> = { fire: fireEmblem, water: waterEmblem, earth: earthEmblem, air: airEmblem };
+/** An element's full-colour emblem, as an image URL (Home's faction banner). */
+export const emblemUrl = (element: Element): string => EMBLEMS[element];
 
 /** The avatar pictures (art/faces/<name>.svg, icons/make-faces.mjs), by name. */
 const FACES: Record<string, string> = Object.fromEntries(

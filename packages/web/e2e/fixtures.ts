@@ -170,11 +170,11 @@ export const SIZES = [100, 125, 150, 200];
 
 /** Elements that frame content: text must stay inside the nearest one. */
 const BOXES =
-  'button, a.btn, .tile, .setting, .modal, .stat-chip, .profile-card, .coach-card, .resume-card, .friend-option, .subbar, .key, .action, .cell, .segment, .difficulty, .month-card, .reward-card, ' +
+  'button, a.btn, .tile, .setting, .modal, .profile-card, .coach-card, .resume-card, .friend-option, .subbar, .key, .action, .cell, .segment, .difficulty, .month-card, .reward-card, ' +
   '.forge-head, .part-card, .plate-card, .affinity-card, .lb-me, .lb-faction, .profile-section, .lb-who, .lb-leader-name';
 /** Rows and grids whose children must not overlap one another. */
 const ROWS =
-  '.home-grid, .subbar, .segmented, .pad, .actions-row, .profile-stats, .difficulty-picker, .friend-card, .topbar, .status, .casual-head, .coach-actions, .calendar, ' +
+  '.home-grid, .profile-card, .pc-badges, .subbar, .segmented, .pad, .actions-row, .difficulty-picker, .friend-card, .topbar, .status, .casual-head, .coach-actions, .calendar, ' +
   '.part-grid, .plate-grid, .affinity-grid, .lb-strength-legend, .lb-me, .lb-tabs, .lb-meta-row, .badge-grid, .lb-row-btn, .lb-leader';
 
 /** What runs out of its box, off the screen, or over its neighbours, on the page as it is now. */

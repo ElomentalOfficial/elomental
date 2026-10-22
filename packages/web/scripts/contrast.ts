@@ -49,6 +49,7 @@ export const PAIRS: Pair[] = [
   // Name plates: every metal on every surface a plate sits on, below (PLATE_SURFACES)
   ['Profile text', '--profile-text', '--profile-bg', 4.5],
   ['Stat chip label', '--muted', '--chip-bg', 4.5, '--profile-bg'],
+  ['Profile card caption and title (Level, Elo, Founder)', '--muted', '--profile-bg', 4.5],
   ['Primary button text', '--primary-text', '--primary-bg', 4.5],
   ['Action button text (Hint, Undo, Notes)', '--action-text', '--action-bg', 4.5],
   ['Notes button on', '--notes-on-text', '--notes-on-bg', 4.5],

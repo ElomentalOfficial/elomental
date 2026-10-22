@@ -1,13 +1,10 @@
 import { difficultyForRating, rankedStage } from '@elomental/engine';
-import { avatarSvg } from '../avatar.ts';
 import { cachedAccount } from '../backend/account.ts';
-import { cachedLoadout, cachedPolish, loadLoadout } from '../backend/forge.ts';
+import { loadLoadout } from '../backend/forge.ts';
 import { recentWins } from '../backend/leaderboard.ts';
 import { badgeArt, badgeLabel, badgeMonth } from '../badges.ts';
 import { ICONS } from '../icons.ts';
 import { rankName } from '../rankName.ts';
-import { xpLevel } from '../xp.ts';
-import { paintPlate } from '../plates.ts';
 import { readJson, writeJson } from '../storage.ts';
 import { profileScreen } from './profile.ts';
 import { addToHomeNote, countNoteVisit } from '../install.ts';
@@ -32,6 +29,7 @@ import { dailyScreen } from './daily.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
 import { setupScreen } from './setup.ts';
 import { forgeScreen } from './forge.ts';
+import { homeCard } from './homeCard.ts';
 import { betaTag } from '../beta.ts';
 import { showAwayNews } from '../awayNews.ts';
 import * as copy from '../copy/en.ts';
@@ -56,56 +54,45 @@ export function homeScreen(): Screen {
     return el;
   }
 
-  // The avatar: the player's forged loadout (avatar.ts), and the way into their profile.
-  const avatarBtn = h('button', { class: 'avatar avatar-btn', attrs: { type: 'button', 'aria-label': copy.profile.a11yAvatar } });
-  // Happy until another avatar is worn (avatar.ts)
-  const paintAvatar = (loadout = cachedLoadout()) => {
-    avatarBtn.innerHTML = avatarSvg(loadout, cachedPolish());
-    avatarBtn.classList.add('worn');
-  };
-  paintAvatar();
-  if (signedIn()) void loadLoadout().then((l) => l && el.isConnected && paintAvatar(l));
-  avatarBtn.addEventListener('click', () => leave(profileCard, () => mount(profileScreen())));
-  enableTilt(avatarBtn, 6);
+  // The profile card (homeCard.ts): you, your Level and Elo, your badges, your faction's banner.
+  // The avatar is the way into your Profile.
+  const card = homeCard();
+  const profileCard = card.el;
+  if (signedIn()) void loadLoadout().then((l) => l && el.isConnected && card.paint());
+  card.avatar.addEventListener('click', () => leave(profileCard, () => mount(profileScreen())));
+  enableTilt(card.avatar, 6);
+  // The whole card looks like a tile, so a tap anywhere on it goes in too (by pointer: the avatar
+  // stays the one control for the keyboard and screen readers): your badges open the Profile at
+  // its Badges, anywhere else the Profile.
+  profileCard.addEventListener('click', (event) => {
+    const at = event.target as Element;
+    if (at.closest('.avatar-btn')) return;
+    leave(profileCard, () => mount(profileScreen(at.closest('.pc-badges') ? { at: 'badges' } : undefined)));
+  });
 
-  const nameEl = h('strong', { class: 'profile-name' });
-  const rankEl = h('span', { class: 'profile-rank' });
-  const eloChip = stat('', copy.common.elo);
-  const dustChip = stat('', copy.common.stardust, ICONS.dust);
-  const spiritChip = stat('', copy.common.spirits, ICONS.spirit);
-  const stats = h('div', { class: 'profile-stats' }, eloChip, dustChip, spiritChip);
   /** Signed in, the numbers come from the server cache and update when it refreshes. */
   const paintProfile = () => {
-    const p = loadProfile();
-    // on the name plate bought with Stardust (plates.ts), if any
-    // with the level in its medallion, once there's an account to keep it
-    const account = cachedAccount();
-    paintPlate(nameEl, p.name, account?.plate ?? 0, account ? xpLevel(account.xp ?? 0).level : null);
-    // the rank's name in its colours, after the player's title if they have one
-    const tier = rankTier(p.elo, p.tier);
-    rankEl.replaceChildren(rankName(tier.tier, tier.label, p.title));
-    eloChip.querySelector('strong')!.textContent = copy.formatNumber(p.elo);
-    dustChip.querySelector('strong')!.textContent = copy.formatNumber(p.dust);
-    spiritChip.querySelector('strong')!.textContent = copy.formatNumber(p.spirits);
-    spiritChip.lastElementChild!.textContent = copy.common.spiritsLabel(p.spirits);
-    // Spirits are rare (months for most players): the chip shows once there's one (decision D6)
-    spiritChip.hidden = p.spirits === 0;
-    stats.classList.toggle('two', p.spirits === 0);
+    card.paint();
+    paintPurse();
   };
-  const profileCard = h(
-    'section',
-    { class: 'profile-card area-profile' },
-    h(
-      'div',
-      { class: 'profile-main' },
-      avatarBtn,
-      nameEl,
-      rankEl,
-    ),
-    stats,
-  );
 
   const daily = tile('daily', ICONS.daily, copy.home.tiles.daily, (el) => leave(el, () => mount(dailyScreen())));
+  // Forge and Setup share the top row (the owner's Home frame): the Forge in reach without the Profile.
+  const forge = tile('forge', ICONS.forge, copy.home.tiles.forge, (el) => leave(el, () => mount(forgeScreen())));
+  // Your Stardust and Spirits ride on the Forge tile, where they are spent (owner, 2026-10-22);
+  // the tile's name reads them out, so the numbers themselves are hidden from screen readers
+  const purse = h('span', { class: 'forge-purse', attrs: { 'aria-hidden': 'true' } });
+  const forgeLabel = forge.querySelector('.tile-label')!;
+  const forgeWords = h('span', { class: 'tile-words' });
+  forgeLabel.replaceWith(forgeWords);
+  forgeWords.append(forgeLabel, purse);
+  const coin = (kind: string, icon: string, n: number) => h('span', { class: `forge-coin ${kind}` }, h('span', { class: 'forge-coin-icon', html: icon }), copy.formatNumber(n));
+  function paintPurse() {
+    const p = loadProfile();
+    // Spirits are rare (months for most players): they show once there's one (decision D6)
+    purse.replaceChildren(coin('dust', ICONS.dust, p.dust), ...(p.spirits ? [coin('spirit', ICONS.spirit, p.spirits)] : []));
+    forge.setAttribute('aria-label', copy.home.a11yForge(p.dust, p.spirits));
+  }
   paintProfile();
   const stopProfile = onAccountChange(paintProfile);
   if (signedIn()) void refreshAccount();
@@ -119,8 +106,6 @@ export function homeScreen(): Screen {
     signedIn() ? openLazy(() => import('./leaderboard.ts'), (m) => leave(el, () => mount(m.leaderboardScreen()))) : toast(copy.leaderboard.offline));
   const casual = tile('casual', ICONS.casual, copy.home.tiles.casual, (el) => leave(el, () => mount(casualScreen())));
   const ranked = tile('ranked', ICONS.ranked, copy.home.tiles.ranked, (el) => openRanked((go) => leave(el, go)));
-  // Forge and Setup share the top row (the owner's Home frame): the Forge in reach without the Profile.
-  const forge = tile('forge', ICONS.forge, copy.home.tiles.forge, (el) => leave(el, () => mount(forgeScreen())));
   const setup = tile('setup', ICONS.setup, copy.home.tiles.setup, (el) => leave(el, () => mount(setupScreen())), betaTag());
 
   const tiles = [forge, setup, profileCard, daily, store, leader, casual, ranked];
@@ -134,7 +119,7 @@ export function homeScreen(): Screen {
   /** Home fits the screen without scrolling, so on a short one (browser bars) the note
       would squeeze the tiles until the profile's stats spill out: there it stays away. */
   const fitNote = () => {
-    const spills = () => stats.getBoundingClientRect().bottom > profileCard.getBoundingClientRect().bottom + 1;
+    const spills = () => card.contentBottom() > profileCard.getBoundingClientRect().bottom + 1;
     if (note) {
       if (spills()) {
         note.remove();
@@ -167,18 +152,13 @@ export function homeScreen(): Screen {
     }
   }, 900);
 
-  return { el, destroy: stopProfile };
-}
-
-/** A stat: icon, number, name. Elo has no icon, but keeps the row so the numbers line up. */
-function stat(value: string, label: string, icon = ''): HTMLElement {
-  return h(
-    'div',
-    { class: 'stat-chip' },
-    h('span', { class: 'stat-icon', html: icon, attrs: { 'aria-hidden': 'true' } }),
-    h('strong', { text: value }),
-    h('span', { text: label }),
-  );
+  return {
+    el,
+    destroy: () => {
+      stopProfile();
+      card.destroy();
+    },
+  };
 }
 
 const MONTH_WON_KEY = 'elomental:month-won-seen';

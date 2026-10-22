@@ -194,8 +194,22 @@ html[data-large-text] .home-grid > .tile {
   padding: 14px 20px;
   text-align: left;
 }
-html[data-large-text] .profile-stats {
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+/* The profile card stacks: you, your name under you, Level and Elo side by side, your badges.
+   Its rows take their content's height, so the portrait sets its own size. */
+html[data-large-text] .profile-card {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto;
+  grid-template-areas:
+    'portrait portrait'
+    'name name'
+    'level elo'
+    'badges badges';
+}
+html[data-large-text] .pc-portrait {
+  container-type: inline-size;
+}
+html[data-large-text] .pc-portrait .avatar {
+  width: min(100cqw, 132px);
 }
 html[data-large-text] .tile-label {
   overflow-wrap: break-word;
@@ -331,22 +345,6 @@ html[data-large-text] .segmented:is(.cols-3, .cols-4) {
 html[data-large-text] .segmented:is(.cols-3, .cols-4) > .segment {
   flex: 1 1 auto;
   padding-inline: 0.6em;
-}
-/* The three stats stay side by side and alike: number over name, each name as large as its
-   chip has room for (so STARDUST never wraps and the chips keep one height). */
-html[data-large-text] .profile-stats {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-html[data-large-text] .stat-chip {
-  min-width: 0;
-  padding: var(--space-2) var(--space-1);
-  container-type: inline-size;
-}
-html[data-large-text] .stat-chip span:last-child {
-  font-size: min(var(--fs-small), 13cqi);
-}
-html[data-large-text] .stat-chip strong {
-  font-size: min(var(--fs-label), 30cqi);
 }
 html[data-large-text] .month-head {
   flex-wrap: wrap;

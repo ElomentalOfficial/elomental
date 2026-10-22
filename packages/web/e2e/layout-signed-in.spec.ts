@@ -119,20 +119,26 @@ test('the signed-in screens pass axe', async ({ page }) => {
   expect(found).toEqual([]);
 });
 
-test('Home: the name and rank only, Spirits only once there is one, the Store still to come', async ({ page }) => {
+test('Home: the card holds you, your Level and Elo, your badges; the Forge tile your purse', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await open(page, 100);
   await expect(page.locator('.tile.area-casual')).toBeVisible();
   // 930 Elo: the rank under the name, and no next-step line under it (owner, 2026-10-21)
   await expect(page.locator('.profile-rank .rank-name')).toHaveText('Adept');
-  // and the account level in the plate's medallion (1200 XP: level 11), one literal name
-  await expect(page.locator('.plate-medal').first()).toHaveAccessibleName('Level 11');
   await expect(page.locator('.home-line')).toHaveCount(0);
-  // the fixture has 1 Spirit: three chips, the numbers on one line
-  await expect(page.locator('.stat-chip:visible')).toHaveCount(3);
+  // the account level in a cell of its own (1200 XP: level 11), the plate holds the name alone
+  await expect(page.locator('.pc-level')).toHaveText(/Level\s*11/);
+  await expect(page.locator('.pc-elo')).toHaveText(/Elo\s*930/);
+  await expect(page.locator('.profile-card .plate-medal')).toHaveCount(0);
+  // the faction's banner, read out literally
+  await expect(page.getByRole('img', { name: 'Faction: Fire' })).toBeVisible();
+  // no badges chosen: the newest two, an empty socket for the third
+  await expect(page.locator('.pc-badge-art')).toHaveCount(2);
+  await expect(page.locator('.pc-badge.empty')).toHaveCount(1);
+  // the fixture has 6400 Stardust and 1 Spirit: both on the Forge tile, in its name too
+  await expect(page.locator('.tile.area-forge')).toHaveAccessibleName('Forge, 6400 Stardust, 1 Spirit');
+  await expect(page.locator('.forge-coin')).toHaveCount(2);
   await settled(page); // the tiles have turned in
-  const tops = await page.locator('.stat-chip strong').evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().top)));
-  expect(new Set(tops).size).toBe(1);
   await page.getByRole('button', { name: 'Store', exact: true }).click();
   await expect(page.getByText('The Store opens soon.')).toBeVisible();
 });

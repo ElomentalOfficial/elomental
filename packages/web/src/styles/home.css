@@ -196,17 +196,191 @@
   width: 46px;
   height: 64px;
 }
+/*
+ * The profile card (homeCard.ts, owner 2026-10-22 "the Forge Link"): a sudoku box inside the
+ * tile's own frame. You and your name, then Level and Elo, then your three badges; the walls
+ * between them (profileWalls.ts) run along the gaps, so the cells sit a frame line plus half a
+ * wall in from the edge.
+ */
 .profile-card {
   grid-area: profile;
   position: relative;
   border-radius: var(--radius);
   background: var(--profile-bg);
   color: var(--profile-text);
+  min-height: 0;
+  /* the frame's inner line: 11 of its corner's 40 units in (frames.css) */
+  --pc-frame: calc(var(--frame-corner) * var(--frame-zoom, 1) * 11 / 40);
+  --pc-gap: calc(var(--space-3) * var(--frame-zoom, 1));
+  display: grid;
+  grid-template-columns: minmax(0, 46fr) minmax(0, 54fr);
+  grid-template-rows: minmax(0, 1fr) auto auto;
+  grid-template-areas:
+    'portrait name'
+    'level elo'
+    'badges badges';
+  gap: var(--pc-gap);
+  padding: calc(var(--pc-frame) + var(--pc-gap) / 2);
+  /* a tap anywhere on it opens your Profile (home.ts); the avatar is its control */
+  cursor: var(--cursor-pointer);
+}
+/* The walls: the frame's ink, as faint as it reads clearly (2.5 times the frame layer's 0.065). */
+.pc-walls {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  color: var(--frame-line);
+  opacity: 0.16;
+  pointer-events: none;
+}
+.pc-walls svg {
+  display: block;
+  overflow: visible;
+}
+.pc-cell {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+}
+/* Your portrait: as large as its cell allows, on a glow of your faction's colour. */
+.pc-portrait {
+  grid-area: portrait;
+  container-type: size;
+  background: radial-gradient(closest-side, var(--pc-glow, transparent), transparent);
+}
+.profile-card.el-fire { --pc-glow: var(--el-fire-wash); }
+.profile-card.el-water { --pc-glow: var(--el-water-wash); }
+.profile-card.el-earth { --pc-glow: var(--el-earth-wash); }
+.profile-card.el-air { --pc-glow: var(--el-air-wash); }
+.pc-portrait .avatar {
+  width: min(100cqw, 100cqh);
+  height: auto;
+  margin: 0;
+}
+/* Your name inside its plate, your title and rank under it. */
+.pc-name {
+  grid-area: name;
+  container-type: inline-size;
+  text-align: center;
+}
+.pc-name .pc-in {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 22px 18px 18px;
-  min-height: 0;
+  align-items: center;
+  gap: var(--space-1);
+  max-width: 100%;
+}
+/* a long name (up to 20 letters) shrinks a little to keep to its cell */
+.pc-name .profile-name {
+  font-family: var(--serif);
+  font-size: min(var(--fs-title), 11cqi);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0.01em;
+}
+.pc-name .profile-rank {
+  font-size: var(--fs-body);
+}
+/* Level and Elo: the givens. A number grows only as far as its cell has room for. */
+.pc-level {
+  grid-area: level;
+  container-type: inline-size;
+}
+.pc-elo {
+  grid-area: elo;
+  container-type: inline-size;
+}
+.pc-given {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding-block: var(--space-1);
+}
+.pc-cap {
+  font-size: var(--fs-caption);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pc-num {
+  font-family: var(--serif);
+  font-size: min(var(--fs-display), 32cqi);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+/* Your three chosen badges (Profile > Badges); an empty slot is a faint socket. */
+.pc-badges {
+  grid-area: badges;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  padding: var(--space-1) 0;
+  list-style: none;
+}
+/* every slot as tall as a badge, filled or not, so the row keeps its height */
+.pc-badge {
+  display: grid;
+  place-items: center;
+  min-height: 48px;
+}
+.pc-badge-art {
+  display: block;
+  width: 48px;
+  height: 48px;
+}
+.pc-badges-note {
+  grid-column: 1 / -1;
+  display: grid;
+  place-items: center;
+  min-height: 48px;
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+  text-align: center;
+}
+.pc-socket {
+  display: block;
+  width: 28px;
+  height: 28px;
+  color: var(--muted);
+  opacity: 0.5;
+}
+/* The faction's emblem, on the banner the walls hang from the frame (homeCard.ts places it). */
+.pc-emblem {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
+}
+/* The Forge tile carries your purse: its name, your Stardust and Spirits under it. */
+.tile-words {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+.forge-purse {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  font-family: var(--font);
+  font-size: var(--fs-small);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.forge-coin {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+/* in the label's own colour, as on the reward chips: the icon tells the two numbers apart */
+.forge-coin-icon {
+  display: block;
+  width: calc(14px * var(--text-scale));
+  height: calc(14px * var(--text-scale));
 }
 /* A faint Art Deco frame inside every Home tile and the profile card, each tile its
    own design, worn by small gaps in the corner lines (icons/build_frames.py).
@@ -323,13 +497,6 @@
   --f-br: var(--f-br-c);
   --frame-line: var(--fl-c);
 }
-.profile-main {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  margin: auto 0;
-}
 .avatar {
   width: clamp(72px, 14dvh, 120px);
   aspect-ratio: 1;
@@ -440,33 +607,12 @@
 html[data-reduce-motion] .promotion .rank-name {
   animation: none;
 }
-.profile-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-/* No Spirits yet: Elo and Stardust share the row (home.ts). */
-.stat-chip[hidden] {
-  display: none;
-}
-.profile-stats.two,
-html[data-large-text] .profile-stats.two {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-/* Shorter phones (an iPhone SE): a smaller avatar leaves the stats room under the Forge row. */
-@media (max-height: 700px) {
-  .profile-card {
-    padding-top: var(--space-3);
-  }
-  .profile-card .avatar {
-    width: clamp(52px, 8dvh, 120px);
-    margin-bottom: var(--space-1);
-  }
-}
-/* The shortest phones (320×568): compact chips, number over name. Under the Forge row the
-   tiles can't all fit at once, so Home takes its natural height and scrolls a little, as at
-   large text, instead of cutting the profile card short. */
-@media (max-height: 600px) {
+/* Short phones (an iPhone SE, 375×667, a 360×640 Android, and shorter; never the wide layout,
+   which starts at 900 × 600): the profile card's share of the screen is too short for you, your
+   name and your givens. Home takes its natural height instead, every tile a little more compact,
+   so it still fits on one screen down to 640 (shorter ones scroll a little, as at large text).
+   The card's rows then take their content's height: the portrait sets its own size. */
+@media (max-height: 599px), (max-height: 700px) and (max-width: 899px) {
   .screen.home {
     overflow-y: auto;
     scrollbar-width: none;
@@ -475,54 +621,44 @@ html[data-large-text] .profile-stats.two {
     flex: none;
     grid-template-rows: none;
   }
-  .profile-card .avatar {
-    width: clamp(52px, 10dvh, 120px);
-    margin-bottom: var(--space-1);
+  .area-casual,
+  .area-ranked {
+    gap: var(--space-2);
   }
-  .stat-chip {
-    gap: 0;
-    padding: var(--space-1);
+  .area-store .tile-icon {
+    width: 52px;
+    height: 46px;
   }
-  .stat-chip strong {
-    font-size: var(--fs-body);
+  .area-leader .tile-icon {
+    height: 48px;
   }
-  .stat-chip .stat-icon {
-    display: none;
+  .area-daily .tile-icon {
+    width: 40px;
+    height: 44px;
   }
-  /* the name's plate a size down, so the rank under it stays in the card */
-  .profile-card .name-plate {
-    --medal-d: calc(30px * var(--text-scale));
-    margin-bottom: calc(var(--medal-d) / 2 - var(--rule) / 2);
-    line-height: 1.1;
+  .area-casual .tile-icon {
+    width: 56px;
+    height: 36px;
   }
-  .profile-card .profile-name {
-    font-size: var(--fs-label);
+  .area-ranked .tile-icon {
+    width: 36px;
+    height: 50px;
   }
-  .profile-card :is(.name-plate.tier-8, .name-plate.tier-9) {
-    --medal-d: calc(36px * var(--text-scale));
+  .profile-card {
+    grid-template-rows: auto;
   }
-}
-.stat-chip {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: 10px 4px;
-  border-radius: var(--radius);
-  background: var(--chip-bg);
-}
-.stat-chip strong {
-  font-size: var(--fs-label);
-  font-weight: 800;
-}
-.stat-chip span:last-child {
-  font-size: var(--fs-small);
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-/* Inline icons grow with Text size, like the words beside them. */
-.stat-icon {
-  width: calc(16px * var(--text-scale));
-  height: calc(16px * var(--text-scale));
+  .pc-portrait {
+    container-type: inline-size;
+  }
+  .pc-portrait .avatar {
+    width: min(100cqw, 84px);
+  }
+  .pc-badge,
+  .pc-badges-note {
+    min-height: 40px;
+  }
+  .pc-badge-art {
+    width: 40px;
+    height: 40px;
+  }
 }

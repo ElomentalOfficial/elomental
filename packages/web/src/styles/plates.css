@@ -27,6 +27,22 @@
 .name-plate.has-medal {
   min-width: calc(var(--medal-d) * 3);
 }
+/* Home's card (homeCard.ts): the name inside its plate. The rule runs through the name's middle
+   and parts round it (the medallion's gap, --medal-d, made as wide as the name); no medallion,
+   the level has a cell of its own. --plate-pad gives the rule's ends room to show. */
+.name-plate.plate-inline {
+  padding: 0 var(--plate-pad, 22px);
+  margin-bottom: 0;
+}
+.plate-inline .plate-box {
+  bottom: calc(50% - var(--rule) / 2);
+}
+/* a long name wraps in even lines, inside the rule's ends (its cell, less the ends' room) */
+.plate-inline .plate-text {
+  display: inline-block;
+  max-width: calc(100cqi - 48px);
+  text-wrap: balance;
+}
 /* three rings (Winged, Starforged) take a larger medallion */
 :is(.name-plate.tier-8, .name-plate.tier-9) {
   --medal-d: calc(48px * var(--text-scale));
