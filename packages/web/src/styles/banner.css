@@ -143,13 +143,24 @@
     line-height: 1.4;
   }
   /* the page's art, between the line and the foot: as tall as the window allows, shrinking first */
+  /* the page's hero art right under its line, one size on every page (each page's own icon), and the
+     page's details right under it */
   .banner-art {
+    --hero: clamp(150px, 26dvh, 230px);
     flex: 0 1 auto;
-    height: clamp(120px, 26dvh, 240px);
+    height: var(--hero);
     min-height: 72px;
     width: 100%;
     display: grid;
     place-items: center;
+    margin-block: var(--space-2);
+  }
+  .banner-art > :not(.lb-banner-art) {
+    width: min(var(--hero), 100%) !important;
+    height: 100% !important;
+    max-height: none !important;
+    aspect-ratio: auto !important;
+    transform: none !important;
   }
   .banner-art > * {
     max-width: 100%;

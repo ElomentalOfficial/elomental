@@ -78,7 +78,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
     const odds = h('button', { class: 'link-btn', text: copy.forge.oddsButton, attrs: { type: 'button' }, onclick: () => openOdds() });
     if (wide) {
       // you and your purse on the banner; how parts come and the Spirits side by side, then the parts
-      purse.replaceChildren(h('span', { class: 'forge-avatar', html: avatarSvg(f.loadout, f.polish), attrs: { 'aria-hidden': 'true' } }), h('div', { class: 'forge-balances' }, stardust, spirits, f.affinity ? affinityLine(f.affinity) : null));
+      purse.replaceChildren(h('div', { class: 'forge-balances' }, stardust, spirits, f.affinity ? affinityLine(f.affinity) : null));
       body.replaceChildren(
         h('div', { class: 'door-row forge-top', attrs: { style: '--doors: 2' } },
           h('section', { class: 'forge-lead' }, h('h2', { class: 'forge-heading', text: copy.forge.blueprintsTitle }), h('p', { class: 'forge-intro', text: copy.forge.intro }), odds),

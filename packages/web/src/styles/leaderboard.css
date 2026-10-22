@@ -910,8 +910,9 @@ html[data-large-text] .lb-me .lb-avatar {
   .screen.has-banner .page-banner .lb-me .lb-jump {
     flex-basis: auto;
   }
+  /* (the banner's one picture is its hero art: your place reads as text under it) */
   .screen.has-banner .page-banner .lb-me .lb-avatar {
-    display: block;
+    display: none;
     width: 88px;
     height: 88px;
   }
