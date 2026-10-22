@@ -1,5 +1,6 @@
 import { reducedMotion } from './a11y.ts';
 import { ICONS } from './icons.ts';
+import { turnstileIn, turnstileOut } from './motion.ts';
 import { pageBanner } from './pageBanner.ts';
 import * as copy from './copy/en.ts';
 
@@ -48,6 +49,37 @@ export function mount(screen: Screen): void {
   document.title = document.documentElement.dataset.env === 'beta' ? copy.common.betaTitle(title) : title;
   const scroller = screen.el.classList.contains('scrollable') ? screen.el : screen.el.querySelector<HTMLElement>(':scope > .sub-body');
   if (scroller) watchEdges(scroller);
+  if (scroller && screen.el.classList.contains('has-banner')) tilesIn(scroller, navigatingBack());
+}
+
+/**
+ * The cards of a banner page's field (banner.css): each turns in and out on its own, staggered
+ * in reading order, like Home's tiles (motion.ts), while the banner drops in beside them.
+ */
+const FIELD_TILES =
+  '.door, .door-heading, .page-intro, .setting, .month-card, .reward-card, .today-card, .lb-controls, .lb-meta-row, .lb-notice, ' +
+  '.lb-podium, .lb-faction, .lb-row, .profile-section, .forge-lead, .forge-spirits, .forge-heading-row, .forge-group > h2, .part-card, .forge-status';
+function fieldTiles(field: HTMLElement): HTMLElement[] {
+  const view = field.getBoundingClientRect();
+  // only what's in view: the rest is never seen turning
+  return [...field.querySelectorAll<HTMLElement>(FIELD_TILES)].filter((el) => {
+    const r = el.getBoundingClientRect();
+    return r.width > 0 && r.bottom > view.top && r.top < view.bottom;
+  });
+}
+function tilesIn(field: HTMLElement, backward: boolean): void {
+  const seen = new WeakSet<HTMLElement>();
+  const run = () => {
+    const fresh = fieldTiles(field).filter((el) => !seen.has(el));
+    fresh.forEach((el) => seen.add(el));
+    if (fresh.length) turnstileIn(field, fresh, backward);
+  };
+  // (at once: a card left a frame unturned would flash in place)
+  run();
+  // cards that arrive a moment later (the Forge's parts, the leaderboard's rows) turn in too
+  const late = new MutationObserver(run);
+  late.observe(field, { childList: true, subtree: true });
+  setTimeout(() => late.disconnect(), 1200);
 }
 
 /** The wide layout (wide.css): tablets on their side, laptops and desktops. */
@@ -222,6 +254,10 @@ export async function goBack(next: () => Screen): Promise<void> {
         })
         .finished.catch(() => undefined);
     }
+    // A banner page's cards fold away one by one, as Home's tiles do; other pages turn as one
+    const field = leaving.classList.contains('has-banner') ? leaving.querySelector<HTMLElement>(':scope > .sub-body') : null;
+    if (field) await turnstileOut(field, fieldTiles(field));
+    else {
     leaving.style.transformOrigin = '0 50%';
     await leaving
       .animate(
@@ -232,6 +268,7 @@ export async function goBack(next: () => Screen): Promise<void> {
         { duration: rollUp ? 200 : 240, easing: 'cubic-bezier(0.7, 0, 1, 0.5)', fill: 'forwards' },
       )
       .finished.catch(() => undefined);
+    }
   }
   document.documentElement.dataset.nav = 'back';
   const screen = next();

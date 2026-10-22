@@ -61,6 +61,11 @@
     align-items: center;
     gap: var(--space-3);
   }
+  /* the page doesn't turn as one: its cards turn in one by one, as Home's tiles do (ui.ts tilesIn) */
+  .screen.sub.has-banner,
+  .screen.sub.has-banner.from-back {
+    animation: none;
+  }
   /* it drops from the top edge once the page has turned in, as the game screen's does (wide.css) */
   .screen.has-banner .page-banner {
     animation: banner-drop 0.32s cubic-bezier(0.1, 0.9, 0.2, 1) 0.3s both;
