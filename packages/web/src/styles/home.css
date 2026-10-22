@@ -167,7 +167,7 @@
   width: 70px;
   height: 45px;
 }
-/* The Forge: a wide tile, label on the left and the anvil on the right, like the Store. */
+/* The Forge: a wide tile, label on the left and the gem on the right, like the Store. */
 .area-forge {
   grid-area: forge;
   flex-direction: row-reverse;

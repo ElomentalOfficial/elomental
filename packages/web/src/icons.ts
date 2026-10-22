@@ -11,8 +11,7 @@ import handCupLight from './art/hand-cup-light.webp';
 import feather from './art/feather.webp';
 import cogDark from './art/cog-dark.webp';
 import cogLight from './art/cog-light.webp';
-import forgeDark from './art/forge-dark.webp';
-import forgeLight from './art/forge-light.webp';
+import forge from './art/forge.webp';
 import calendar from './art/calendar.png';
 import calendarBack from './art/calendar-back.webp';
 import calendarUnder from './art/calendar-under.webp';
@@ -56,10 +55,10 @@ export const ICONS = {
   /** Brush-style cog, one image per theme; the axle hole is see-through. */
   setup: brush(cogLight, 'ic-light') + brush(cogDark, 'ic-dark'),
   /**
-   * The Forge: a hammer just struck on an anvil, one spark (scripts/forge-icon). The anvil is
-   * cream on dark and crimson on light, like the cog; one image per theme.
+   * The Forge: a Stardust gem lit from the right by the forge fire (scripts/forge-icon).
+   * Outlined like the wallet and the sword, so one image suits both themes.
    */
-  forge: brush(forgeLight, 'ic-light') + brush(forgeDark, 'ic-dark'),
+  forge: brush(forge),
   /** Brush-style wallet with a bill tucked in and coins on its corner, one image per theme. */
   store: brush(walletLight, 'ic-light') + brush(walletDark, 'ic-dark'),
   /**
