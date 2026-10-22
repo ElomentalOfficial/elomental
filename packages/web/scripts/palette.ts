@@ -207,12 +207,12 @@ function plateRoles(t: PlateTheme): string[] {
 /**
  * The Ranked ranks' names (home.css `.rank-name`): each rank's name in its own metal: Novice
  * bronze, Apprentice silver, Adept gold, Archmage jade, Elomental violet. On dark a gradient
- * between two steps that are both ink (4.5:1 on every surface); on light no two steps far enough
- * apart to show both pass, so a solid ink, as in High contrast. The name is always written, so
- * the colour only adds to it.
+ * between two steps that are both ink (4.5:1 on every surface), light above and deep below, in both
+ * themes: on light the two deepest steps (lighter ones fail on the light surfaces), so its turn is
+ * narrower; solid in High contrast. The name is always written, so the colour only adds to it.
  */
 const RANKS = ['bronze', 'silver', 'gold', 'teal', 'violet'];
-const RANK_STEP: Record<PlateTheme, [number, number]> = { dark: [100, 300], light: [600, 600], 'dark-hc': [100, 200], 'light-hc': [700, 700] };
+const RANK_STEP: Record<PlateTheme, [number, number]> = { dark: [100, 300], light: [600, 700], 'dark-hc': [100, 200], 'light-hc': [700, 700] };
 const rankRoles = (t: PlateTheme): string[] =>
   RANKS.flatMap((ramp, i) => [`  --rank-${i}-hi: ${v(ramp, RANK_STEP[t][0])};`, `  --rank-${i}-lo: ${v(ramp, RANK_STEP[t][1])};`]);
 

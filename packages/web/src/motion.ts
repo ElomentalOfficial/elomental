@@ -60,6 +60,8 @@ export function turnstileIn(stage: HTMLElement, items: HTMLElement[], backward =
   const order = inReadingOrder(items);
   if (backward) order.reverse();
   const perspective = perspectiveFor(stage);
+  // many cards (the Forge's parts) share the time Home's eight tiles take, rather than each waiting its turn
+  const step = Math.min(backward ? 45 : 55, (backward ? 315 : 385) / Math.max(1, order.length - 1));
   order.forEach(({ el, rect }, i) => {
     el.style.transformOrigin = hingeOrigin(stage, rect);
     el.animate(
@@ -67,7 +69,7 @@ export function turnstileIn(stage: HTMLElement, items: HTMLElement[], backward =
         { transform: `${perspective} rotateY(${backward ? awayAngle() : 78}deg)`, opacity: 0 },
         { transform: `${perspective} rotateY(0deg)`, opacity: 1 },
       ],
-      { duration: backward ? 440 : 520, delay: 30 + i * (backward ? 45 : 55), easing: EASE_OUT, fill: 'backwards' },
+      { duration: backward ? 440 : 520, delay: 30 + i * step, easing: EASE_OUT, fill: 'backwards' },
     );
   });
 }
@@ -84,6 +86,8 @@ export function turnstileOut(stage: HTMLElement, items: HTMLElement[], last?: HT
   const order = inReadingOrder(items.filter((el) => el !== last));
   if (last) order.push({ el: last, rect: last.getBoundingClientRect() });
   const perspective = perspectiveFor(stage);
+  // (as turnstileIn: never longer in all than Home's tiles)
+  const step = Math.min(35, 245 / Math.max(1, order.length - 1));
   const animations = order.map(({ el, rect }, i) => {
     el.style.transformOrigin = hingeOrigin(stage, rect);
     const isLast = el === last;
@@ -92,7 +96,7 @@ export function turnstileOut(stage: HTMLElement, items: HTMLElement[], last?: HT
         { transform: `${perspective} rotateY(0deg)`, opacity: 1 },
         { transform: `${perspective} rotateY(${awayAngle()}deg)`, opacity: 0 },
       ],
-      { duration: isLast ? 300 : 230, delay: i * 35 + (isLast ? 70 : 0), easing: EASE_IN, fill: 'forwards' },
+      { duration: isLast ? 300 : 230, delay: i * step + (isLast ? 70 : 0), easing: EASE_IN, fill: 'forwards' },
     );
   });
   return Promise.all(animations.map((a) => a.finished)).then(() => undefined);
