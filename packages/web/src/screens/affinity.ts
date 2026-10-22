@@ -11,7 +11,7 @@ import * as copy from '../copy/en.ts';
  * third solved square: the four elements, each with its crest, its line and this month's
  * standing, the weakest side tagged "Needs you". Joining asks once (it holds for the
  * season), then sets it. "Decide later" puts Home's line away for 5 solves. The Profile's
- * Change button opens it again while switching is allowed (the first 7 days of a season),
+ * Change button opens it again while switching is allowed (once a month, in your first 5 days in a faction),
  * and it goes back to wherever it was opened from.
  */
 export function affinityScreen(back: () => Screen = homeScreen): Screen {

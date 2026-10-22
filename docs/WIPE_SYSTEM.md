@@ -3,7 +3,7 @@
 How Elomental's monthly faction war and its Ranked seasons start, end and pay out. Built on
 what was there (influence kept per month, `faction_months`, the `seasons` table); migration
 `cycles`. Owner's calls: a **soft Elo reset** each season, **Stardust is permanent**, the
-**faction choice lasts a season** (switchable in its first 7 days), a season pays a **badge for
+**faction choice lasts the month** (switchable once, in your first 5 days in a faction), a season pays a **badge for
 the best rank reached**.
 
 ## 1. The idea
@@ -45,7 +45,7 @@ by `cycle_runs` (the table is already there for that).
 | Faction month result (winner, winners) | PERMANENT | `faction_months` |
 | Elo, shown rank (`rank_tier`), loss run | SEASON | `profiles.elo`, `rank_tier`, `ranked_loss_run` (reset by `close_season`) |
 | The Season board (best Elo, 20 games) | SEASON | computed from `games` since `season_since()`: a new season starts it empty |
-| Faction choice | SEASON | `profiles.affinity`, switchable in a season's first 7 days |
+| Faction choice | MONTH | `profiles.affinity`, switchable once a month, in your first 5 days in a faction (faction_switch) |
 | Calls of a Spirit this season (its price) | SEASON | counted from the ledger since the season's start |
 | A player's season, final Elo, best Elo and rank, games, place, Elo after reset | PERMANENT | `season_results (season_id, player_id)` |
 | Account level and XP, Stardust, Spirits, parts and avatars, badges, title, name plate | PERMANENT | `profiles`, `player_parts`, `player_badges` |

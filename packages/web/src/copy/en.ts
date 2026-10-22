@@ -474,7 +474,7 @@ export const affinity = {
   a11yCard: (element: string, line: string, place: string, needsYou = false) =>
     `${element}. ${line}${place ? ` ${place} this month.` : ''}${needsYou ? ' Needs you.' : ''}`,
   confirmTitle: (element: string) => `Join ${element}?`,
-  confirmText: 'You can switch once per season, in its first 7 days.',
+  confirmText: 'You can switch once a month, in your first 5 days in a faction. Your faction’s frames start dropping for you.',
   /** The Profile's faction line, while switching is allowed. */
   change: 'Change',
   a11yChange: 'Change your faction',
@@ -841,7 +841,7 @@ export const refusals = {
   /** choose_affinity */
   affinity: {
     too_soon: 'Solve 3 squares first, then choose your faction.',
-    affinity_locked: 'Your faction is set for this season. You can switch in the first 7 days of the next one.',
+    affinity_locked: 'Your faction is set for this month. You can switch in the first 5 days of the next one.',
     not_signed_in: 'Sign in again to choose your faction.',
   } as Record<string, string>,
 };

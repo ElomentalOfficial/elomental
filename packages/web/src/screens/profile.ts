@@ -42,7 +42,7 @@ export function profileScreen(start?: { at?: 'badges' }): Screen {
 
   // the worn avatar in its frame (Happy until another is worn)
   const avatar = h('span', { class: 'avatar profile-avatar worn', html: avatarSvg(cachedLoadout(), cachedPolish()), attrs: { 'aria-hidden': 'true' } });
-  // your side; Change shows while switching is allowed (the first 7 days of a season)
+  // your side; Change shows while switching is allowed (once a month, in your first 5 days in a faction)
   // no side yet, once it's time: the way to choose one (Home's line has no room on small phones)
   const side = account?.affinity
     ? h('p', { class: 'forge-affinity' }, h('span', { class: 'drop-element', html: ICONS.elements[account.affinity], attrs: { 'aria-hidden': 'true' } }), h('span', { text: copy.forge.elements[account.affinity] }))

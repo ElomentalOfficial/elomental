@@ -1,5 +1,5 @@
-// Affinity: choosing a side, influence, standings.
-import { db, as, check, newPlayer, play } from './harness.mjs';
+// Affinity: choosing a side, influence, standings, switching once a month (faction_switch).
+import { db, as, check, newPlayer, play, one, tryq } from './harness.mjs';
 
 export default async function () {
   // --- 4. affinity: too soon, choose, influence
@@ -21,4 +21,23 @@ export default async function () {
   await as(d0);
   st = (await db.query(`select * from public.affinity_standings() order by affinity`)).rows;
   check(st.find((r) => r.affinity === 'water').members === 1, 'from 5 solves in the month the member counts');
+
+  // --- switching (faction_switch): once a month, within your first 5 days in your faction
+  await as(d0);
+  check(!!(await one(`select public.affinity_switch_open() t`)).t, 'just joined: switching is open');
+  const sw = (await db.query(`select public.choose_affinity('fire') as j`)).rows[0].j;
+  check(sw.affinity === 'fire', 'one switch within the 5 days');
+  check(!!(await tryq(`select public.choose_affinity('earth')`)).err?.includes('affinity_locked'), 'a second switch the same month is refused');
+  check(!(await one(`select public.affinity_switch_open() t`)).t, 'and the app is told it is closed');
+  // the rule at fixed dates (UTC): joined 10 March, switched in March
+  await db.query(`update public.profiles set affinity_since = '2027-03-10 12:00+00', affinity_switched_month = null where id = $1`, [d0]);
+  const t1 = await one(`select private.affinity_switch_until(p, '2027-03-12 00:00+00') t from public.profiles p where id = $1`, [d0]);
+  check(new Date(t1.t).toISOString() === '2027-03-15T12:00:00.000Z', `joined on the 10th: open 5 days, until the 15th (${t1.t})`);
+  await db.query(`update public.profiles set affinity_since = '2027-02-20 12:00+00' where id = $1`, [d0]);
+  const t2 = await one(`select private.affinity_switch_until(p, '2027-03-02 00:00+00') t from public.profiles p where id = $1`, [d0]);
+  check(new Date(t2.t).toISOString() === '2027-03-06T00:00:00.000Z', `a new month opens it again: from the 1st, 5 days (${t2.t})`);
+  await db.query(`update public.profiles set affinity_switched_month = '2027-03-01' where id = $1`, [d0]);
+  const t3 = await one(`select private.affinity_switch_until(p, '2027-03-02 00:00+00') t from public.profiles p where id = $1`, [d0]);
+  const t4 = await one(`select private.affinity_switch_until(p, '2027-04-02 00:00+00') t from public.profiles p where id = $1`, [d0]);
+  check(t3.t === null && !!t4.t, 'switched in March: closed for March, open again in April');
 }

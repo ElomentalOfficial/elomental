@@ -148,7 +148,7 @@ it replaces the material-based design in §2, §3.2–3.3, §4.2–4.3, §9–11
   chain solver Elomental on day 38 (about 3% of players). Re-fit the personas and par to real
   Ranked results once there are about 200 wins.
 - **Daily month:** 20 days solved or filled in earns that month's dated badge (`daily_month`).
-- **Affinities (§13):** chosen after 3 solves, switchable once in a season's first 7 days.
+- **Affinities (§13):** chosen after 3 solves, switchable once a month, in your first 5 days in a faction (faction_switch).
   A member counts once they have 5 solves in the month, each with up to 300 influence; the side
   with the most influence per counted member wins the month (ties: all win), and its members with 5+
   solves get 300 Stardust and a dated badge.
