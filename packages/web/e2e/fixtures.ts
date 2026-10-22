@@ -113,7 +113,7 @@ export async function signedIn(page: Page, opts: { affinity?: string | null; tex
   const standings = [{ affinity: 'fire', members: 41, influence: 9840, standing: 240 }, { affinity: 'water', members: 12, influence: 3240, standing: 270 }, { affinity: 'earth', members: 28, influence: 5600, standing: 200 }, { affinity: 'air', members: 33, influence: 6000, standing: 182 }];
   const tables: Record<string, unknown[]> = {
     profiles: [profile], parts: catalogue(),
-    player_parts: [['s0-avatar-calm', 1], ['s0-avatar-silly', 0], ['s0-avatar-disappointed', 0], ['s0-frame-fire-2', 0]].map(([id, polish]) => ({ part_id: id, edition: null, polish })),
+    player_parts: [['s0-avatar-calm', 1], ['s0-avatar-silly', 0], ['s0-avatar-disappointed', 0], ['s0-frame-fire-2', 0]].map(([id, polish]) => ({ part_id: id, edition: null, polish, wins: id === 's0-frame-fire-2' ? 57 : 0 })),
     avatar_loadouts: [{ avatar: 's0-avatar-calm', frame: 's0-frame-fire-2' }],
     // blueprints (migration blueprints): a free Common avatar, an Epic frame for 200
     player_blueprints: [{ part_id: 's0-avatar-bored' }, { part_id: 's0-frame-fire-3' }],

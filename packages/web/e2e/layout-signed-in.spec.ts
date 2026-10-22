@@ -157,6 +157,12 @@ test('Forge: blueprints forge at their price, the rest at the full one', async (
   await page.locator('.part-card', { hasText: 'Ember Frame III' }).click();
   await expect(page.getByRole('dialog')).toContainText('With your blueprint: 200 Stardust');
   await page.keyboard.press('Escape');
+  // the worn frame's marks: 57 wins, 1 mark, 17 toward the next
+  const worn = page.locator('.part-card', { hasText: 'Ember Frame II' }).first();
+  await expect(worn).toHaveAccessibleName(/1 of 3 marks, 17 of 40 wins to the next/);
+  await worn.click();
+  await expect(page.getByRole('dialog')).toContainText('1 of 3 marks. 17 of 40 wins to the next.');
+  await page.keyboard.press('Escape');
   // a part without one: the full price
   await page.locator('.part-card', { hasText: 'Tide Frame III' }).click();
   await expect(page.getByRole('dialog')).toContainText('900 Stardust');

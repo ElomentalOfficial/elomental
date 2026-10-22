@@ -1,6 +1,6 @@
 import { avatarSvg, partSvg } from '../avatar.ts';
 import { loadStandings, type Standing } from '../backend/affinity.ts';
-import { ALIVE_COST, BLUEPRINT_COST, DEFAULT_AVATAR, FORGE_COST, SLOTS, avatarsToWake, callSpirit, equipPart, forgePart, loadForge, polishPart, type Forge, type Part } from '../backend/forge.ts';
+import { ALIVE_COST, BLUEPRINT_COST, DEFAULT_AVATAR, FORGE_COST, MAX_MARKS, SLOTS, marksOf, avatarsToWake, callSpirit, equipPart, forgePart, loadForge, polishPart, type Forge, type Part } from '../backend/forge.ts';
 import { ICONS } from '../icons.ts';
 import { ELEMENTS, RARITIES, loadProfile, type Element, type Rarity } from '../profile.ts';
 import { partName, rarityName } from '../reward.ts';
@@ -37,6 +37,11 @@ const forgeable = (s: State) => s === 'ready' || s === 'needs' || s === 'bluepri
 const kind = (p: Part) => (p.element ? `${copy.forge.elements[p.element]} · ${copy.forge.slots[p.slot]}` : copy.forge.slots[p.slot]);
 const order = (p: Part) => (p.element ? ELEMENTS.indexOf(p.element) : 0);
 const rarityTag = (r: Rarity) => h('span', { class: `rarity-tag rarity-${r}`, text: rarityName(r) });
+/** A frame's marks: three small diamonds, earned ones filled (the words say it too). */
+const markPips = (n: number) => h('span', { class: 'mark-pips', attrs: { 'aria-hidden': 'true' } },
+  ...Array.from({ length: MAX_MARKS }, (_, i) => h('span', { class: `mark-pip${i < n ? ' on' : ''}` })));
+/** An owned frame's marks, or null for an avatar or a part not yet yours. */
+const frameMarks = (f: Forge, p: Part) => (p.slot === 'frame' && f.owned.has(p.id) ? marksOf(f.owned.get(p.id)!.wins) : null);
 
 export function forgeScreen(back: () => Screen = homeScreen): Screen {
   const body = h('div', { class: 'forge-body' }, h('p', { class: 'forge-status', text: copy.forge.loading }));
@@ -116,11 +121,12 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
     const name = partName(p.id);
     const alive = f.owned.get(p.id)?.polish === 1;
     const label = alive ? `${stateLabel(state)} · ${copy.forge.alive}` : stateLabel(state);
+    const marks = frameMarks(f, p);
     return h(
       'button',
       {
         class: `part-card rarity-${p.rarity} state-${state}`,
-        attrs: { type: 'button', 'aria-label': `${name}, ${rarityName(p.rarity)}, ${kind(p)}. ${label}.` },
+        attrs: { type: 'button', 'aria-label': `${name}, ${rarityName(p.rarity)}, ${kind(p)}. ${label}.${marks ? ` ${copy.forge.a11yMarks(marks.marks, marks.toNext)}.` : ''}` },
         onclick: () => openPart(p),
       },
       h('span', { class: 'part-art', html: partSvg(p.id, f.owned.get(p.id)?.polish ?? 0), attrs: { 'aria-hidden': 'true' } }),
@@ -128,6 +134,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
       h('span', { attrs: { 'aria-hidden': 'true' } }, rarityTag(p.rarity)),
       h('span', { class: 'part-state', attrs: { 'aria-hidden': 'true' } },
         alive ? h('span', { class: 'alive-glyph', html: ICONS.spirit }) : '', label),
+      marks ? h('span', { class: 'part-marks', attrs: { 'aria-hidden': 'true' } }, markPips(marks.marks), marks.marks < MAX_MARKS ? copy.forge.markProgress(marks.toNext) : '') : '',
     );
   }
 
@@ -186,6 +193,11 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
         btn,
       );
     }
+    // a frame you own: its marks, and how close the next is
+    const fm = frameMarks(f, p);
+    const marksSection = fm
+      ? h('section', { class: 'marks-section' }, h('h3', {}, copy.forge.marksTitle, markPips(fm.marks)), h('p', { text: copy.forge.marksLine(fm.marks, fm.toNext) }), h('p', { class: 'note', text: copy.forge.marksNote }))
+      : null;
     const close = openModal(
       h(
         'div',
@@ -196,6 +208,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
         h('p', { class: 'part-sheet-meta' }, rarityTag(p.rarity), kind(p), edition ? ` · ${copy.forge.edition(edition)}` : '', polish ? ` · ${copy.forge.alive}` : ''),
         forgeable(state) ? h('p', { class: 'part-price', text: price(f, p) }) : null,
         action,
+        marksSection,
         life,
       ),
     );

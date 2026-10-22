@@ -29,6 +29,11 @@ export interface Part {
 export const FORGE_COST: Record<Rarity, number> = { common: 150, rare: 375, epic: 900, mythic: 1800 };
 /** Stardust to forge a part from its blueprint (private.blueprint_cost): a Common is one tap. */
 export const BLUEPRINT_COST: Record<Rarity, number> = { common: 0, rare: 50, epic: 200, mythic: 500 };
+/** Rated wins a worn frame needs for each mark, and the most marks it earns (marks). */
+export const MARK_WINS = 40;
+export const MAX_MARKS = 3;
+/** A frame's marks and its wins toward the next, from its rated wins. */
+export const marksOf = (wins: number) => ({ marks: Math.min(MAX_MARKS, Math.floor(wins / MARK_WINS)), toNext: wins >= MARK_WINS * MAX_MARKS ? MARK_WINS : wins % MARK_WINS });
 /** Polish brings an avatar to life, once (polish_part): Stardust and a Spirit. */
 export const ALIVE_COST = 6000;
 /** A Spirit is guaranteed within this many counted solves (private.spirit_roll). */
@@ -43,8 +48,9 @@ export type Loadout = Partial<Record<Slot, string | null>>;
 
 export interface Forge {
   parts: Part[];
-  /** Owned part ids (Happy always), with a first-edition number and polish (1: alive). */
-  owned: Map<string, { edition: number | null; polish: number }>;
+  /** Owned part ids (Happy always), with a first-edition number, polish (1: alive) and, for a
+      frame, the rated wins it earned while worn (marks: one per 40, up to 3). */
+  owned: Map<string, { edition: number | null; polish: number; wins: number }>;
   polish: Polish;
   /** Part ids you hold a blueprint for (blueprints): forged cheaply, then gone. */
   blueprints: Set<string>;
@@ -77,7 +83,7 @@ export async function loadForge(): Promise<Forge | null> {
   const now = new Date().toISOString();
   const [parts, owned, blueprints, loadout, profile, season] = await Promise.all([
     supabase.from('parts').select('id, slot, element, rarity, source'),
-    supabase.from('player_parts').select('part_id, edition, polish'),
+    supabase.from('player_parts').select('part_id, edition, polish, wins'),
     supabase.from('player_blueprints').select('part_id'),
     supabase.from('avatar_loadouts').select('avatar, frame').maybeSingle(),
     supabase.from('profiles').select('stardust, spirits, affinity, spirit_pity, spirits_called, spirits_called_season').eq('id', uid).single(),
@@ -91,7 +97,7 @@ export async function loadForge(): Promise<Forge | null> {
   writeJson(POLISH_KEY, polish);
   return {
     parts: (parts.data ?? []) as Part[],
-    owned: new Map([[DEFAULT_AVATAR, { edition: null, polish: 0 }], ...(owned.data ?? []).map((o) => [o.part_id as string, { edition: o.edition ?? null, polish: o.polish ?? 0 }] as const)]),
+    owned: new Map([[DEFAULT_AVATAR, { edition: null, polish: 0, wins: 0 }], ...(owned.data ?? []).map((o) => [o.part_id as string, { edition: o.edition ?? null, polish: o.polish ?? 0, wins: o.wins ?? 0 }] as const)]),
     polish,
     blueprints: new Set((blueprints.data ?? []).map((b) => b.part_id as string)),
     loadout: (loadout.data ?? {}) as Loadout,

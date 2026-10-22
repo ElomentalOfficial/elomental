@@ -350,6 +350,14 @@ export const forge = {
   wear: 'Equip',
   takeOff: 'Unequip',
   forged: (name: string) => `Forged: ${name}.`,
+  /** Marks (marks): a frame you wear earns one every 40 rated wins, up to 3. */
+  marksTitle: 'Marks',
+  marksNote: 'The frame you wear earns a mark every 40 rated wins, up to 3.',
+  marks: (n: number) => (n === 1 ? '1 mark' : `${n} marks`),
+  /** Toward the next mark, on the card and the sheet. */
+  markProgress: (wins: number) => `${wins} / 40`,
+  marksLine: (n: number, wins: number) => (n >= 3 ? 'All 3 marks earned.' : `${n} of 3 marks. ${wins} of 40 wins to the next.`),
+  a11yMarks: (n: number, wins: number) => (n >= 3 ? '3 of 3 marks' : `${n} of 3 marks, ${wins} of 40 wins to the next`),
   edition: (n: number) => `No. ${n}`,
   offline: 'The Forge needs a connection. Your parts are safe on your account.',
   loading: 'Opening the Forge…',

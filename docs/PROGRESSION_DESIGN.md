@@ -60,7 +60,7 @@ value); faction-only drops (punishes loyalty); finishes or paint choices (owner 
 a vault for past editions (owner: it would cheapen what veterans earned).
 
 **Build order (beta first):** 1. drop order and gifts (built); 2. switching rule (built); 3. blueprints and
-prices (built; open: refund a past season's unforged blueprints as Stardust at the wipe); 4. marks; 5. gilding; 6. editions at the first season wipe. Names
+prices (built; open: refund a past season's unforged blueprints as Stardust at the wipe); 4. marks (built: a win counts when it pays XP); 5. gilding; 6. editions at the first season wipe. Names
 (Gift, Blueprint, Edition, Mark, Gild) go into docs/BRAND_VOICE.md's glossary first.
 
 ## Account level, 2026-10-21 (owner; game-economy-designer, ux-reviewer, ui-designer)
