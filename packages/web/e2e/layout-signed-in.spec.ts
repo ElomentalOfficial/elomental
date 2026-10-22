@@ -62,7 +62,8 @@ for (const device of PHONES_AND_TABLETS) {
       found.push(...(await problems(page, 'Forge')));
       await sheet(page, () => page.locator('.part-card').first().click(), 'Part sheet', found);
       await page.getByRole('button', { name: 'Back', exact: true }).click();
-      await page.locator('.plates-row').click();
+      // (a wide screen's Profile has a door for them)
+      await page.locator('.plates-row, .plates-door').first().click();
       await expect(page.locator('.plate-card').first()).toBeVisible();
       found.push(...(await problems(page, 'Name plates')));
       await home(page);

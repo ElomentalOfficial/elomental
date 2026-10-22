@@ -37,6 +37,9 @@
     padding: max(var(--space-5), env(safe-area-inset-top)) var(--space-5) calc(56px + var(--space-5));
     background: var(--tile);
     color: var(--tile-text);
+    /* the focus ring in the banner's own ink: the page's --focus can match a coloured cloth (light
+       theme's crimson on Daily's banner) */
+    --focus: currentColor;
     text-align: center;
     /* the notched tail: as deep as pageBanner.ts TAIL */
     clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 56px), 0 100%);
@@ -57,6 +60,10 @@
   .banner-forest > .page-banner {
     background: var(--tone-forest-fill);
     color: var(--tone-forest-on);
+  }
+  .banner-crimson > .page-banner {
+    background: var(--tone-crimson-fill);
+    color: var(--tone-crimson-on);
   }
   /* the tiles' grain, faint over the cloth */
   .page-banner::before {
@@ -277,6 +284,23 @@ html[data-reduce-motion] .door {
   background: currentColor;
   transform: rotate(45deg);
   vertical-align: middle;
+}
+
+/* A door's square, dealt a little crooked (Casual's difficulties, Daily's today); it straightens
+   under the pointer. */
+.dealt {
+  display: block;
+  width: min(200px, 78%, 25dvh);
+  transform: rotate(-4deg);
+  transition: transform 0.25s ease-out;
+}
+@media (hover: hover) {
+  .door:hover .dealt {
+    transform: rotate(0deg) scale(1.03);
+  }
+}
+html[data-reduce-motion] .dealt {
+  transition: none;
 }
 
 /* A square drawn small (miniBoard.ts): the given numbers in ink, yours lighter, like the board. */

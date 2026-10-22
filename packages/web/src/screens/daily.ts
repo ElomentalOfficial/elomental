@@ -4,7 +4,8 @@ import { dailyBadgeNeed, dailyGoal, dailyKey, dateKey, loadProfile, nextResetIn 
 import { badgeMonth } from '../badges.ts';
 import { cachedAccount, refreshAccount } from '../backend/account.ts';
 import { MEND_COST, MENDS_A_MONTH, mendDaily } from '../backend/forge.ts';
-import { closeButton, goBack, h, mount, openModal, subPage, toast, type Screen } from '../ui.ts';
+import { miniBoard, sampleGivens } from '../miniBoard.ts';
+import { closeButton, goBack, h, mount, openModal, rebuildOnLayout, subPage, toast, wideLayout, type Screen } from '../ui.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
 import { homeScreen } from './home.ts';
 import * as copy from '../copy/en.ts';
@@ -259,38 +260,76 @@ export function dailyScreen(): Screen {
   const goal = dailyGoal(done, days);
   progress.firstElementChild!.setAttribute('style', `width:${Math.min(1, done / goal) * 100}%`);
 
-  // Header, then one block centred in the space below it: the month card
-  // (title, progress, calendar), the month's badge and the play button.
-  const el = subPage(
-    { className: 'daily', title: copy.daily.title, onBack: () => void goBack(homeScreen) },
+  const monthCard = h(
+    'section',
+    { class: 'month-card' },
     h(
       'div',
-      { class: 'daily-body' },
-      tearOffCalendar(),
-      h(
-        'section',
-        { class: 'month-card' },
-        h(
-          'div',
-          { class: 'month-head' },
-          h('h2', { text: `${monthName} ${year}` }),
-          h('span', { class: 'month-count', text: copy.daily.monthCount(done, goal) }),
-        ),
-        progress,
-        calendar,
-        mendHint,
-      ),
-      h(
-        'div',
-        { class: 'reward-card' },
-        h('span', { class: `avatar-reward ${earned ? 'unlocked' : ''}`, html: earned ? ICONS.crown : ICONS.lock }),
-        h('div', {}, h('strong', { text: copy.daily.monthBadge(monthName) }), h('p', { text: badgeLine })),
-      ),
-      h('div', { class: 'daily-actions' }, action, h('p', { class: 'reset-note', text: copy.daily.nextIn(hours, minutes) })),
+      { class: 'month-head' },
+      h('h2', { text: `${monthName} ${year}` }),
+      h('span', { class: 'month-count', text: copy.daily.monthCount(done, goal) }),
     ),
+    progress,
+    calendar,
+    mendHint,
   );
-  const stopFit = fitWithoutScrolling(el, calendar, Math.ceil((firstWeekday + days) / 7));
-  return { el, title: copy.daily.title, destroy: stopFit };
+  const reward = h(
+    'div',
+    { class: 'reward-card' },
+    h('span', { class: `avatar-reward ${earned ? 'unlocked' : ''}`, html: earned ? ICONS.crown : ICONS.lock }),
+    h('div', {}, h('strong', { text: copy.daily.monthBadge(monthName) }), h('p', { text: badgeLine })),
+  );
+  const resetNote = h('p', { class: 'reset-note', text: copy.daily.nextIn(hours, minutes) });
+
+  // Wide screens (banner.css): the calendar on the crimson banner with the month's count at its
+  // foot; the month beside today's door (its square, waiting or new: one click plays it) and the
+  // month's badge. Phones: header, then one block centred below it: the month card, the month's
+  // badge and the play button.
+  const wide = wideLayout();
+  const doorLine = h('span', { class: 'door-line', text: copy.daily.nextIn(hours, minutes) });
+  const todayDoor = doneToday
+    ? h('div', { class: 'today-card' }, action, resetNote)
+    : h(
+        'button',
+        { class: 'door today-door', attrs: { type: 'button' }, onclick: playToday },
+        h('span', { class: 'door-pic', attrs: { 'aria-hidden': 'true' } },
+          h('span', { class: 'dealt' }, resumable ? miniBoard(resumable.config.puzzle, resumable.values.map((v) => v || 0).join('')) : miniBoard(sampleGivens(32, day)))),
+        h('span', { class: 'door-title', text: resumable ? copy.daily.continue : copy.daily.play }),
+        doorLine,
+      );
+  const el = subPage(
+    {
+      className: 'daily',
+      title: copy.daily.title,
+      onBack: () => void goBack(homeScreen),
+      banner: {
+        tone: 'crimson',
+        art: wide ? tearOffCalendar() : null,
+        help: copy.daily.bannerHelp,
+        // every Daily you've solved (the month is in the card beside it), as Casual counts its squares
+        foot: h('p', { class: 'banner-stat' },
+          h('strong', { text: copy.formatNumber(Object.keys(profile.daily).length) }),
+          h('span', { text: copy.daily.bannerStat })),
+      },
+    },
+    wide
+      // today's door first, for the keyboard and at large text (one column); the month sits left of it (pages.css)
+      ? h('div', { class: 'daily-field' }, h('div', { class: 'daily-side' }, todayDoor, reward), monthCard)
+      : h('div', { class: 'daily-body' }, tearOffCalendar(), monthCard, reward, h('div', { class: 'daily-actions' }, action, resetNote)),
+  );
+  rebuildOnLayout(el, dailyScreen);
+  // (a wide screen's field may scroll: there the month keeps its square days)
+  const stopFit = wide ? () => undefined : fitWithoutScrolling(el, calendar, Math.ceil((firstWeekday + days) / 7));
+  // the countdown keeps time, and at the reset the page turns to the new day's square
+  const tick = window.setInterval(() => {
+    if (!el.isConnected) return;
+    const left = nextResetIn();
+    if (dailyKey() !== today) return mount(dailyScreen());
+    const text = copy.daily.nextIn(Math.floor(left / 3_600_000), Math.floor((left % 3_600_000) / 60_000));
+    doorLine.textContent = text;
+    resetNote.textContent = text;
+  }, 30_000);
+  return { el, title: copy.daily.title, destroy: () => { stopFit(); clearInterval(tick); } };
 }
 
 /**

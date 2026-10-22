@@ -11,8 +11,8 @@ import { paintPlate } from '../plates.ts';
 import { dailyGoal, dailyKey, loadProfile, rankTier } from '../profile.ts';
 import { rankProgress } from '../rankBar.ts';
 import { levelProgress, xpLevel } from '../level.ts';
-import { platesRow } from './plates.ts';
-import { closeButton, goBack, h, mount, openModal, subPage, toast, type Screen } from '../ui.ts';
+import { platesDoor, platesRow } from './plates.ts';
+import { closeButton, goBack, h, mount, openModal, rebuildOnLayout, subPage, toast, wideLayout, type Screen } from '../ui.ts';
 import { affinityScreen } from './affinity.ts';
 import { forgeScreen } from './forge.ts';
 import { homeScreen } from './home.ts';
@@ -74,32 +74,46 @@ export function profileScreen(start?: { at?: 'badges' }): Screen {
     badgeBtn.onclick = () => openBadgePicker(owned, chosen, (next) => paintBadges(owned, next));
   };
   if (badgesSection) void myBadges().then((owned) => owned && paintBadges(owned, cachedAccount()?.showcase ?? []));
-  const forgeBtn = h('button', { class: 'btn btn-primary profile-forge', text: copy.profile.forge, attrs: { type: 'button' } });
+  // Wide screens (banner.css): you on the banner (your avatar, name, rank, how far to the next
+  // rank and level, your side); the Forge and the name plates are doors in the field
+  const wide = wideLayout();
+  const forgeLine = account ? h('span', { class: 'door-line', text: copy.profile.forgeLine(account.stardust, account.spirits) }) : null;
+  const forgeBtn = wide
+    ? h('button', { class: 'door profile-forge forge-door', attrs: { type: 'button' } },
+        h('span', { class: 'door-pic', html: ICONS.forge, attrs: { 'aria-hidden': 'true' } }),
+        h('span', { class: 'door-title', text: copy.profile.forge }),
+        forgeLine)
+    : h('button', { class: 'btn btn-primary profile-forge', text: copy.profile.forge, attrs: { type: 'button' } });
   forgeBtn.addEventListener('click', () => mount(forgeScreen(profileScreen)));
+  const tierLine = h('p', { class: 'profile-tier' }, rankName(tier.tier, tier.label, p.title));
+  const level = account ? levelProgress(account.xp ?? 0) : null;
 
   const el = subPage(
-    { className: 'profile-page', title: copy.profile.title, onBack: () => void goBack(homeScreen) },
+    {
+      className: 'profile-page',
+      title: copy.profile.title,
+      onBack: () => void goBack(homeScreen),
+      banner: { art: avatar, foot: h('div', { class: 'profile-banner-foot' }, nameEl, tierLine, nextUp, level, side) },
+    },
     h(
       'div',
       { class: 'profile-body' },
-      h(
-        'section',
-        { class: 'profile-hero' },
-        avatar,
-        nameEl,
-        h(
-          'p',
-          { class: 'profile-tier' },
-          rankName(tier.tier, tier.label, p.title),
-        ),
-        nextUp,
-        account ? levelProgress(account.xp ?? 0) : null,
-        // every plate in one place: the way to them
-        platesRow(profileScreen),
-        side,
-        // the Forge, in sight without scrolling (Home has no tile for it)
-        forgeBtn,
-      ),
+      wide
+        ? h('div', { class: 'door-row profile-doors', attrs: { style: '--doors: 2' } }, forgeBtn, platesDoor(profileScreen))
+        : h(
+            'section',
+            { class: 'profile-hero' },
+            avatar,
+            nameEl,
+            tierLine,
+            nextUp,
+            level,
+            // every plate in one place: the way to them
+            platesRow(profileScreen),
+            side,
+            // the Forge, in sight without scrolling (Home has no tile for it)
+            forgeBtn,
+          ),
       h(
         'section',
         { class: 'profile-section' },
@@ -158,9 +172,11 @@ export function profileScreen(start?: { at?: 'badges' }): Screen {
         bar.after(h('p', { class: 'note profile-season-end', text: copy.profile.seasonUntil(f.seasonName, until) }));
       }
       avatar.innerHTML = avatarSvg(f.loadout, f.polish);
+      if (forgeLine) forgeLine.textContent = copy.profile.forgeLine(f.stardust, f.spirits);
     });
   } else bar.remove();
 
+  rebuildOnLayout(el, () => profileScreen(start));
   return { el, title: copy.profile.title };
 }
 

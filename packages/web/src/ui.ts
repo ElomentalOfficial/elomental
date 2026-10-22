@@ -77,8 +77,8 @@ export interface Banner {
   art?: Child;
   help?: string;
   foot?: Child;
-  /** The Casual banner wears its Home tile's green; the others its grey. */
-  tone?: 'forest';
+  /** Casual's banner wears its Home tile's green, Daily's its crimson; the others their grey. */
+  tone?: 'forest' | 'crimson';
 }
 
 /**

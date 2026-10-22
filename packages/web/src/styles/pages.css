@@ -728,7 +728,7 @@ html:not([data-large-text]) .daily-art {
 /* Wide landscape screens: as on Casual, the page widens into two columns, the calendar
    on the left as tall as the cards, the cards unchanged on the right. */
 @media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
-  html:not([data-large-text]) .screen.daily {
+  html:not([data-large-text]) .screen.daily:not(.has-banner) {
     max-width: calc(820px * var(--text-scale, 1));
   }
   html:not([data-large-text]) .daily-body {
@@ -1235,5 +1235,60 @@ html:not([data-large-text]) .daily-art {
     border-radius: calc(4 * var(--u));
     background: currentColor;
     transform: rotate(45deg);
+  }
+}
+/*
+ * Daily on a wide screen (daily.ts, banner.css): the calendar on the crimson banner with the
+ * month's count at its foot; the month beside today's door (one click plays it) and the badge.
+ */
+@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+  .daily.has-banner .banner-art .daily-art {
+    width: 100%;
+    height: min(280px, 100%);
+    min-height: 0;
+    max-height: none;
+  }
+  .daily-field {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    align-items: start;
+    gap: var(--space-4);
+  }
+  /* (today's door comes first in the page, for the keyboard; the month is drawn to its left) */
+  .daily-field > .month-card {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .daily-field > .daily-side {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  html[data-large-text] .daily-field {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  html[data-large-text] .daily-field > :is(.month-card, .daily-side) {
+    grid-column: auto;
+    grid-row: auto;
+  }
+  .daily-side {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+  .door.today-door {
+    min-height: 320px;
+  }
+  .today-door .dealt {
+    width: min(180px, 70%);
+  }
+  .today-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--space-2);
+    min-height: calc(160px * var(--text-scale));
+    padding: var(--space-5) var(--space-4);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
   }
 }

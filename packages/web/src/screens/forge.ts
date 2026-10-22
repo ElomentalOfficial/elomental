@@ -4,7 +4,7 @@ import { ALIVE_COST, BLUEPRINT_COST, DEFAULT_AVATAR, FORGE_COST, GILD_COST, MAX_
 import { ICONS } from '../icons.ts';
 import { ELEMENTS, RARITIES, loadProfile, type Element, type Rarity } from '../profile.ts';
 import { partName, rarityName } from '../reward.ts';
-import { closeButton, goBack, h, openModal, subPage, toast, type Screen } from '../ui.ts';
+import { closeButton, goBack, h, openModal, rebuildOnLayout, subPage, toast, wideLayout, type Screen } from '../ui.ts';
 import { homeScreen } from './home.ts';
 import * as copy from '../copy/en.ts';
 
@@ -45,7 +45,19 @@ const frameMarks = (f: Forge, p: Part) => (p.slot === 'frame' && f.owned.has(p.i
 
 export function forgeScreen(back: () => Screen = homeScreen): Screen {
   const body = h('div', { class: 'forge-body' }, h('p', { class: 'forge-status', text: copy.forge.loading }));
-  const el = subPage({ className: 'forge', title: copy.forge.title, onBack: () => void goBack(back) }, body);
+  // wide screens (banner.css): the gem on the banner, you and your purse at its foot
+  const wide = wideLayout();
+  const purse = h('div', { class: 'forge-purse-foot' });
+  const el = subPage(
+    {
+      className: 'forge',
+      title: copy.forge.title,
+      onBack: () => void goBack(back),
+      banner: { art: h('span', { class: 'forge-banner-art', html: ICONS.forge }), help: copy.forge.bannerHelp, foot: purse },
+    },
+    body,
+  );
+  rebuildOnLayout(el, () => forgeScreen(back));
   let forge: Forge | null = null;
   let standings: Standing[] | null = null;
 
@@ -61,6 +73,21 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
     }
     const f = forge;
     const craftable = f.parts.filter((p) => p.source === 'craft');
+    const stardust = h('span', { class: 'balance' }, h('span', { html: ICONS.dust, attrs: { 'aria-hidden': 'true' } }), h('strong', { text: copy.formatNumber(f.stardust) }), h('span', { text: copy.common.stardust }));
+    const spirits = h('span', { class: 'balance' }, h('span', { html: ICONS.spirit, attrs: { 'aria-hidden': 'true' } }), h('strong', { text: copy.formatNumber(f.spirits) }), h('span', { text: copy.common.spiritsLabel(f.spirits) }));
+    const odds = h('button', { class: 'link-btn', text: copy.forge.oddsButton, attrs: { type: 'button' }, onclick: () => openOdds() });
+    if (wide) {
+      // you and your purse on the banner; how parts come and the Spirits side by side, then the parts
+      purse.replaceChildren(h('span', { class: 'forge-avatar', html: avatarSvg(f.loadout, f.polish), attrs: { 'aria-hidden': 'true' } }), h('div', { class: 'forge-balances' }, stardust, spirits, f.affinity ? affinityLine(f.affinity) : null));
+      body.replaceChildren(
+        h('div', { class: 'door-row forge-top', attrs: { style: '--doors: 2' } },
+          h('section', { class: 'forge-lead' }, h('h2', { class: 'forge-heading', text: copy.forge.blueprintsTitle }), h('p', { class: 'forge-intro', text: copy.forge.intro }), odds),
+          spiritsSection(f)),
+        h('div', { class: 'forge-heading-row' }, h('h2', { class: 'forge-heading', text: copy.forge.parts }), h('span', { class: 'forge-count', text: copy.forge.collected(craftable.filter((p) => f.owned.has(p.id)).length, craftable.length) })),
+        ...groups(f),
+      );
+      return;
+    }
     const head = h(
       'section',
       { class: 'forge-head' },
@@ -69,19 +96,12 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
         'div',
         { class: 'forge-balances' },
         h('p', { class: 'forge-intro', text: copy.forge.intro }),
-        h('button', { class: 'link-btn', text: copy.forge.oddsButton, attrs: { type: 'button' }, onclick: () => openOdds() }),
+        odds,
         f.affinity ? affinityLine(f.affinity) : null,
-        h('span', { class: 'balance' }, h('span', { html: ICONS.dust, attrs: { 'aria-hidden': 'true' } }), h('strong', { text: copy.formatNumber(f.stardust) }), h('span', { text: copy.common.stardust })),
-        h('span', { class: 'balance' }, h('span', { html: ICONS.spirit, attrs: { 'aria-hidden': 'true' } }), h('strong', { text: copy.formatNumber(f.spirits) }), h('span', { text: copy.common.spiritsLabel(f.spirits) })),
+        stardust,
+        spirits,
       ),
     );
-    const groups = SLOTS.map((slot) => {
-      const parts = f.parts
-        .filter((p) => p.slot === slot)
-        // Happy first (everyone has it), then by element and rarity
-        .sort((a, b) => Number(b.source === 'starter') - Number(a.source === 'starter') || order(a) - order(b) || RARITIES.indexOf(a.rarity) - RARITIES.indexOf(b.rarity));
-      return h('section', { class: 'forge-group' }, h('h2', { text: copy.forge.slotGroups[slot] }), h('div', { class: 'part-grid' }, ...parts.map((p) => partCard(f, p))));
-    });
     body.replaceChildren(
       head,
       spiritsSection(f),
@@ -91,8 +111,18 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
         h('h2', { class: 'forge-heading', text: copy.forge.parts }),
         h('span', { class: 'forge-count', text: copy.forge.collected(craftable.filter((p) => f.owned.has(p.id)).length, craftable.length) }),
       ),
-      ...groups,
+      ...groups(f),
     );
+  }
+
+  /** The season's parts, a group a slot: Happy first (everyone has it), then by element and rarity. */
+  function groups(f: Forge): HTMLElement[] {
+    return SLOTS.map((slot) => {
+      const parts = f.parts
+        .filter((p) => p.slot === slot)
+        .sort((a, b) => Number(b.source === 'starter') - Number(a.source === 'starter') || order(a) - order(b) || RARITIES.indexOf(a.rarity) - RARITIES.indexOf(b.rarity));
+      return h('section', { class: 'forge-group' }, h('h2', { text: copy.forge.slotGroups[slot] }), h('div', { class: 'part-grid' }, ...parts.map((p) => partCard(f, p))));
+    });
   }
 
   /** Your side and where it stands this month. */

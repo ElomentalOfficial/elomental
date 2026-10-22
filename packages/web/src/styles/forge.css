@@ -572,3 +572,95 @@ html[data-reduce-motion] .part-reveal * {
   background: var(--surface-2);
   color: var(--text);
 }
+
+/*
+ * Wide screens (banner.css): the gem on the banner with you and your purse at its foot; in the
+ * field, how parts come and the Spirits as two cards side by side, then the season's parts,
+ * larger and more to a row.
+ */
+@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+  .forge-banner-art {
+    display: block;
+    width: min(150px, 60%);
+    aspect-ratio: 70 / 53;
+  }
+  .forge-banner-art .brush-art {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .forge-purse-foot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .forge-purse-foot .forge-avatar {
+    width: 104px;
+    height: 104px;
+  }
+  .forge-purse-foot .forge-balances {
+    align-items: center;
+    gap: var(--space-1);
+  }
+  /* on the banner's cloth, the purse in its ink (the icons keep their shape) */
+  .forge-purse-foot .balance svg {
+    color: inherit;
+  }
+  .forge-purse-foot .balance span:last-child {
+    color: inherit;
+  }
+  /* the banner feet's numbers, one rule: the serif */
+  .forge-purse-foot .balance strong {
+    font-family: var(--serif);
+    font-weight: 400;
+  }
+  .forge-top {
+    align-items: stretch;
+  }
+  .forge-lead,
+  .forge.has-banner .forge-spirits {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+  }
+  /* (its text lines up with the words above it, past the link's own padding) */
+  .forge-lead .link-btn {
+    align-self: flex-start;
+    margin-inline-start: calc(-1 * var(--space-2));
+  }
+  .forge.has-banner .forge-spirits .forge-heading-row {
+    margin-top: 0;
+  }
+  /* (your Spirits are counted on the banner) */
+  .forge.has-banner .forge-spirits .forge-count {
+    display: none;
+  }
+  .forge-lead .forge-heading {
+    margin-top: 0;
+  }
+  .forge-purse-foot .forge-affinity {
+    margin-top: var(--space-1);
+  }
+  .forge.has-banner .forge-heading-row {
+    margin-top: var(--space-5);
+  }
+  .forge.has-banner .part-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(140px * var(--text-scale))), 1fr));
+    gap: var(--space-3);
+  }
+  /* large text: the cards read across (art, then words), so they need more width each */
+  html[data-large-text] .forge.has-banner .part-grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(170px * var(--text-scale))), 1fr));
+  }
+  .forge.has-banner .part-card {
+    padding: var(--space-4) var(--space-3);
+  }
+  .forge.has-banner .part-art {
+    width: 84px;
+    height: 84px;
+  }
+}

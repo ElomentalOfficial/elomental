@@ -86,7 +86,79 @@ html[data-large-text] .profile-section h2 {
   font-size: var(--fs-body);
 }
 /* In the hero, under your rank and side: in sight without scrolling. */
-.profile-forge {
+.profile-hero .profile-forge {
   align-self: stretch;
   margin-top: var(--space-2);
+}
+
+/*
+ * Wide screens (banner.css): you on the banner (your avatar large, your name on its plate, your
+ * rank, the next rank and level, your side); in the field, the Forge and the name plates as two
+ * doors, then the stats, collection and badges.
+ */
+@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+  .profile-page.has-banner .banner-art .profile-avatar {
+    width: min(176px, 100%);
+    height: auto;
+    max-height: 100%;
+    aspect-ratio: 1;
+    margin: 0;
+  }
+  .profile-banner-foot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    container-type: inline-size;
+    /* the bars' tracks in the cloth's own ink, so they show on any banner */
+    --bar-bg: color-mix(in srgb, currentColor 16%, transparent);
+  }
+  .profile-banner-foot .profile-next-rank .rank-bar {
+    background: var(--bar-bg);
+  }
+  /* your name in the display serif, as on Home's card, shrinking to keep to one line (a long
+     name without spaces still wraps rather than run out) */
+  .profile-banner-foot .profile-plate {
+    max-width: 100%;
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: min(var(--fs-display), calc(8.5cqi * var(--text-scale)));
+  }
+  .profile-banner-foot .profile-tier {
+    font-size: var(--fs-label);
+  }
+  .profile-banner-foot :is(.profile-next-rank, .level-progress) {
+    width: 100%;
+  }
+  /* each bar under its own caption, as the rank's is, so the two never read as one */
+  .profile-banner-foot .level-progress {
+    display: flex;
+    flex-direction: column-reverse;
+    margin-top: var(--space-2);
+  }
+  .profile-doors {
+    grid-auto-rows: minmax(calc(220px * var(--text-scale)), auto);
+  }
+  .forge-door .door-pic {
+    max-height: 96px;
+  }
+  .forge-door .door-pic .brush-art {
+    width: 120px;
+    height: 92px;
+    object-fit: contain;
+  }
+  .plates-door .door-pic {
+    container-type: inline-size;
+  }
+  /* the picture's name a step under the door's title, so the title reads as the door's name */
+  .plates-door-name {
+    max-width: 90cqi;
+    font-family: var(--serif);
+    font-size: var(--fs-label);
+    overflow-wrap: anywhere;
+  }
+  .profile-page.has-banner .profile-stats-list {
+    grid-template-columns: repeat(auto-fill, minmax(calc(160px * var(--text-scale)), 1fr));
+  }
 }

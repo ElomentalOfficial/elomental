@@ -542,26 +542,14 @@ html[data-reduce-motion] .clash-live .brush-art {
   .difficulty-door .door-pic {
     justify-self: stretch;
   }
-  .dealt {
-    display: block;
-    width: min(200px, 78%, 25dvh);
-    transform: rotate(-4deg);
-    transition: transform 0.25s ease-out;
-  }
+
   .difficulty-door:nth-child(2) .dealt {
     transform: rotate(3deg);
   }
   .difficulty-door:nth-child(3) .dealt {
     transform: rotate(-2deg);
   }
-  @media (hover: hover) {
-    .difficulty-door:hover .dealt {
-      transform: rotate(0deg) scale(1.03);
-    }
-  }
-  html[data-reduce-motion] .dealt {
-    transition: none;
-  }
+
   .door.resume-door {
     flex-direction: row;
     justify-content: flex-start;

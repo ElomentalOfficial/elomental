@@ -207,6 +207,10 @@ export const daily = {
   mendToward: (after: number, need: number) => `Brings you to ${after} of ${need} for the badge.`,
   mendNoBadge: (month: string) => `The ${month} badge is out of reach this month, so this only fills in the calendar.`,
   nextIn: (hours: number, minutes: number) => `New square in ${hours}h ${minutes}m`,
+  /** Wide screens (banner pages): the banner's line. */
+  bannerHelp: 'One square a day, the same for everyone.',
+  /** The banner's count: every Daily solved. */
+  bannerStat: 'Daily squares solved',
   mendTitle: (date: string) => `Fill in ${date}?`,
   mendText: 'It counts as solved for this month’s Daily total. Your Elo doesn’t change.',
   mendLeft: (left: number, stardust: number) => `${left} of 3 left this month · You have ${formatNumber(stardust)} Stardust`,
@@ -346,6 +350,10 @@ export const forge = {
 
   // The Forge page (screens/forge.ts)
   title: 'Forge',
+  /** Wide screens (banner pages): the banner's line. */
+  bannerHelp: 'Turn blueprints and Stardust into new looks.',
+  /** Wide screens: the title over how parts come. */
+  blueprintsTitle: 'Blueprints',
   intro: 'Every 3rd square you solve brings a blueprint for an avatar or a frame. Forge it cheaply with Stardust, or forge any part without one for more.',
   parts: 'Parts',
   collected: (n: number, total: number) => `${n} of ${total} collected`,
@@ -439,6 +447,8 @@ export const plates = {
   title: 'Name plates',
   /** The Profile's row into the page, and how many are collected. */
   count: (n: number, total: number) => `${n} of ${total}`,
+  /** Wide screens: the Name plates door's line, with the plate you wear (none for the Blank plate). */
+  doorLine: (plate: string | null, n: number, total: number) => (plate ? `Wearing ${plate} · ${n} of ${total}` : `${n} of ${total}`),
   intro: 'A frame round your name, with your level at its foot. Reach a level to earn the next one; every plate is yours to keep.',
   /** Plate 0 (no frame, the level alone) to 9, in the order they come (xp.ts PLATE_LEVELS). */
   names: ['Blank', 'Riveted', 'Banded', 'Cartouche', 'Fanlight', 'Colonnade', 'Sunburst', 'Jewelled', 'Winged', 'Starforged'] as const,
@@ -488,6 +498,8 @@ export const profile = {
   seasonUntil: (season: string, date: string) => `${season} ends on ${date}.`,
   collectionOffline: 'Your parts show here when you’re online.',
   forge: 'Forge',
+  /** Wide screens: the Forge door's line, your purse. */
+  forgeLine: (stardust: number, spirits: number) => `${formatNumber(stardust)} Stardust · ${spirits} ${spirits === 1 ? 'Spirit' : 'Spirits'}`,
   guestNote: 'Sign up to keep your avatar, parts and Elo on any device.',
 };
 // --- Factions ------------------------------------------------------------------

@@ -102,6 +102,30 @@ export function platesScreen(back: () => Screen): Screen {
 }
 
 /** The Profile's way in: "Name plates · 4 of 9", with "New" when one came since. */
+/**
+ * The way to the plates on a wide screen (banner.css): a door with your name on the plate you wear,
+ * your level in its medallion, as its picture; the line names the plate.
+ */
+export function platesDoor(back: () => Screen): HTMLElement | null {
+  const account = cachedAccount();
+  if (!account) return null;
+  const have = platesAt(xpLevel(account.xp ?? 0).level);
+  const fresh = newPlates();
+  const level = xpLevel(account.xp ?? 0).level;
+  const plate = account.plate ?? 0;
+  // the picture is your name on the plate you wear; the line says which plate it is
+  const name = h('span', { class: 'plates-door-name' });
+  paintPlate(name, account.name, plate, level);
+  return h(
+    'button',
+    { class: 'door plates-door', attrs: { type: 'button' }, onclick: () => mount(platesScreen(back)) },
+    h('span', { class: 'door-pic', attrs: { 'aria-hidden': 'true' } }, name),
+    h('span', { class: 'door-title', text: copy.plates.title }),
+    h('span', { class: 'door-line', text: copy.plates.doorLine(plate ? copy.plates.names[plate] : null, have, PLATE_LEVELS.length) }),
+    fresh ? h('span', { class: 'door-state', text: copy.plates.isNew }) : null,
+  );
+}
+
 export function platesRow(back: () => Screen): HTMLElement | null {
   const account = cachedAccount();
   if (!account) return null;
