@@ -213,8 +213,13 @@ function plateRoles(t: PlateTheme): string[] {
  */
 const RANKS = ['bronze', 'silver', 'gold', 'teal', 'violet'];
 const RANK_STEP: Record<PlateTheme, [number, number]> = { dark: [100, 300], light: [600, 700], 'dark-hc': [100, 200], 'light-hc': [700, 700] };
+/**
+ * Where a rank's name is large text (the Ranks sheet, the Profile: 3:1 is enough), its top is lit a
+ * step brighter: on light the gradient then turns from a bright metal to a deep one, as on dark.
+ */
+const RANK_LIT: Record<PlateTheme, number> = { dark: 100, light: 500, 'dark-hc': 100, 'light-hc': 700 };
 const rankRoles = (t: PlateTheme): string[] =>
-  RANKS.flatMap((ramp, i) => [`  --rank-${i}-hi: ${v(ramp, RANK_STEP[t][0])};`, `  --rank-${i}-lo: ${v(ramp, RANK_STEP[t][1])};`]);
+  RANKS.flatMap((ramp, i) => [`  --rank-${i}-hi: ${v(ramp, RANK_STEP[t][0])};`, `  --rank-${i}-lo: ${v(ramp, RANK_STEP[t][1])};`, `  --rank-${i}-lit: ${v(ramp, RANK_LIT[t])};`]);
 
 /** The old palette names, so every existing rule keeps working. */
 const ALIASES: [string, string][] = [

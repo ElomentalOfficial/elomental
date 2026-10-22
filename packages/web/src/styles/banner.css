@@ -173,7 +173,7 @@
     transform: none !important;
   }
   /* (a wide hero takes the banner's whole width) */
-  .banner-art > .banner-hero {
+  .banner-art > :is(.banner-hero, .spin) {
     width: 100% !important;
   }
   .banner-art > * {
@@ -387,4 +387,46 @@ html[data-reduce-motion] .dealt {
 .mini-board > i:nth-child(n + 19):nth-child(-n + 27),
 .mini-board > i:nth-child(n + 46):nth-child(-n + 54) {
   margin-bottom: 2px;
+}
+
+/* A hero icon you can spin (spin.ts): the face, a mirrored back, and copies stacked behind the face
+   for its edge, each a little darker, all turning together in 3D */
+.spin {
+  display: grid;
+  place-items: center;
+  perspective: 900px;
+  cursor: grab;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.spin.spinning {
+  cursor: grabbing;
+}
+.spin-token {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+.spin-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+}
+.spin-face {
+  backface-visibility: hidden;
+}
+.spin-edge {
+  filter: brightness(0.55);
+}
+/* the back: the same picture seen from behind, deeper, as the reverse of a struck medal */
+.spin-back {
+  transform: translateZ(calc(-8 * 1.6px - 1px)) rotateY(180deg);
+  filter: brightness(0.8);
+  backface-visibility: hidden;
 }

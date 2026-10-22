@@ -536,11 +536,11 @@
    gradient between two ink steps (both 4.5:1 on every surface); on light no two steps that far
    apart both pass, so a solid ink. In the text's own weight (Federo has one). The name is the
    mark; the colour only adds to it. */
-.rank-0 { --rank-hi: var(--rank-0-hi); --rank-lo: var(--rank-0-lo); }
-.rank-1 { --rank-hi: var(--rank-1-hi); --rank-lo: var(--rank-1-lo); }
-.rank-2 { --rank-hi: var(--rank-2-hi); --rank-lo: var(--rank-2-lo); }
-.rank-3 { --rank-hi: var(--rank-3-hi); --rank-lo: var(--rank-3-lo); }
-.rank-4 { --rank-hi: var(--rank-4-hi); --rank-lo: var(--rank-4-lo); }
+.rank-0 { --rank-hi: var(--rank-0-hi); --rank-lo: var(--rank-0-lo); --rank-lit: var(--rank-0-lit); }
+.rank-1 { --rank-hi: var(--rank-1-hi); --rank-lo: var(--rank-1-lo); --rank-lit: var(--rank-1-lit); }
+.rank-2 { --rank-hi: var(--rank-2-hi); --rank-lo: var(--rank-2-lo); --rank-lit: var(--rank-2-lit); }
+.rank-3 { --rank-hi: var(--rank-3-hi); --rank-lo: var(--rank-3-lo); --rank-lit: var(--rank-3-lit); }
+.rank-4 { --rank-hi: var(--rank-4-hi); --rank-lo: var(--rank-4-lo); --rank-lit: var(--rank-4-lit); }
 .rank-name {
   color: var(--rank-lo);
   /* light above, deep below, the turn inside the letters' height: a struck-metal face */
@@ -556,7 +556,14 @@
     -webkit-text-fill-color: currentColor;
   }
 }
-/* How far the next rank is (rankBar.ts): the line, then a bar from this rank's floor. The
+/* Large rank names (the Ranks sheet, the Profile): their top lit a step brighter (palette.ts
+   RANK_LIT), so light's gradient turns from a bright metal to a deep one, as dark's does */
+:is(.tier-list, .profile-tier) .rank-name {
+  background-image: linear-gradient(180deg, var(--rank-lit) 32%, var(--rank-lo) 72%);
+}
+.tier-list .rank-name {
+  font-size: var(--fs-label);
+}/* How far the next rank is (rankBar.ts): the line, then a bar from this rank's floor. The
    line carries the meaning; the bar only shows it. */
 .rank-progress {
   display: flex;

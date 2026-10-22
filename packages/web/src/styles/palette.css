@@ -318,14 +318,19 @@
   /* Ranked rank names */
   --rank-0-hi: var(--c-bronze-100);
   --rank-0-lo: var(--c-bronze-300);
+  --rank-0-lit: var(--c-bronze-100);
   --rank-1-hi: var(--c-silver-100);
   --rank-1-lo: var(--c-silver-300);
+  --rank-1-lit: var(--c-silver-100);
   --rank-2-hi: var(--c-gold-100);
   --rank-2-lo: var(--c-gold-300);
+  --rank-2-lit: var(--c-gold-100);
   --rank-3-hi: var(--c-teal-100);
   --rank-3-lo: var(--c-teal-300);
+  --rank-3-lit: var(--c-teal-100);
   --rank-4-hi: var(--c-violet-100);
   --rank-4-lo: var(--c-violet-300);
+  --rank-4-lit: var(--c-violet-100);
 }
 
 :root[data-theme='light'] {
@@ -408,14 +413,19 @@
   /* Ranked rank names */
   --rank-0-hi: var(--c-bronze-600);
   --rank-0-lo: var(--c-bronze-700);
+  --rank-0-lit: var(--c-bronze-500);
   --rank-1-hi: var(--c-silver-600);
   --rank-1-lo: var(--c-silver-700);
+  --rank-1-lit: var(--c-silver-500);
   --rank-2-hi: var(--c-gold-600);
   --rank-2-lo: var(--c-gold-700);
+  --rank-2-lit: var(--c-gold-500);
   --rank-3-hi: var(--c-teal-600);
   --rank-3-lo: var(--c-teal-700);
+  --rank-3-lit: var(--c-teal-500);
   --rank-4-hi: var(--c-violet-600);
   --rank-4-lo: var(--c-violet-700);
+  --rank-4-lit: var(--c-violet-500);
 }
 
 /* High contrast: one step stronger (ink 7:1 or near it, lines 4.5:1) */
@@ -467,14 +477,19 @@
   /* Ranked rank names */
   --rank-0-hi: var(--c-bronze-100);
   --rank-0-lo: var(--c-bronze-200);
+  --rank-0-lit: var(--c-bronze-100);
   --rank-1-hi: var(--c-silver-100);
   --rank-1-lo: var(--c-silver-200);
+  --rank-1-lit: var(--c-silver-100);
   --rank-2-hi: var(--c-gold-100);
   --rank-2-lo: var(--c-gold-200);
+  --rank-2-lit: var(--c-gold-100);
   --rank-3-hi: var(--c-teal-100);
   --rank-3-lo: var(--c-teal-200);
+  --rank-3-lit: var(--c-teal-100);
   --rank-4-hi: var(--c-violet-100);
   --rank-4-lo: var(--c-violet-200);
+  --rank-4-lit: var(--c-violet-100);
 }
 
 :root[data-contrast='high'][data-theme='light'] {
@@ -527,12 +542,17 @@
   /* Ranked rank names */
   --rank-0-hi: var(--c-bronze-700);
   --rank-0-lo: var(--c-bronze-700);
+  --rank-0-lit: var(--c-bronze-700);
   --rank-1-hi: var(--c-silver-700);
   --rank-1-lo: var(--c-silver-700);
+  --rank-1-lit: var(--c-silver-700);
   --rank-2-hi: var(--c-gold-700);
   --rank-2-lo: var(--c-gold-700);
+  --rank-2-lit: var(--c-gold-700);
   --rank-3-hi: var(--c-teal-700);
   --rank-3-lo: var(--c-teal-700);
+  --rank-3-lit: var(--c-teal-700);
   --rank-4-hi: var(--c-violet-700);
   --rank-4-lo: var(--c-violet-700);
+  --rank-4-lit: var(--c-violet-700);
 }

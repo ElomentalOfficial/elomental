@@ -160,6 +160,10 @@ for (let i = 0; i < 5; i++) {
     for (const [n, t] of PLATE_SURFACES) PAIRS.push([`rank ${i} name (${end}) on ${n}`, `--rank-${i}-${end}`, t, 4.5]);
     PAIRS.push([`rank ${i} name (${end}) on a chosen row`, `--rank-${i}-${end}`, '--chosen-bg', 4.5, '--surface']);
   }
+  // large names (Ranks sheet rows, your row there, the Profile's hero): 3:1 for large text
+  PAIRS.push([`rank ${i} name (lit, large) on a Ranks row`, `--rank-${i}-lit`, '--surface-2', 3]);
+  PAIRS.push([`rank ${i} name (lit, large) on your Ranks row`, `--rank-${i}-lit`, '--chosen-bg', 3, '--surface']);
+  PAIRS.push([`rank ${i} name (lit, large) on the Profile`, `--rank-${i}-lit`, '--surface', 3]);
   PAIRS.push([`UI: rank ${i} share bar vs its track`, `--rank-${i}-lo`, '--surface', 3]);
 }
 // the leaderboard's medals (and the top-100 underline): on the list, and on your own row
