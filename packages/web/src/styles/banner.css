@@ -26,17 +26,16 @@
   html[data-large-text] .screen.sub.has-banner {
     --banner-w: clamp(300px, 30vw, 420px);
   }
+  /* hung from the top edge, only as long as what it carries (pageBanner.ts sets the room for the tail
+     under it); never past the screen: there the art gives up height first */
   .page-banner {
     position: relative;
     isolation: isolate;
     align-self: start;
-    height: calc(100% - var(--space-6));
+    max-height: calc(100% - var(--space-6));
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: var(--space-3);
-    /* (the torn tail takes the ribbon's lowest 15%: the foot ends above it) */
-    padding: max(var(--space-5), env(safe-area-inset-top)) var(--space-5) calc((100dvh - var(--space-6)) * 0.15 + var(--space-3));
+    padding: max(var(--space-5), env(safe-area-inset-top)) var(--space-5) 120px;
     background: var(--accent);
     color: var(--on-accent);
     -webkit-mask: var(--ribbon) 0 0 / 100% 100% no-repeat;
@@ -53,6 +52,18 @@
     --level-ink: var(--on-accent);
     --primary-bg: var(--on-accent);
     --primary-text: var(--accent);
+  }
+  .banner-inner {
+    flex: 0 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  /* it drops from the top edge once the page has turned in, as the game screen's does (wide.css) */
+  .screen.has-banner .page-banner {
+    animation: banner-drop 0.32s cubic-bezier(0.1, 0.9, 0.2, 1) 0.3s both;
   }
   /* the Home art drawn for the dark grey tiles, in both themes: the cloth is always deep */
   :root[data-theme] .page-banner .ic-light {
@@ -131,10 +142,11 @@
     font-size: var(--fs-body);
     line-height: 1.4;
   }
-  /* the page's art takes the room between the line and the foot */
+  /* the page's art, between the line and the foot: as tall as the window allows, shrinking first */
   .banner-art {
-    flex: 1 1 0;
-    min-height: 0;
+    flex: 0 1 auto;
+    height: clamp(120px, 26dvh, 240px);
+    min-height: 72px;
     width: 100%;
     display: grid;
     place-items: center;
@@ -206,8 +218,10 @@
   }
 }
 
-/* A door (Casual, Setup): a framed card that does one thing, with its picture, its name and a
-   line. It lifts off the table under the pointer and rests on its own small, sharp shade. */
+/* A door (Casual, Setup and the rest): a card that does one thing, with its picture, its name and a
+   line. It wears a Home tile's frame and grain (frames.css: Store's, Setup's, the Leaderboard's and
+   the profile card's in turn along a row, at their own corner sizes, home.css), lifts off the table
+   under the pointer and rests on its own small, sharp shade. */
 .door {
   position: relative;
   display: flex;
@@ -237,7 +251,17 @@
   transform: translateY(-1px);
   filter: brightness(1.06);
 }
-html[data-reduce-motion] .door {
+/* the tiles' frame sizes, at Home's wide-screen scale (home.css: Setup's frame is the small one, the
+   profile card's the large one) */
+.door {
+  --frame-zoom: 1.6;
+}
+.door-row > .door:nth-child(4n + 2) {
+  --frame-corner: 24px;
+}
+.door-row > .door:nth-child(4n) {
+  --frame-corner: 44px;
+}html[data-reduce-motion] .door {
   transition: none;
   transform: none;
 }

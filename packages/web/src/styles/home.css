@@ -402,7 +402,8 @@
    (art/grain.webp, plain grey noise, blurred then sharpened, from icons/make-grain.mjs, shown a bit larger than baked), overlay-blended
    into the tile's colour, under the frame. */
 .home-grid > .tile::before,
-.profile-card::before {
+.profile-card::before,
+.door::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -413,8 +414,10 @@
   opacity: 0.065;
   pointer-events: none;
 }
+/* (the wide pages' doors wear the tiles' frames too: banner.css) */
 .home-grid > .tile::after,
-.profile-card::after {
+.profile-card::after,
+.door::after {
   --corner: calc(var(--frame-corner, 30px) * var(--frame-zoom, 1));
   opacity: 0.065;
 }
@@ -452,7 +455,6 @@
 .casual-card::after,
 .friend-option::after,
 .resume-card::after,
-.door::after,
 .modal::after,
 .review-row::after,
 .review-log::after {
