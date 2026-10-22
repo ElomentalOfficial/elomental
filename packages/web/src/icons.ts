@@ -31,6 +31,7 @@ import clashBurstDark from './art/clash-dark-burst.png';
 import clashBurstLight from './art/clash-light-burst.png';
 import megaphoneDark from './art/megaphone-dark.png';
 import megaphoneLight from './art/megaphone-light.png';
+import { elementMark } from './elementMarks.ts';
 
 const stroke = (body: string, width = 1.8) =>
   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${width}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
@@ -45,14 +46,6 @@ const figma = (viewBox: string, body: string) =>
  * `cls` picks the theme (ic-light / ic-dark) and any extra fit class.
  */
 const brush = (src: string, cls = '') => `<img class="brush-art ${cls}" src="${src}" alt="" aria-hidden="true" draggable="false">`;
-/** The element marks as stroke paths in a 24-unit box (ICONS.elements; avatar.ts draws them larger). */
-export const ELEMENT_PATHS = {
-  fire: ['M12 3c1 4 5 6 5 11a5 5 0 0 1-10 0c0-3 2-4 2.5-6 1 1.5 2 2 2.5 2.5C12 8 11 6 12 3Z'],
-  water: ['M12 3c3 5 6 8 6 12a6 6 0 0 1-12 0c0-4 3-7 6-12Z'],
-  earth: ['M3 19 9 8l3.5 5.5L15 10l6 9Z'],
-  air: ['M3 9h10a3 3 0 1 0-3-3', 'M3 14h15a3 3 0 1 1-3 3', 'M3 19h7'],
-} as const;
-const elementPaths = (e: keyof typeof ELEMENT_PATHS) => ELEMENT_PATHS[e].map((d) => `<path d="${d}"/>`).join('');
 const figmaStroke = (body: string) =>
   `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
 
@@ -150,12 +143,12 @@ export const ICONS = {
   crown: fill('M3 8l4.5 4L12 5l4.5 7L21 8l-2 10H5Z M5 19h14v2H5Z'),
   /** The Spirit: a little flame with eyes (it brings an avatar to life). */
   spirit: fill('M12 2C8.2 6 6 9.3 6 13.4a6 6 0 0 0 12 0c0-1.6-.5-3.1-1.5-4.3-.3 1.6-1.2 2.7-2.4 3.2.7-3.5-.4-6.9-2.1-10.3Z M9.4 14.2a1.1 1.4 0 1 0 2.2 0 1.1 1.4 0 1 0-2.2 0Z M12.6 14.2a1.1 1.4 0 1 0 2.2 0 1.1 1.4 0 1 0-2.2 0Z'),
-  /** The four elements (affinities, drops, parts): flame, drop, peaks, gust. Always shown with the element's name. */
+  /** The four factions' marks (affinities, drops, parts; elementMarks.ts, the owner's art). Always shown with the element's name. */
   elements: {
-    fire: stroke(elementPaths('fire')),
-    water: stroke(elementPaths('water')),
-    earth: stroke(elementPaths('earth')),
-    air: stroke(elementPaths('air')),
+    fire: elementMark('fire'),
+    water: elementMark('water'),
+    earth: elementMark('earth'),
+    air: elementMark('air'),
   },
   dust: fill('M12 2.5 18 9l-6 12.5L6 9Z M5 4.5l1 1.8L8 7 6 7.8 5 9.8 4 7.8 2 7l2-.7Z'),
   pencil: stroke('<path d="M4 20l1-4.5L16 4.5l3.5 3.5-11 11z"/><path d="M13.5 7l3.5 3.5"/>'),

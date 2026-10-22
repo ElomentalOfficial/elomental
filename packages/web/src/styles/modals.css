@@ -332,19 +332,12 @@ html[data-reduce-motion] .sword-live .sword-flame {
   stroke: var(--el-on);
   stroke-width: 1.6;
 }
-/* An element's crest (avatar.ts crestSvg): its mark in its text colour on a disc of its colour. */
+/* An element's crest (avatar.ts crestSvg): its full-colour emblem on a plain disc, the disc
+   edged in the element's colour (the same for each element: palette.css edge). */
 .crest circle {
-  fill: var(--el);
-  /* every disc's edge, the same for each element (palette.css edge) */
+  fill: var(--surface-2);
   stroke: var(--el-edge);
   stroke-width: 1.6;
-}
-.crest-mark {
-  fill: none;
-  stroke: var(--el-on);
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 .layer-frame .ring.thin {
   stroke-width: 1.6;

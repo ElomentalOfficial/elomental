@@ -1,4 +1,4 @@
-import { ELEMENT_PATHS } from './icons.ts';
+import { elementMarkAt } from './elementMarks.ts';
 import type { Element } from './profile.ts';
 import * as copy from './copy/en.ts';
 
@@ -57,7 +57,7 @@ export function badgeArt(badge: string): string {
   const m = badge.match(WIN);
   const element = (m?.[3] ?? null) as Element | null;
   const mark = element
-    ? `<g transform="translate(20 20) scale(1)" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">${ELEMENT_PATHS[element].map((d) => `<path d="${d}"/>`).join('')}</g>`
+    ? elementMarkAt(element, 21, 20, 22)
     : DAILY.test(badge)
       ? // a small calendar page with a tick: the Daily month
         '<g fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="23" y="23" width="18" height="17" rx="2.5"/><path d="M23 28.5h18M27.5 20.5v5M36.5 20.5v5M27.5 34l3 3 6-6"/></g>'
