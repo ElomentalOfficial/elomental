@@ -310,6 +310,8 @@ export interface Drop {
   stardust: number;
   /** Which guarantee brought it, if any. */
   pity: 'epic' | 'mythic' | null;
+  /** Another faction's frame (faction_drops): yours to wear, shown as a gift. */
+  gift?: boolean;
   /** Parts left until each guarantee. */
   guarantee: { epic: number; mythic: number };
   /** Every part of that rarity is owned (economy_pace): its guarantee only brings Stardust. */

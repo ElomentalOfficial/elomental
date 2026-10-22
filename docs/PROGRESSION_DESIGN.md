@@ -8,6 +8,61 @@ leaderboards. Status: **proposal, not built**. Numbers come from a season simula
 > a better fit for a competitive game, with room for lore later. The code, the database and
 > this document keep "affinity" for the same thing.
 
+## Collection for the long run, 2026-10-22 (owner; game-economy-designer, ux-reviewer) — planned, not built
+
+Overrides the drop, forge and season-set rules below where they differ. Goal: fun for one to
+two years on today's art (11 avatars, 16 frames), no trading, no new currency.
+
+**Cycles.** The faction war resets on the 1st of every month. The season wipe comes every
+6 months. **Owned parts stay in your collection for good**: the wipe only takes a season's
+parts out of the drop pool. Losing never takes anything away.
+
+**Faction switching.** Once, within your first 5 days in a faction; your faction then holds
+for the month, and the choice opens again for the next month's war.
+
+**Drop order: your faction first, the others as gifts.**
+- Avatars (no element) drop for everyone, as now.
+- Frames: while you're missing your faction's frame at the rolled rarity, you get that one.
+  Once you own it, frames at that rarity come from the other factions, shown as
+  "A gift from Fire". A player who stays in one faction still collects every frame; switching
+  gains nothing.
+- No faction yet: avatars only; choosing a faction says its frames start dropping.
+
+**Blueprints.** A drop is a blueprint you forge with Stardust:
+
+| | Common | Rare | Epic | Mythic |
+| --- | --- | --- | --- | --- |
+| Forge from a blueprint | 0 (one tap) | 50 | 200 | 500 |
+| Forge without one | 150 | 375 | 900 | 1800 |
+
+Simulated (median days, Casual / Regular): first Rare 3 / ~1, first Mythic 36 / 12, whole set
+86 / 33 (today: 61 / 24). Fair, not a toll; at full price it would be (Casual first Rare day 23).
+
+**Editions.** Each season the same 11 avatars and 16 frames return as a numbered edition in
+one new season colour (one palette ramp, ui-designer). Every edition is its own set to collect;
+bringing an avatar to life (6000 Stardust and a Spirit) applies per edition.
+
+**Marks.** The frame you wear earns a mark every 40 rated wins, up to 3 (Regular ~11 days a
+frame, Casual ~32). The card shows "12 / 40" toward the next.
+
+**Gilding.** A frame with 3 marks can be gilded once: a gilt rim on the Profile and the
+leaderboard. Common 1000, Rare 1500, Epic 2500, Mythic 4000 (36,000 an edition). It can't be
+had without playing. "Collect the edition. Master a frame by wearing it. Gild it with Stardust."
+Stardust held at day 180: Regular ~1.9k (was ~19.2k), Grinder ~35k (was ~74k). On the Forge,
+"Bring to life" sits before "Gild".
+
+**Past editions never return** (owner): a season's edition can only be earned in that
+season. Once it ends, its parts are gone from drops and the Forge for good, so what a veteran
+holds stays rare and theirs to show off. A late joiner starts with the current edition.
+
+**Ruled out:** trading (alts feed a main, needs escrow and moderation, gives drops a resale
+value); faction-only drops (punishes loyalty); finishes or paint choices (owner dropped them);
+a vault for past editions (owner: it would cheapen what veterans earned).
+
+**Build order (beta first):** 1. drop order and gifts; 2. switching rule; 3. blueprints and
+prices; 4. marks; 5. gilding; 6. editions at the first season wipe. Names
+(Gift, Blueprint, Edition, Mark, Gild) go into docs/BRAND_VOICE.md's glossary first.
+
 ## Account level, 2026-10-21 (owner; game-economy-designer, ux-reviewer, ui-designer)
 
 - **A permanent level from XP**, never reset, and the one thing that can be ground without end:

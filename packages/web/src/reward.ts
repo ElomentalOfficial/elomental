@@ -31,9 +31,11 @@ export const rarityName = (r: Rarity): string => copy.forge.rarities[r];
 export function dropReveal(drop: Drop, onOpenForge?: () => void, compact = false): HTMLElement {
   const name = partName(drop.part);
   const element = partElement(drop.part);
+  const gift = !!drop.gift && !!element && !drop.duplicate;
+  const label = gift ? copy.forge.a11yGift(name, rarityName(drop.rarity), copy.forge.elements[element!]) : copy.forge.a11yDrop(name, rarityName(drop.rarity));
   const card = h(
     'button',
-    { class: `part-reveal rarity-${drop.rarity}${compact ? ' compact' : ''}`, attrs: { type: 'button', 'aria-label': copy.forge.a11yDrop(name, rarityName(drop.rarity)) } },
+    { class: `part-reveal rarity-${drop.rarity}${compact ? ' compact' : ''}`, attrs: { type: 'button', 'aria-label': label } },
     h('span', { class: 'reveal-flare', attrs: { 'aria-hidden': 'true' } }),
     h('span', { class: 'reveal-art', html: partSvg(drop.part), attrs: { 'aria-hidden': 'true' } }),
     h(
@@ -45,7 +47,10 @@ export function dropReveal(drop: Drop, onOpenForge?: () => void, compact = false
         'span',
         { class: 'reveal-meta' },
         element ? h('span', { class: 'drop-element', html: ICONS.elements[element] }) : null,
-        h('span', { text: [drop.duplicate ? null : copy.forge.newPart, element ? copy.forge.elements[element] : copy.forge.slots.avatar].filter(Boolean).join(' · ') }),
+        // another faction's frame reads as a gift: "A gift from Fire"; otherwise "New part · Air"
+        h('span', { text: gift
+          ? copy.forge.gift(copy.forge.elements[element!])
+          : [drop.duplicate ? null : copy.forge.newPart, element ? copy.forge.elements[element] : copy.forge.slots.avatar].filter(Boolean).join(' · ') }),
       ),
     ),
   );

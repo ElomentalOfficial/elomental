@@ -309,6 +309,8 @@ export const forge = {
 
   // The result pop-up (reward.ts)
   newPart: 'New part',
+  /** Another faction's frame, once your own faction's at that rarity is yours (faction_drops). */
+  gift: (element: string) => `A gift from ${element}`,
   openForge: 'Open the Forge',
   duplicate: (stardust: number) => `Already yours: +${stardust} Stardust instead.`,
   pityHit: (rarity: string) => `${rarity} guaranteed: your luck came due.`,
@@ -324,6 +326,7 @@ export const forge = {
   influence: (n: number, element: string) => `+${n} influence for ${element}`,
   /** Screen readers hear the part as one literal line. */
   a11yDrop: (name: string, rarity: string) => `New part: ${name}, ${rarity}.`,
+  a11yGift: (name: string, rarity: string, element: string) => `A gift from ${element}: ${name}, ${rarity}.`,
 
   // The Forge page (screens/forge.ts)
   title: 'Forge',
