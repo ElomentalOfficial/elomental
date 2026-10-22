@@ -1,10 +1,9 @@
 /* ---------- The beta site's tag (beta.ts) ---------- */
-/* Small, a badge on the top right corner of Home's Setup tile (half over its edge, clear of
-   the cog): takes no room of its own anywhere. */
+/* Small, inside the top right corner of Home's Setup tile: takes no room of its own anywhere. */
 .beta-tag {
   position: absolute;
-  top: calc(-1 * var(--space-2));
-  right: calc(-1 * var(--space-1));
+  top: var(--space-1);
+  right: var(--space-1);
   z-index: 2;
   line-height: 1.25;
   padding: 1px var(--space-1);
@@ -17,6 +16,24 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   pointer-events: none;
+}
+/* Phones: the small Setup tile in the profile card's notch has no free corner, so on beta its
+   cog is a little smaller and sits lower, under the tag. */
+.tile-setup:has(> .beta-tag) {
+  justify-content: flex-end;
+}
+.tile-setup:has(> .beta-tag) .tile-icon {
+  width: 28px;
+  height: 28px;
+}
+/* Wide Home: the Setup tile is about twice the size, and so is the room in its corner. */
+@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+  .area-setup .beta-tag {
+    top: var(--space-3);
+    right: var(--space-3);
+    padding: 2px var(--space-2);
+    font-size: var(--fs-small);
+  }
 }
 /* ---------- The beta sign-in, for invited testers only (beta.ts) ---------- */
 /* One settings-style card in the middle of the screen. */
