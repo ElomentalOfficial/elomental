@@ -83,8 +83,8 @@ login and key live only in Supabase and Brevo.
 
 **Removed (full review B11):** the `handoff` Edge Function and its `signin_handoffs`
 table (migration `ranked_integrity`). It let the installed iPhone app sign in when the
-email's link opened in Safari; the typed code below replaced it. Delete the function
-in the dashboard (Edge Functions → handoff) if it's still listed.
+email's link opened in Safari; the typed code below replaced it. The deployed function
+was deleted from the live project on 2026-10-22.
 
 **Typed code (2026-10-19):** every sign-in email also carries a code
 (`{{ .Token }}`) that can be typed into the app on any device, for when the
