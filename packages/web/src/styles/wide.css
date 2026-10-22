@@ -62,6 +62,13 @@
   :is(.pc-badge-art, .pc-socket) {
     zoom: calc(var(--wide-zoom, 1) * var(--wide-icon-zoom, 1));
   }
+  /* Firefox draws a custom cursor at the zoom of what's under it: the zoomed insides of a tile
+     or the card let the pointer through to the unzoomed tile, so the gem keeps one size (a
+     click still lands on the same tile) */
+  :is(.home-grid .tile-face, .pc-in, .pc-badge-art, .pc-socket),
+  :is(.home-grid .tile-face, .pc-in) * {
+    pointer-events: none;
+  }
   .profile-card,
   .area-forge {
     margin-right: var(--gap);
