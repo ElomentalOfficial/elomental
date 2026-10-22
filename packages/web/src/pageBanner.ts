@@ -29,7 +29,8 @@ export function pageBanner(header: HTMLElement, banner: Banner): HTMLElement {
   // room for the tail under the contents, however tall they grow (a foot that loads later, Text size)
   const fit = () => {
     const top = parseFloat(getComputedStyle(el).paddingTop) || 0;
-    const room = Math.ceil(((top + inner.offsetHeight) * TAIL) / (1 - TAIL)) + 12;
+    // the tail's reach, then a clear group's step (--space-6) between its spikes and the last line
+    const room = Math.ceil(((top + inner.offsetHeight) * TAIL) / (1 - TAIL)) + 32;
     if (Math.abs(room - (parseFloat(el.style.paddingBottom) || 0)) > 1) el.style.paddingBottom = `${room}px`;
   };
   new ResizeObserver(fit).observe(inner);

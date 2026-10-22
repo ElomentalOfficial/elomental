@@ -18,6 +18,9 @@ const KEEP = 0.86;
  * small wobble. Decorative: no role, not in the tab order. Still for Reduce motion.
  */
 export function spinnable(src: string): HTMLElement {
+  // the light catching the face as it turns: a bright band cut to the icon's own outline
+  const shine = h('span', { class: 'spin-shine' });
+  shine.style.setProperty('--icon', `url("${src}")`);
   const face = (cls: string) => h('img', { class: `spin-layer ${cls}`, attrs: { src, alt: '', draggable: 'false' } });
   const token = h('span', { class: 'spin-token' },
     ...Array.from({ length: LAYERS }, (_, i) => {
@@ -25,7 +28,8 @@ export function spinnable(src: string): HTMLElement {
       layer.style.transform = `translateZ(${-(i + 1) * DEPTH}px)`;
       return layer;
     }),
-    face('spin-face'));
+    face('spin-face'),
+    shine);
   const el = h('span', { class: 'spin', attrs: { 'aria-hidden': 'true' } }, token);
 
   /** The turn the drag asks for, and the turn shown (eased toward LIMIT, never past it). */
@@ -36,7 +40,13 @@ export function spinnable(src: string): HTMLElement {
   let lastX = 0;
   let frame = 0;
   const ease = (a: number) => LIMIT * Math.tanh(a / LIMIT);
-  const paint = () => (token.style.transform = `rotateY(${angle.toFixed(2)}deg)`);
+  const paint = () => {
+    token.style.transform = `rotateY(${angle.toFixed(2)}deg)`;
+    // the band crosses the face with the turn (from one side to the other, never off it), brightest at
+    // the furthest tilt, gone face-on
+    shine.style.setProperty('--sweep', `${50 - (angle / LIMIT) * 22}%`);
+    shine.style.opacity = String(Math.min(1, Math.abs(angle) / (LIMIT * 0.6)));
+  };
   const tick = () => {
     frame = 0;
     if (dragging) return;
