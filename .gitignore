@@ -5,6 +5,16 @@ mood_board/
 packages/web/test-results/
 packages/web/playwright-report/
 
+# secrets and database dumps never go in (packages/web/.env.beta holds only public values)
+.env
+.env.local
+.env.*.local
+*.sql.gz
+*.dump
+*.bak
+supabase/.temp/
+supabase/.branches/
+
 # full-review screenshots (about 100 MB): kept locally, not in the repo
 docs/review/ui/
 docs/review/ux/

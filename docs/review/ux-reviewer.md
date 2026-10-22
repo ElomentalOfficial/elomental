@@ -8,7 +8,7 @@ been fixed.
 `install.ts`, `tutorial.ts`, `accountForm.ts`, `copy/en.ts` and the live migrations. I then walked the
 flows in Playwright against the running dev server at 375×812, in dark and light, at 100% and 200% text.
 Every Supabase call was answered by fakes or aborted, with a catch-all abort, so nothing reached the live
-project. The scripts are in `C:\Users\Barsmin\Desktop\Claude\icons\review-ux\`, and the screenshots in
+project. The scripts are in `..\icons\review-ux\`, and the screenshots in
 `docs/review/ux/` (cited as `ux/NN-name.png`).
 
 **Limits.**

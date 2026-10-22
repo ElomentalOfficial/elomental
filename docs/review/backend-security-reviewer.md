@@ -10,7 +10,7 @@ Function list and the advisors. No personal data was read. Founder accounts are 
 Functions (the live `audit-solve` matches the repo), `supabase/tests/economy.mjs`, and
 `packages/web/src/backend/*.ts`.
 
-**Proofs.** These are throwaway PGlite scripts, outside the repo, in `C:\Users\Barsmin\Desktop\Claude\icons\review-sec\`:
+**Proofs.** These are throwaway PGlite scripts, outside the repo, in `..\icons\review-sec\`:
 
 | Script | What it proves | Run |
 | --- | --- | --- |
@@ -588,7 +588,7 @@ so one account can't fill the founders' queue.
 
 ## Proposed test: `supabase/tests/security.mjs`
 
-Copy `C:\Users\Barsmin\Desktop\Claude\icons\review-sec\security.test.mjs` into the repo, with the
+Copy `..\icons\review-sec\security.test.mjs` into the repo, with the
 harness setup inlined as in `economy.mjs`, and add it to `npm run test:db`. Today's output, where
 every FAIL is an open hole:
 ```

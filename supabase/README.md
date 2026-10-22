@@ -47,8 +47,7 @@ Done (2026-10-17):
 
 1. **Authentication → URL Configuration** (moved to the custom domain on 2026-10-19)
    - Site URL: `https://elomental.online/`
-   - Redirect URLs: `https://elomental.online/**`, `https://www.elomental.online/**`,
-     `https://barsmin.github.io/elomental/**` (old address, for links sent before the move)
+   - Redirect URLs: `https://elomental.online/**`, `https://www.elomental.online/**`
      and `http://localhost:5173/**`
 2. **Authentication → Sign In / Providers → Allow anonymous sign-ins: ON.**
    Every guest gets a hidden account on first launch, so their games are

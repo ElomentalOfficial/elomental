@@ -2,7 +2,7 @@
 
 Read-only pass. No project file was changed apart from this report and the evidence in
 `docs/review/qa/`. Server logic was probed in throwaway PGlite databases that replay all 35
-migrations (scripts in `C:\Users\Barsmin\Desktop\Claude\icons\review-qa\`: `harness.mjs`,
+migrations (scripts in `..\icons\review-qa\`: `harness.mjs`,
 `probe-games.mjs`, `probe-lb.mjs`). The UI was driven with Playwright against the running dev
 server (5173), with every `*.supabase.co` request faked or aborted (`ui-harness.mjs`,
 `ui-bugs.mjs`, `ui-bugs2.mjs`, `ui-sweep.mjs`). No request reached the live project

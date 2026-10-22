@@ -19,7 +19,7 @@ read the player copy (`packages/web/src/copy/en.ts`) and `screens/daily.ts`.
 The live data is too thin to calibrate anything, so the pacing numbers come from the simulation.
 
 **Simulation.** `scripts/audit-sim.mjs` was written for the 48-part set with Crowns. I copied it
-to `C:\Users\Barsmin\Desktop\Claude\icons\review-eco\eco-sim.mjs` and rewrote the rules to match
+to `..\icons\review-eco\eco-sim.mjs` and rewrote the rules to match
 the live ones:
 
 - 23-part set: 9 Common, 7 Rare, 6 Epic, 1 Mythic. Happy is free.

@@ -4,7 +4,7 @@ A competitive Sudoku web app: Casual play, a shared Daily Square, Ranked Elo aga
 Clash races with a friend, and shareable Square codes, with rewards you can craft.
 
 **Play it:** https://elomental.online/. Add it to your phone's home screen for the
-full-screen app feel. (The old address, https://barsmin.github.io/elomental/, redirects there.)
+full-screen app feel.
 
 ## Packages
 

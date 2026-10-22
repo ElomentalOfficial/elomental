@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
-const DIR = 'C:/Users/Barsmin/Desktop/Claude/elomental/docs/review/economy';
+import { fileURLToPath } from 'node:url';
+const DIR = fileURLToPath(new URL('.', import.meta.url));
 const tags = process.argv.slice(2);
 const f = (o) => (o == null ? '–' : o.median == null ? `– (${Math.round(o.reached * 100)}%)` : `${o.median} / ${o.worst10}${o.reached < 0.995 ? ` (${Math.round(o.reached * 100)}%)` : ''}`);
 const t = (o) => (o == null ? '–' : `${o.median} (${o.p10}–${o.p90})`);

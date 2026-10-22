@@ -1,4 +1,4 @@
-﻿// Elomental economy review sim (2026-10-20). A copy of scripts/audit-sim.mjs brought up to the
+// Elomental economy review sim (2026-10-20). A copy of scripts/audit-sim.mjs brought up to the
 // LIVE rules (supabase/migrations through 20261020071349_leaderboard.sql; finish_game from
 // 20261020054008_dev_mode.sql), kept outside the repo.
 //
@@ -22,8 +22,9 @@
 //    [--mythicFrames=0] (Mythic frames added, one per element) [--active=1] (share of days played)`
 // Writes <out>/sim-<tag>.json
 import { mkdirSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 
-const OUT = 'C:/Users/Barsmin/Desktop/Claude/elomental/docs/review/economy';
+const OUT = fileURLToPath(new URL('.', import.meta.url));
 const TAG = process.argv[2] ?? 'live';
 const N = Number(process.argv.slice(3).find((a) => /^\d+$/.test(a)) ?? 10000);
 const arg = (k, d) => Number((process.argv.find((a) => a.startsWith(`--${k}=`)) ?? `=${d}`).split('=')[1]);

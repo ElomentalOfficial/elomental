@@ -1,6 +1,7 @@
-﻿// SVG charts for docs/review/game-economy-designer.md from docs/review/economy/sim-*.json.
+// SVG charts for docs/review/game-economy-designer.md from docs/review/economy/sim-*.json.
 import { readFileSync, writeFileSync } from 'node:fs';
-const DIR = 'C:/Users/Barsmin/Desktop/Claude/elomental/docs/review/economy';
+import { fileURLToPath } from 'node:url';
+const DIR = fileURLToPath(new URL('.', import.meta.url));
 const load = (t) => JSON.parse(readFileSync(`${DIR}/sim-${t}.json`, 'utf8'));
 const live = load('live'), prop = load('proposal-scaling');
 const COL = { casual: '#636945', regular: '#41668b', grinder: '#a85b37' };

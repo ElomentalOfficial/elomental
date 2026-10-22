@@ -1,4 +1,4 @@
-﻿
+
 > @elomental/web@0.1.0 test:a11y
 > playwright test
 
@@ -275,7 +275,7 @@ Running 124 tests using 12 workers
       158 |       await expect(page.locator('.tile.area-casual')).toBeVisible();
       159 |       await settled(page);
       160 |       await page.locator('.tile.area-casual').click();
-        at C:\Users\Barsmin\Desktop\Claude\elomental\packages\web\e2e\layout.spec.ts:157:45
+        at packages\web\e2e\layout.spec.ts:157:45
 
     Error Context: test-results\layout-desktop-text-200-the-first-game-tutorial-fits-dark\error-context.md
 
@@ -285,8 +285,8 @@ Running 124 tests using 12 workers
   83 passed (1.6m)
 npm error Lifecycle script `test:a11y` failed with error:
 npm error code 1
-npm error path C:\Users\Barsmin\Desktop\Claude\elomental\packages\web
+npm error path packages\web
 npm error workspace @elomental/web@0.1.0
-npm error location C:\Users\Barsmin\Desktop\Claude\elomental\packages\web
+npm error location packages\web
 npm error command failed
 npm error command C:\WINDOWS\system32\cmd.exe /d /s /c playwright test
