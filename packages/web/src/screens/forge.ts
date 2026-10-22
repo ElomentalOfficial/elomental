@@ -1,4 +1,4 @@
-import { avatarSvg, partSvg } from '../avatar.ts';
+import { partSvg } from '../avatar.ts';
 import { loadStandings, type Standing } from '../backend/affinity.ts';
 import { ALIVE_COST, BLUEPRINT_COST, DEFAULT_AVATAR, FORGE_COST, GILD_COST, MAX_MARKS, SLOTS, gildPart, marksOf, avatarsToWake, callSpirit, equipPart, forgePart, loadForge, polishPart, type Forge, type Part } from '../backend/forge.ts';
 import forgeHero from '../art/screens/forge.svg';
@@ -93,7 +93,8 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
     const head = h(
       'section',
       { class: 'forge-head' },
-      h('span', { class: 'forge-avatar', html: avatarSvg(f.loadout, f.polish) }),
+      // the page's own icon, as on a wide screen's banner (you turn it to catch the light)
+      spinnable(forgeHero),
       h(
         'div',
         { class: 'forge-balances' },
