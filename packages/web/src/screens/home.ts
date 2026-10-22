@@ -31,6 +31,7 @@ import { handleClashLink } from './clashSheet.ts';
 import { dailyScreen } from './daily.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
 import { setupScreen } from './setup.ts';
+import { betaTag } from '../beta.ts';
 import * as copy from '../copy/en.ts';
 
 /** Layout from the Figma home frame: profile card with the Setup notch, then the mode tiles. */
@@ -57,6 +58,7 @@ export function homeScreen(): Screen {
     'button',
     { class: 'tile tile-setup' },
     h('span', { class: 'tile-face' }, h('span', { class: 'tile-icon', html: ICONS.setup }), h('span', { class: 'tile-label', text: copy.home.tiles.setup })),
+    betaTag(),
   );
   enableTilt(setupTile);
 
@@ -125,6 +127,8 @@ export function homeScreen(): Screen {
   const ranked = tile('ranked', ICONS.ranked, copy.home.tiles.ranked, (el) => openRanked((go) => leave(el, go)));
   // Wide screens give Setup a tile of its own (Figma desktop home); phones keep it in the notch.
   const setupWide = tile('setup', ICONS.setup, copy.home.tiles.setup, (el) => leave(el, () => mount(setupScreen())));
+  const wideTag = betaTag();
+  if (wideTag) setupWide.append(wideTag);
 
   const tiles = [profileCard, daily, store, leader, casual, ranked, setupWide];
   const grid = h('div', { class: 'home-grid' }, ...tiles);
