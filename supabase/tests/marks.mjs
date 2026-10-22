@@ -38,4 +38,27 @@ export default async function () {
   // players can't write it themselves: no update on player_parts for the API roles
   const can = (await one(`select has_table_privilege('authenticated', 'public.player_parts', 'UPDATE') u`)).u;
   check(!can, 'players cannot set their own wins');
+
+  // --- gilding (migration gilding): 3 marks, once, for Stardust by rarity
+  await as(m);
+  const gild = (part) => db.query(`select public.gild_part($1) j`, [part]).then((r) => r.rows[0].j, (e) => e.message);
+  await db.query(`update public.profiles set stardust = 5000 where id = $1`, [m]);
+  check(String(await gild('s0-frame-air-1')).includes('needs_marks'), 'a frame without 3 marks can\'t be gilded');
+  check(String(await gild('s0-frame-fire-1')).includes('not_owned'), 'a frame you don\'t own can\'t be gilded');
+  check(String(await gild('s0-avatar-calm')).includes('not_gildable'), 'an avatar can\'t be gilded');
+  const g = await gild('s0-frame-air-2');
+  const left = (await one(`select stardust from public.profiles where id = $1`, [m])).stardust;
+  check(g.stardust === 1500 && left === 3500, `a Rare frame with 3 marks gilds for 1500 Stardust (${JSON.stringify(g)}, ${left} left)`);
+  check(String(await gild('s0-frame-air-2')).includes('already_gilded'), 'once only');
+  await db.query(`update public.player_parts set wins = 120 where player_id = $1 and part_id = 's0-frame-air-1'`, [m]);
+  await db.query(`update public.profiles set stardust = 999 where id = $1`, [m]);
+  check(String(await gild('s0-frame-air-1')).includes('not_enough_stardust'), 'a Common needs 1000 Stardust');
+  const led = (await one(`select count(*)::int n, sum(stardust)::int s from private.ledger where player_id = $1 and reason = 'gild'`, [m]));
+  check(led.n === 1 && led.s === -1500, `gilding is in the ledger (${JSON.stringify(led)})`);
+  // the rim shows to others: only players wearing a gilded frame
+  const other = await newPlayer();
+  const gilt = (await one(`select public.gilt_players($1::uuid[]) a`, [[m, other]])).a;
+  check(gilt.length === 1 && gilt[0] === m, `gilt_players names those wearing a gilded frame (${gilt})`);
+  await db.query(`select public.equip_part('frame', 's0-frame-air-1')`);
+  check((await one(`select public.gilt_players($1::uuid[]) a`, [[m]])).a.length === 0, 'wearing an ungilded frame: no rim');
 }

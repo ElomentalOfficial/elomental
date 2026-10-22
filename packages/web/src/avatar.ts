@@ -49,7 +49,8 @@ function frame(id: string | null | undefined): string {
   const gems = n >= 4
     ? around(4, 46, (x, y) => `<rect class="gem" x="${x - 4.6}" y="${y - 4.6}" width="9.2" height="9.2" rx="1.2" transform="rotate(45 ${x} ${y})"/>`, -Math.PI / 2)
     : '';
-  return `<g class="avatar-layer layer-frame el-${e}"><circle class="ring" cx="50" cy="50" r="46" fill="none"/>${
+  // the gilt rim (gilding): drawn always, shown only on a gilded frame (.gilt, modals.css)
+  return `<g class="avatar-layer layer-frame el-${e}"><circle class="gilt-ring" cx="50" cy="50" r="50.5" fill="none"/><circle class="ring" cx="50" cy="50" r="46" fill="none"/>${
     n >= 3 ? '<circle class="ring thin" cx="50" cy="50" r="41.5" fill="none"/>' : ''
   }${around(n >= 2 ? 8 : 4, 46, (x, y) => `<circle class="stud" cx="${x}" cy="${y}" r="${n >= 2 ? 2.8 : 3.4}"/>`, n >= 4 ? -Math.PI / 8 : -Math.PI / 4)}${gems}</g>`;
 }
@@ -64,7 +65,7 @@ function face(id: string, alive: boolean): string {
 export function avatarSvg(loadout: Loadout | null | undefined, polish: Polish = {}): string {
   const l = loadout ?? {};
   const id = l.avatar ?? DEFAULT_AVATAR;
-  return `<svg class="avatar-art" viewBox="0 0 100 100" aria-hidden="true">${face(id, polish[id] === 1)}${frame(l.frame)}</svg>`;
+  return `<svg class="avatar-art${l.gilt && l.frame ? ' gilt' : ''}" viewBox="0 0 100 100" aria-hidden="true">${face(id, polish[id] === 1)}${frame(l.frame)}</svg>`;
 }
 
 /** An element's crest in one of its frames (the Affinity cards): its full-colour emblem on a plain disc. */
@@ -74,7 +75,7 @@ export function crestSvg(element: Element, variant = 2): string {
 }
 
 /** One part alone, as it looks on its own (the Forge's cards): an avatar, or a frame round a plain disc. */
-export function partSvg(id: string, polish = 0): string {
+export function partSvg(id: string, polish = 0, gilt = false): string {
   if (id.startsWith('s0-avatar-')) return `<svg class="avatar-art" viewBox="0 0 100 100" aria-hidden="true">${face(id, polish === 1)}</svg>`;
-  return `<svg class="avatar-art" viewBox="0 0 100 100" aria-hidden="true"><circle class="avatar-base" cx="50" cy="50" r="40"/>${frame(id)}</svg>`;
+  return `<svg class="avatar-art${gilt ? ' gilt' : ''}" viewBox="0 0 100 100" aria-hidden="true"><circle class="avatar-base" cx="50" cy="50" r="40"/>${frame(id)}</svg>`;
 }

@@ -18,7 +18,7 @@ import { signUpForm } from '../accountForm.ts';
 import { ICONS } from '../icons.ts';
 import { rankName } from '../rankName.ts';
 import { paintPlate } from '../plates.ts';
-import { cardAvatar, openPlayerCard } from '../playerCard.ts';
+import { cardAvatar, markGilt, openPlayerCard } from '../playerCard.ts';
 import { ELEMENTS, nextRank, rankTier, type Element } from '../profile.ts';
 import { readJson, writeJson } from '../storage.ts';
 import { closeButton, goBack, h, mount, openModal, subPage, type Screen } from '../ui.ts';
@@ -131,7 +131,7 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
         'button',
         { class: 'lb-row-btn', attrs: { type: 'button', 'aria-label': label }, onclick: () => openCard(r.id) },
         h('span', { class: `lb-place${placeCls}`, text: String(r.place), attrs: { 'aria-hidden': 'true' } }),
-        h('span', { class: 'avatar lb-avatar worn', html: cardAvatar(r), attrs: { 'aria-hidden': 'true' } }),
+        h('span', { class: 'avatar lb-avatar worn', html: cardAvatar(r), attrs: { 'aria-hidden': 'true', 'data-player': r.id } }),
         h(
           'span',
           { class: 'lb-who', attrs: { 'aria-hidden': 'true' } },
@@ -213,6 +213,7 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
     rows = around || p === 0 || keep ? data.rows : [...rows, ...data.rows];
     total = 'total' in data ? data.total : rows.length;
     list.replaceChildren(...rows.map(row));
+    void markGilt(list);
     paintMeta(data.updated);
     paintNotice(rows.length === 0);
     more.hidden = around || rows.length >= total || (page + 1) * 50 >= total;
@@ -288,7 +289,7 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
     const l = cachedLoadout() ?? {};
     const polish = cachedPolish();
     const avatar = l.avatar ?? null;
-    return { avatar, frame: l.frame ?? null, alive: !!polish[avatar ?? 's0-avatar-happy'] };
+    return { avatar, frame: l.frame ?? null, alive: !!polish[avatar ?? 's0-avatar-happy'], gilt: !!l.gilt };
   };
 
   // ---- search: 2+ characters, a short pause, then up to 20 players
@@ -321,6 +322,7 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
     }
     searchStatus.textContent = t.a11yResults(hits.length);
     results.replaceChildren(...(hits.length ? hits.map(hitRow) : [h('li', { class: 'note', text: t.noResults(q) })]));
+    void markGilt(results);
   }
   function hitRow(hit: SearchHit): HTMLElement {
     const tier = rankTier(hit.elo, hit.tier);
@@ -333,7 +335,7 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
         'button',
         { class: 'lb-row-btn', attrs: { type: 'button', 'aria-label': t.a11yRow(hit.place ?? 0, hit.name, hit.title ? copy.common.titledRank(hit.title, tier.label) : tier.label, hit.elo).replace(/^0\. /, '') }, onclick: () => openCard(hit.id) },
         h('span', { class: 'lb-place', text: hit.place ? String(hit.place) : '–', attrs: { 'aria-hidden': 'true' } }),
-        h('span', { class: 'avatar lb-avatar worn', html: cardAvatar({ ...hit, alive: false }), attrs: { 'aria-hidden': 'true' } }),
+        h('span', { class: 'avatar lb-avatar worn', html: cardAvatar({ ...hit, alive: false }), attrs: { 'aria-hidden': 'true', 'data-player': hit.id } }),
         h('span', { class: 'lb-who', attrs: { 'aria-hidden': 'true' } }, name,
           h('span', { class: 'lb-sub' }, rankName(tier.tier, tier.label, hit.title))),
         h('span', { class: 'lb-score', attrs: { 'aria-hidden': 'true' } }, h('strong', { text: String(hit.elo) }), h('span', { text: t.elo })),

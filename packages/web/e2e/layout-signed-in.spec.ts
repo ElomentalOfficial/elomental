@@ -163,6 +163,11 @@ test('Forge: blueprints forge at their price, the rest at the full one', async (
   await worn.click();
   await expect(page.getByRole('dialog')).toContainText('1 of 3 marks. 17 of 40 wins to the next.');
   await page.keyboard.press('Escape');
+  // gilding: a gilded frame says so; one with 3 marks offers Gild at its price
+  await expect(page.locator('.part-card', { hasText: 'Gale Frame' }).first()).toHaveAccessibleName(/Gilded/);
+  await page.locator('.part-card', { hasText: 'Stone Frame' }).first().click();
+  await expect(page.getByRole('button', { name: 'Gild for 1000 Stardust' })).toBeEnabled();
+  await page.keyboard.press('Escape');
   // a part without one: the full price
   await page.locator('.part-card', { hasText: 'Tide Frame III' }).click();
   await expect(page.getByRole('dialog')).toContainText('900 Stardust');

@@ -152,6 +152,12 @@ export async function setCardPrivacy(hidden: boolean | null, stats: boolean | nu
 }
 /** Up to three of your badges for your card. */
 export const setShowcase = (badges: string[]) => act('set_showcase', { p_badges: badges });
+/** Which of these players wear a gilded frame (gilt_players, gilding); empty offline. */
+export async function giltPlayers(ids: string[]): Promise<Set<string>> {
+  if (!ids.length) return new Set();
+  const { data, error } = await supabase.rpc('gilt_players', { p_ids: ids.slice(0, 100) });
+  return new Set(error || !data ? [] : (data as string[]));
+}
 
 /** Your "your side won the month" badges from the last 3 weeks, newest first; none offline. */
 export async function recentWins(): Promise<string[]> {

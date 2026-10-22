@@ -339,6 +339,16 @@ html[data-reduce-motion] .sword-live .sword-flame {
   stroke: var(--el-edge);
   stroke-width: 1.6;
 }
+/* A gilded frame (gilding): a fine gilt rim just outside its ring, in the plates' gilt metal.
+   Drawn in every frame, shown only when gilded. */
+.layer-frame .gilt-ring {
+  display: none;
+  stroke: var(--plate-gilt);
+  stroke-width: 2.2;
+}
+.avatar-art.gilt .layer-frame .gilt-ring {
+  display: inline;
+}
 .layer-frame .ring.thin {
   stroke-width: 1.6;
 }

@@ -29,6 +29,8 @@ export interface Part {
 export const FORGE_COST: Record<Rarity, number> = { common: 150, rare: 375, epic: 900, mythic: 1800 };
 /** Stardust to forge a part from its blueprint (private.blueprint_cost): a Common is one tap. */
 export const BLUEPRINT_COST: Record<Rarity, number> = { common: 0, rare: 50, epic: 200, mythic: 500 };
+/** Stardust to gild a frame with 3 marks (private.gild_cost). */
+export const GILD_COST: Record<Rarity, number> = { common: 1000, rare: 1500, epic: 2500, mythic: 4000 };
 /** Rated wins a worn frame needs for each mark, and the most marks it earns (marks). */
 export const MARK_WINS = 40;
 export const MAX_MARKS = 3;
@@ -44,13 +46,14 @@ export const CALL_STEP = 5000;
 /** Polish per owned part id: 1 when brought to life. */
 export type Polish = Record<string, number>;
 
-export type Loadout = Partial<Record<Slot, string | null>>;
+/** What's worn; gilt when the worn frame is gilded (gilding). */
+export type Loadout = Partial<Record<Slot, string | null>> & { gilt?: boolean };
 
 export interface Forge {
   parts: Part[];
   /** Owned part ids (Happy always), with a first-edition number, polish (1: alive) and, for a
       frame, the rated wins it earned while worn (marks: one per 40, up to 3). */
-  owned: Map<string, { edition: number | null; polish: number; wins: number }>;
+  owned: Map<string, { edition: number | null; polish: number; wins: number; gilded: boolean }>;
   polish: Polish;
   /** Part ids you hold a blueprint for (blueprints): forged cheaply, then gone. */
   blueprints: Set<string>;
@@ -83,7 +86,7 @@ export async function loadForge(): Promise<Forge | null> {
   const now = new Date().toISOString();
   const [parts, owned, blueprints, loadout, profile, season] = await Promise.all([
     supabase.from('parts').select('id, slot, element, rarity, source'),
-    supabase.from('player_parts').select('part_id, edition, polish, wins'),
+    supabase.from('player_parts').select('part_id, edition, polish, wins, gilded'),
     supabase.from('player_blueprints').select('part_id'),
     supabase.from('avatar_loadouts').select('avatar, frame').maybeSingle(),
     supabase.from('profiles').select('stardust, spirits, affinity, spirit_pity, spirits_called, spirits_called_season').eq('id', uid).single(),
@@ -93,14 +96,15 @@ export async function loadForge(): Promise<Forge | null> {
   const seasonId = season.data?.id ?? 0;
   const calledThisSeason = profile.data.spirits_called_season === seasonId ? (profile.data.spirits_called ?? 0) : 0;
   const polish: Polish = Object.fromEntries((owned.data ?? []).filter((o) => o.polish).map((o) => [o.part_id as string, o.polish as number]));
-  writeJson(LOADOUT_KEY, loadout.data ?? {});
+  const worn: Loadout = { ...(loadout.data ?? {}), gilt: !!(owned.data ?? []).find((o) => o.part_id === loadout.data?.frame)?.gilded };
+  writeJson(LOADOUT_KEY, worn);
   writeJson(POLISH_KEY, polish);
   return {
     parts: (parts.data ?? []) as Part[],
-    owned: new Map([[DEFAULT_AVATAR, { edition: null, polish: 0, wins: 0 }], ...(owned.data ?? []).map((o) => [o.part_id as string, { edition: o.edition ?? null, polish: o.polish ?? 0, wins: o.wins ?? 0 }] as const)]),
+    owned: new Map([[DEFAULT_AVATAR, { edition: null, polish: 0, wins: 0, gilded: false }], ...(owned.data ?? []).map((o) => [o.part_id as string, { edition: o.edition ?? null, polish: o.polish ?? 0, wins: o.wins ?? 0, gilded: !!o.gilded }] as const)]),
     polish,
     blueprints: new Set((blueprints.data ?? []).map((b) => b.part_id as string)),
-    loadout: (loadout.data ?? {}) as Loadout,
+    loadout: worn,
     stardust: profile.data.stardust,
     spirits: profile.data.spirits,
     affinity: (profile.data.affinity ?? null) as Element | null,
@@ -121,6 +125,8 @@ async function call(fn: string, args: Record<string, unknown>): Promise<string |
 export const forgePart = (part: string) => call('forge_part', { p_part: part });
 export const equipPart = (slot: Slot, part: string | null) => call('equip_part', { p_slot: slot, p_part: part });
 export const polishPart = (part: string) => call('polish_part', { p_part: part });
+/** Gilds a frame with 3 marks (gild_part): the price is checked on the server. */
+export const gildPart = (part: string) => call('gild_part', { p_part: part });
 /** Calls a Spirit for Stardust (call_spirit): the price is checked on the server. */
 export const callSpirit = () => call('call_spirit', {});
 /** Equips name plate n (0: none), any the level has unlocked (level_plates). */
@@ -150,10 +156,11 @@ export const cachedLoadout = (): Loadout | null => readJson<Loadout>(LOADOUT_KEY
 export async function loadLoadout(): Promise<Loadout | null> {
   const [{ data, error }, owned] = await Promise.all([
     supabase.from('avatar_loadouts').select('avatar, frame').maybeSingle(),
-    supabase.from('player_parts').select('part_id, polish').gt('polish', 0),
+    supabase.from('player_parts').select('part_id, polish, gilded').or('polish.gt.0,gilded.eq.true'),
   ]);
   if (error) return null;
-  writeJson(LOADOUT_KEY, data ?? {});
-  if (!owned.error) writeJson(POLISH_KEY, Object.fromEntries((owned.data ?? []).map((o) => [o.part_id, o.polish])));
-  return (data ?? {}) as Loadout;
+  const worn: Loadout = { ...(data ?? {}), gilt: !!(owned.data ?? []).find((o) => o.part_id === data?.frame)?.gilded };
+  writeJson(LOADOUT_KEY, worn);
+  if (!owned.error) writeJson(POLISH_KEY, Object.fromEntries((owned.data ?? []).filter((o) => o.polish).map((o) => [o.part_id, o.polish])));
+  return worn;
 }

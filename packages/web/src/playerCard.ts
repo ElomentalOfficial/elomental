@@ -1,7 +1,7 @@
 import { avatarSvg } from './avatar.ts';
 import { badgeArt, badgeLabel } from './badges.ts';
 import { DEFAULT_AVATAR } from './backend/forge.ts';
-import { follow, playerCard, unfollow, type PlayerCard } from './backend/leaderboard.ts';
+import { follow, giltPlayers, playerCard, unfollow, type PlayerCard } from './backend/leaderboard.ts';
 import { ICONS } from './icons.ts';
 import { rankName } from './rankName.ts';
 import { paintPlate } from './plates.ts';
@@ -18,9 +18,26 @@ import * as copy from './copy/en.ts';
  * they can be filled without moving anything. The server applies the player's privacy.
  */
 
-/** The avatar in its frame, moving if brought to life. */
-export const cardAvatar = (c: { avatar: string | null; frame: string | null; alive: boolean }) =>
-  avatarSvg({ avatar: c.avatar, frame: c.frame }, c.alive ? { [c.avatar ?? DEFAULT_AVATAR]: 1 } : {});
+/** The avatar in its frame, moving if brought to life; gilt when the frame is gilded. */
+export const cardAvatar = (c: { avatar: string | null; frame: string | null; alive: boolean; gilt?: boolean }) =>
+  avatarSvg({ avatar: c.avatar, frame: c.frame, gilt: c.gilt }, c.alive ? { [c.avatar ?? DEFAULT_AVATAR]: 1 } : {});
+
+/**
+ * Gilt rims for other players (gilding): avatars marked data-player (and wearing a frame) ask the
+ * server, once, which are gilded, and those take the rim. The rim is drawn in every frame and shown
+ * by .gilt (modals.css).
+ */
+export async function markGilt(root: ParentNode): Promise<void> {
+  const els = [...root.querySelectorAll<HTMLElement>('[data-player]')].filter((e) => e.querySelector('.layer-frame'));
+  // asked once a visit per player (a page of rows is up to 50, the server takes 100)
+  const ask = [...new Set(els.map((e) => e.dataset.player!))].filter((id) => !giltKnown.has(id));
+  for (let i = 0; i < ask.length; i += 100) {
+    const gilt = await giltPlayers(ask.slice(i, i + 100));
+    for (const id of ask.slice(i, i + 100)) giltKnown.set(id, gilt.has(id));
+  }
+  for (const e of els) if (giltKnown.get(e.dataset.player!)) e.querySelector('.avatar-art')?.classList.add('gilt');
+}
+const giltKnown = new Map<string, boolean>();
 
 /** The card's body (shared by the sheet and the full profile of another player). */
 export function cardBody(c: PlayerCard, opts: { large?: boolean } = {}): HTMLElement {
@@ -51,17 +68,20 @@ export function cardBody(c: PlayerCard, opts: { large?: boolean } = {}): HTMLEle
         h('ul', { class: opts.large ? 'badge-grid' : '' },
           ...(opts.large ? shown.map(badgeTile) : [0, 1, 2].map((i) => (shown[i] ? badgeTile(shown[i]) : h('li', { class: 'badge-slot', attrs: { 'aria-hidden': 'true' } }))))),
         !shown.length ? h('p', { class: 'note', text: c.me ? copy.badges.none : copy.badges.noneOther }) : null)
-    : null;  return h(
+    : null;
+  const body = h(
     'div',
     { class: `card-body${opts.large ? ' large' : ''}`, attrs: { 'data-slot': 'card-background' } },
     h('span', { class: 'card-banner', attrs: { 'data-slot': 'banner', 'aria-hidden': 'true' } }),
-    h('span', { class: 'avatar card-avatar worn', html: cardAvatar(c), attrs: { 'aria-hidden': 'true' } }),
+    h('span', { class: 'avatar card-avatar worn', html: cardAvatar(c), attrs: { 'aria-hidden': 'true', 'data-player': c.id } }),
     name,
     h('p', { class: 'card-facts' }, ...facts),
     h('p', { class: 'card-numbers', text: numbers }),
     c.stats ? h('p', { class: 'card-stats', text: t.stats(c.stats.solved, c.stats.ranked) }) : null,
     badges,
   );
+  void markGilt(body);
+  return body;
 }
 
 /** The Follow / Following button; keeps the card's state in step. */

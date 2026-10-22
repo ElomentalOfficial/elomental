@@ -1,6 +1,6 @@
 import { avatarSvg, partSvg } from '../avatar.ts';
 import { loadStandings, type Standing } from '../backend/affinity.ts';
-import { ALIVE_COST, BLUEPRINT_COST, DEFAULT_AVATAR, FORGE_COST, MAX_MARKS, SLOTS, marksOf, avatarsToWake, callSpirit, equipPart, forgePart, loadForge, polishPart, type Forge, type Part } from '../backend/forge.ts';
+import { ALIVE_COST, BLUEPRINT_COST, DEFAULT_AVATAR, FORGE_COST, GILD_COST, MAX_MARKS, SLOTS, gildPart, marksOf, avatarsToWake, callSpirit, equipPart, forgePart, loadForge, polishPart, type Forge, type Part } from '../backend/forge.ts';
 import { ICONS } from '../icons.ts';
 import { ELEMENTS, RARITIES, loadProfile, type Element, type Rarity } from '../profile.ts';
 import { partName, rarityName } from '../reward.ts';
@@ -122,19 +122,20 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
     const alive = f.owned.get(p.id)?.polish === 1;
     const label = alive ? `${stateLabel(state)} · ${copy.forge.alive}` : stateLabel(state);
     const marks = frameMarks(f, p);
+    const gilded = !!f.owned.get(p.id)?.gilded;
     return h(
       'button',
       {
         class: `part-card rarity-${p.rarity} state-${state}`,
-        attrs: { type: 'button', 'aria-label': `${name}, ${rarityName(p.rarity)}, ${kind(p)}. ${label}.${marks ? ` ${copy.forge.a11yMarks(marks.marks, marks.toNext)}.` : ''}` },
+        attrs: { type: 'button', 'aria-label': `${name}, ${rarityName(p.rarity)}, ${kind(p)}. ${label}.${marks ? ` ${copy.forge.a11yMarks(marks.marks, marks.toNext)}.` : ''}${gilded ? ` ${copy.forge.gilded}.` : ''}` },
         onclick: () => openPart(p),
       },
-      h('span', { class: 'part-art', html: partSvg(p.id, f.owned.get(p.id)?.polish ?? 0), attrs: { 'aria-hidden': 'true' } }),
+      h('span', { class: 'part-art', html: partSvg(p.id, f.owned.get(p.id)?.polish ?? 0, gilded), attrs: { 'aria-hidden': 'true' } }),
       h('strong', { class: 'part-name', text: name, attrs: { 'aria-hidden': 'true' } }),
       h('span', { attrs: { 'aria-hidden': 'true' } }, rarityTag(p.rarity)),
       h('span', { class: 'part-state', attrs: { 'aria-hidden': 'true' } },
         alive ? h('span', { class: 'alive-glyph', html: ICONS.spirit }) : '', label),
-      marks ? h('span', { class: 'part-marks', attrs: { 'aria-hidden': 'true' } }, markPips(marks.marks), marks.marks < MAX_MARKS ? copy.forge.markProgress(marks.toNext) : '') : '',
+      marks ? h('span', { class: 'part-marks', attrs: { 'aria-hidden': 'true' } }, markPips(marks.marks), gilded ? copy.forge.gilded : marks.marks < MAX_MARKS ? copy.forge.markProgress(marks.toNext) : '') : '',
     );
   }
 
@@ -195,17 +196,28 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
     }
     // a frame you own: its marks, and how close the next is
     const fm = frameMarks(f, p);
+    const gilded = !!f.owned.get(p.id)?.gilded;
+    // 3 marks: it can be gilded, once (gild_part); the price, what you have, and Gild
+    let gild: (HTMLElement | null)[] = [];
+    if (fm && gilded) gild = [h('p', { class: 'good', text: copy.forge.gildedLine })];
+    else if (fm && fm.marks >= MAX_MARKS) {
+      const cost = GILD_COST[p.rarity];
+      const btn = h('button', { class: 'btn btn-primary', text: copy.forge.gildButton(cost) });
+      if (f.stardust < cost) btn.disabled = true;
+      else btn.addEventListener('click', () => busy(btn, () => gildPart(p.id), copy.forge.gildDone(name)));
+      gild = [h('p', { class: 'note', text: copy.forge.gildNote }), btn, f.stardust < cost ? h('p', { class: 'note', text: copy.forge.gildShort(f.stardust, cost) }) : null];
+    } else if (fm) gild = [h('p', { class: 'note', text: copy.forge.gildLocked })];
     const marksSection = fm
-      ? h('section', { class: 'marks-section' }, h('h3', {}, copy.forge.marksTitle, markPips(fm.marks)), h('p', { text: copy.forge.marksLine(fm.marks, fm.toNext) }), h('p', { class: 'note', text: copy.forge.marksNote }))
+      ? h('section', { class: 'marks-section' }, h('h3', {}, copy.forge.marksTitle, markPips(fm.marks)), h('p', { text: copy.forge.marksLine(fm.marks, fm.toNext) }), h('p', { class: 'note', text: copy.forge.marksNote }), ...gild)
       : null;
     const close = openModal(
       h(
         'div',
         { class: 'sheet part-sheet' },
         closeButton(() => close()),
-        h('span', { class: 'part-sheet-art', html: partSvg(p.id, polish), attrs: { 'aria-hidden': 'true' } }),
+        h('span', { class: 'part-sheet-art', html: partSvg(p.id, polish, gilded), attrs: { 'aria-hidden': 'true' } }),
         h('h2', { text: name }),
-        h('p', { class: 'part-sheet-meta' }, rarityTag(p.rarity), kind(p), edition ? ` · ${copy.forge.edition(edition)}` : '', polish ? ` · ${copy.forge.alive}` : ''),
+        h('p', { class: 'part-sheet-meta' }, rarityTag(p.rarity), kind(p), edition ? ` · ${copy.forge.edition(edition)}` : '', polish ? ` · ${copy.forge.alive}` : '', gilded ? ` · ${copy.forge.gilded}` : ''),
         forgeable(state) ? h('p', { class: 'part-price', text: price(f, p) }) : null,
         action,
         marksSection,
