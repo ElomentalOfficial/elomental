@@ -10,11 +10,12 @@
   flex-direction: column;
   gap: var(--space-3);
 }
-/* The affinities this month: a calm card, one bar, three short lines. */
+/* The affinities this month: a calm card. Who leads, the bar and each side's share, then
+   where you stand under a hairline. The rule and the prize are in Details. */
 .lb-faction {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-3);
   padding: var(--space-4);
   border-radius: var(--radius-lg);
   background: var(--surface);
@@ -121,27 +122,24 @@ html[data-reduce-motion] .strength-seg {
 .lb-strength-legend .el-earth { --el: var(--el-earth-fill); --el-on: var(--el-earth-on); --el-edge: var(--el-earth-edge); }
 .lb-faction .el-air,
 .lb-strength-legend .el-air { --el: var(--el-air-fill); --el-on: var(--el-air-on); --el-edge: var(--el-air-edge); }
-/* Four across, two by two once larger text needs the room. */
+/* Each side's glyph and share, in the bar's order: four across, or two by two where four
+   don't fit (never three and one). */
 .lb-strength-legend {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(72px * var(--text-scale))), 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: var(--space-2);
   margin: 0;
   padding: 0;
   list-style: none;
 }
+html[data-large-text] .lb-strength-legend {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
 .lb-strength-legend li {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-.strength-name {
-  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-family: var(--serif);
-  font-size: var(--fs-small);
+  gap: var(--space-2);
+  min-width: 0;
 }
 .strength-dot {
   display: grid;
@@ -159,23 +157,28 @@ html[data-reduce-motion] .strength-seg {
   height: 12px;
 }
 .lb-strength-legend strong {
-  font-size: var(--fs-label);
+  font-size: var(--fs-body);
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
-.lb-legend-note {
+/* In place of the bar while nobody has influence. */
+.lb-faction-hint,
+.lb-faction-why {
   font-family: var(--serif);
   font-size: var(--fs-small);
   color: var(--muted);
 }
-.lb-faction-line,
-.lb-faction-side,
+/* Where you stand (or the way in), under a hairline. */
+.lb-faction-foot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line);
+}
 .lb-faction-mine {
   font-family: var(--serif);
   font-size: var(--fs-small);
-  color: var(--muted);
-}
-.lb-faction-side,
-.lb-faction-mine {
   color: var(--text);
 }
 .lb-faction .link-btn {
@@ -201,9 +204,11 @@ html[data-reduce-motion] .strength-seg {
   background: var(--surface);
 }
 .lb-tab {
-  flex: 1 1 auto;
+  /* the same width each, with room on both sides of the label */
+  flex: 1 1 0;
+  min-width: max-content;
   min-height: 44px;
-  padding: var(--space-1);
+  padding: var(--space-1) var(--space-3);
   border: 0;
   border-radius: var(--radius);
   background: transparent;
@@ -223,39 +228,19 @@ html[data-reduce-motion] .strength-seg {
   outline: 2px solid var(--focus);
   outline-offset: 2px;
 }
-/* where five don't fit one row (the narrowest phones, large text): three then two, all the
-   same width, the second row centred */
+/* where four don't fit one row (the narrowest phones, large text): two by two */
 @media (max-width: 359px) {
-  .lb-tabs {
-    justify-content: center;
-  }
   .lb-tab {
-    flex: 0 1 calc((100% - 2 * var(--space-1)) / 3);
+    flex: 1 1 calc((100% - var(--space-1)) / 2);
   }
-}
-html[data-large-text] .lb-tabs {
-  justify-content: center;
 }
 html[data-large-text] .lb-tab {
-  flex: 0 1 calc((100% - 2 * var(--space-1)) / 3);
+  flex: 1 1 calc((100% - var(--space-1)) / 2);
 }
 @media (forced-colors: active) {
   .lb-tab.on {
     outline: 2px solid Highlight;
     outline-offset: -2px;
-  }
-}
-/* Phones: the affinity card stays short so the list shows sooner (the legend, the rule and
-   the prize are in its Details sheet). */
-@media (max-width: 699px) {
-  .lb-faction .wide-only {
-    display: none;
-  }
-}
-/* ... and your side's place stands in for the legend there. */
-@media (min-width: 700px) {
-  .lb-faction .narrow-only {
-    display: none;
   }
 }
 /* The list's header: what it ranks and when it was updated, the Ranks button beside them. */
@@ -627,14 +612,16 @@ html[data-large-text] .lb-me .lb-avatar {
   /* in the rank's own colour (its deeper end, 3:1 on the track) */
   background: var(--rank-lo);
 }
-.faction-top {
+.faction-top,
+.faction-rule {
   align-self: stretch;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
   text-align: left;
 }
-.faction-top h3 {
+.faction-top h3,
+.faction-rule h3 {
   font-size: var(--fs-body);
 }
 .faction-top li {
@@ -873,7 +860,8 @@ html[data-large-text] .lb-me .lb-avatar {
   }
   .lb-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 300px;
+    /* the side column grows with Text size, as the screen does */
+    grid-template-columns: minmax(0, 1fr) calc(300px * var(--text-scale, 1));
     grid-template-areas: 'main side' 'me side';
     align-items: start;
   }

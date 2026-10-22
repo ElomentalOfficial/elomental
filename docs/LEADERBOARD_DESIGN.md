@@ -3,6 +3,12 @@
 > **Naming, 2026-10-21:** players see **factions** where this document says "affinity" (the
 > code and database keep the old word). The lists' tabs are now one slim track (Friends, All,
 > your faction, Season, Country) with a header saying what each list ranks.
+>
+> **2026-10-22 (owner):** the **Country** list is gone for good, with the country choice in
+> Setup and the country on player cards (few players, so a country list would stay empty).
+> The server's country column and `set_country` are unused now. The factions card shows
+> only who leads, the bar and each side's share, and where you stand; the rule and the
+> prize moved to its Details sheet.
 
 Decisions agreed with the owner before building:
 

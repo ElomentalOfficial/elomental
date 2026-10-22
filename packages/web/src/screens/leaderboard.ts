@@ -30,20 +30,22 @@ import * as copy from '../copy/en.ts';
 
 /**
  * The leaderboard (docs/LEADERBOARD_DESIGN.md): the affinities' month at the top, a name
- * search, then one list at a time (Friends, Everyone, your affinity, the season, your
- * country), 50 rows a page, with "Show me" jumping to your spot and a pinned bar that
+ * search, then one list at a time (Friends, Everyone, your affinity, the season), 50 rows a
+ * page, with "Show me" jumping to your spot and a pinned bar that
  * always says where you are. Rows and places come from a 5-minute server snapshot of
  * settled, unflagged results; tapping a player opens their show-off card.
  */
 
-const VIEWS: LbView[] = ['friends', 'global', 'faction', 'season', 'country'];
+const VIEWS: LbView[] = ['friends', 'global', 'faction', 'season'];
 const VIEW_KEY = 'elomental:lb-view';
 const t = copy.leaderboard;
 
 const monthName = (iso: string) => new Date(iso).toLocaleString('en-GB', { month: 'long', timeZone: 'UTC' });
 
 export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Screen {
-  let view: LbView = start?.view ?? readJson<LbView>(VIEW_KEY) ?? 'global';
+  // (a list kept from before may no longer exist: the Country list was removed)
+  const kept = readJson<LbView>(VIEW_KEY);
+  let view: LbView = start?.view ?? (kept && VIEWS.includes(kept) ? kept : 'global');
   let page = 0;
   let rows: LbRow[] = [];
   let total = 0;
@@ -187,14 +189,12 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
     notice.replaceChildren();
     if (!empty) return;
     const action =
-      view === 'country' && !cachedAccount()?.country
-        ? h('button', { class: 'btn', text: t.chooseCountry, attrs: { type: 'button' }, onclick: () => mount(privacyScreen(() => leaderboardScreen({ view: 'country' }))) })
-        : view === 'faction' && !myElement()
-          ? h('button', { class: 'btn', text: t.joinIn, attrs: { type: 'button' }, onclick: () => mount(affinityScreen(() => leaderboardScreen({ view }))) })
-          : view === 'friends'
-            ? h('button', { class: 'btn', text: t.search, attrs: { type: 'button' }, onclick: () => searchField.focus() })
-            : null;
-    const text = view === 'country' && !cachedAccount()?.country ? t.notInView.country : view === 'faction' && !myElement() ? t.notInView.faction : t.empty[view];
+      view === 'faction' && !myElement()
+        ? h('button', { class: 'btn', text: t.joinIn, attrs: { type: 'button' }, onclick: () => mount(affinityScreen(() => leaderboardScreen({ view }))) })
+        : view === 'friends'
+          ? h('button', { class: 'btn', text: t.search, attrs: { type: 'button' }, onclick: () => searchField.focus() })
+          : null;
+    const text = view === 'faction' && !myElement() ? t.notInView.faction : t.empty[view];
     notice.append(h('p', { class: 'note', text }), action ?? '');
   }
 
@@ -371,25 +371,31 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
     // strongest first, like the bar reads: the leader on the left
     const ranked = [...b.standings].sort((x, y) => (pct.get(y.affinity) ?? 0) - (pct.get(x.affinity) ?? 0) || ELEMENTS.indexOf(x.affinity) - ELEMENTS.indexOf(y.affinity));
     const first = ranked[0];
-    const tied = !pct.size || pct.get(first.affinity) === pct.get(ranked[1].affinity);
+    const empty = !pct.size;
+    const tied = !empty && pct.get(first.affinity) === pct.get(ranked[1].affinity);
     const days = Math.max(1, Math.ceil((new Date(b.endsAt).getTime() - Date.now()) / 86_400_000));
+    const leads = !empty && !tied;
 
-    const head = h('div', { class: `lb-leader${tied ? '' : ` el-${first.affinity}`}` },
-      h('span', { class: 'lb-leader-mark', html: tied ? ICONS.dust : ICONS.elements[first.affinity], attrs: { 'aria-hidden': 'true' } }),
-      h('span', { class: 'lb-leader-name' }, h('strong', { text: tied ? t.noLeader : name(first.affinity) }), h('span', { text: tied ? (pct.size ? t.level : t.nobody) : t.leading })),
-      tied ? null : h('strong', { class: 'lb-leader-pct', text: `${pct.get(first.affinity)}%` }));
-    const bar = h('div', { class: 'lb-strength', attrs: { role: 'img', 'aria-label': t.a11yStrength(ranked.map((s) => `${name(s.affinity)} ${pct.get(s.affinity) ?? 25}%`).join(', ')) } },
+    // who leads, and the days left under it
+    const head = h('div', { class: `lb-leader${leads ? ` el-${first.affinity}` : ''}` },
+      h('span', { class: 'lb-leader-mark', html: leads ? ICONS.elements[first.affinity] : ICONS.dust, attrs: { 'aria-hidden': 'true' } }),
+      h('span', { class: 'lb-leader-name' },
+        h('strong', { text: leads ? name(first.affinity) : tied ? t.tied : t.noLeader }),
+        h('span', { text: leads ? t.leading(days) : tied ? t.level(days) : t.nobody(days) })),
+      leads ? h('strong', { class: 'lb-leader-pct', text: `${pct.get(first.affinity)}%` }) : null);
+    // the four shares: a bar, and each side's glyph and share under it (none while nobody has
+    // influence: four equal segments would read as 25% each)
+    const bar = h('div', { class: 'lb-strength', attrs: { role: 'img', 'aria-label': t.a11yStrength(ranked.map((s) => `${name(s.affinity)} ${pct.get(s.affinity)}%`).join(', ')) } },
       ...ranked.map((s) => {
-        // each segment carries its element's glyph where it fits, so the bar never relies on colour
-        // alone (phones hide the legend; Fire and Earth look alike to protanopes); the bar's label says it all
+        // each segment carries its element's glyph where it fits, so the bar never relies on colour alone
         const seg = h('span', { class: `strength-seg el-${s.affinity}` }, h('span', { class: 'seg-glyph', html: ICONS.elements[s.affinity] }));
-        seg.style.flexGrow = String(pct.size ? Math.max(pct.get(s.affinity) ?? 0, 1) : 25);
+        seg.style.flexGrow = String(Math.max(pct.get(s.affinity) ?? 0, 1));
         return seg;
       }));
     const legend = h('ul', { class: 'lb-strength-legend', attrs: { 'aria-hidden': 'true' } },
       ...ranked.map((s) => h('li', { class: `el-${s.affinity}` },
-        h('span', { class: 'strength-name' }, h('span', { class: 'strength-dot', html: ICONS.elements[s.affinity] }), h('span', { text: name(s.affinity) })),
-        h('strong', { text: pct.size ? `${pct.get(s.affinity)}%` : '–' }))));
+        h('span', { class: 'strength-dot', html: ICONS.elements[s.affinity] }),
+        h('strong', { text: `${pct.get(s.affinity)}%` }))));
     const mine = b.mine
       ? b.myInfluence > 0 && b.myPlace
         ? (b.mySolves ?? 5) < 5
@@ -397,46 +403,47 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
           : t.yours(b.myInfluence, b.myPlace, name(b.mine))
         : t.yoursNone(name(b.mine))
       : null;
-    // Your side's place and share, unless it leads alone (the leader row says so); on phones
-    // this stands in for the legend, so the bar isn't colour only.
+    // Your side's place and share, unless it leads alone (the leader row says so).
     const minePct = b.mine ? pct.get(b.mine) : undefined;
     const side = b.mine && minePct != null && (tied || first.affinity !== b.mine)
       ? t.yourSide(name(b.mine), 1 + [...pct.values()].filter((v) => v > minePct).length, minePct)
       : null;
-    // On phones the card is short (leader, bar, days left, yours) so the list shows sooner; the
-    // legend, the rule and the prize are in Details (styles.css .lb-faction .wide-only).
+    const join = () => mount(affinityScreen(() => leaderboardScreen({ view })));
+    // The card holds what reads at a glance; the rule and the prize are in Details.
     return [
       h('div', { class: 'lb-faction-head' },
         h('h2', { text: t.affinitiesOf(monthName(b.month)) }),
         h('button', { class: 'link-btn', text: t.details, attrs: { type: 'button' }, onclick: () => openFaction(b) })),
       head,
-      bar,
-      h('div', { class: 'wide-only' }, legend),
-      h('p', { class: 'lb-legend-note wide-only', text: t.strengthNote }),
-      ...(side ? [h('p', { class: 'lb-faction-side narrow-only', text: side })] : []),
-      h('p', { class: 'lb-faction-line' }, h('span', { text: t.daysLeft(days) }), h('span', { class: 'wide-only', text: ` · ${t.prize}` })),
-      mine
-        ? h('p', { class: 'lb-faction-mine', text: mine })
-        : h('button', { class: 'link-btn', text: t.joinIn, attrs: { type: 'button' }, onclick: () => mount(affinityScreen(() => leaderboardScreen({ view }))) }),
+      ...(empty ? [h('p', { class: 'lb-faction-hint', text: t.emptyHint })] : [bar, legend]),
+      h('div', { class: 'lb-faction-foot' },
+        ...(mine
+          ? [h('p', { class: 'lb-faction-mine', text: [side, mine].filter(Boolean).join(' ') })]
+          : [h('button', { class: 'btn btn-primary', text: t.joinIn, attrs: { type: 'button' }, onclick: join }), h('p', { class: 'lb-faction-why', text: t.joinWhy })])),
     ];
   }
   function openFaction(b: FactionBoard) {
     const name = (e: Element) => copy.forge.elements[e];
     const ranked = [...b.standings].sort((x, y) => Number(y.standing) - Number(x.standing));
+    const days = Math.max(1, Math.ceil((new Date(b.endsAt).getTime() - Date.now()) / 86_400_000));
     const close = openModal(
       h(
         'div',
         { class: 'sheet lb-faction-sheet' },
         closeButton(() => close()),
         h('h2', { text: t.sheetTitle(monthName(b.month)) }),
-        h('p', { class: 'note', text: t.sheetIntro }),
+        h('p', { class: 'note', text: t.daysLeft(days) }),
         h('ol', { class: 'faction-standings' },
           ...ranked.map((s, i) => h('li', { class: `el-${s.affinity}${s.affinity === b.mine ? ' is-mine' : ''}` },
             h('span', { class: 'lb-place', text: String(i + 1) }),
             h('span', { class: 'drop-element', html: ICONS.elements[s.affinity], attrs: { 'aria-hidden': 'true' } }),
             h('span', { class: 'fs-name' }, h('strong', { text: name(s.affinity) }), h('span', { text: `${t.members(s.members)} · ${t.influence(Number(s.influence))}` })),
             h('strong', { class: 'fs-standing', text: t.perPlayer(Number(s.standing)) })))),
-        h('p', { class: 'note', text: t.prize }),
+        h('section', { class: 'faction-rule' },
+          h('h3', { text: t.howWon }),
+          h('p', { class: 'note', text: t.sheetIntro }),
+          h('p', { class: 'note', text: t.barNote }),
+          h('p', { class: 'note', text: t.prize })),
         b.lastWinner?.winner
           ? h('p', { class: 'note', text: t.lastWinner((b.lastWinner.winners ?? [b.lastWinner.winner]).map(name), monthName(b.lastWinner.month)) })
           : null,
@@ -447,7 +454,7 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
                     h('button', { class: 'link-btn', text: `${i + 1}. ${p.name}`, attrs: { type: 'button' }, onclick: () => { close(); openCard(p.id); } }),
                     h('span', { text: t.influence(p.influence) }))))
                 : h('p', { class: 'note', text: t.topEmpty }))
-          : null,
+          : h('button', { class: 'btn btn-primary', text: t.joinIn, attrs: { type: 'button' }, onclick: () => { close(); mount(affinityScreen(() => leaderboardScreen({ view }))); } }),
       ),
     );
   }

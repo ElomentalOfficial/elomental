@@ -978,15 +978,14 @@ const ORDINAL = (n: number) => {
 
 export const leaderboard = {
   title: 'Leaderboard',
-  /** The lists' tabs: short, so all five fit one row on a phone. */
-  views: { friends: 'Friends', global: 'All', faction: 'Faction', season: 'Season', country: 'Country' },
+  /** The lists' tabs: short, so all four fit one row on a phone. */
+  views: { friends: 'Friends', global: 'All', faction: 'Faction', season: 'Season' },
   a11yViews: 'Which list',
   /** Under the lists' tabs: what the chosen one ranks. */
   about: {
     friends: 'You and the players you follow, by Elo.',
     global: 'Everyone with a place, by Elo.',
     faction: (side: string | null) => (side ? `Everyone in ${side}, by Elo.` : 'Players in your faction, by Elo.'),
-    country: 'Players from your country, by Elo.',
     season: 'Best Elo this season. 20 Ranked games to qualify.',
   },
   updated: (min: number) => (min < 1 ? 'Updated just now' : `Updated ${min} min ago`),
@@ -1010,7 +1009,6 @@ export const leaderboard = {
   restricted: 'Ranked is closed to you for now, so you aren’t listed.',
   notInView: {
     faction: 'Choose a faction to see your place here.',
-    country: 'Choose your country in Setup to see this list.',
     season: 'Play 20 Ranked games this season to get a place here.',
     friends: 'Play a Ranked game to compare with your friends.',
     global: 'Play a Ranked game to get your place.',
@@ -1018,11 +1016,9 @@ export const leaderboard = {
   empty: {
     friends: 'Follow players to compare with them here. Find them with the search above.',
     faction: 'Nobody in this faction has a place yet.',
-    country: 'Nobody from this country has a place yet.',
     season: 'Nobody has played 20 Ranked games this season yet.',
     global: 'Nobody has a place yet.',
   } as Record<string, string>,
-  chooseCountry: 'Choose your country',
   loading: 'Loading the list…',
   meLoading: 'Finding your place…',
   offline: 'The leaderboard needs a connection.',
@@ -1043,23 +1039,30 @@ export const leaderboard = {
 
   // The factions this month
   affinitiesOf: (month: string) => `Factions · ${month}`,
-  level: 'Tied so far: nobody leads yet.',
-  nobody: 'No influence yet this month.',
   daysLeft: (d: number) => (d <= 1 ? 'Last day' : `${d} days left`),
-  prize: 'Everyone on the winning side with 5 or more squares this month gets a badge and 300 Stardust',
+  /** The leader row's line under the name: how it stands, then the days left. */
+  leading: (d: number) => `Leading · ${d <= 1 ? 'Last day' : `${d} days left`}`,
+  level: (d: number) => `Tied · ${d <= 1 ? 'Last day' : `${d} days left`}`,
+  nobody: (d: number) => `No influence yet · ${d <= 1 ? 'Last day' : `${d} days left`}`,
+  tied: 'Tied',
+  noLeader: 'No leader yet',
+  /** In place of the bar while no side has influence. */
+  emptyHint: 'Every square you solve this month adds influence to your faction.',
+  prize: 'Everyone on the winning side with 5 or more squares this month gets a badge and 300 Stardust.',
   yours: (n: number, place: number, element: string) => `You: +${n} influence · ${ORDINAL(place)} in ${element}`,
   yoursNotYet: (n: number, element: string) => `You: ${n} more ${n === 1 ? 'square' : 'squares'} and you count for ${element}`,
   yoursNone: (element: string) => `You: no influence yet for ${element} this month`,
   /** Your side, when it isn't the one leading: its place and share. */
-  yourSide: (element: string, place: number, pct: number) => `${element} is ${ORDINAL(place)}, at ${pct}%`,
-  joinIn: 'Choose a faction to join in',
-  leading: 'Leading',
-  noLeader: 'Nobody yet',
-  strengthNote: 'Strength: each side’s influence per player, as a share of 100%. Players count from their 5th square of the month, with up to 300 influence each. The strongest side wins the month.',
+  yourSide: (element: string, place: number, pct: number) => `${element} is ${ORDINAL(place)}, at ${pct}%.`,
+  joinIn: 'Choose a faction',
+  /** Under the button, for players without a faction: the reason to join. */
+  joinWhy: 'Solve 5 squares on the winning side for a badge and 300 Stardust.',
   a11yStrength: (parts: string) => `Strength this month: ${parts}`,
   details: 'Details',
   sheetTitle: (month: string) => `Factions in ${month}`,
-  sheetIntro: 'Every square solved adds influence to its player’s faction. Players count from their 5th square of the month, with up to 300 influence each. The side with the most influence per player wins the month; if sides tie, they all win.',
+  howWon: 'How it’s won',
+  sheetIntro: 'Every square you solve adds influence to your faction. You count from your 5th square of the month, up to 300 influence each. The side with the most influence per player wins. Sides that tie all win.',
+  barNote: 'The bar on the card shows each side’s influence per player, as a share of 100%.',
   members: (n: number) => (n === 1 ? '1 player' : `${n} players`),
   influence: (n: number) => `${formatNumber(n)} influence`,
   perPlayer: (n: number) => `${n} each`,
@@ -1125,18 +1128,11 @@ export const badges = {
 // Setup > Leaderboard and card (screens/privacy.ts)
 export const privacy = {
   title: 'Leaderboard and card',
-  summary: 'Your country, and what other players see.',
+  summary: 'What other players see.',
   open: 'Open',
   a11yOpen: 'Open leaderboard and card settings',
   intro: 'Choose what other players see. Your place is always visible to you.',
   group: 'What others see',
-  country: 'Country',
-  countryHelp: 'Optional. It lists you in your country’s ranking and shows on your card.',
-  noCountry: 'No country',
-  countryPick: 'Your country',
-  countrySearch: 'Find a country…',
-  noMatch: 'No country matches that.',
-  a11yCountry: (name: string) => `Country: ${name}. Change it`,
   listed: 'Show me on leaderboards',
   listedHelp: 'Off: you’re left out of every list and search, and nobody can follow you.',
   stats: 'Stats on my card',

@@ -9,7 +9,7 @@ import * as copy from '../copy/en.ts';
  * your own place is worked out live. Every call is signed-in only.
  */
 
-export type LbView = 'friends' | 'global' | 'faction' | 'season' | 'country';
+export type LbView = 'friends' | 'global' | 'faction' | 'season';
 
 export interface LbRow {
   place: number;
@@ -26,7 +26,6 @@ export interface LbRow {
   frame: string | null;
   alive: boolean;
   affinity: Element | null;
-  country: string | null;
   me: boolean;
 }
 
@@ -100,7 +99,6 @@ export interface PlayerCard {
   position?: number | null;
   notRanked: boolean;
   affinity: Element | null;
-  country: string | null;
   stats: { solved: number; ranked: number } | null;
   badges: string[];
   showcase: string[];
@@ -149,11 +147,6 @@ export const follow = (id: string) => act('follow', { p_player: id });
 export const unfollow = (id: string) => act('unfollow', { p_player: id });
 export async function setCardPrivacy(hidden: boolean | null, stats: boolean | null): Promise<string | null> {
   const err = await act('set_card_privacy', { p_hidden: hidden, p_stats: stats });
-  if (!err) await refreshAccount();
-  return err;
-}
-export async function setCountry(code: string | null): Promise<string | null> {
-  const err = await act('set_country', { p_code: code });
   if (!err) await refreshAccount();
   return err;
 }

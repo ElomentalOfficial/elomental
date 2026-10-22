@@ -13,20 +13,10 @@ import * as copy from './copy/en.ts';
  * The show-off card (docs/LEADERBOARD_DESIGN.md §3.5, §4): opened from any player on the
  * leaderboard, search or the affinities sheet. Fixed slots, always the same size: the avatar
  * (moving when brought to life) in its frame, the name on its plate, rank and title,
- * affinity and country, Elo and peak, a stats line, and three badges of the player's choice. Slots for
+ * affinity, Elo and peak, a stats line, and three badges of the player's choice. Slots for
  * later cosmetics (card background, banner, name effect, emote) are marked with data-slot so
  * they can be filled without moving anything. The server applies the player's privacy.
  */
-
-const regionNames = (() => {
-  try {
-    return new Intl.DisplayNames(['en-GB'], { type: 'region' });
-  } catch {
-    return null;
-  }
-})();
-/** "RO" → "Romania" (the code itself when the browser can't name it). */
-export const countryName = (code: string): string => regionNames?.of(code) ?? code;
 
 /** The avatar in its frame, moving if brought to life. */
 export const cardAvatar = (c: { avatar: string | null; frame: string | null; alive: boolean }) =>
@@ -43,7 +33,6 @@ export function cardBody(c: PlayerCard, opts: { large?: boolean } = {}): HTMLEle
     c.affinity
       ? h('span', { class: 'card-fact' }, h('span', { class: 'drop-element', html: ICONS.elements[c.affinity], attrs: { 'aria-hidden': 'true' } }), h('span', { text: copy.forge.elements[c.affinity] }))
       : null,
-    c.country ? h('span', { class: 'card-fact', text: countryName(c.country) }) : null,
   ];
   const numbers = [
     `${c.elo} ${copy.leaderboard.elo}`,

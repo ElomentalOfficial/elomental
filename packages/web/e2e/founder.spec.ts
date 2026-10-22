@@ -87,9 +87,11 @@ test('wide: a sidebar beside the open section', async ({ page }) => {
   // flags waiting: To review opens first, marked as the current section
   await expect(page.getByRole('button', { name: /^To review/ })).toHaveAttribute('aria-current', 'page');
   await expect(page.locator('.console-pane-title')).toHaveText('To review');
-  await page.getByRole('button', { name: /^Stardust and parts/ }).click();
-  await expect(page.locator('.console-pane-title')).toHaveText('Stardust and parts');
-  await expect(page.getByRole('button', { name: /^Stardust and parts/ })).toHaveAttribute('aria-current', 'page');
+  await page.getByRole('button', { name: /^Banned/ }).click();
+  await expect(page.locator('.console-pane-title')).toHaveText('Banned');
+  await expect(page.getByRole('button', { name: /^Banned/ })).toHaveAttribute('aria-current', 'page');
+  // live: Review only, the dev tools and testers are beta's (migration beta_testers)
+  await expect(page.getByRole('button', { name: /^(Dev mode|Stardust and parts|Testers)/ })).toHaveCount(0);
   await settled(page);
   expect(await axe(page)).toEqual([]);
   expect(await topEdgeProblems(page, 'Founder tools, wide')).toEqual([]);
