@@ -89,14 +89,6 @@ type Pen = ReturnType<typeof pen>;
  * room a crossing wall leaves for it.
  */
 const STYLES = {
-  // the frame's own pair, drawn in to a chamfered waist over the middle badge: the floor
-  pinched: {
-    hw: (p: Pen) => 3 * p.u,
-    draw: (p: Pen, L: number) => {
-      const g = 3 * p.u, a = L * 0.4, b = L * 0.6, h = g * 0.35, s = (g - h) * 1.6;
-      return p.worn(`M0 ${-g} H${a} L${a + s} ${-h} H${b - s} L${b} ${-g} H${L} M0 ${g} H${a} L${a + s} ${h} H${b - s} L${b} ${g} H${L}`);
-    },
-  },
   // one fine line strung with a few small gems: under you
   beaded: {
     hw: (p: Pen) => 1.4 * p.u,
@@ -109,6 +101,11 @@ const STYLES = {
       }
       return out;
     },
+  },
+  // the frame's own pair, as far apart as its two edge lines: the floor
+  double: {
+    hw: (p: Pen) => 3 * p.u,
+    draw: (p: Pen, L: number) => p.worn(`M0 ${-3 * p.u} H${L} M0 ${3 * p.u} H${L}`),
   },
   // a fine pair, close together: beside your portrait
   fineDouble: {
@@ -189,7 +186,7 @@ export function cardWalls(c: CardLayout): string {
   const pairTop = Math.min(c.level.top, c.elo.top), pairBottom = Math.max(c.level.bottom, c.elo.bottom);
   const yMid = (topBottom + pairTop) / 2, yFloor = (pairBottom + c.badges.top) / 2;
   // the floor: you above it, your badges below
-  walls.push({ o: 'h', at: yFloor, a: E, b: W - E, style: 'pinched', ends: ['capital', 'chamfer'], rank: 0 });
+  walls.push({ o: 'h', at: yFloor, a: E, b: W - E, style: 'double', ends: ['capital', 'chamfer'], rank: 0 });
   // under you: you and your name above, Level and Elo below
   walls.push({ o: 'h', at: yMid, a: E, b: W - E, style: 'beaded', ends: ['rings', 'wheel'], rank: 1 });
   // beside your portrait, when your name sits beside it (at large text it sits under it)

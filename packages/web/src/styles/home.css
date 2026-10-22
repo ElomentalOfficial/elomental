@@ -224,13 +224,13 @@
   /* a tap anywhere on it opens your Profile (home.ts); the avatar is its control */
   cursor: var(--cursor-pointer);
 }
-/* The walls: the frame's ink, as faint as it reads clearly (2.5 times the frame layer's 0.065). */
+/* The walls: the frame's ink, as faint as the tile frames themselves (owner: same intensity). */
 .pc-walls {
   position: absolute;
   inset: 0;
   z-index: 0;
   color: var(--frame-line);
-  opacity: 0.16;
+  opacity: 0.065;
   pointer-events: none;
 }
 .pc-walls svg {
