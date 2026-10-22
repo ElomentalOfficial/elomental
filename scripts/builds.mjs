@@ -13,7 +13,7 @@ const read = async (url) => {
 
 const builds = Object.fromEntries(await Promise.all(Object.entries(SITES).map(async ([name, url]) => [name, await read(url)])));
 for (const [name, b] of Object.entries(builds)) {
-  console.log(`${name.padEnd(5)} ${b ? `build ${b.number} · ${b.date} · ${b.sha}` : 'no build.json yet (deployed before build names)'}`);
+  console.log(`${name.padEnd(5)} ${b ? `Version ${b.number} · ${b.date} · ${b.sha}` : 'no build.json yet (deployed before build names)'}`);
 }
 const { live, beta } = builds;
 if (live && beta) {

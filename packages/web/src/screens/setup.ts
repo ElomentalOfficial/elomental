@@ -96,11 +96,9 @@ export function setupScreen(): Screen {
   return { el, title: copy.setup.title };
 }
 
-/** Which build this is, at the very bottom (vite.config.ts stamps it). */
+/** Which version this is, at the very bottom (vite.config.ts stamps it; build.json has the date and commit too). */
 function buildLine(): HTMLElement {
-  const env = import.meta.env;
-  const day = new Date(`${env.VITE_BUILD_DATE}T12:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-  return h('p', { class: 'build-line', text: copy.setup.build(env.VITE_BUILD_NUMBER ?? '0', day, env.VITE_BUILD_SHA ?? 'local', IS_BETA) });
+  return h('p', { class: 'build-line', text: copy.setup.build(import.meta.env.VITE_BUILD_NUMBER ?? '0', IS_BETA) });
 }
 
 /** Setup's way into the Accessibility page (screens/accessibility.ts). */

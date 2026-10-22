@@ -2,10 +2,10 @@ import { execSync } from 'node:child_process';
 import { defineConfig, type Plugin } from 'vite';
 
 /**
- * The build's name: its number (the commits up to it, so it only goes up, and live and beta
- * built from the same code share it), the commit's date and short hash. Shown at the bottom of
- * Setup and published as build.json on each site, so "live is on 405, beta on 412" reads at a
- * glance (docs/BETA.md). The deploys check out the whole history for the count.
+ * The build's version: its number (the commits up to it, so it only goes up, and live and beta
+ * built from the same code share it). Setup shows "Version 352" ("· Beta" on beta); build.json
+ * on each site adds the commit's date and short hash, so "live is on 405, beta on 412" reads at
+ * a glance (docs/BETA.md). The deploys check out the whole history for the count.
  */
 const git = (args: string) => {
   try {
