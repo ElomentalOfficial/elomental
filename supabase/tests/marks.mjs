@@ -30,6 +30,12 @@ export default async function () {
   await db.query(`select public.equip_part('frame', 's0-frame-air-2')`);
   await paced(m, 'casual', 'easy');
   check(await wins(m, 's0-frame-air-1') === 4 && await wins(m, 's0-frame-air-2') === 1, 'a frame taken off keeps its wins; the new one counts');
+  // the result says when a win earns a mark (mark_moment), and only then
+  await db.query(`update public.player_parts set wins = 38 where player_id = $1 and part_id = 's0-frame-air-2'`, [m]);
+  const before = await paced(m, 'casual', 'easy');
+  const earned = await paced(m, 'casual', 'easy');
+  check(before.mark === null && earned.mark?.part === 's0-frame-air-2' && earned.mark.marks === 1,
+    `the 40th win's result names the mark (${JSON.stringify(before.mark)}, ${JSON.stringify(earned.mark)})`);
   // the cap: 120 wins (3 marks)
   await db.query(`update public.player_parts set wins = 119 where player_id = $1 and part_id = 's0-frame-air-2'`, [m]);
   await paced(m, 'casual', 'easy');

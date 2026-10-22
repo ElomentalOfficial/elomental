@@ -153,6 +153,7 @@ export async function finishServerGame(input: {
     influence?: { affinity: Element; amount: number } | null;
     partsCapped?: boolean;
     dustCapped?: boolean;
+    mark?: { part: string; marks: number } | null;
     xp?: XpGain | null;
   };
   void refreshAccount();
@@ -169,6 +170,7 @@ export async function finishServerGame(input: {
       partsCapped: !!d.partsCapped,
       dustCapped: !!d.dustCapped,
       xp: d.xp ?? undefined,
+      mark: d.mark ?? undefined,
     },
   };
 }

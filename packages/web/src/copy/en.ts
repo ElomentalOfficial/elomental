@@ -366,6 +366,8 @@ export const forge = {
   gildedLine: 'Gilded: its rim shows on your profile and the leaderboard.',
   gildShort: (have: number, need: number) => `You have ${formatNumber(have)} of ${formatNumber(need)} Stardust.`,
   gildDone: (name: string) => `Gilded: ${name}.`,
+  /** On the result, when the win earned the worn frame a mark (mark_moment). */
+  markEarned: (name: string, n: number) => (n >= 3 ? `Your ${name} earned its 3rd mark: it can be gilded now.` : `Your ${name} earned a mark: ${n} of 3.`),
   edition: (n: number) => `No. ${n}`,
   offline: 'The Forge needs a connection. Your parts are safe on your account.',
   loading: 'Opening the Forge…',

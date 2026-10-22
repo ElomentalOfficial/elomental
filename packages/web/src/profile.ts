@@ -276,6 +276,8 @@ export interface Outcome {
   dustCapped?: boolean;
   /** XP from a win, and the level it leaves (server only; level.ts). */
   xp?: XpGain;
+  /** The worn frame earned a mark with this win (mark_moment): which, and how many it has now. */
+  mark?: { part: string; marks: number };
 }
 
 /** Why a Ranked win earned no Elo (finish_game): see copy.result.unrated. */

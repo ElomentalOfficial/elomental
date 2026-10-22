@@ -12,7 +12,7 @@ import { addToHomeResultNote } from '../install.ts';
 import { TECHNIQUE_BY_ID } from '@elomental/engine';
 import { dailyGoal, nextRank, parMs, promoted, rankTier, type Outcome } from '../profile.ts';
 import { xpRow } from '../level.ts';
-import { dropReveal, influenceLine } from '../reward.ts';
+import { dropReveal, influenceLine, partName } from '../reward.ts';
 import { readJson, writeJson } from '../storage.ts';
 import { formatTime, goBack, h, openModal } from '../ui.ts';
 import { affinityScreen } from './affinity.ts';
@@ -58,6 +58,7 @@ export function showClashResult(code: string, mine: ClashResult, theirs: ClashRe
             : copy.clash.resultNote.offlineWaiting,
       }),
       clashTable(code, mine, theirs),
+      markLine(outcome),
       rewards.childElementCount ? rewards : null,
       resultExtra(mine.solved, !!outcome.drop),
       h(
@@ -170,6 +171,9 @@ export function showResult(game: SavedGame, won: boolean, reason: FinishReason, 
   if (outcome.influence) rewards.append(influenceLine(outcome.influence));
   // the day's limits, said once a day (the strip after that just shows what it pays)
   const caps = capLines(outcome);
+  // the worn frame earned a mark with this win: one quiet line in the stats, its diamond with it
+  const mark = markLine(outcome);
+  if (mark) rows.push(mark);
   // a plate a bigger moment outranked is one line in the stats
   if (plate && hero !== 'plate') rows.push(h('p', { class: 'note good', text: copy.plates.newShort(copy.plates.names[plate]) }));
 
@@ -211,6 +215,12 @@ export function showResult(game: SavedGame, won: boolean, reason: FinishReason, 
     ),
     { dismissible: false },
   );
+}
+
+/** The worn frame earned a mark with this win (mark_moment): one quiet line, its diamond with it. */
+function markLine(outcome: Outcome): HTMLElement | null {
+  if (!outcome.mark) return null;
+  return h('p', { class: 'note good mark-earned' }, h('span', { class: 'mark-pip on', attrs: { 'aria-hidden': 'true' } }), copy.forge.markEarned(partName(outcome.mark.part), outcome.mark.marks));
 }
 
 /**

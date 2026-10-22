@@ -269,6 +269,18 @@ html[data-reduce-motion] .sword-live .sword-flame {
 .stat .stat-sub.plain {
   color: var(--text);
 }
+/* "Your Gale Frame earned a mark: 2 of 3." (result.ts): its diamond leads the line. */
+.mark-earned {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  text-align: center;
+}
+.mark-earned .mark-pip.on {
+  flex: none;
+  background: currentColor;
+}
 /* "10 Elo to Adept" in the Ranks sheet: the one line about you. */
 .tier-next {
   font-weight: 700;
