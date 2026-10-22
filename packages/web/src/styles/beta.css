@@ -22,6 +22,13 @@
   /* safe: a tall card at large text scrolls from its top instead of being cut off */
   justify-content: safe center;
 }
+/* Phones: near the top, so the keyboard (and the bar above it) never covers the email field. */
+@media (max-width: 599px), (max-height: 740px) {
+  .beta-gate {
+    justify-content: flex-start;
+    padding-top: calc(max(var(--gutter), env(safe-area-inset-top)) + var(--space-6));
+  }
+}
 .beta-gate-card {
   gap: var(--space-5);
 }
