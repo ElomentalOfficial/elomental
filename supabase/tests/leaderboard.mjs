@@ -4,12 +4,12 @@ import { db, as, check, lbPlayer, players } from './harness.mjs';
 export default async function () {
   let err = null;
   // --- 11. the leaderboard
-  const ana = await lbPlayer('Anastasia', 2400, ", affinity = 'fire', country = 'RO'");
-  const bob = await lbPlayer('Bogdan', 1800, ", affinity = 'water', country = 'RO'");
+  const ana = await lbPlayer('Anastasia', 2400, ", affinity = 'fire'");
+  const bob = await lbPlayer('Bogdan', 1800, ", affinity = 'water'");
   const cata = await lbPlayer('Catalina', 1500, ", affinity = 'fire'");
   // (above every Elo the sections before reach)
   const ghost = await lbPlayer('Ghostly', 5000, ', lb_hidden = true');
-  const dan = await lbPlayer('Daniela', 1200, ", affinity = 'fire', country = 'GB'");
+  const dan = await lbPlayer('Daniela', 1200, ", affinity = 'fire'");
   await db.exec(`select private.refresh_lb()`);
   await as(cata);
   const glob = (await db.query(`select public.lb_page('global') as j`)).rows[0].j;
@@ -19,8 +19,9 @@ export default async function () {
   check(glob.rows.find((r) => r.name === 'Catalina')?.me === true, 'your own row is marked');
   const fire = (await db.query(`select public.lb_page('faction') as j`)).rows[0].j;
   check(fire.scope === 'fire' && fire.rows.map((r) => r.name).join() === 'Anastasia,Catalina,Daniela', `faction view defaults to yours (${fire.rows.map((r) => r.name).join()})`);
-  const ro = (await db.query(`select public.lb_page('country', 0, 'ro') as j`)).rows[0].j;
-  check(ro.rows.map((r) => r.name).join() === 'Anastasia,Bogdan', `country view (${ro.rows.map((r) => r.name).join()})`);
+  let countryErr = null; try { await db.query(`select public.lb_page('country', 0, 'ro')`); } catch (e) { countryErr = e.message; }
+  check(!!countryErr, `no more countries: the country view is refused (${countryErr})`);
+  check(!('country' in glob.rows[0]), 'no more countries: rows carry no country');
   const around = (await db.query(`select public.lb_around_me('global') as j`)).rows[0].j;
   check(around.place > 0 && around.rows.some((r) => r.me), `around me: place ${around.place}, with you in the window`);
   const meBar = (await db.query(`select public.lb_me('global') as j`)).rows[0].j;

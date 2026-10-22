@@ -146,12 +146,11 @@ export default async function () {
     check(closed === true, 'L10 filling in a day closes its open game');
   } else console.log('  (skipped the mended Daily check: the 1st of the month)');
 
-  // L16: no duplicate badges in the showcase; countries from the list
+  // L16: no duplicate badges in the showcase (countries are gone: drop_country)
   await as(cata);
   check((await tryq(`select public.set_showcase(array['win-2026-09-fire', 'win-2026-09-fire'])`)).err?.includes('bad_request'), 'L16 the same badge can\'t fill two showcase places');
-  check((await tryq(`select public.set_country('ZZ')`)).err?.includes('bad_request'), 'L16 only real countries');
-  await db.query(`select public.set_country('gb')`);
-  check((await one(`select country from public.profiles where id = $1`, [cata])).country === 'GB', 'L16 a listed country is kept');
+  check(!!(await tryq(`select public.set_country('GB')`)).err, 'no more countries: set_country is gone');
+  check((await one(`select count(*)::int n from information_schema.columns where table_name = 'profiles' and column_name = 'country'`)).n === 0, 'no more countries: the column is gone');
 
   // L4: balances can't go below zero
   check(!!(await tryq(`update public.profiles set stardust = -1 where id = $1`, [cata])).err, 'L4 a negative balance is refused');
