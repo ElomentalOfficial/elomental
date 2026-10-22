@@ -140,6 +140,18 @@ export const home = {
     clashInfo: 'Race to finish',
     squareCode: 'Square code',
     squareCodeInfo: 'Play from a code',
+    /** Wide screens (banner pages): the banner's count, and the doors. */
+    solved: 'Squares solved',
+    waiting: 'Your square is waiting',
+    givens: (count: number) => `At least ${count} given numbers`,
+    lastPlayed: 'Last played',
+    a11yDifficultyDoor: (difficulty: string, count: number, last: boolean) =>
+      `Play ${capitalize(difficulty)}. At least ${count} given numbers.${last ? ' Last played.' : ''}`,
+    /** A difficulty door while a square waits: one click shouldn't end it unasked. */
+    replaceTitle: 'Start a new square?',
+    replaceText: (difficulty: string, percent: number) => `Your ${capitalize(difficulty)} square (${percent}% done) ends here.`,
+    keepPlaying: 'Keep playing',
+    startNew: 'Start new',
   },
   ranked: {
     title: 'Ranked',
@@ -950,6 +962,24 @@ export const setup = {
   tutorialHelp: 'How to fill cells, take notes, erase and undo.',
   tutorialReplay: 'Show again next game',
   tutorialQueued: 'The tutorial plays at the start of your next game.',
+  /** Wide screens (banner pages): the banner's line, and the doors with what's set behind each. */
+  bannerHelp: 'Make Elomental yours.',
+  doors: {
+    accountLine: 'Your name and email',
+    accountGuestLine: 'Sign up to keep your progress',
+    signedIn: 'Signed in',
+    guest: 'Playing as a guest',
+    look: 'Look and play',
+    lookLine: 'Theme, notes wheel, tutorial',
+    a11yLine: 'Text size, contrast, motion, sound',
+    privacyLine: 'What other players see',
+    lookState: (theme: string, wheel: boolean) => `${theme} · notes wheel ${wheel ? 'on' : 'off'}`,
+    a11yState: (size: number, sounds: boolean) => `Text ${size}% · sound ${sounds ? 'on' : 'off'}`,
+    privacyState: (listed: boolean) => (listed ? 'On the leaderboard' : 'Off the leaderboard'),
+    privacyGuest: 'Sign up to be listed',
+    founderLine: 'Players to review, testing tools',
+    founderState: (unlocked: boolean, devMode: boolean) => (!unlocked ? 'Locked' : devMode ? 'Unlocked · dev mode on' : 'Unlocked'),
+  },
   a11y: {
     title: 'Accessibility',
     intro: 'Make the game easier to see, hear and play. Your choices follow your account to every device.',
@@ -1023,6 +1053,9 @@ export const leaderboard = {
   /** The lists' tabs: short, so all four fit one row on a phone. */
   views: { friends: 'Friends', global: 'All', faction: 'Faction', season: 'Season' },
   a11yViews: 'Which list',
+  /** Wide screens (banner pages): the banner's line, and the podium for screen readers. */
+  bannerHelp: 'Where you stand.',
+  a11yPodium: 'Top three',
   /** Under the lists' tabs: what the chosen one ranks. */
   about: {
     friends: 'You and the players you follow, by Elo.',

@@ -1,8 +1,8 @@
 import { cachedAccount, onAccountChange } from '../backend.ts';
 import { setCardPrivacy } from '../backend/leaderboard.ts';
 import { choice, segmented, settingGroup } from '../controls.ts';
-import { goBack, h, subPage, toast, type Screen } from '../ui.ts';
-import { setupScreen } from './setup.ts';
+import { goBack, h, rebuildOnLayout, subPage, toast, type Screen } from '../ui.ts';
+import { setupBanner, setupScreen } from './setup.ts';
 import * as copy from '../copy/en.ts';
 
 /**
@@ -28,12 +28,13 @@ export function privacyScreen(back: () => Screen = setupScreen): Screen {
   };
 
   const el = subPage(
-    { className: 'setup privacy', title: t.title, onBack: () => void goBack(back) },
+    { className: 'setup privacy', title: t.title, onBack: () => void goBack(back), banner: setupBanner(t.summary) },
     h('p', { class: 'page-intro', text: account?.anonymous ? t.guest : t.intro }),
     settingGroup(t.group, [
       choice('privacy-listed', t.listed, t.listedHelp, onOff('privacy-listed', () => !cachedAccount()?.lbHidden, (v) => setCardPrivacy(!v, null))),
       choice('privacy-stats', t.stats, t.statsHelp, onOff('privacy-stats', () => cachedAccount()?.cardStats !== false, (v) => setCardPrivacy(null, v))),
     ]),
   );
+  rebuildOnLayout(el, () => privacyScreen(back));
   return { el, title: t.title, destroy: () => unsubscribes.forEach((off) => off()) };
 }

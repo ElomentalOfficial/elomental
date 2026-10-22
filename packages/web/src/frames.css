@@ -106,7 +106,8 @@
   --f-bl-c: url('./art/frames/ranked-bright-bl.svg');
   --f-br-c: url('./art/frames/ranked-bright-br.svg');
 }
-.setting, .month-card, .reward-card, .casual-card, .friend-option, .resume-card, .modal, .review-row, .review-log {
+/* Doors on the wide pages (banner.css) wear the page cards' frame (added by hand). */
+.setting, .month-card, .reward-card, .casual-card, .friend-option, .resume-card, .door, .modal, .review-row, .review-log {
   --fw: 3.2;
   --o1: 14;
   --o2: 14;

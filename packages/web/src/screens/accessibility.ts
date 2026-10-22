@@ -2,8 +2,8 @@ import { DEFAULTS, TEXT_SIZES, a11yPrefs, finePointer, onA11yChange, type A11yPr
 import { saveSettings } from '../backend.ts';
 import { choice as titled, segmented, settingGroup } from '../controls.ts';
 import { openShortcuts } from '../shortcuts.ts';
-import { goBack, h, mount, openModal, subPage, toast, type Screen } from '../ui.ts';
-import { setupScreen } from './setup.ts';
+import { goBack, h, mount, openModal, rebuildOnLayout, subPage, toast, wideLayout, type Screen } from '../ui.ts';
+import { setupBanner, setupScreen } from './setup.ts';
 import { statementScreen } from './statement.ts';
 import * as copy from '../copy/en.ts';
 
@@ -68,8 +68,9 @@ export function accessibilityScreen(): Screen {
     [false, copy.common.off],
   ];
   const el = subPage(
-    { className: 'setup accessibility', title: t.title, onBack: () => void goBack(setupScreen) },
-    h('p', { class: 'page-intro', text: t.intro }),
+    { className: 'setup accessibility', title: t.title, onBack: () => void goBack(setupScreen), banner: setupBanner(t.intro) },
+    // (a wide screen's banner says it)
+    wideLayout() ? null : h('p', { class: 'page-intro', text: t.intro }),
     group(
       t.groups.see,
       choice('textSize', t.textSize, t.textSizeHelp, TEXT_SIZES.map((n) => [n, t.percent(n)])),
@@ -122,5 +123,6 @@ export function accessibilityScreen(): Screen {
       h('button', { class: 'btn', text: t.reset, onclick: () => confirmReset() }),
     ),
   );
+  rebuildOnLayout(el, accessibilityScreen);
   return { el, title: t.title };
 }

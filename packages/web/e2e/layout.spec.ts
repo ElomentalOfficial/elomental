@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { DEVICES, problems, settled, SIZES } from './fixtures.ts';
+import { DEVICES, openAccessibility, playCasual, problems, settled, SIZES } from './fixtures.ts';
 
 /**
  * Every main screen at every Text size on four screen sizes: nothing may run
@@ -53,7 +53,7 @@ for (const device of DEVICES) {
       await page.locator('.tile.area-setup').first().click();
       await expect(page).toHaveTitle(/Setup/);
       found.push(...(await problems(page, 'Setup')));
-      await page.getByRole('button', { name: 'Open accessibility' }).click();
+      await openAccessibility(page);
       await expect(page).toHaveTitle(/Accessibility/);
       found.push(...(await problems(page, 'Accessibility')));
       await page.getByRole('button', { name: 'Accessibility statement' }).click();
@@ -67,7 +67,7 @@ for (const device of DEVICES) {
 
       await page.locator('.tile.area-casual').click();
       await expect(page).toHaveTitle(/^Casual/);
-      await page.getByRole('button', { name: /^Play / }).click();
+      await playCasual(page);
       await expect(page.getByRole('grid', { name: 'Sudoku board' })).toBeVisible({ timeout: 20_000 });
       found.push(...(await problems(page, 'Game')));
       await page.keyboard.press('?');
@@ -98,7 +98,7 @@ for (const device of DEVICES) {
       await settled(page);
       await page.locator('.tile.area-casual').click();
       await expect(page).toHaveTitle(/^Casual/);
-      await page.getByRole('button', { name: /^Play / }).click();
+      await playCasual(page);
       const card = page.locator('.coach-card');
       await expect(card).toBeVisible({ timeout: 20_000 });
       const found: string[] = [];

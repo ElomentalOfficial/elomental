@@ -81,7 +81,7 @@ html:not([data-large-text]) .casual-feather-art {
    speck. The page widens into two columns instead: the feather and tagline on the left,
    as tall as the cards, the cards unchanged on the right. */
 @media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
-  html:not([data-large-text]) .screen.casual {
+  html:not([data-large-text]) .screen.casual:not(.has-banner) {
     max-width: calc(820px * var(--text-scale, 1));
   }
   html:not([data-large-text]) .casual-body {
@@ -495,4 +495,115 @@ html[data-reduce-motion] .clash-live .brush-art {
 .difficulty:active,
 .friend-option:active {
   filter: brightness(1.08);
+}
+
+/*
+ * Wide screens (banner.css): the feather hangs on the green banner and each way to play is a
+ * door. The difficulty doors take the height the page has, each with a square as sparse as
+ * its own dealt a little crooked; your waiting square sits over them, Clash and Square code
+ * under them.
+ */
+@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+  .casual.has-banner .banner-art .casual-feather {
+    width: min(260px, 100%);
+    height: min(220px, 100%);
+  }
+  .casual.has-banner .casual-new {
+    flex: 1 0 auto;
+  }
+  .casual.has-banner .casual-new .door-row {
+    flex: 1 1 auto;
+    min-height: calc(290px * var(--text-scale));
+  }
+  .door.difficulty-door {
+    padding: var(--space-5) var(--space-4);
+  }
+  .difficulty-door .pips i {
+    width: 9px;
+    height: 9px;
+  }
+  /* the three doors share their rows (subgrid): pips, square, name, line, and the last one you
+     played says so under its line, so the names stay level whatever wraps */
+  /* (three across at any Text size: a third alone on a row would read as the odd one out) */
+  html[data-large-text] .casual-new .door-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .casual-new .door-row {
+    grid-template-rows: auto minmax(0, 1fr) auto auto calc(1.3em + var(--space-1));
+  }
+  .door.difficulty-door {
+    display: grid;
+    grid-row: span 5;
+    grid-template-rows: subgrid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    row-gap: var(--space-2);
+  }
+  .difficulty-door .door-pic {
+    justify-self: stretch;
+  }
+  .dealt {
+    display: block;
+    width: min(200px, 78%, 25dvh);
+    transform: rotate(-4deg);
+    transition: transform 0.25s ease-out;
+  }
+  .difficulty-door:nth-child(2) .dealt {
+    transform: rotate(3deg);
+  }
+  .difficulty-door:nth-child(3) .dealt {
+    transform: rotate(-2deg);
+  }
+  @media (hover: hover) {
+    .difficulty-door:hover .dealt {
+      transform: rotate(0deg) scale(1.03);
+    }
+  }
+  html[data-reduce-motion] .dealt {
+    transition: none;
+  }
+  .door.resume-door {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: var(--space-5);
+    padding: var(--space-4) var(--space-5);
+    text-align: left;
+  }
+  .resume-board {
+    flex: none;
+    width: 84px;
+    transform: rotate(-4deg);
+  }
+  .resume-words,
+  .friend-words {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+  .resume-door .resume-go {
+    width: 56px;
+    height: 56px;
+    padding: 18px 16px 18px 20px;
+  }
+  .door.friend-door {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: var(--space-5);
+    min-height: calc(128px * var(--text-scale));
+    padding: var(--space-4) var(--space-6);
+    text-align: left;
+  }
+  .friend-art {
+    flex: none;
+    display: block;
+    width: 96px;
+    height: 76px;
+  }
+  .friend-art > :is(.brush-art, .clash-live) {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
 }

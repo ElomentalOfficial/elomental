@@ -1,4 +1,6 @@
+import { TEXT_SIZES, a11yPrefs } from '../a11y.ts';
 import { signUpForm } from '../accountForm.ts';
+import { avatarSvg } from '../avatar.ts';
 import {
   NAME_COOLDOWN_DAYS,
   cachedAccount,
@@ -10,14 +12,16 @@ import {
   setDisplayName,
   signOut,
 } from '../backend.ts';
-import { segmented } from '../controls.ts';
+import { cachedLoadout, cachedPolish } from '../backend/forge.ts';
+import { choice, segmented } from '../controls.ts';
 import { ICONS } from '../icons.ts';
 import { addToHome, canAddToHome } from '../install.ts';
 import { openLazy } from '../lazy.ts';
+import { miniBoard, sampleGivens } from '../miniBoard.ts';
 import { notesWheelOn } from '../settings.ts';
 import { getTheme, type Theme } from '../theme.ts';
 import { deviceInfo } from '../viewport.ts';
-import { closeButton, goBack, h, mount, openModal, subPage, toast, type Screen } from '../ui.ts';
+import { closeButton, goBack, h, mount, openModal, rebuildOnLayout, subPage, toast, wideLayout, type Banner, type Screen } from '../ui.ts';
 import { accessibilityScreen } from './accessibility.ts';
 import { homeScreen } from './home.ts';
 import { founderUnlocked, hasAuthenticator, startEnrolment, verifyCode } from '../backend/founder.ts';
@@ -25,6 +29,39 @@ import { IS_BETA } from '../backend/client.ts';
 import * as copy from '../copy/en.ts';
 
 export function setupScreen(): Screen {
+  if (wideLayout()) return setupDoors();
+  const [themeRow, wheelRow, tutorialRow] = lookSections();
+
+  // Hidden diagnostics: five taps on the title show what the phone reports about its screen.
+  const title = h('h1', { text: copy.setup.title });
+  const info = h('pre', { class: 'device-info' });
+  let taps = 0;
+  title.addEventListener('click', () => {
+    if (++taps < 5) return;
+    taps = 0;
+    info.textContent = info.textContent ? '' : deviceInfo().join('\n');
+  });
+
+  const el = subPage(
+    { className: 'setup', title, onBack: () => void goBack(homeScreen) },
+    accountSection(),
+    founderGate(),
+    devSection(),
+    themeRow,
+    wheelRow,
+    accessibilityLink(),
+    privacyLink(),
+    addToHomeRow(),
+    tutorialRow,
+    info,
+    buildLine(),
+  );
+  rebuildOnLayout(el, setupScreen);
+  return { el, title: copy.setup.title };
+}
+
+/** Theme, the notes wheel and the tutorial: Setup's rows on a phone, Look and play on a wide screen. */
+function lookSections(): HTMLElement[] {
   const theme = segmented<Theme>({
     options: [
       { value: 'dark', label: copy.setup.dark, icon: ICONS.moon },
@@ -46,54 +83,129 @@ export function setupScreen(): Screen {
     theme.paint();
     wheel.paint();
   });
-
-  // Hidden diagnostics: five taps on the title show what the phone reports about its screen.
-  const title = h('h1', { text: copy.setup.title });
-  const info = h('pre', { class: 'device-info' });
-  let taps = 0;
-  title.addEventListener('click', () => {
-    if (++taps < 5) return;
-    taps = 0;
-    info.textContent = info.textContent ? '' : deviceInfo().join('\n');
+  const tutorial = h('button', {
+    class: 'btn',
+    text: copy.setup.tutorialReplay,
+    onclick: () => {
+      saveSettings({ tutorialDone: false });
+      toast(copy.setup.tutorialQueued);
+    },
   });
+  // a wide screen's Look and play page: one card of choices, as Accessibility's (the banner beside it
+  // gives the title)
+  if (wideLayout()) {
+    return [
+      h('div', { class: 'setting choice-list' },
+        choice('setup-theme', copy.setup.theme, copy.setup.themeHelp, theme.el),
+        choice('setup-wheel', copy.setup.notesWheel, copy.setup.notesWheelHelp, wheel.el),
+        choice('setup-tutorial', copy.setup.tutorial, copy.setup.tutorialHelp, tutorial)),
+    ];
+  }
+  return [
+    h('section', { class: 'setting' }, h('div', {}, h('h2', { text: copy.setup.theme }), h('p', { text: copy.setup.themeHelp })), theme.el),
+    h('section', { class: 'setting' }, h('div', {}, h('h2', { text: copy.setup.notesWheel }), h('p', { text: copy.setup.notesWheelHelp })), wheel.el),
+    h('section', { class: 'setting' }, h('div', {}, h('h2', { text: copy.setup.tutorial }), h('p', { text: copy.setup.tutorialHelp })), tutorial),
+  ];
+}
 
-  const el = subPage(
-    { className: 'setup', title, onBack: () => void goBack(homeScreen) },
-    accountSection(),
-    founderGate(),
-    devSection(),
+/** Setup's banner on a wide screen (and its pages'): the cog, a line, and you with the build at its foot. */
+export function setupBanner(help: string): Banner {
+  const avatar = h('span', { class: 'avatar worn setup-you-avatar', attrs: { 'aria-hidden': 'true' } });
+  const name = h('strong', { class: 'setup-you-name' });
+  const foot = h('div', { class: 'setup-you' }, avatar, name, buildLine());
+  // a new name, a sign-out or a sign-in shows at once
+  const paint = () => {
+    avatar.innerHTML = avatarSvg(cachedLoadout(), cachedPolish());
+    name.textContent = cachedAccount()?.name ?? '';
+    name.hidden = !name.textContent;
+  };
+  paint();
+  let shown = false;
+  const stop = onAccountChange(() => {
+    if (shown && !foot.isConnected) return stop();
+    shown ||= foot.isConnected;
+    paint();
+  });
+  return { art: h('span', { class: 'setup-banner-art', html: ICONS.setup }), help, foot };
+}
+
+/** One of Setup's pages on a wide screen: its rows in a column beside the Setup banner. */
+function setupTopic(title: string, help: string, ...rows: (HTMLElement | null)[]): Screen {
+  const el = subPage({ className: 'setup setup-topic', title, onBack: () => void goBack(setupScreen), banner: setupBanner(help) }, ...rows);
+  // back to the phone's long Setup if the window narrows
+  rebuildOnLayout(el, setupScreen);
+  return { el, title };
+}
+
+/**
+ * Setup on a wide screen (banner.css): a door for each part, its picture and a bold line saying
+ * what's set behind it, so you can check your setup without opening a thing. Account, Look and
+ * play, Accessibility and Privacy always; installing where the browser allows it; the founder
+ * tools for founders.
+ */
+function setupDoors(): Screen {
+  const d = copy.setup.doors;
+  const door = (cls: string, pic: Node, title: string, line: string, state: string | null, onTap: () => void) =>
     h(
-      'section',
-      { class: 'setting' },
-      h('div', {}, h('h2', { text: copy.setup.theme }), h('p', { text: copy.setup.themeHelp })),
-      theme.el,
-    ),
-    h(
-      'section',
-      { class: 'setting' },
-      h('div', {}, h('h2', { text: copy.setup.notesWheel }), h('p', { text: copy.setup.notesWheelHelp })),
-      wheel.el,
-    ),
-    accessibilityLink(),
-    privacyLink(),
-    addToHomeRow(),
-    h(
-      'section',
-      { class: 'setting' },
-      h('div', {}, h('h2', { text: copy.setup.tutorial }), h('p', { text: copy.setup.tutorialHelp })),
-      h('button', {
-        class: 'btn',
-        text: copy.setup.tutorialReplay,
-        onclick: () => {
-          saveSettings({ tutorialDone: false });
-          toast(copy.setup.tutorialQueued);
-        },
-      }),
-    ),
-    info,
-    buildLine(),
-  );
-  return { el, title: copy.setup.title };
+      'button',
+      { class: `door setup-door ${cls}`, attrs: { type: 'button' }, onclick: onTap },
+      h('span', { class: 'door-pic', attrs: { 'aria-hidden': 'true' } }, pic),
+      h('span', { class: 'door-title', text: title }),
+      h('span', { class: 'door-line', text: line }),
+      state ? h('span', { class: 'door-state', text: state }) : null,
+    );
+  const openAccount = () => mount(setupTopic(copy.account.title, cachedAccount() && !cachedAccount()!.anonymous ? d.accountLine : d.accountGuestLine, accountSection()));
+
+  function doors(): HTMLElement[] {
+    const account = cachedAccount();
+    const guest = !account || account.anonymous;
+    const prefs = a11yPrefs();
+    const avatar = () => h('span', { class: 'avatar worn', html: avatarSvg(cachedLoadout(), cachedPolish()) });
+    // the current theme's square dealt on top of the other's
+    const dark = getTheme() === 'dark';
+    const squares = h('span', { class: `look-pic${dark ? '' : ' light-on-top'}` },
+      h('span', { class: 'as-dark' }, miniBoard(sampleGivens(34, 5), sampleGivens(48, 5))),
+      h('span', { class: 'as-light' }, miniBoard(sampleGivens(34, 9), sampleGivens(48, 9))));
+    const sizes = h('span', { class: 'a11y-pic' },
+      ...TEXT_SIZES.map((size) => h('span', { class: size === prefs.textSize ? 'on' : '', text: 'Aa', attrs: { style: `--size: ${size / 100}` } })));
+    const unlocked = founderUnlocked();
+    return [
+      door('account-door', h('span', { class: 'name-pic' }, h('span', { text: account?.name ?? '' })), copy.account.title,
+        guest ? d.accountGuestLine : d.accountLine, guest ? d.guest : d.signedIn, openAccount),
+      door('look-door', squares, d.look, d.lookLine, d.lookState(dark ? copy.setup.dark : copy.setup.light, notesWheelOn()),
+        () => mount(setupTopic(d.look, d.lookLine, ...lookSections()))),
+      door('a11y-door', sizes, copy.setup.a11y.title, d.a11yLine, d.a11yState(prefs.textSize, prefs.sounds), () => mount(accessibilityScreen())),
+      door('privacy-door', h('span', { class: 'privacy-pic' }, avatar(), h('i'), h('i'), h('i'), h('span', { class: 'privacy-eye', html: !guest && account?.lbHidden ? ICONS.eyeOff : ICONS.eye })),
+        copy.privacy.title, d.privacyLine, guest ? d.privacyGuest : d.privacyState(!account?.lbHidden),
+        guest ? openAccount : () => openLazy(() => import('./privacy.ts'), (m) => mount(m.privacyScreen()))),
+      canAddToHome()
+        ? door('app-door', h('span', { class: 'app-pic' }, h('img', { attrs: { src: document.querySelector<HTMLLinkElement>('link[rel="apple-touch-icon"]')?.href ?? '', alt: '' } })),
+            copy.install.title, copy.install.help, null, () => void addToHome())
+        : null,
+      isFounder() && !guest
+        ? door('founder-door', h('span', { class: 'founder-pic' }, ...['s0-avatar-happy', 's0-avatar-calm', 's0-avatar-silly'].map((id) => h('span', { class: 'avatar worn', html: avatarSvg({ avatar: id }) })), h('i', { class: 'lens' })),
+            copy.founder.title, d.founderLine, d.founderState(unlocked, !!account?.devMode),
+            () => (founderUnlocked()
+              ? openLazy(() => import('./founderConsole.ts'), (m) => mount(m.founderConsole()))
+              : void hasAuthenticator().then((has) => (has === false ? openSetUp() : openCode()))))
+        : null,
+    ].filter((x): x is HTMLButtonElement => !!x);
+  }
+  const row = h('div', { class: 'door-row setup-doors' });
+  const paint = () => {
+    const list = doors();
+    row.style.setProperty('--doors', list.length === 4 ? '2' : '3');
+    row.replaceChildren(...list);
+  };
+  paint();
+  const el = subPage({ className: 'setup', title: copy.setup.title, onBack: () => void goBack(homeScreen), banner: setupBanner(copy.setup.bannerHelp) }, row);
+  // what's set behind each door follows the account (a theme picked on another device, a sign-up)
+  const stop = onAccountChange(() => {
+    if (!el.isConnected) return stop();
+    paint();
+  });
+  rebuildOnLayout(el, setupScreen);
+  return { el, title: copy.setup.title, destroy: stop };
 }
 
 /** Which version this is, at the very bottom (vite.config.ts stamps it; build.json has the date and commit too). */

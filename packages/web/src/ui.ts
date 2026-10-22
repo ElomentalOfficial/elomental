@@ -1,5 +1,6 @@
 import { reducedMotion } from './a11y.ts';
 import { ICONS } from './icons.ts';
+import { pageBanner } from './pageBanner.ts';
 import * as copy from './copy/en.ts';
 
 type Child = Node | string | null | undefined | false;
@@ -49,24 +50,58 @@ export function mount(screen: Screen): void {
   if (scroller) watchEdges(scroller);
 }
 
+/** The wide layout (wide.css): tablets on their side, laptops and desktops. */
+const wideMedia = matchMedia('(min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4)');
+export const wideLayout = (): boolean => wideMedia.matches;
+
+/**
+ * A page built for one layout (a banner page on a wide screen, the column on a phone) is
+ * built again for the other when the window changes over (a tablet turned, a window
+ * resized), while it's still the page on screen.
+ */
+export function rebuildOnLayout(el: HTMLElement, rebuild: () => Screen): void {
+  // one page is on screen at a time: the latest to ask is the one rebuilt
+  layoutPage = { el, rebuild };
+}
+let layoutPage: { el: HTMLElement; rebuild: () => Screen } | null = null;
+wideMedia.addEventListener('change', () => {
+  if (layoutPage?.el.isConnected) mount(layoutPage.rebuild());
+});
+
+/**
+ * A wide page's banner (pageBanner.ts): hung from the top edge on the left, it carries Back
+ * and the title, the page's own art, a line on what the page is for, and something of
+ * yours at its foot. Phones keep the plain header.
+ */
+export interface Banner {
+  art?: Child;
+  help?: string;
+  foot?: Child;
+  /** The Casual banner wears its Home tile's green; the others its grey. */
+  tone?: 'forest';
+}
+
 /**
  * A page under Home or Setup: a header that stays put (back button, title)
  * over a body that scrolls when it outgrows the screen, so Back is always in
- * reach. `className` keeps each page's own styles and entry animation.
+ * reach. `className` keeps each page's own styles and entry animation. With a
+ * `banner`, a wide screen hangs the header in a banner beside the body instead.
  */
-export function subPage(options: { className: string; title: string | HTMLElement; onBack: () => void }, ...body: Child[]): HTMLElement {
+export function subPage(options: { className: string; title: string | HTMLElement; onBack: () => void; banner?: Banner }, ...body: Child[]): HTMLElement {
   // long titles ("Leaderboard and card") take the smaller size, so they fit in two short lines
   const title = typeof options.title === 'string' ? h('h1', { class: options.title.length > 16 ? 'long' : '', text: options.title }) : options.title;
+  const header = h(
+    'header',
+    { class: 'subbar' },
+    h('button', { class: 'icon-btn', html: ICONS.back, attrs: { 'aria-label': copy.common.back }, onclick: options.onBack }),
+    title,
+    h('span', { class: 'icon-btn-spacer' }),
+  );
+  const banner = options.banner && wideLayout() ? pageBanner(header, options.banner) : null;
   return h(
     'div',
-    { class: `screen sub ${options.className}` },
-    h(
-      'header',
-      { class: 'subbar' },
-      h('button', { class: 'icon-btn', html: ICONS.back, attrs: { 'aria-label': copy.common.back }, onclick: options.onBack }),
-      title,
-      h('span', { class: 'icon-btn-spacer' }),
-    ),
+    { class: `screen sub ${options.className}${banner ? ` has-banner${options.banner?.tone ? ` banner-${options.banner.tone}` : ''}` : ''}` },
+    banner ?? header,
     h('div', { class: 'sub-body scrollable' }, ...body),
   );
 }

@@ -1,4 +1,4 @@
-import { axe, expect, settled, startCasualByKeyboard, test } from './fixtures.ts';
+import { axe, expect, openAccessibility, settled, startCasualByKeyboard, test } from './fixtures.ts';
 
 test('Home has no axe violations', async ({ app }) => {
   expect(await axe(app)).toEqual([]);
@@ -81,7 +81,7 @@ test('Setup, the Accessibility page and the statement have no axe violations', a
   await app.locator('.tile.area-setup').click();
   await expect(app.getByRole('heading', { name: 'Accessibility', level: 2 })).toBeVisible();
   expect(await axe(app)).toEqual([]);
-  await app.getByRole('button', { name: 'Open accessibility' }).click();
+  await openAccessibility(app);
   await expect(app).toHaveTitle('Accessibility · Elomental');
   expect(await axe(app)).toEqual([]);
   await app.getByRole('button', { name: 'Accessibility statement' }).click();
@@ -91,7 +91,7 @@ test('Setup, the Accessibility page and the statement have no axe violations', a
 
 test('on long pages the header with Back stays in view while the body scrolls', async ({ app }) => {
   await app.locator('.tile.area-setup').click();
-  await app.getByRole('button', { name: 'Open accessibility' }).click();
+  await openAccessibility(app);
   const back = app.getByRole('button', { name: 'Back' });
   await settled(app);
   const before = await back.boundingBox();
@@ -103,21 +103,24 @@ test('on long pages the header with Back stays in view while the body scrolls', 
 test('desktop: the wheel scrolls the page from anywhere, and the column widens with Text size', async ({ app }) => {
   await app.setViewportSize({ width: 1302, height: 735 });
   await app.locator('.tile.area-setup').click();
-  await app.getByRole('button', { name: 'Open accessibility' }).click();
+  await openAccessibility(app);
   await settled(app);
-  const width = () => app.locator('.screen.sub').evaluate((s) => s.getBoundingClientRect().width);
+  // (wide screens hang the page in a banner beside its column of cards: banner.css)
+  await expect(app.locator('.screen.sub.has-banner')).toBeVisible();
+  const width = () => app.locator('.sub-body .setting-group').first().evaluate((s) => s.getBoundingClientRect().width);
   const normal = await width();
-  // The far left edge, well outside the column.
-  await app.mouse.move(20, 400);
+  // The far left edge, outside the banner and the column.
+  await app.mouse.move(12, 400);
   await app.mouse.wheel(0, 300);
   await expect.poll(() => app.locator('.sub-body').evaluate((b) => b.scrollTop)).toBeGreaterThan(0);
   await app.getByRole('radio', { name: '200%' }).click();
-  expect(await width()).toBeGreaterThan(normal * 1.5);
+  // larger words take more of the field, so their lines keep their length
+  expect(await width()).toBeGreaterThan(normal);
 });
 
 test('200% text: nothing is cut off and nothing scrolls sideways', async ({ app }) => {
   await app.locator('.tile.area-setup').click();
-  await app.getByRole('button', { name: 'Open accessibility' }).click();
+  await openAccessibility(app);
   await app.getByRole('radio', { name: '200%' }).click();
   const problems = () =>
     app.evaluate(() => {

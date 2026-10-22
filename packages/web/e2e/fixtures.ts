@@ -178,11 +178,12 @@ export const SIZES = [100, 125, 150, 200];
 /** Elements that frame content: text must stay inside the nearest one. */
 const BOXES =
   'button, a.btn, .tile, .setting, .modal, .profile-card, .coach-card, .resume-card, .friend-option, .subbar, .key, .action, .cell, .segment, .difficulty, .month-card, .reward-card, ' +
-  '.forge-head, .part-card, .plate-card, .affinity-card, .lb-me, .lb-faction, .profile-section, .lb-who, .lb-leader-name';
+  '.forge-head, .part-card, .plate-card, .affinity-card, .lb-me, .lb-faction, .profile-section, .lb-who, .lb-leader-name, .door, .page-banner, .lb-podium, .pennant';
 /** Rows and grids whose children must not overlap one another. */
 const ROWS =
   '.home-grid, .profile-card, .pc-badges, .subbar, .segmented, .pad, .actions-row, .difficulty-picker, .friend-card, .topbar, .status, .casual-head, .coach-actions, .calendar, ' +
-  '.part-grid, .plate-grid, .affinity-grid, .lb-strength-legend, .lb-me, .lb-tabs, .lb-meta-row, .badge-grid, .lb-row-btn, .lb-leader';
+  '.part-grid, .plate-grid, .affinity-grid, .lb-strength-legend, .lb-me, .lb-tabs, .lb-meta-row, .badge-grid, .lb-row-btn, .lb-leader, ' +
+  '.door-row, .door, .lb-controls, .lb-top, .lb-podium, .lb-pennants, .page-banner';
 
 /** What runs out of its box, off the screen, or over its neighbours, on the page as it is now. */
 export async function problems(page: Page, where: string): Promise<string[]> {
@@ -240,14 +241,26 @@ export async function problems(page: Page, where: string): Promise<string[]> {
   );
 }
 
+/**
+ * Ways into the pages that are a button on a phone and a door on a wide screen (banner.css):
+ * Setup's Accessibility and Privacy, and Casual's play.
+ */
+export const openAccessibility = (page: Page) => page.locator('.setting:has-text("Accessibility") .btn, .setup-door.a11y-door').first().click();
+export const openPrivacy = (page: Page) => page.locator('.setting:has-text("Leaderboard and card") .btn, .setup-door.privacy-door').first().click();
+export const playCasual = (page: Page) => page.getByRole('button', { name: /^Play / }).first().click();
+
 /** Start a Casual Easy game from Home using only the keyboard. */
 export async function startCasualByKeyboard(page: Page) {
   await page.locator('.tile.area-casual').focus();
   await page.keyboard.press('Enter');
   await expect(page).toHaveTitle(/^Casual/);
-  await page.getByRole('radio', { name: 'Easy' }).focus();
-  await page.keyboard.press('Enter');
-  await page.getByRole('button', { name: 'Play Easy' }).focus();
+  // a phone picks Easy, then plays; a wide screen has a door for it
+  const door = page.getByRole('button', { name: /^Play Easy\./ });
+  if (!(await door.count())) {
+    await page.getByRole('radio', { name: 'Easy' }).focus();
+    await page.keyboard.press('Enter');
+  }
+  await (await door.count() ? door : page.getByRole('button', { name: 'Play Easy' })).focus();
   await page.keyboard.press('Enter');
   await expect(page.getByRole('grid', { name: 'Sudoku board' })).toBeVisible({ timeout: 20_000 });
 }

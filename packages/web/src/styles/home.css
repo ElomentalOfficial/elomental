@@ -439,6 +439,7 @@
 .casual-card,
 .friend-option,
 .resume-card,
+.door,
 .modal,
 .review-row,
 .review-log {
@@ -451,6 +452,7 @@
 .casual-card::after,
 .friend-option::after,
 .resume-card::after,
+.door::after,
 .modal::after,
 .review-row::after,
 .review-log::after {
@@ -460,7 +462,7 @@
 /* The drawing, shared by every frame: corners at the four corners, then each edge line
    (one or two per frame, --o1 and --o2 units in) between them, --fw units thick. A
    corner is 40 units, so one unit is --corner / 40. */
-:is(.home-grid > .tile, .profile-card, .setting, .month-card, .reward-card, .casual-card, .friend-option, .resume-card, .modal, .review-row, .review-log)::after {
+:is(.home-grid > .tile, .profile-card, .setting, .month-card, .reward-card, .casual-card, .friend-option, .resume-card, .door, .modal, .review-row, .review-log)::after {
   --k: calc(var(--corner) / 40);
   --lw: calc(var(--fw, 1.3) * var(--k));
   --y1: calc(var(--o1, 5) * var(--k) - var(--lw) / 2);
@@ -488,14 +490,14 @@
 }
 /* Which ink: Bright on the dark theme, Crimson on the light one (frames.css gives each
    frame its pair; the coloured mode tiles keep Bright in both). */
-:is(.home-grid > .tile, .profile-card, .setting, .month-card, .reward-card, .casual-card, .friend-option, .resume-card, .modal, .review-row, .review-log) {
+:is(.home-grid > .tile, .profile-card, .setting, .month-card, .reward-card, .casual-card, .friend-option, .resume-card, .door, .modal, .review-row, .review-log) {
   --f-tl: var(--f-tl-b);
   --f-tr: var(--f-tr-b);
   --f-bl: var(--f-bl-b);
   --f-br: var(--f-br-b);
   --frame-line: var(--fl-b);
 }
-:root[data-theme='light'] :is(.home-grid > .tile, .profile-card, .setting, .month-card, .reward-card, .casual-card, .friend-option, .resume-card, .modal, .review-row, .review-log) {
+:root[data-theme='light'] :is(.home-grid > .tile, .profile-card, .setting, .month-card, .reward-card, .casual-card, .friend-option, .resume-card, .door, .modal, .review-row, .review-log) {
   --f-tl: var(--f-tl-c);
   --f-tr: var(--f-tr-c);
   --f-bl: var(--f-bl-c);

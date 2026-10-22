@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { settled, signedIn, topEdgeProblems } from './fixtures.ts';
+import { openAccessibility, openPrivacy, settled, signedIn, topEdgeProblems } from './fixtures.ts';
 
 /**
  * The top of every page (the owner's standing check): under the fixed header, nothing in a
@@ -35,14 +35,14 @@ for (const { name, width, height } of [
       await page.locator('.tile.area-setup').first().click();
       await expect(page).toHaveTitle(/Setup/);
       await check('Setup');
-      await page.locator('.setting', { hasText: 'Leaderboard and card' }).getByRole('button').click();
+      await openPrivacy(page);
       await expect(page).toHaveTitle(/Leaderboard and card/);
       await check('Leaderboard and card');
       await home(page);
       await settled(page);
       await page.locator('.tile.area-setup').first().click();
       await expect(page).toHaveTitle(/Setup/);
-      await page.locator('.setting', { hasText: 'Accessibility' }).getByRole('button').first().click();
+      await openAccessibility(page);
       await expect(page).toHaveTitle(/Accessibility/);
       await check('Accessibility');
       await home(page);

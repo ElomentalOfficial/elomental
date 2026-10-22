@@ -21,7 +21,7 @@ import { paintPlate } from '../plates.ts';
 import { cardAvatar, markGilt, openPlayerCard } from '../playerCard.ts';
 import { ELEMENTS, nextRank, rankTier, type Element } from '../profile.ts';
 import { readJson, writeJson } from '../storage.ts';
-import { closeButton, goBack, h, mount, openModal, subPage, type Screen } from '../ui.ts';
+import { closeButton, goBack, h, mount, openModal, rebuildOnLayout, subPage, wideLayout, type Screen } from '../ui.ts';
 import { affinityScreen } from './affinity.ts';
 import { homeScreen } from './home.ts';
 import { playerProfileScreen } from './player.ts';
@@ -76,20 +76,30 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
   const more = h('button', { class: 'btn lb-more', text: t.showMore, attrs: { type: 'button' }, onclick: () => void load(page + 1) });
   const notice = h('div', { class: 'lb-notice' });
   const meBar = h('div', { class: 'lb-me', attrs: { role: 'region', 'aria-label': t.you } }, h('p', { class: 'note', text: t.meLoading }));
+  // wide screens: the top three of a list stand on a podium beside the month's pennants
+  const wide = wideLayout();
+  const podium = h('ol', { class: 'lb-podium', attrs: { 'aria-label': t.a11yPodium } });
+  podium.hidden = true;
 
-  const main = h(
-    'div',
-    { class: 'lb-main' },
-    h('div', { class: 'lb-search' }, searchField, searchStatus),
-    results,
-    h('div', { class: 'lb-tabs', attrs: { role: 'group', 'aria-label': t.a11yViews } }, ...tabs),
-    h('div', { class: 'lb-meta-row' }, h('div', { class: 'lb-head-text' }, about, meta), ranksBtn),
-    notice,
-    list,
-    more,
+  const search = h('div', { class: 'lb-search' }, searchField, searchStatus);
+  const tabGroup = h('div', { class: 'lb-tabs', attrs: { role: 'group', 'aria-label': t.a11yViews } }, ...tabs);
+  const metaRow = h('div', { class: 'lb-meta-row' }, h('div', { class: 'lb-head-text' }, about, meta), ranksBtn);
+  // Wide (banner.css): the lists and search on one row, the podium and the month side by side,
+  // then the rest of the list; you hang at the foot of the banner. Phones: the column as ever.
+  const main = wide
+    ? h('div', { class: 'lb-main' }, h('div', { class: 'lb-controls' }, tabGroup, search), results, metaRow, notice, h('div', { class: 'lb-top' }, podium, faction), list, more)
+    : h('div', { class: 'lb-main' }, search, results, tabGroup, metaRow, notice, list, more);
+  const body = h('div', { class: 'lb-layout' }, ...(wide ? [main] : [faction, main, meBar]));
+  const el = subPage(
+    {
+      className: 'leaderboard',
+      title: t.title,
+      onBack: () => void goBack(homeScreen),
+      banner: { art: h('span', { class: 'lb-banner-art', html: ICONS.leaderboard }), help: t.bannerHelp, foot: meBar },
+    },
+    body,
   );
-  const body = h('div', { class: 'lb-layout' }, faction, main, meBar);
-  const el = subPage({ className: 'leaderboard', title: t.title, onBack: () => void goBack(homeScreen) }, body);
+  rebuildOnLayout(el, () => leaderboardScreen({ view }));
 
   const myElement = (): Element | null => cachedAccount()?.affinity ?? null;
 
@@ -115,14 +125,40 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
     void paintMe();
   }
 
-  /** One row: place, avatar in its frame, name on its plate, rank and affinity, Elo. */
-  function row(r: LbRow): HTMLElement {
+  /** What a row or a podium place says to a screen reader. */
+  function rowLabel(r: LbRow): string {
     const tier = rankTier(r.elo, r.tier);
     const rank = r.title ? copy.common.titledRank(r.title, tier.label) : tier.label;
+    return view === 'season' ? t.a11ySeasonRow(r.place, r.name, r.value) : t.a11yRow(r.place, r.name, rank, r.elo);
+  }
+
+  /** A place on the podium: the player's avatar and name over the step with their place on it. */
+  function podiumPlace(r: LbRow): HTMLElement {
     const name = h('strong', { class: 'lb-name' });
     paintPlate(name, r.name, r.plate);
     const isSeason = view === 'season';
-    const label = isSeason ? t.a11ySeasonRow(r.place, r.name, r.value) : t.a11yRow(r.place, r.name, rank, r.elo);
+    return h(
+      'li',
+      { class: `lb-place-${r.place}${r.me ? ' is-me' : ''}${r.id === focusId ? ' is-focus' : ''}` },
+      h(
+        'button',
+        { class: 'lb-podium-btn', attrs: { type: 'button', 'aria-label': rowLabel(r) }, onclick: () => openCard(r.id) },
+        r.me ? h('span', { class: 'lb-podium-you', text: t.you, attrs: { 'aria-hidden': 'true' } }) : null,
+        h('span', { class: 'avatar lb-podium-avatar worn', html: cardAvatar(r), attrs: { 'aria-hidden': 'true', 'data-player': r.id } }),
+        h('span', { class: 'lb-podium-who', attrs: { 'aria-hidden': 'true' } }, name,
+          h('span', { class: 'lb-podium-score', text: `${copy.formatNumber(isSeason ? r.value : r.elo)} ${isSeason ? `${t.best} ${t.elo}` : t.elo}` })),
+        h('span', { class: 'lb-step', text: String(r.place), attrs: { 'aria-hidden': 'true' } }),
+      ),
+    );
+  }
+
+  /** One row: place, avatar in its frame, name on its plate, rank and affinity, Elo. */
+  function row(r: LbRow): HTMLElement {
+    const tier = rankTier(r.elo, r.tier);
+    const name = h('strong', { class: 'lb-name' });
+    paintPlate(name, r.name, r.plate);
+    const isSeason = view === 'season';
+    const label = rowLabel(r);
     const placeCls = r.place <= 3 ? ` medal medal-${r.place}` : r.place <= 100 ? ' top100' : '';
     return h(
       'li',
@@ -212,13 +248,18 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
     page = around ? 0 : p;
     rows = around || p === 0 || keep ? data.rows : [...rows, ...data.rows];
     total = 'total' in data ? data.total : rows.length;
-    list.replaceChildren(...rows.map(row));
+    // the top three on the podium (wide screens, a list from the top), the rest in rows
+    const top = wide && !around && rows.length >= 3 && rows[0].place === 1 ? 3 : 0;
+    podium.hidden = !top;
+    podium.replaceChildren(...rows.slice(0, top).map(podiumPlace));
+    list.replaceChildren(...rows.slice(top).map(row));
     void markGilt(list);
+    if (top) void markGilt(podium);
     paintMeta(data.updated);
     paintNotice(rows.length === 0);
     more.hidden = around || rows.length >= total || (page + 1) * 50 >= total;
     // only after Show me, or Show on the leaderboard: never on a plain load
-    if (around || focusId) list.querySelector(focusId ? '.is-focus' : '.is-me')?.scrollIntoView({ block: 'center' });
+    if (around || focusId) body.querySelector(focusId ? '.is-focus' : '.is-me')?.scrollIntoView({ block: 'center' });
   }
 
   /** The pinned bar: where you are in this view, whatever is on screen. */
@@ -246,7 +287,8 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
     else if (me.place == null) text = t.notInView[view];
     else {
       text = `${t.place(me.place)}${me.total ? ` ${t.ofTotal(me.total)}` : ''}`;
-      canJump = true;
+      // (wide: in the top three you stand on the podium already, in view)
+      canJump = !(wide && me.place <= 3);
     }
     const jump = h('button', {
       class: 'btn btn-primary lb-jump',
@@ -256,7 +298,8 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
         around = !around;
         focusId = null;
         jump.textContent = around ? t.showTop : t.showMe;
-        void load(0);
+        // keyboard and screen reader follow the jump: to your row, or back to the top of the list
+        void load(0).then(() => (around ? body.querySelector<HTMLElement>('.is-me button') : body.querySelector<HTMLElement>('.lb-podium-btn, .lb-row-btn'))?.focus({ preventScroll: true }));
       },
     });
     return [
@@ -297,7 +340,8 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
   let searchSeq = 0;
   function showSearch(on: boolean) {
     results.hidden = !on;
-    for (const n of [list, more, notice, meta.parentElement!, tabs[0].parentElement!]) n.classList.toggle('lb-dim', on);
+    // (wide screens: the podium and the month's pennants step aside too)
+    for (const n of [list, more, notice, metaRow, tabGroup, podium.parentElement]) n?.classList.toggle('lb-dim', on);
   }
   searchField.addEventListener('input', () => {
     clearTimeout(searchTimer);
@@ -398,6 +442,18 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
       ...ranked.map((s) => h('li', { class: `el-${s.affinity}` },
         h('span', { class: 'strength-dot', html: ICONS.elements[s.affinity] }),
         h('strong', { text: `${pct.get(s.affinity)}%` }))));
+    // Wide screens show the shares as four pennants hung from a rod, each as long as its share,
+    // with its glyph, share and name on it (leaderboard.css); the line under them says where
+    // yours stands. The bar and legend are for phones.
+    const pennants = h('ul', { class: 'lb-pennants', attrs: { role: 'img', 'aria-label': bar.getAttribute('aria-label')! } },
+      ...ranked.map((s) => {
+        const li = h('li', { class: `pennant el-${s.affinity}${s.affinity === b.mine ? ' is-mine' : ''}` },
+          h('span', { class: 'pennant-glyph', html: ICONS.elements[s.affinity] }),
+          h('strong', { text: `${pct.get(s.affinity)}%` }),
+          h('span', { text: name(s.affinity) }));
+        li.style.setProperty('--share', String(pct.get(s.affinity) ?? 0));
+        return li;
+      }));
     const mine = b.mine
       ? b.myInfluence > 0 && b.myPlace
         ? (b.mySolves ?? 5) < 5
@@ -417,7 +473,7 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
         h('h2', { text: t.affinitiesOf(monthName(b.month)) }),
         h('button', { class: 'link-btn', text: t.details, attrs: { type: 'button' }, onclick: () => openFaction(b) })),
       head,
-      ...(empty ? [h('p', { class: 'lb-faction-hint', text: t.emptyHint })] : [bar, legend]),
+      ...(empty ? [h('p', { class: 'lb-faction-hint', text: t.emptyHint })] : wide ? [pennants] : [bar, legend]),
       h('div', { class: 'lb-faction-foot' },
         ...(mine
           ? [h('p', { class: 'lb-faction-mine', text: [side, mine].filter(Boolean).join(' ') })]

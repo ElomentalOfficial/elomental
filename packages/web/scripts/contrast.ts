@@ -44,6 +44,11 @@ export const PAIRS: Pair[] = [
   ['Daily tile label (Bright on Crimson)', '--c-bright', '--c-crimson', 4.5],
   ['Casual tile label (Bright on Forest)', '--c-bright', '--c-forest', 4.5],
   ['Ranked tile label (Bright on Lava)', '--c-bright', '--c-lava', 4.5],
+  // Wide pages (banner.css): the banner carries its tile's colours (above); the rest is new
+  ['Back button on a banner (12% of its ink)', '--tile-text', '--tile', 3],
+  ['Privacy door eye (inked disc)', '--surface', '--text', 3],
+  ['Podium step number', '--text', '--surface-2', 4.5],
+  ['Podium step of your own place', '--text', '--chosen-bg', 4.5, '--surface'],
   // Rarities, elements and Home tones: every role of each on every surface, below (SWATCHES)
   ['Chosen card text (wearing, your plate)', '--text', '--chosen-bg', 4.5, '--surface'],
   // Name plates: every metal on every surface a plate sits on, below (PLATE_SURFACES)

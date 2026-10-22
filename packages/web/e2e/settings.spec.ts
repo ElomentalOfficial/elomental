@@ -1,5 +1,5 @@
 import type { Page } from '@playwright/test';
-import { expect, settled, startCasualByKeyboard, test } from './fixtures.ts';
+import { expect, openAccessibility, settled, startCasualByKeyboard, test } from './fixtures.ts';
 
 /**
  * Every choice on Setup > Accessibility does what it says: each is checked
@@ -43,7 +43,7 @@ const label = (page: Page, cell: number) => page.locator(`[data-cell="${cell}"]`
 
 test('every choice on the Accessibility page is stored and shown as chosen', async ({ app }) => {
   await app.locator('.tile.area-setup').click();
-  await app.getByRole('button', { name: 'Open accessibility' }).click();
+  await openAccessibility(app);
   const pick = async (group: string, option: string) => {
     const radio = app.getByRole('radiogroup', { name: group }).getByRole('radio', { name: option });
     await radio.click();

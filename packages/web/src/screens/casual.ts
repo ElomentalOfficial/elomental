@@ -1,8 +1,11 @@
-import type { Difficulty } from '@elomental/engine';
+import { PROFILES, type Difficulty } from '@elomental/engine';
 import { reducedMotion } from '../a11y.ts';
+import { cachedAccount } from '../backend.ts';
 import { ICONS } from '../icons.ts';
+import { miniBoard, sampleGivens } from '../miniBoard.ts';
+import { puzzleProfile } from '../profile.ts';
 import { readJson, writeJson } from '../storage.ts';
-import { formatTime, goBack, h, subPage, type Screen } from '../ui.ts';
+import { closeButton, formatTime, goBack, h, openModal, rebuildOnLayout, subPage, wideLayout, type Screen } from '../ui.ts';
 import { openClash } from './clashSheet.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
 import { homeScreen } from './home.ts';
@@ -126,37 +129,147 @@ export function casualScreen(): Screen {
       h('small', { text: info }),
     );
 
+  const solved = cachedAccount()?.solved;
   const el = subPage(
-    { className: 'casual', title: say.title, onBack: () => void goBack(homeScreen) },
-    h(
-      'div',
-      { class: 'casual-body' },
+    {
+      className: 'casual',
+      title: say.title,
+      onBack: () => void goBack(homeScreen),
+      banner: {
+        tone: 'forest',
+        art: playfulFeather(),
+        help: say.text,
+        foot: solved ? h('p', { class: 'banner-stat' }, h('strong', { text: copy.formatNumber(solved) }), h('span', { text: say.solved })) : null,
+      },
+    },
+    ...(wideLayout()
+      ? casualDoors(saved)
+      : [
+          h(
+            'div',
+            { class: 'casual-body' },
+            h(
+              'div',
+              { class: 'casual-head' },
+              playfulFeather(),
+              h('p', { text: say.text }),
+            ),
+            resume,
+            h(
+              'section',
+              { class: 'casual-card', attrs: { 'aria-labelledby': 'casual-new-game' } },
+              h('h2', { class: 'casual-label', attrs: { id: 'casual-new-game' }, text: say.newGame }),
+              h('div', { class: 'difficulty-picker', attrs: { role: 'radiogroup', 'aria-labelledby': 'casual-new-game' } }, ...segments),
+              playButton,
+            ),
+            h(
+              'section',
+              { class: 'casual-friends', attrs: { 'aria-labelledby': 'casual-with-friend' } },
+              h('h2', { class: 'casual-label', attrs: { id: 'casual-with-friend' }, text: say.withFriend }),
+              h(
+                'div',
+                { class: 'friend-card' },
+                friend(ICONS.clash, say.clash, say.clashInfo, () => openClash(now)),
+                friend(ICONS.square, say.squareCode, say.squareCodeInfo, () => openSquareCode(now)),
+              ),
+            ),
+          ),
+        ]),
+  );
+  rebuildOnLayout(el, casualScreen);
+  return { el, title: say.title };
+}
+
+/**
+ * Casual on a wide screen (banner.css): the feather on the green banner, and every way to
+ * play a door of its own. Your waiting square on top, then a door per difficulty, each with
+ * a square as sparse as its own (one click plays it), then Clash and Square code.
+ */
+function casualDoors(saved: ReturnType<typeof loadSavedGame>): HTMLElement[] {
+  const say = copy.home.casual;
+  const last = readJson<Difficulty>(CASUAL_PICK_KEY);
+  const doors: HTMLElement[] = [];
+  const waiting = saved?.config.mode === 'casual' ? saved : null;
+  const givens = waiting ? [...waiting.config.puzzle].filter((c) => c !== '0').length : 0;
+  const percent = waiting ? Math.max(0, Math.round(((waiting.values.filter(Boolean).length - givens) / Math.max(1, 81 - givens)) * 100)) : 0;
+  /** A new square ends the waiting one: with one waiting, ask first. */
+  const play = (difficulty: Difficulty) => {
+    const go = () => {
+      writeJson(CASUAL_PICK_KEY, difficulty);
+      void startGame({ mode: 'casual', difficulty });
+    };
+    if (!waiting) return go();
+    const close = openModal(
       h(
         'div',
-        { class: 'casual-head' },
-        playfulFeather(),
-        h('p', { text: say.text }),
+        { class: 'sheet' },
+        closeButton(() => close()),
+        h('h2', { text: say.replaceTitle }),
+        h('p', { text: say.replaceText(waiting.config.difficulty, percent) }),
+        h('button', { class: 'btn btn-primary', text: say.keepPlaying, attrs: { type: 'button' }, onclick: () => { close(); resumeGame(waiting); } }),
+        h('button', { class: 'btn', text: say.startNew, attrs: { type: 'button' }, onclick: () => { close(); go(); } }),
       ),
-      resume,
+    );
+  };
+  if (saved && waiting) {
+    doors.push(
       h(
-        'section',
-        { class: 'casual-card', attrs: { 'aria-labelledby': 'casual-new-game' } },
-        h('h2', { class: 'casual-label', attrs: { id: 'casual-new-game' }, text: say.newGame }),
-        h('div', { class: 'difficulty-picker', attrs: { role: 'radiogroup', 'aria-labelledby': 'casual-new-game' } }, ...segments),
-        playButton,
-      ),
-      h(
-        'section',
-        { class: 'casual-friends', attrs: { 'aria-labelledby': 'casual-with-friend' } },
-        h('h2', { class: 'casual-label', attrs: { id: 'casual-with-friend' }, text: say.withFriend }),
+        'button',
+        { class: 'door resume-door', attrs: { type: 'button' }, onclick: () => resumeGame(saved) },
+        h('span', { class: 'resume-board' }, miniBoard(saved.config.puzzle, saved.values.map((v) => v || 0).join(''))),
         h(
-          'div',
-          { class: 'friend-card' },
-          friend(ICONS.clash, say.clash, say.clashInfo, () => openClash(now)),
-          friend(ICONS.square, say.squareCode, say.squareCodeInfo, () => openSquareCode(now)),
+          'span',
+          { class: 'resume-words' },
+          h('span', { class: 'door-line', text: say.waiting }),
+          h('span', { class: 'door-title', text: say.resume(saved.config.difficulty) }),
+          h('span', { class: 'door-line', text: say.resumeInfo(formatTime(saved.elapsedMs), percent) }),
         ),
+        h('span', { class: 'resume-go', html: ICONS.play, attrs: { 'aria-hidden': 'true' } }),
+      ),
+    );
+  }
+  const difficultyDoor = (difficulty: Difficulty, i: number) => {
+    const count = PROFILES[puzzleProfile('casual', difficulty)].minClues;
+    return h(
+      'button',
+      {
+        class: 'door difficulty-door',
+        attrs: { type: 'button', 'aria-label': say.a11yDifficultyDoor(difficulty, count, last === difficulty) },
+        onclick: () => play(difficulty),
+      },
+      h('span', { class: 'pips', attrs: { 'aria-hidden': 'true' } }, ...DIFFICULTIES.map((_, j) => h('i', { class: j <= i ? 'on' : '' }))),
+      // dealt a little crooked, each its own way
+      h('span', { class: 'door-pic' }, h('span', { class: 'dealt' }, miniBoard(sampleGivens(count, 11 + 17 * i)))),
+      h('span', { class: 'door-title', text: copy.common.difficulty[difficulty] }),
+      h('span', { class: 'door-line', text: say.givens(count) }),
+      last === difficulty ? h('span', { class: 'door-state', text: say.lastPlayed }) : null,
+    );
+  };
+  const friendDoor = (art: string, label: string, info: string, onTap: () => void) =>
+    h(
+      'button',
+      { class: 'door friend-door', attrs: { type: 'button' }, onclick: onTap },
+      h('span', { class: 'friend-art', html: art, attrs: { 'aria-hidden': 'true' } }),
+      h('span', { class: 'friend-words' }, h('span', { class: 'door-title', text: label }), h('span', { class: 'door-line', text: info })),
+    );
+  return [
+    ...doors,
+    h(
+      'section',
+      { class: 'door-group casual-new', attrs: { 'aria-labelledby': 'casual-new-game' } },
+      h('h2', { class: 'door-heading', attrs: { id: 'casual-new-game' }, text: say.newGame }),
+      h('div', { class: 'door-row' }, ...DIFFICULTIES.map(difficultyDoor)),
+    ),
+    h(
+      'section',
+      { class: 'door-group', attrs: { 'aria-labelledby': 'casual-with-friend' } },
+      h('h2', { class: 'door-heading', attrs: { id: 'casual-with-friend' }, text: say.withFriend }),
+      h(
+        'div',
+        { class: 'door-row', attrs: { style: '--doors: 2' } },
+        friendDoor(ICONS.clash, say.clash, say.clashInfo, () => openClash(now)),
+        friendDoor(ICONS.square, say.squareCode, say.squareCodeInfo, () => openSquareCode(now)),
       ),
     ),
-  );
-  return { el, title: say.title };
+  ];
 }

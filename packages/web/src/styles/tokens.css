@@ -41,6 +41,16 @@
   /* Two corner radii: --radius for controls and small tiles, --radius-lg for cards, rows and sheets. */
   --radius: 6px;
   --radius-lg: 12px;
+  /* Each theme's board, named once: the themes take theirs below, and a square drawn in the
+     other theme's colours (Setup's Look and play door, pages.css) takes these too. */
+  --board-dark-line: var(--c-stone-450);
+  --board-dark-cell: var(--c-highlight-2);
+  --board-dark-given: var(--c-bright);
+  --board-dark-yours: var(--c-forest-highlight);
+  --board-light-line: var(--c-sand-400);
+  --board-light-cell: var(--c-mud);
+  --board-light-given: var(--c-crimson);
+  --board-light-yours: var(--c-forest);
 }
 
 /* Dark is the default theme. */
@@ -91,13 +101,13 @@
   --bar-r: 3px;
   --dur-fill: 700ms;
   --ease-fill: cubic-bezier(0.33, 1, 0.68, 1);
-  --cell: var(--c-highlight-2);
+  --cell: var(--board-dark-cell);
   /* The selected cell's row and column. */
   --cell-cross: var(--c-lava-highlight);
-  --cell-text: var(--c-bright);
+  --cell-text: var(--board-dark-given);
   /* Correct player digits look exactly like the givens; only mistakes stand out. */
   /* The player's own numbers: Forest highlight, a lighter weight than the givens (styles .cell.filled). */
-  --cell-user: var(--c-forest-highlight);
+  --cell-user: var(--board-dark-yours);
   /* Figma: every square holding the focused digit is filled terracotta. */
   --same-bg: var(--c-lava);
   --same-text: var(--c-bright);
@@ -111,7 +121,7 @@
   --focus: var(--c-second-bright);
   /* Field edges and the 3x3 box outline: 3:1 against what they sit on. */
   --field-border: var(--c-stone-425);
-  --grid-line: var(--c-stone-450);
+  --grid-line: var(--board-dark-line);
   --key-bg: var(--c-second-bright);
   --key-text: var(--c-bg);
   --erase-bg: var(--key-bg);
@@ -188,12 +198,12 @@
   --medal-ink: var(--text);
   --level-ink: var(--text);
   --xp-fill: var(--text);
-  --cell: var(--c-mud);
+  --cell: var(--board-light-cell);
   /* The selected cell's row and column. */
   --cell-cross: var(--c-forest-highlight);
-  --cell-text: var(--c-crimson);
+  --cell-text: var(--board-light-given);
   /* The player's own numbers: Forest, a lighter weight than the givens. */
-  --cell-user: var(--c-forest);
+  --cell-user: var(--board-light-yours);
   --same-bg: var(--c-forest);
   --same-text: var(--c-bright);
   --wrong-bg: var(--accent);
@@ -204,7 +214,7 @@
   --focus: var(--c-crimson);
   /* 3.5:1 on surface, 4.3:1 on the page, 3:1 on mud. */
   --field-border: var(--c-sand-450);
-  --grid-line: var(--c-sand-400);
+  --grid-line: var(--board-light-line);
   --key-bg: var(--c-crimson);
   --key-text: var(--c-bright);
   --erase-bg: var(--key-bg);

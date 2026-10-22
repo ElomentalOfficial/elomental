@@ -511,11 +511,11 @@ html[data-large-text] .lb-leader-pct {
   box-shadow: 0 -6px 16px var(--shadow), 0 calc(var(--sub-end, 0px) + var(--space-5)) 0 var(--bg);
 }
 /* The pinned bar sits just above the home indicator (its skirt covers the rows below it). */
-html:not([data-large-text]) .screen.leaderboard > .sub-body {
+html:not([data-large-text]) .screen.leaderboard:not(.has-banner) > .sub-body {
   padding-bottom: var(--sub-end);
 }
 /* ...and is the page's edge itself, so the scroll fade stays off it */
-html:not([data-large-text]) .screen.leaderboard > .sub-body.fade-bottom {
+html:not([data-large-text]) .screen.leaderboard:not(.has-banner) > .sub-body.fade-bottom {
   --fade-b: 0px;
 }
 /* Larger text: the bar is the last thing in the list, not pinned over it, and loses the avatar. */
@@ -853,19 +853,276 @@ html[data-large-text] .lb-me .lb-avatar {
   gap: var(--space-4);
   padding-bottom: var(--space-5);
 }
-/* Wide screens: the list on the left, the affinities on the right. */
+/* Wide screens without the banner layout (between 900px wide and the banner's shape): the list
+   on the left, the affinities on the right. */
 @media (min-width: 900px) {
-  .screen.leaderboard {
+  .screen.leaderboard:not(.has-banner) {
     max-width: calc(820px * var(--text-scale, 1));
   }
-  .lb-layout {
+  .screen.leaderboard:not(.has-banner) .lb-layout {
     display: grid;
     /* the side column grows with Text size, as the screen does */
     grid-template-columns: minmax(0, 1fr) calc(300px * var(--text-scale, 1));
     grid-template-areas: 'main side' 'me side';
     align-items: start;
   }
-  .lb-main { grid-area: main; }
-  .lb-faction { grid-area: side; position: sticky; top: 0; }
-  .lb-me { grid-area: me; }
+  .screen.leaderboard:not(.has-banner) .lb-main { grid-area: main; }
+  .screen.leaderboard:not(.has-banner) .lb-faction { grid-area: side; position: sticky; top: 0; }
+  .screen.leaderboard:not(.has-banner) .lb-me { grid-area: me; }
+}
+
+/*
+ * Wide screens (banner.css): the cup on the banner, with your place at its foot. In the field,
+ * the lists and the search on one row; the top three on a podium beside the month's pennants;
+ * then everyone else in rows.
+ */
+@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+  .leaderboard.has-banner .banner-art {
+    width: calc(100% + 2 * var(--space-5));
+    margin-inline: calc(-1 * var(--space-5));
+    justify-items: start;
+  }
+  /* the arm reaches in from the banner's edge, as it does on its Home tile */
+  .lb-banner-art {
+    display: block;
+    width: 90%;
+    height: min(128px, 100%);
+  }
+  .lb-banner-art .brush-art {
+    width: 100%;
+    height: 100%;
+  }
+  /* you, at the banner's foot: your avatar, your place, the way to it */
+  .page-banner .lb-me {
+    position: static;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+    text-align: center;
+  }
+  /* (over the phone's large-text rules: the banner has the room, and stacks them) */
+  .screen.has-banner .page-banner .lb-me {
+    flex-wrap: nowrap;
+  }
+  .screen.has-banner .page-banner .lb-me .lb-jump {
+    flex-basis: auto;
+  }
+  .screen.has-banner .page-banner .lb-me .lb-avatar {
+    display: block;
+    width: 88px;
+    height: 88px;
+  }
+  .page-banner .lb-me-text {
+    align-items: center;
+    gap: var(--space-1);
+  }
+  .page-banner .lb-me-text span {
+    font-family: var(--serif);
+    font-size: var(--fs-label);
+  }
+  .lb-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .lb-controls .lb-tabs {
+    flex: 1 1 calc(420px * var(--text-scale));
+  }
+  .lb-controls .lb-search {
+    flex: 1 1 calc(260px * var(--text-scale));
+  }
+  .lb-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+  html[data-large-text] .lb-top {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  /* no podium (a list from further down, or under three players): the month takes the row */
+  .lb-podium[hidden] {
+    display: none;
+  }
+  .lb-podium[hidden] + .lb-faction {
+    grid-column: 1 / -1;
+  }
+  .lb-podium {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: var(--space-4);
+    min-height: 300px;
+    margin: 0;
+    padding: var(--space-5) var(--space-5) 0;
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    list-style: none;
+  }
+  .lb-podium > li {
+    flex: 0 1 180px;
+    min-width: 0;
+    display: flex;
+  }
+  /* first in the middle and highest, second on its left, third on its right */
+  .lb-podium > .lb-place-1 { order: 2; }
+  .lb-podium > .lb-place-2 { order: 1; }
+  .lb-podium > .lb-place-3 { order: 3; }
+  .lb-podium-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: var(--cursor-pointer);
+  }
+  .lb-podium-btn:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
+  }
+  .lb-podium-avatar {
+    width: 72px;
+    height: 72px;
+  }
+  .lb-place-1 .lb-podium-avatar {
+    width: 92px;
+    height: 92px;
+  }
+  .lb-podium-who {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    max-width: 100%;
+    margin: var(--space-2) 0 var(--space-3);
+  }
+  .lb-podium-who .lb-name {
+    font-family: var(--serif);
+    font-size: var(--fs-label);
+    font-weight: 400;
+  }
+  .lb-podium-who .lb-name.name-plate {
+    text-align: center;
+  }
+  .lb-podium-score {
+    font-size: var(--fs-small);
+    font-weight: 700;
+    color: var(--muted);
+  }
+  .lb-podium-you {
+    margin-bottom: var(--space-2);
+    padding: 0 var(--space-2);
+    border-radius: 999px;
+    background: var(--surface-2);
+    font-size: var(--fs-caption);
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  /* the steps, each as high as the place is good */
+  .lb-step {
+    align-self: stretch;
+    display: grid;
+    place-items: start center;
+    padding-top: var(--space-2);
+    border-radius: var(--radius) var(--radius) 0 0;
+    background: var(--surface-2);
+    font-family: var(--serif);
+    font-size: var(--fs-display);
+    line-height: 1;
+  }
+  /* (each holds its number at any Text size) */
+  .lb-place-1 .lb-step { height: max(112px, 2.4em); }
+  .lb-place-2 .lb-step { height: max(80px, 1.8em); }
+  .lb-place-3 .lb-step { height: max(56px, 1.35em); }
+  .lb-podium > .is-me .lb-step {
+    background: var(--chosen-bg);
+  }
+  .lb-podium > .is-focus .lb-step {
+    box-shadow: inset 0 0 0 2px var(--accent);
+  }
+  .lb-top .lb-faction {
+    padding: var(--space-5);
+  }
+  /* the leader's share is on its pennant just below */
+  .lb-top .lb-leader-pct {
+    display: none;
+  }
+  .lb-controls .lb-search-field {
+    min-height: calc(44px + 2 * var(--space-1));
+  }
+  /* the month: four pennants hung from one rod, each as long as its share */
+  .lb-pennants {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    gap: var(--space-3);
+    margin: var(--space-2) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .lb-pennants::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: var(--space-3);
+    right: var(--space-3);
+    height: 3px;
+    border-radius: 2px;
+    background: var(--line);
+  }
+  .pennant {
+    width: calc(58px * var(--text-scale));
+    height: calc(100px + var(--share) * 2.4px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    margin-top: 3px;
+    padding-top: var(--space-2);
+    color: var(--el-on);
+    /* the notched tail of every banner in the app, with every filled shape's rim (palette
+       -edge): the rim is the pennant, its fill a step inside (a clip-path hides borders) */
+    position: relative;
+    isolation: isolate;
+    background: var(--el-edge);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 14px), 0 100%);
+  }
+  .pennant::after {
+    content: '';
+    position: absolute;
+    inset: 1px;
+    z-index: -1;
+    background: var(--el);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 13px), 0 100%);
+  }
+  .pennant-glyph {
+    width: 24px;
+    height: 24px;
+  }
+  .pennant-glyph svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .pennant strong {
+    font-family: var(--serif);
+    font-size: var(--fs-label);
+    font-weight: 400;
+  }
+  .pennant span:last-child {
+    font-size: var(--fs-caption);
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
 }

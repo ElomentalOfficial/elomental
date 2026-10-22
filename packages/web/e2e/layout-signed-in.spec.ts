@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { axe, DEVICES, problems, settled, signedIn, SIZES } from './fixtures.ts';
+import { axe, DEVICES, openPrivacy, problems, settled, signedIn, SIZES } from './fixtures.ts';
 
 /**
  * The signed-in screens (full review H6, L34): Profile, the Forge and a part's sheet, the
@@ -49,7 +49,7 @@ for (const device of PHONES_AND_TABLETS) {
       await page.locator('.tile.area-setup').first().click();
       await expect(page).toHaveTitle(/Setup/);
       found.push(...(await problems(page, 'Setup')));
-      await page.locator('.setting', { hasText: 'Leaderboard and card' }).getByRole('button').click();
+      await openPrivacy(page);
       await expect(page).toHaveTitle(/Leaderboard and card/);
       found.push(...(await problems(page, 'Leaderboard and card')));
       await home(page);

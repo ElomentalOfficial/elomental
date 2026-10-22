@@ -994,3 +994,246 @@ html:not([data-large-text]) .daily-art {
   font-size: var(--fs-small);
   color: var(--muted);
 }
+
+/*
+ * Setup on a wide screen (setup.ts setupDoors, banner.css): the cog on the banner with you at
+ * its foot, and a door per part with a picture of what's set behind it: your name, the two
+ * themes' squares (yours on top), the text sizes (yours ringed), your card with its eye, the
+ * app on a phone, the players under review.
+ */
+@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+  .setup-banner-art {
+    display: block;
+    width: min(150px, 60%);
+    aspect-ratio: 1;
+    transform: rotate(12deg);
+  }
+  .setup-banner-art .brush-art {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .setup-you {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+  }
+  .setup-you .avatar {
+    width: 84px;
+    height: 84px;
+    margin-bottom: var(--space-2);
+  }
+  .setup-you {
+    max-width: 100%;
+  }
+  /* a name as long as names may be (20 letters, no spaces) wraps inside the banner */
+  .setup-you-name {
+    max-width: 100%;
+    font-family: var(--serif);
+    font-size: var(--fs-title);
+    font-weight: 400;
+    overflow-wrap: anywhere;
+  }
+  .page-banner .build-line {
+    margin-top: 0;
+    color: inherit;
+  }
+  /* each row of doors shares its tracks (subgrid): picture, name, line, state, so a line that wraps
+     in one door keeps the names level across the row */
+  .setup-doors {
+    flex: 1 0 auto;
+    grid-auto-rows: minmax(calc(150px * var(--text-scale)), 1fr) auto auto auto;
+  }
+  .door.setup-door {
+    display: grid;
+    grid-row: span 4;
+    grid-template-rows: subgrid;
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--space-1);
+    justify-items: center;
+    align-content: stretch;
+  }
+  .setup-door .door-title {
+    align-self: end;
+  }
+  .setup-door :is(.door-line, .door-state) {
+    align-self: start;
+  }
+  .setup-door .door-pic {
+    align-self: stretch;
+    margin-bottom: var(--space-3);
+    container-type: inline-size;
+  }
+  .setup-door .avatar {
+    margin: 0;
+  }
+  /* your name between two rules, as on its plate */
+  .name-pic {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    max-width: 100%;
+    font-family: var(--serif);
+  }
+  /* a long name shrinks to keep to one line between its rules */
+  .name-pic > span {
+    flex: none;
+    max-width: 80cqi;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: min(var(--fs-display), 12cqi);
+  }
+  .name-pic::before,
+  .name-pic::after {
+    content: '';
+    flex: none;
+    width: 10cqi;
+    height: 1.5px;
+    background: currentColor;
+    opacity: 0.5;
+  }
+  /* every picture scales with its door: sized in shares of the picture's box (cqi), up to its full size */
+  .look-pic {
+    position: relative;
+    width: min(200px, 80cqi);
+    aspect-ratio: 5 / 4;
+  }
+  .look-pic > span {
+    position: absolute;
+    width: 62%;
+  }
+  .look-pic > .as-dark {
+    left: 4%;
+    top: 5%;
+    z-index: 2;
+    transform: rotate(-6deg);
+  }
+  .look-pic > .as-light {
+    left: 34%;
+    top: 16%;
+    z-index: 1;
+    transform: rotate(7deg);
+  }
+  .look-pic.light-on-top > .as-light {
+    z-index: 3;
+  }
+  /* each square in its own theme's board colours, whichever theme is on (tokens.css) */
+  .as-dark .mini-board {
+    --grid-line: var(--board-dark-line);
+    --cell: var(--board-dark-cell);
+    --cell-text: var(--board-dark-given);
+    --cell-user: var(--board-dark-yours);
+  }
+  .as-light .mini-board {
+    --grid-line: var(--board-light-line);
+    --cell: var(--board-light-cell);
+    --cell-text: var(--board-light-given);
+    --cell-user: var(--board-light-yours);
+  }
+  .a11y-pic {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-2);
+    font-family: var(--serif);
+    line-height: 1;
+  }
+  /* the four Text sizes, each drawn at its own scale */
+  .a11y-pic > span {
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius);
+    font-size: min(calc(var(--fs-label) * var(--size)), calc(8cqi * var(--size)));
+  }
+  .a11y-pic > .on {
+    box-shadow: inset 0 0 0 2px currentColor;
+  }
+  .privacy-pic {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: var(--space-3);
+    row-gap: var(--space-2);
+    width: min(210px, 76cqi);
+    padding: min(20px, 7cqi);
+    border-radius: var(--radius-lg);
+    background: var(--surface-2);
+    transform: rotate(-3deg);
+    box-shadow: 0 12px 20px -12px var(--shadow);
+  }
+  .privacy-pic .avatar {
+    grid-row: 1 / span 3;
+    width: min(64px, 22cqi);
+    height: min(64px, 22cqi);
+  }
+  .privacy-pic i {
+    height: 9px;
+    border-radius: 5px;
+    background: currentColor;
+    opacity: 0.3;
+  }
+  .privacy-pic i:nth-of-type(2) {
+    width: 60%;
+  }
+  .privacy-eye {
+    position: absolute;
+    top: -14px;
+    right: -14px;
+    width: 44px;
+    height: 44px;
+    padding: 10px;
+    border-radius: 50%;
+    background: var(--text);
+    color: var(--surface);
+  }
+  .app-pic {
+    display: grid;
+    place-items: center;
+    width: min(100px, 40cqi);
+    aspect-ratio: 10 / 17;
+    border: 3px solid currentColor;
+    border-radius: 20px;
+    transform: rotate(4deg);
+  }
+  .app-pic img {
+    width: 60%;
+    border-radius: 14px;
+  }
+  .founder-pic {
+    --u: min(1px, 0.42cqi);
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: calc(10 * var(--u));
+  }
+  .founder-pic .avatar {
+    width: calc(54 * var(--u));
+    height: calc(54 * var(--u));
+  }
+  .founder-pic .avatar:nth-child(2) {
+    width: calc(70 * var(--u));
+    height: calc(70 * var(--u));
+  }
+  .founder-pic .lens {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: calc(88 * var(--u));
+    height: calc(88 * var(--u));
+    margin: calc(-48 * var(--u)) 0 0 calc(-46 * var(--u));
+    border: calc(5 * var(--u)) solid currentColor;
+    border-radius: 50%;
+  }
+  .founder-pic .lens::after {
+    content: '';
+    position: absolute;
+    right: calc(-24 * var(--u));
+    bottom: calc(-20 * var(--u));
+    width: calc(30 * var(--u));
+    height: calc(8 * var(--u));
+    border-radius: calc(4 * var(--u));
+    background: currentColor;
+    transform: rotate(45deg);
+  }
+}
