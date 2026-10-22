@@ -179,12 +179,12 @@ html[data-large-text] .screen :is(button, a) {
 html[data-large-text] .screen::-webkit-scrollbar {
   display: none;
 }
-/* Home becomes one column in reading order: every tile gets a full row, Setup its own tile. */
+/* Home becomes one column in reading order: every tile gets a full row. */
 html[data-large-text] .home-grid {
   flex: none;
   grid-template-columns: 1fr;
   grid-template-rows: none;
-  grid-template-areas: 'profile' 'daily' 'store' 'leader' 'casual' 'ranked' 'setup';
+  grid-template-areas: 'forge' 'setup' 'profile' 'daily' 'store' 'leader' 'casual' 'ranked';
   grid-auto-rows: minmax(76px, auto);
 }
 html[data-large-text] .home-grid > .tile {
@@ -193,13 +193,6 @@ html[data-large-text] .home-grid > .tile {
   gap: 18px;
   padding: 14px 20px;
   text-align: left;
-}
-html[data-large-text] .area-setup {
-  display: flex;
-  grid-area: setup;
-}
-html[data-large-text] .setup-notch {
-  display: none;
 }
 html[data-large-text] .profile-stats {
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));

@@ -8,13 +8,15 @@
   min-height: 0;
   display: grid;
   gap: 12px;
-  grid-template-columns: 83fr 82fr 177fr;
-  grid-template-rows: 458fr 70fr 71fr 153fr;
+  /* The owner's Home frame: Forge and Setup over the profile card (Setup as wide as Daily). */
+  grid-template-columns: 83fr 82fr 95fr 82fr;
+  grid-template-rows: 70fr 376fr 70fr 71fr 153fr;
   grid-template-areas:
-    'profile profile profile'
-    'daily store store'
-    'daily leader leader'
-    'casual casual ranked';
+    'forge forge forge setup'
+    'profile profile profile profile'
+    'daily store store store'
+    'daily leader leader leader'
+    'casual casual ranked ranked';
   padding-top: 12px;
 }
 .tile {
@@ -93,7 +95,7 @@
   bottom: 2px;
 }
 /* On the dark grey tiles the shadow needs more ink to show at all. */
-:root[data-theme='dark'] :is(.area-store, .area-leader, .area-setup, .tile-setup) .tile-icon::after {
+:root[data-theme='dark'] :is(.area-store, .area-leader, .area-setup) .tile-icon::after {
   background: color-mix(in srgb, var(--c-bg) 85%, transparent);
 }
 /* Home buttons use the serif (Federo), like the rest of the app's labels. */
@@ -165,13 +167,23 @@
   width: 70px;
   height: 45px;
 }
-/* Setup's own tile: wide screens only (phones keep it in the profile card's notch). */
+/* The Forge: a wide tile, its name alone until it has its own art. */
+.area-forge {
+  grid-area: forge;
+}
+/* Setup: a small tile, tight, since the cog's shadow and the label's line box already add
+   space between them. */
 .area-setup {
-  display: none;
+  grid-area: setup;
+  gap: 2px;
+  padding: 8px;
 }
 .area-setup .tile-icon {
   width: 34px;
   height: 34px;
+}
+.area-setup .tile-label {
+  line-height: 1;
 }
 .area-ranked .tile-icon {
   width: 46px;
@@ -189,44 +201,6 @@
   padding: 22px 18px 18px;
   min-height: 0;
 }
-.setup-notch {
-  position: absolute;
-  top: 0;
-  right: 0;
-  padding: 0 0 12px 12px;
-  background: var(--bg);
-  border-bottom-left-radius: 10px;
-}
-/* The card's rounded corners where it bends around the Setup notch: the same
-   radius as every other box corner. */
-.setup-notch::before,
-.setup-notch::after {
-  --r: var(--radius);
-  content: '';
-  position: absolute;
-  width: var(--r);
-  height: var(--r);
-  background: radial-gradient(circle at 0 100%, transparent calc(var(--r) - 0.5px), var(--bg) var(--r));
-}
-.setup-notch::before {
-  top: 0;
-  left: calc(-1 * var(--r));
-}
-.setup-notch::after {
-  bottom: calc(-1 * var(--r));
-  right: 0;
-}
-.tile-setup {
-  width: 82px;
-  height: 80px;
-  /* Tight: the cog's shadow and the label's line box already add space between them. */
-  gap: 2px;
-  padding: 8px;
-}
-.tile-setup .tile-icon {
-  width: 34px;
-  height: 34px;
-}
 /* A faint Art Deco frame inside every Home tile and the profile card, each tile its
    own design, worn by small gaps in the corner lines (icons/build_frames.py).
    Drawn as plain backgrounds: four corner images, each at its own size (art/frames/
@@ -235,7 +209,6 @@
    the image. Which files and where the lines run: frames.css (generated). The layer's
    opacity makes it faint; it sits under the content (the tile isolates, z-index -1). */
 .home-grid > .tile,
-.tile-setup,
 .profile-card {
   isolation: isolate;
 }
@@ -243,7 +216,6 @@
    (art/grain.webp, plain grey noise, blurred then sharpened, from icons/make-grain.mjs, shown a bit larger than baked), overlay-blended
    into the tile's colour, under the frame. */
 .home-grid > .tile::before,
-.tile-setup::before,
 .profile-card::before {
   content: '';
   position: absolute;
@@ -256,14 +228,12 @@
   pointer-events: none;
 }
 .home-grid > .tile::after,
-.tile-setup::after,
 .profile-card::after {
   --corner: calc(var(--frame-corner, 30px) * var(--frame-zoom, 1));
   opacity: 0.065;
 }
 .profile-card { --frame-corner: 44px; }
-.area-setup,
-.tile-setup { --frame-corner: 24px; }
+.area-setup { --frame-corner: 24px; }
 .area-casual,
 .area-ranked { --frame-corner: 34px; }
 /* The wide-screen tiles are about twice the size: their frame corners grow too. */
@@ -304,7 +274,7 @@
 /* The drawing, shared by every frame: corners at the four corners, then each edge line
    (one or two per frame, --o1 and --o2 units in) between them, --fw units thick. A
    corner is 40 units, so one unit is --corner / 40. */
-:is(.home-grid > .tile, .tile-setup, .profile-card, .setting, .month-card, .reward-card, .casual-card, .friend-option, .resume-card, .modal, .review-row, .review-log)::after {
+:is(.home-grid > .tile, .profile-card, .setting, .month-card, .reward-card, .casual-card, .friend-option, .resume-card, .modal, .review-row, .review-log)::after {
   --k: calc(var(--corner) / 40);
   --lw: calc(var(--fw, 1.3) * var(--k));
   --y1: calc(var(--o1, 5) * var(--k) - var(--lw) / 2);
@@ -332,23 +302,19 @@
 }
 /* Which ink: Bright on the dark theme, Crimson on the light one (frames.css gives each
    frame its pair; the coloured mode tiles keep Bright in both). */
-:is(.home-grid > .tile, .tile-setup, .profile-card, .setting, .month-card, .reward-card, .casual-card, .friend-option, .resume-card, .modal, .review-row, .review-log) {
+:is(.home-grid > .tile, .profile-card, .setting, .month-card, .reward-card, .casual-card, .friend-option, .resume-card, .modal, .review-row, .review-log) {
   --f-tl: var(--f-tl-b);
   --f-tr: var(--f-tr-b);
   --f-bl: var(--f-bl-b);
   --f-br: var(--f-br-b);
   --frame-line: var(--fl-b);
 }
-:root[data-theme='light'] :is(.home-grid > .tile, .tile-setup, .profile-card, .setting, .month-card, .reward-card, .casual-card, .friend-option, .resume-card, .modal, .review-row, .review-log) {
+:root[data-theme='light'] :is(.home-grid > .tile, .profile-card, .setting, .month-card, .reward-card, .casual-card, .friend-option, .resume-card, .modal, .review-row, .review-log) {
   --f-tl: var(--f-tl-c);
   --f-tr: var(--f-tr-c);
   --f-bl: var(--f-bl-c);
   --f-br: var(--f-br-c);
   --frame-line: var(--fl-c);
-}
-.tile-setup .tile-label {
-  font-size: var(--fs-label);
-  line-height: 1;
 }
 .profile-main {
   display: flex;
@@ -480,14 +446,28 @@ html[data-reduce-motion] .promotion .rank-name {
 html[data-large-text] .profile-stats.two {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
-/* Shorter phones (an iPhone SE): a slightly smaller avatar leaves the stats room. */
+/* Shorter phones (an iPhone SE): a smaller avatar leaves the stats room under the Forge row. */
 @media (max-height: 700px) {
+  .profile-card {
+    padding-top: var(--space-3);
+  }
   .profile-card .avatar {
-    width: clamp(60px, 11dvh, 120px);
+    width: clamp(52px, 8dvh, 120px);
+    margin-bottom: var(--space-1);
   }
 }
-/* The shortest phones (320×568): compact chips, number over name, so the stats stay in the card. */
+/* The shortest phones (320×568): compact chips, number over name. Under the Forge row the
+   tiles can't all fit at once, so Home takes its natural height and scrolls a little, as at
+   large text, instead of cutting the profile card short. */
 @media (max-height: 600px) {
+  .screen.home {
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .home-grid {
+    flex: none;
+    grid-template-rows: none;
+  }
   .profile-card .avatar {
     width: clamp(52px, 10dvh, 120px);
     margin-bottom: var(--space-1);

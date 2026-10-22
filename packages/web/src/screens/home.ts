@@ -31,11 +31,12 @@ import { handleClashLink } from './clashSheet.ts';
 import { dailyScreen } from './daily.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
 import { setupScreen } from './setup.ts';
+import { forgeScreen } from './forge.ts';
 import { betaTag } from '../beta.ts';
 import { showAwayNews } from '../awayNews.ts';
 import * as copy from '../copy/en.ts';
 
-/** Layout from the Figma home frame: profile card with the Setup notch, then the mode tiles. */
+/** Layout from the owner's Home frame: Forge and Setup, the profile card, then the mode tiles. */
 export function homeScreen(): Screen {
   let leaving = false;
 
@@ -48,20 +49,13 @@ export function homeScreen(): Screen {
   };
 
   function tile(area: string, icon: string, label: string, onTap: (el: HTMLElement) => void, ...extra: (HTMLElement | null)[]) {
-    const face = h('span', { class: 'tile-face' }, h('span', { class: 'tile-icon', html: icon }), h('span', { class: 'tile-label', text: label }));
+    // a tile without its art yet (the Forge) shows its name alone
+    const face = h('span', { class: 'tile-face' }, icon ? h('span', { class: 'tile-icon', html: icon }) : null, h('span', { class: 'tile-label', text: label }));
     const el = h('button', { class: `tile area-${area}` }, face, ...extra);
     el.addEventListener('click', () => onTap(el));
     enableTilt(el);
     return el;
   }
-
-  const setupTile = h(
-    'button',
-    { class: 'tile tile-setup' },
-    h('span', { class: 'tile-face' }, h('span', { class: 'tile-icon', html: ICONS.setup }), h('span', { class: 'tile-label', text: copy.home.tiles.setup })),
-    betaTag(),
-  );
-  enableTilt(setupTile);
 
   // The avatar: the player's forged loadout (avatar.ts), and the way into their profile.
   const avatarBtn = h('button', { class: 'avatar avatar-btn', attrs: { type: 'button', 'aria-label': copy.profile.a11yAvatar } });
@@ -110,9 +104,7 @@ export function homeScreen(): Screen {
       rankEl,
     ),
     stats,
-    h('div', { class: 'setup-notch' }, setupTile),
   );
-  setupTile.addEventListener('click', () => leave(profileCard, () => mount(setupScreen())));
 
   const daily = tile('daily', ICONS.daily, copy.home.tiles.daily, (el) => leave(el, () => mount(dailyScreen())));
   paintProfile();
@@ -122,18 +114,17 @@ export function homeScreen(): Screen {
   showAwayNews();
   // the leaderboard is split off the main script (lazy.ts): fetched ahead, it opens at once
   if (signedIn()) prefetch(() => import('./leaderboard.ts'));
-  // The Store stays, so players know it's coming (the owner's call on D1); the Forge is on the Profile.
+  // The Store stays, so players know it's coming (the owner's call on D1).
   const store = tile('store', ICONS.store, copy.home.tiles.store, () => toast(copy.home.storeLater));
   const leader = tile('leader', ICONS.leaderboard, copy.home.tiles.leaderboard, (el) =>
     signedIn() ? openLazy(() => import('./leaderboard.ts'), (m) => leave(el, () => mount(m.leaderboardScreen()))) : toast(copy.leaderboard.offline));
   const casual = tile('casual', ICONS.casual, copy.home.tiles.casual, (el) => leave(el, () => mount(casualScreen())));
   const ranked = tile('ranked', ICONS.ranked, copy.home.tiles.ranked, (el) => openRanked((go) => leave(el, go)));
-  // Wide screens give Setup a tile of its own (Figma desktop home); phones keep it in the notch.
-  const setupWide = tile('setup', ICONS.setup, copy.home.tiles.setup, (el) => leave(el, () => mount(setupScreen())));
-  const wideTag = betaTag();
-  if (wideTag) setupWide.append(wideTag);
+  // Forge and Setup share the top row (the owner's Home frame): the Forge in reach without the Profile.
+  const forge = tile('forge', '', copy.home.tiles.forge, (el) => leave(el, () => mount(forgeScreen())));
+  const setup = tile('setup', ICONS.setup, copy.home.tiles.setup, (el) => leave(el, () => mount(setupScreen())), betaTag());
 
-  const tiles = [profileCard, daily, store, leader, casual, ranked, setupWide];
+  const tiles = [forge, setup, profileCard, daily, store, leader, casual, ranked];
   const grid = h('div', { class: 'home-grid' }, ...tiles);
   // A few visits after the first game, on phones in the browser: Add to Home Screen (install.ts).
   const note = addToHomeNote();

@@ -32,7 +32,7 @@ for (const { name, width, height } of [
         }
       };
 
-      await page.locator('.tile-setup:visible, .tile.area-setup:visible').first().click();
+      await page.locator('.tile.area-setup').first().click();
       await expect(page).toHaveTitle(/Setup/);
       await check('Setup');
       await page.locator('.setting', { hasText: 'Leaderboard and card' }).getByRole('button').click();
@@ -40,7 +40,7 @@ for (const { name, width, height } of [
       await check('Leaderboard and card');
       await home(page);
       await settled(page);
-      await page.locator('.tile-setup:visible, .tile.area-setup:visible').first().click();
+      await page.locator('.tile.area-setup').first().click();
       await expect(page).toHaveTitle(/Setup/);
       await page.locator('.setting', { hasText: 'Accessibility' }).getByRole('button').first().click();
       await expect(page).toHaveTitle(/Accessibility/);

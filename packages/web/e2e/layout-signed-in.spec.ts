@@ -46,7 +46,7 @@ for (const device of PHONES_AND_TABLETS) {
       const found: string[] = [];
       found.push(...(await problems(page, 'Home')));
 
-      await page.locator('.tile-setup:visible, .tile.area-setup:visible').first().click();
+      await page.locator('.tile.area-setup').first().click();
       await expect(page).toHaveTitle(/Setup/);
       found.push(...(await problems(page, 'Setup')));
       await page.locator('.setting', { hasText: 'Leaderboard and card' }).getByRole('button').click();

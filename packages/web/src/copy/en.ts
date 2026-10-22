@@ -101,6 +101,7 @@ export const welcome = {
 export const home = {
   tiles: {
     setup: 'Setup',
+    forge: 'Forge',
     daily: 'Daily Square',
     store: 'Store',
     leaderboard: 'Leaderboard',

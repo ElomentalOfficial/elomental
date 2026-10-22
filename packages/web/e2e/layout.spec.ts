@@ -50,7 +50,7 @@ for (const device of DEVICES) {
       await expect(page.locator('.tile.area-casual')).toBeVisible();
       await settled(page);
 
-      await page.locator('.tile-setup:visible, .tile.area-setup:visible').first().click();
+      await page.locator('.tile.area-setup').first().click();
       await expect(page).toHaveTitle(/Setup/);
       found.push(...(await problems(page, 'Setup')));
       await page.getByRole('button', { name: 'Open accessibility' }).click();

@@ -18,10 +18,10 @@
 }
 @media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
   /*
-   * Home, wide (Figma desktop home): the profile card runs the full height on
-   * the left; beside it three rows of a wide and a narrow tile: Store and
-   * Setup, Leaderboard and Daily Square, Casual and Play Ranked. Setup gets a
-   * tile of its own here instead of the profile card's notch.
+   * Home, wide (Figma desktop home): the profile card on the left with the Forge,
+   * a short tile, under it; on the right a short row of Store and Setup, then
+   * Leaderboard and Daily Square, then Casual and Play Ranked. The short tiles sit
+   * in opposite corners, so the grid balances.
    */
   .screen.home {
     --pad-y: clamp(24px, 5dvh, 64px);
@@ -39,21 +39,16 @@
     aspect-ratio: 1.9;
     padding-top: 0;
     gap: var(--gap);
-    /* Figma Frame 116: the profile card 652 wide, two tile columns of 281,
-       three equal rows; twice the gap between the card and the tiles. */
+    /* Figma Frame 116: the profile card 652 wide, two tile columns of 281; Store and
+       Setup's row and the Forge 0.6 of a full row (Casual and Ranked span the 0.4 left
+       over and the Forge's row); twice the gap between the card and the tiles. */
     grid-template-columns: minmax(0, 2.32fr) minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-rows: repeat(3, minmax(0, 1fr));
+    grid-template-rows: minmax(0, 0.6fr) minmax(0, 1fr) minmax(0, 0.4fr) minmax(0, 0.6fr);
     grid-template-areas:
       'profile store setup'
       'profile leader daily'
-      'profile casual ranked';
-  }
-  .area-setup {
-    display: flex;
-    grid-area: setup;
-  }
-  .setup-notch {
-    display: none;
+      'profile casual ranked'
+      'forge casual ranked';
   }
   /* The wide grid fills the window; touch tablets there find it in Setup instead. */
   .install-note {
@@ -61,29 +56,39 @@
   }
   .home-grid .tile-face,
   .profile-main,
-  .profile-stats,
-  .tile-setup {
+  .profile-stats {
     zoom: var(--wide-zoom, 1);
   }
-  .profile-card {
+  .profile-card,
+  .area-forge {
     margin-right: var(--gap);
+  }
+  .profile-card {
     padding: 28px 24px 24px;
   }
-  /* The tiles are all the same size here: Store and Leaderboard stack their
-     icon over the label like the others, so the label fits. */
-  .area-store,
+  /* Leaderboard is as tall as the play tiles here: it stacks its icon over the
+     label like them, so the label fits. */
   .area-leader {
     flex-direction: column;
     gap: 14px;
   }
+  /* The short top row: Store and Setup keep the phone's icon beside the label. */
+  .area-store,
+  .area-setup {
+    flex-direction: row;
+    gap: var(--space-4);
+  }
+  .area-store {
+    flex-direction: row-reverse;
+  }
   /* The wide tiles have room to spare: every icon at about 1.5x its phone size. */
   .area-store .tile-icon {
-    width: 86px;
-    height: 77px;
+    width: 72px;
+    height: 64px;
   }
   .area-setup .tile-icon {
-    width: 74px;
-    height: 74px;
+    width: 56px;
+    height: 56px;
   }
   .area-daily .tile-icon {
     width: 64px;
@@ -118,18 +123,10 @@
     padding: 12px 8px;
   }
   /* Corners grow with the tiles, by the same factor as their contents (the
-     Setup tile is zoomed, so its own corners already follow). */
+     tiles' frames follow through --frame-zoom). */
   .home-grid > .tile,
   .profile-card {
     border-radius: calc(var(--radius) * var(--wide-zoom, 1));
-  }
-  .setup-notch {
-    padding: 0 0 calc(12px * var(--wide-zoom, 1)) calc(12px * var(--wide-zoom, 1));
-    border-bottom-left-radius: calc(10px * var(--wide-zoom, 1));
-  }
-  .setup-notch::before,
-  .setup-notch::after {
-    --r: calc(var(--radius) * var(--wide-zoom, 1));
   }
   /*
    * Large text, wide: the same tile grid as at 100%, only the words grow. A row
@@ -142,12 +139,13 @@
   html[data-large-text] .home-grid {
     margin-block: auto;
     grid-template-columns: minmax(0, 2.32fr) minmax(0, 1fr) minmax(0, 1fr);
-    grid-template-rows: repeat(3, minmax(min-content, 1fr));
+    grid-template-rows: minmax(min-content, 0.6fr) minmax(min-content, 1fr) minmax(0, 0.4fr) minmax(min-content, 0.6fr);
     grid-auto-rows: auto;
     grid-template-areas:
       'profile store setup'
       'profile leader daily'
-      'profile casual ranked';
+      'profile casual ranked'
+      'forge casual ranked';
   }
   html[data-large-text] .home-grid > .tile {
     flex-direction: column;

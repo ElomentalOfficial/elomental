@@ -30,7 +30,7 @@
   --f-bl-c: url('./art/frames/store-crimson-bl.svg');
   --f-br-c: url('./art/frames/store-crimson-br.svg');
 }
-.area-setup, .tile-setup {
+.area-setup {
   --fw: 1.3;
   --o1: 6;
   --o2: 6;
@@ -45,7 +45,8 @@
   --f-bl-c: url('./art/frames/setup-crimson-bl.svg');
   --f-br-c: url('./art/frames/setup-crimson-br.svg');
 }
-.area-leader {
+/* The Forge (added by hand): the Leaderboard's frame, never side by side with it. */
+.area-leader, .area-forge {
   --fw: 1.3;
   --o1: 5;
   --o2: 10;

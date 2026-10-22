@@ -20,6 +20,8 @@ export const test = base.extend<{ app: Page }>({
     // click that lands as it goes isn't waited on).
     await page.locator('.screen.welcome').click({ timeout: 2_000 }).catch(() => undefined);
     await expect(page.locator('.tile.area-casual')).toBeVisible();
+    // Home's tiles swing in one after another: a click on one still turning can miss it.
+    await settled(page);
     await use(page);
   },
 });

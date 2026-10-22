@@ -78,7 +78,7 @@ test('"?" opens the keyboard shortcuts dialog', async ({ app }) => {
 });
 
 test('Setup, the Accessibility page and the statement have no axe violations', async ({ app }) => {
-  await app.locator('.tile-setup').click();
+  await app.locator('.tile.area-setup').click();
   await expect(app.getByRole('heading', { name: 'Accessibility', level: 2 })).toBeVisible();
   expect(await axe(app)).toEqual([]);
   await app.getByRole('button', { name: 'Open accessibility' }).click();
@@ -90,7 +90,7 @@ test('Setup, the Accessibility page and the statement have no axe violations', a
 });
 
 test('on long pages the header with Back stays in view while the body scrolls', async ({ app }) => {
-  await app.locator('.tile-setup').click();
+  await app.locator('.tile.area-setup').click();
   await app.getByRole('button', { name: 'Open accessibility' }).click();
   const back = app.getByRole('button', { name: 'Back' });
   await settled(app);
@@ -116,7 +116,7 @@ test('desktop: the wheel scrolls the page from anywhere, and the column widens w
 });
 
 test('200% text: nothing is cut off and nothing scrolls sideways', async ({ app }) => {
-  await app.locator('.tile-setup').click();
+  await app.locator('.tile.area-setup').click();
   await app.getByRole('button', { name: 'Open accessibility' }).click();
   await app.getByRole('radio', { name: '200%' }).click();
   const problems = () =>

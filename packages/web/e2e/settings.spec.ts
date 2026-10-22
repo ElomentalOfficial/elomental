@@ -42,7 +42,7 @@ async function wrongMove(page: Page, skip: number[] = []): Promise<number> {
 const label = (page: Page, cell: number) => page.locator(`[data-cell="${cell}"]`);
 
 test('every choice on the Accessibility page is stored and shown as chosen', async ({ app }) => {
-  await app.locator('.tile-setup').click();
+  await app.locator('.tile.area-setup').click();
   await app.getByRole('button', { name: 'Open accessibility' }).click();
   const pick = async (group: string, option: string) => {
     const radio = app.getByRole('radiogroup', { name: group }).getByRole('radio', { name: option });
