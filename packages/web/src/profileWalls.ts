@@ -31,9 +31,6 @@ export interface CardLayout {
   banner: number;
 }
 
-/** The frame's wear: long dashes broken by short gaps, in frame units (the corners' own pattern). */
-const WEAR = [11, 1.6, 7, 1.2, 16, 2, 9, 1.4];
-
 interface Wall {
   o: 'h' | 'v';
   /** where it runs across (y for a horizontal wall, x for a vertical one) */
@@ -49,15 +46,32 @@ interface Wall {
 }
 type Terminal = keyof typeof TERMS;
 
-/** A drawing context: one unit's size, and an offset that keeps each line's wear out of step. */
+/**
+ * A drawing context: one unit's size. Each line gets wear of its own: a long run of random
+ * dashes and breaks (the frame's lengths, never a short repeating pattern), seeded so a card
+ * draws the same every time.
+ */
 function pen(u: number) {
   const n = (v: number) => (v * u).toFixed(2);
   const scaled = (path: string) => path.replace(/-?\d+(\.\d+)?/g, (v) => n(Number(v)));
-  const dash = WEAR.map((w) => (w * u).toFixed(2)).join(' ');
-  let offset = 0;
+  let seed = 20261022;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648);
+  const wear = () => {
+    const parts: string[] = [];
+    let total = 0;
+    while (total < 2400 / u) {
+      // mostly long unbroken runs, like the tile frame's own edges; now and then a short piece
+      // between two breaks, as where ink wore off; breaks small and uneven
+      const dash = rnd() < 0.2 ? 2 + rnd() * 6 : 30 + rnd() * 110;
+      const gap = rnd() < 0.25 ? 2 + rnd() * 2.5 : 0.7 + rnd() * 1.1;
+      parts.push((dash * u).toFixed(1), (gap * u).toFixed(1));
+      total += dash + gap;
+    }
+    return parts.join(' ');
+  };
   const lw = 1.3 * u;
   const worn = (d: string, w = lw) =>
-    `<path d="${d}" fill="none" stroke="currentColor" stroke-width="${w.toFixed(2)}" stroke-dasharray="${dash}" stroke-dashoffset="${((offset += 13.7) * u).toFixed(1)}"/>`;
+    `<path d="${d}" fill="none" stroke="currentColor" stroke-width="${w.toFixed(2)}" stroke-dasharray="${wear()}"/>`;
   const solid = (d: string) => `<path d="${d}" fill="currentColor"/>`;
   const dot = (x: number, y: number, r: number) => `<circle cx="${n(x)}" cy="${n(y)}" r="${n(r)}" fill="currentColor"/>`;
   const gem = (x: number, y: number, r: number) => solid(scaled(`M${x} ${y - r} L${x + r} ${y} L${x} ${y + r} L${x - r} ${y} Z`));
