@@ -58,15 +58,15 @@ pages, Forge, Profile and Daily are "Banner and Doors".
   profile card's frames in turn along a row). Never change the tile frame design. Each card turns
   in and out on its own like Home's tiles (`ui.ts` tilesIn/turnstileOut), stagger capped to Home's
   total time.
-- **Lower Back** (`pageBanner.ts`): under the ribbon's tail, the owner's Deco arrowhead
-  (`art/screens/back.svg`) in the seal and diamond rails, the arrowhead moved 7% left so it looks
-  centred (its weight is in its right-hand panels). A button for the pointer and touch, kept out
-  of the tab order and the screen reader (the ribbon's Back serves them, so there's never a second
-  "Back"); it stays put (never spins) and nudges left under the pointer. It sizes to the room under the tail and steps
-  aside when that room is under 130px (short windows, large text); the Back at the ribbon's top is
-  always there. On phones and tablets the same arrowhead is the header Back, in the usual 44px
-  chip (`.sub-back`, pages.css); the ribbon's own top Back keeps the plain chevron, so a wide page
-  never shows the arrowhead twice.
+- **Room under the text:** the last line on the cloth keeps 56px (`BREATH`, pageBanner.ts) above
+  the tail's highest spike; the owner found 32px too tight.
+- **Back** (`pageBanner.ts`): one per page. Normally the big one under the ribbon's tail: the
+  owner's Deco arrowhead (`art/screens/back.svg`) in the seal and diamond rails, up to about 130px
+  tall on big screens, moved 7% left so it looks centred (its weight is in its right-hand panels),
+  still (never spins), nudging left under the pointer; the small Back on the ribbon is then gone
+  and the title gets a little more room above it. When there's under 130px under the tail (short
+  windows, large text) the small chevron on the ribbon comes back instead. On phones and tablets
+  the same arrowhead is the header Back, in the usual 44px chip (`.sub-back`, pages.css).
 - **Hero icon** (`src/spin.ts` `spinnable`): drag to tilt like Apple Fitness awards, at most 70°
   (never flips), three slim edge layers, a shine band, springs back. Also on the phone Forge head.
 - **Still to come:** the owner sends one icon per page into `manual_assets/screen_icons/` (only

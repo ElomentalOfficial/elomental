@@ -55,8 +55,9 @@
   }
   /* the banner's column: the ribbon, then the Back under its tail in the space left below */
   .banner-col {
-    /* the Back's height: its seal and rails (3.2 times as wide) fit the column */
-    --back: min(clamp(64px, 11dvh, 96px), var(--banner-w) / 3.4);
+    /* the Back's height: large on a big screen, its seal and rails (2.77 times as wide) inside the
+       column */
+    --back: min(clamp(72px, 14dvh, 132px), var(--banner-w) / 2.9);
     display: flex;
     flex-direction: column;
     min-height: 0;
@@ -68,8 +69,7 @@
     align-self: stretch;
     flex: none;
   }
-  /* the room left under the tail: the Back fits it, smaller when it's short, and stays away when
-     there's too little (the Back at the banner's top is always there) */
+  /* the room left under the tail: the Back fits it, smaller when it's short */
   .banner-back-slot {
     flex: 1 1 0;
     min-height: 0;
@@ -78,11 +78,11 @@
     place-items: center;
     animation: banner-back-in 0.3s ease-out 0.55s both;
   }
-  /* (below about 80px tall it would be a poor target, its seal crowding the screen's edge) */
-  @container (max-height: 130px) {
-    .banner-back-slot > .banner-back {
-      display: none;
-    }
+  /* One Back on the page (pageBanner.ts chooses): the big one under the tail, or, when there's too
+     little room for it there (short windows, large text), the small one on the ribbon */
+  .banner-col.back-below .page-banner .subbar > .icon-btn,
+  .banner-col:not(.back-below) .banner-back-slot > .banner-back {
+    display: none;
   }
   @keyframes banner-back-in {
     from {
@@ -180,6 +180,10 @@
   .page-banner .subbar > .icon-btn-spacer {
     display: none;
   }
+  /* (with the Back under the tail, the title leads the cloth: a little more room above it) */
+  .banner-col.back-below .page-banner .subbar {
+    padding-top: var(--space-4);
+  }
   .banner-help {
     margin-top: calc(-1 * var(--space-2));
     font-family: var(--serif);
@@ -196,6 +200,9 @@
     min-height: 72px;
     width: 100%;
     display: grid;
+    /* one cell the slot's own size, so the art shrinks with it (an auto row would keep the art's
+       height and spill onto the foot in a short window) */
+    grid-template: minmax(0, 1fr) / minmax(0, 1fr);
     place-items: center;
     margin-block: var(--space-2);
     /* the sunburst (rays.ts): an oval the cloth's width (the side rays end a little in from its
@@ -480,8 +487,8 @@ html[data-reduce-motion] .dealt {
   position: absolute;
   left: 50%;
   top: 50%;
-  width: calc(var(--b) * 3.2);
-  aspect-ratio: 300 / 130;
+  width: calc(var(--b) * 2.77);
+  aspect-ratio: 260 / 130;
   translate: -50% -50%;
   z-index: -1;
   opacity: 0.14;
