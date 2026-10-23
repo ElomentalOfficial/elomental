@@ -55,10 +55,18 @@ closed shapes, `aria-hidden`, and clearance from text. Use one per surface.
 
 The field beside the banner is 12 columns with one gutter (`--grid-columns`, `--grid-gutter` =
 `--space-4`, tokens.css; `.field-grid` in banner.css). An item spans `--span` columns (all 12 by
-default): doors 4 (three across) or 6 (two across, `.two-up`, and at large text), a page's column
-of cards 8. Rows of 2, 3 and 4 share their edges because 12 divides by each. The banner is a
-fixed column outside the grid. Phones stay one column. Moved so far: Setup and its pages; the
-others follow one by one (the old `.door-row` large-text rule goes when the last one moves).
+default; the span rule is `:where()`, so a page's own placement always wins). Rows of 2, 3 and 4
+share their edges because 12 divides by each. The banner is a fixed column outside the grid;
+phones stay one column. What sits where:
+
+- Doors (`.door-row`, always a `.field-grid`): 4 columns (three across); 6 for `.two-up` and at
+  large text, unless the row is `.three-up` (Casual's difficulties, three at every size).
+- Setup's pages: cards on 8 columns (12 at large text).
+- Forge parts: 2 columns (six across), 3 under a 760px field; at large text 4, 6 under 1100px
+  (container queries on the field, `@container field`).
+- Daily: the month on columns 1–7, today and the badge on 8–12.
+- Leaderboard: tabs 8 + search 4; podium 7 + the month 5.
+- What's inside a card (stats, badges, a row's own columns) keeps its own layout.
 
 ## Wide pages: Banner and Doors
 

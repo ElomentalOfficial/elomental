@@ -298,19 +298,9 @@
     text-transform: uppercase;
     color: var(--muted);
   }
-  /* doors side by side, as many across as the row says (--doors); two across at large text */
-  .door-row {
-    display: grid;
-    grid-template-columns: repeat(var(--doors, 3), minmax(0, 1fr));
-    gap: var(--space-4);
-  }
-  /* (rows not yet on the layout grid; goes when every page has moved) */
-  html[data-large-text] .door-row:not(.field-grid) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
   /* The layout grid (tokens.css --grid-columns, --grid-gutter): a page's field, or a row in it, on
-     12 columns; each item spans --span of them (all 12 unless it says). Pages move onto it one
-     by one: Setup and its pages so far. */
+     12 columns; each item spans --span of them (all 12 unless it says). Every wide page's rows of
+     cards are on it (.field-grid); Setup's whole field is. */
   .field-grid,
   .screen.setup.has-banner > .sub-body {
     display: grid;
@@ -333,12 +323,12 @@
   .screen.setup.has-banner > .sub-body:has(> .setup-doors) {
     align-content: stretch;
   }
-  /* a row of doors on the grid: three across (4 columns each), two across when it says so
-     (.two-up) or at large text, unless it holds three at every size (.three-up) */
-  .door-row.field-grid > * {
+  /* a row of doors (.door-row, always a .field-grid): three across (4 columns each), two across when
+     it says so (.two-up) or at large text, unless it holds three at every size (.three-up) */
+  .door-row > * {
     --span: 4;
   }
-  :is(.door-row.field-grid.two-up, html[data-large-text] .door-row.field-grid:not(.three-up)) > * {
+  :is(.door-row.two-up, html[data-large-text] .door-row:not(.three-up)) > * {
     --span: 6;
   }
 }
