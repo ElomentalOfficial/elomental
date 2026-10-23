@@ -98,7 +98,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
       // you and your purse on the banner; how parts come and the Spirits side by side, then the parts
       purse.replaceChildren(h('div', { class: 'forge-balances forge-purse' }, spirits, stardust));
       body.replaceChildren(
-        h('div', { class: 'door-row forge-top', attrs: { style: '--doors: 2' } },
+        h('div', { class: 'door-row field-grid two-up forge-top' },
           h('section', { class: 'forge-lead' }, h('h2', { class: 'forge-heading', text: copy.forge.blueprintsTitle }), h('p', { class: 'forge-intro', text: copy.forge.intro }), odds),
           spiritsSection(f)),
         h('div', { class: 'forge-heading-row' }, h('h2', { class: 'forge-heading', text: copy.forge.parts }), h('span', { class: 'forge-count', text: copy.forge.collected(craftable.filter((p) => f.owned.has(p.id)).length, craftable.length) })),
@@ -133,7 +133,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
       const parts = f.parts
         .filter((p) => p.slot === slot)
         .sort((a, b) => Number(b.source === 'starter') - Number(a.source === 'starter') || order(a) - order(b) || RARITIES.indexOf(a.rarity) - RARITIES.indexOf(b.rarity));
-      return h('section', { class: 'forge-group' }, h('h2', { text: copy.forge.slotGroups[slot] }), h('div', { class: 'part-grid' }, ...parts.map((p) => partCard(f, p))));
+      return h('section', { class: 'forge-group' }, h('h2', { text: copy.forge.slotGroups[slot] }), h('div', { class: wideLayout() ? 'part-grid field-grid' : 'part-grid' }, ...parts.map((p) => partCard(f, p))));
     });
   }
 

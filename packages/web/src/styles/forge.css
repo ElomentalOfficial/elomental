@@ -169,16 +169,16 @@
   font-weight: 400;
   color: var(--muted);
 }
-/* Cards as wide as their words need: fewer per row as Text size grows. */
-.part-grid {
+/* Phones and tablets: cards as wide as their words need, fewer per row as Text size grows (wide
+   pages put them on the layout grid instead, .field-grid) */
+.part-grid:not(.field-grid) {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(104px * var(--text-scale))), 1fr));
   gap: var(--space-2);
 }
 /* Larger text: cards read across (art, then words), as wide as the text needs. */
-html[data-large-text] .part-grid {
+html[data-large-text] .part-grid:not(.field-grid) {
   grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(150px * var(--text-scale))), 1fr));
-  gap: var(--space-2);
 }
 .part-card {
   position: relative;
@@ -730,13 +730,23 @@ html[data-reduce-motion] .part-reveal * {
   .forge.has-banner .forge-heading-row {
     margin-top: var(--space-5);
   }
-  .forge.has-banner .part-grid {
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(140px * var(--text-scale))), 1fr));
-    gap: var(--space-3);
+  /* the parts on the layout grid (banner.css): six across (2 columns each), four on a narrow field */
+  .forge.has-banner .part-card {
+    --span: 2;
+  }
+  @container field (max-width: 760px) {
+    .forge.has-banner .part-card {
+      --span: 3;
+    }
   }
   /* large text: the cards read across (art, then words), so they need more width each */
-  html[data-large-text] .forge.has-banner .part-grid {
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, calc(170px * var(--text-scale))), 1fr));
+  html[data-large-text] .forge.has-banner .part-card {
+    --span: 4;
+  }
+  @container field (max-width: 1100px) {
+    html[data-large-text] .forge.has-banner .part-card {
+      --span: 6;
+    }
   }
   .forge.has-banner .part-card {
     padding: var(--space-4) var(--space-3);

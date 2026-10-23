@@ -278,6 +278,8 @@
     margin-top: 0;
     padding-top: var(--field-y);
     padding-bottom: var(--field-y);
+    /* the field's width decides how many cards a row holds on the grid (@container field) */
+    container: field / inline-size;
   }
   /* A group of doors under its small title; one group to the next, the groups' step */
   .door-group {
@@ -332,10 +334,10 @@
   }
   /* a row of doors on the grid: three across (4 columns each), two across when it says so
      (.two-up) or at large text, unless it holds three at every size (.three-up) */
-  .door-row.field-grid > .door {
+  .door-row.field-grid > * {
     --span: 4;
   }
-  :is(.door-row.field-grid.two-up, html[data-large-text] .door-row.field-grid:not(.three-up)) > .door {
+  :is(.door-row.field-grid.two-up, html[data-large-text] .door-row.field-grid:not(.three-up)) > * {
     --span: 6;
   }
 }
