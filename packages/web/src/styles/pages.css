@@ -193,9 +193,6 @@ html.standalone .screen.scrollable {
   border-radius: var(--radius);
   background: var(--surface);
 }
-.setting[hidden] {
-  display: none;
-}
 /* The card-title role (M25): one style for a card's title on every settings page, in sentence
    case, as Accessibility already wrote them. Page titles (.subbar h1) and group titles
    (.setting-group > h2) are the other two roles. */
@@ -215,7 +212,6 @@ html.standalone .screen.scrollable {
   margin-top: var(--space-1);
 }
 /* Review lists (founders only, screens/review.ts in founderConsole.ts): compact rows, one open at a time. */
-.review-search-clear[hidden],
 .review-results:empty {
   display: none;
 }
@@ -435,9 +431,6 @@ html.standalone .screen.scrollable {
   font-family: var(--font);
   font-size: var(--fs-small);
   text-transform: uppercase;
-}
-.review-more[hidden] {
-  display: none;
 }
 .review-confirm .text-field {
   width: 100%;

@@ -4,6 +4,11 @@
   margin: 0;
   padding: 0;
 }
+/* The hidden attribute always hides, whatever display a component sets (the one standard
+   !important: an element's own display rule would otherwise outrank the browser's) */
+[hidden] {
+  display: none !important;
+}
 /* Nothing in the app is selectable text; this also covers modals and the
    notes wheel, which live outside #app. */
 *,

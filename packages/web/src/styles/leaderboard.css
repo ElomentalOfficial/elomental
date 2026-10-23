@@ -189,8 +189,10 @@ html[data-large-text] .lb-strength-legend {
 .lb-search-field {
   text-align: left;
 }
-.lb-dim {
-  display: none !important;
+/* Searching (leaderboard.ts showSearch): the board steps aside for the results; each part keeps its
+   own hidden state for when the search ends */
+.lb-main.is-searching :is(.lb-list:not(.lb-results), .lb-more, .lb-notice, .lb-meta-row, .lb-tabs, .lb-top) {
+  display: none;
 }
 /* The five lists: one slim track of tabs, a filter rather than a menu. The chosen one is a
    raised pill with the selection ring (as the app's segmented controls); where the labels
@@ -945,9 +947,6 @@ html[data-large-text] .lb-me .lb-avatar {
     grid-template-columns: minmax(0, 1fr);
   }
   /* no podium (a list from further down, or under three players): the month takes the row */
-  .lb-podium[hidden] {
-    display: none;
-  }
   .lb-podium[hidden] + .lb-faction {
     grid-column: 1 / -1;
   }

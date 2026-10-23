@@ -340,8 +340,9 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
   let searchSeq = 0;
   function showSearch(on: boolean) {
     results.hidden = !on;
-    // (wide screens: the podium and the month's pennants step aside too)
-    for (const n of [list, more, notice, metaRow, tabGroup, podium.parentElement]) n?.classList.toggle('lb-dim', on);
+    // the board steps aside for the results (leaderboard.css .is-searching), keeping each part's own
+    // hidden state for when the search ends
+    main.classList.toggle('is-searching', on);
   }
   searchField.addEventListener('input', () => {
     clearTimeout(searchTimer);

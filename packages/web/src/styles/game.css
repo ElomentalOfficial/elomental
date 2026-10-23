@@ -89,9 +89,6 @@
   padding: 8px 0;
   margin: -8px 0;
 }
-.square-code[hidden] {
-  display: none;
-}
 .square-code-icon {
   display: flex;
   width: 1.05em;
