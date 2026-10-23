@@ -153,10 +153,11 @@ function themeRoles(s: Swatch, t: 'dark' | 'light'): Record<string, string> {
     mark: t === 'light' && lightFill(s) ? v(s.ramp, roleStep(s, 'line', t)) : `var(--${s.id}-fill)`,
     edge: edge(s, t),
     // a ground for art drawn on it (a crest disc): the hue at its darkest on dark; on light, where
-    // a dark disc stood out too hard (owner), just a shade of the hue over the page's paper
+    // a dark disc stood out too hard (owner), a shade of the hue, half greyed by the sand's mid
+    // grey, over the page's paper
     deep: t === 'dark'
       ? (s.deep ? `var(--c-${s.deep.dark})` : v(s.ramp, 900))
-      : `color-mix(in oklab, ${v(s.deep?.tint ?? s.ramp, 500)} 22%, var(--c-sand-50))`,
+      : `color-mix(in oklab, color-mix(in oklab, ${v(s.deep?.tint ?? s.ramp, 500)} 50%, var(--c-sand-500)) 38%, var(--c-sand-50))`,
   };
 }
 /**
@@ -281,7 +282,7 @@ export function paletteCss(): string {
       '   *   edge  the 1px rim of every filled tag, chip, segment and disc: the same rule for all of',
       '   *         them (none on dark, a deeper shade of the hue on light), so a set never mixes rims',
       '   *   deep  a ground for art drawn on it (a crest disc): the hue at its darkest (900) on dark,',
-      '   *         a shade of its 500 (22%) over sand 50 on light',
+      '   *         its 500 half greyed by sand 500, 38% over sand 50 on light',
       '   * Always shown with the name or the crest, never colour alone.',
       '   */',
       ...SWATCHES.flatMap((s) => [`  --${s.id}-fill: ${v(s.ramp, s.fill)};`, `  --${s.id}-on: var(${lightFill(s) ? '--c-stone-900' : '--c-sand-50'});`]),
