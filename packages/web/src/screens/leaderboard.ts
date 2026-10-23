@@ -87,7 +87,7 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
   // Wide (banner.css): the lists and search on one row, the podium and the month side by side,
   // then the rest of the list; you hang at the foot of the banner. Phones: the column as ever.
   const main = wide
-    ? h('div', { class: 'lb-main' }, h('div', { class: 'lb-controls' }, tabGroup, search), results, metaRow, notice, h('div', { class: 'lb-top' }, podium, faction), list, more)
+    ? h('div', { class: 'lb-main' }, h('div', { class: 'lb-controls field-grid' }, tabGroup, search), results, metaRow, notice, h('div', { class: 'lb-top field-grid' }, podium, faction), list, more)
     : h('div', { class: 'lb-main' }, search, results, tabGroup, metaRow, notice, list, more);
   const body = h('div', { class: 'lb-layout' }, ...(wide ? [main] : [faction, main, meBar]));
   const el = subPage(

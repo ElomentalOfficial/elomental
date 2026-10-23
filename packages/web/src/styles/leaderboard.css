@@ -926,29 +926,29 @@ html[data-large-text] .lb-me .lb-avatar {
     font-family: var(--serif);
     font-size: var(--fs-label);
   }
+  /* on the layout grid (banner.css .field-grid): the lists' tabs on 8 columns and the search on 4;
+     the podium on 7 and the month on 5; each the full width at large text */
   .lb-controls {
-    display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    gap: var(--space-3);
   }
   .lb-controls .lb-tabs {
-    flex: 1 1 calc(420px * var(--text-scale));
+    --span: 8;
   }
   .lb-controls .lb-search {
-    flex: 1 1 calc(260px * var(--text-scale));
+    --span: 4;
   }
-  .lb-top {
-    display: grid;
-    grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr);
-    gap: var(--space-4);
+  .lb-top .lb-podium {
+    --span: 7;
   }
-  html[data-large-text] .lb-top {
-    grid-template-columns: minmax(0, 1fr);
+  .lb-top .lb-faction {
+    --span: 5;
+  }
+  html[data-large-text] :is(.lb-controls, .lb-top) > * {
+    --span: 12;
   }
   /* no podium (a list from further down, or under three players): the month takes the row */
   .lb-podium[hidden] + .lb-faction {
-    grid-column: 1 / -1;
+    --span: 12;
   }
   .lb-podium {
     display: flex;
