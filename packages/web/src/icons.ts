@@ -68,8 +68,8 @@ export const ICONS = {
    */
   leaderboard: brush(handCupLight, 'ic-light brush-arm') + brush(handCupDark, 'ic-dark brush-arm'),
   /**
-   * Clash: a fist bump, two brush-outlined fists meeting with impact lines
-   * (icons/build_clash.py). Three layers per theme (each fist, the impact lines) so
+   * Clash: a fist bump, two brush-outlined fists meeting with impact lines.
+   * Three layers per theme (each fist, the impact lines) so
    * the bump can play every few seconds (`.clash-live` in styles.css).
    */
   clash:
@@ -110,8 +110,7 @@ export const ICONS = {
    */
   rankedLive: `<span class="sword-live">${brush(swordFlame, 'sword-flame')}${brush(swordBody)}${brush(swordHeat, 'sword-heat')}</span>`,
   /**
-   * The loader: a squishy, hand-drawn square (soft even corners, gently bowed sides:
-   * icons/build_loader.py) that hops, spins in the air and lands with a squash, then
+   * The loader: a squishy, hand-drawn square (soft even corners, gently bowed sides) that hops, spins in the air and lands with a squash, then
    * jiggles to a stop (`.loader-*` in styles.css).
    * The hop and squash sit on the outer layer (anchored at the ground), the spin inside.
    */
@@ -144,7 +143,7 @@ export const ICONS = {
   back: stroke('<path d="M15 5l-7 7 7 7"/>', 2.4),
   search: stroke('<circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/>', 2.2),
   copy: stroke('<rect x="8.5" y="8.5" width="11" height="11" rx="2"/><path d="M15.5 8.5V6a1.5 1.5 0 0 0-1.5-1.5H6A1.5 1.5 0 0 0 4.5 6v8A1.5 1.5 0 0 0 6 15.5h2.5"/>', 1.8),
-  /** Square code (a puzzle's shareable code): a brush-style megaphone calling it out (icons/build_megaphone.py), one image per theme. */
+  /** Square code (a puzzle's shareable code): a brush-style megaphone calling it out, one image per theme. */
   square: brush(megaphoneLight, 'ic-light') + brush(megaphoneDark, 'ic-dark'),
   check: stroke('<path d="M5 12.5l4.5 4.5L19 7"/>', 2.6),
   lock: stroke('<rect x="5" y="10.5" width="14" height="10" rx="1.5"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>'),

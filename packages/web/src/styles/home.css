@@ -388,18 +388,18 @@
   height: calc(14px * var(--text-scale));
 }
 /* A faint Art Deco frame inside every Home tile and the profile card, each tile its
-   own design, worn by small gaps in the corner lines (icons/build_frames.py).
+   own design, worn by small gaps in the corner lines.
    Drawn as plain backgrounds: four corner images, each at its own size (art/frames/
    <name>-<ink>-<tl|tr|bl|br>.svg), and straight edge lines between them as gradients.
    No border-image: desktop Firefox cut its nine slices into broken pieces, whatever
-   the image. Which files and where the lines run: frames.css (generated). The layer's
+   the image. Which files and where the lines run: frames.css. The layer's
    opacity makes it faint; it sits under the content (the tile isolates, z-index -1). */
 .home-grid > .tile,
 .profile-card {
   isolation: isolate;
 }
 /* A light, even noise over each tile's surface, so the flat colour looks a little rough
-   (art/grain.webp, plain grey noise, blurred then sharpened, from icons/make-grain.mjs, shown a bit larger than baked), overlay-blended
+   (art/grain.webp, plain grey noise, blurred then sharpened, shown a bit larger than baked), overlay-blended
    into the tile's colour, under the frame. */
 .home-grid > .tile::before,
 .profile-card::before,

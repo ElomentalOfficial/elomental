@@ -83,7 +83,7 @@
   --grid-gutter: var(--space-4);
   /* Hairline ornaments, one intensity and one wear everywhere (owner): the Home tiles' frames, the
      banner's side lines, the Forge purse's rules. Drawn in their surface's ink at this opacity, worn
-     by the tiles' own dash pattern (icons/build_frames.py: 11 1.6 7 1.2 16 2 9 1.4), as a mask that
+     by the tiles' own dash pattern (art/frames: 11 1.6 7 1.2 16 2 9 1.4), as a mask that
      runs along the line (-x across, -y down). */
   --ornament-opacity: 0.065;
   --ornament-wear-x: repeating-linear-gradient(90deg, #000 0 11px, transparent 11px 12.6px, #000 12.6px 19.6px, transparent 19.6px 20.8px, #000 20.8px 36.8px, transparent 36.8px 38.8px, #000 38.8px 47.8px, transparent 47.8px 49.2px);

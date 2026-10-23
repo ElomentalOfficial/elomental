@@ -14,7 +14,7 @@ const EMBLEMS: Record<Element, string> = { fire: fireEmblem, water: waterEmblem,
 /** An element's full-colour emblem, as an image URL (Home's faction banner). */
 export const emblemUrl = (element: Element): string => EMBLEMS[element];
 
-/** The avatar pictures (art/faces/<name>.svg, icons/make-faces.mjs), by name. */
+/** The avatar pictures (art/faces/<name>.svg), by name. */
 const FACES: Record<string, string> = Object.fromEntries(
   Object.entries(import.meta.glob<string>('./art/faces/*.svg', { eager: true, query: '?url', import: 'default' })).map(([path, url]) => [path.split('/').pop()!.replace('.svg', ''), url]),
 );
