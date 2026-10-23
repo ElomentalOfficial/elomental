@@ -10,24 +10,25 @@ const RAY_DASHES = [
   [[0, 0.72], [0.8, 1]],
   [[0.08, 0.45], [0.54, 0.62], [0.7, 1]],
 ];
-const RAYS_MASK = (() => {
+/** The sunburst's rays round (c, c), from `from` out to `reach` (the short ones 62% as long), as path data. */
+export function sunburstPath(c: number, from: number, reach: number): string {
   const lines: string[] = [];
   for (let i = 0; i < 36; i++) {
     const a = (i * Math.PI) / 18;
     const dx = Math.cos(a);
     const dy = Math.sin(a);
-    const from = 100;
-    const to = from + 98 * (i % 2 ? 0.62 : 1);
+    const to = from + (reach - from) * (i % 2 ? 0.62 : 1);
     for (const [s, e] of RAY_DASHES[(i * 3) % RAY_DASHES.length]) {
       const r1 = from + (to - from) * s;
       const r2 = from + (to - from) * e;
-      lines.push(`M${(200 + dx * r1).toFixed(1)} ${(200 + dy * r1).toFixed(1)}L${(200 + dx * r2).toFixed(1)} ${(200 + dy * r2).toFixed(1)}`);
+      lines.push(`M${(c + dx * r1).toFixed(1)} ${(c + dy * r1).toFixed(1)}L${(c + dx * r2).toFixed(1)} ${(c + dy * r2).toFixed(1)}`);
     }
   }
-  return `url("data:image/svg+xml,${encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" preserveAspectRatio="none"><path d="${lines.join('')}" stroke="#000" stroke-width="1.3" fill="none"/></svg>`,
-  )}")`;
-})();
+  return lines.join('');
+}
+const RAYS_MASK = `url("data:image/svg+xml,${encodeURIComponent(
+  `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" preserveAspectRatio="none"><path d="${sunburstPath(200, 100, 198)}" stroke="#000" stroke-width="1.3" fill="none"/></svg>`,
+)}")`;
 
 /** Puts the sunburst behind an element (centred on it, in its text colour) and returns it. */
 export function withRays<T extends HTMLElement>(el: T): T {

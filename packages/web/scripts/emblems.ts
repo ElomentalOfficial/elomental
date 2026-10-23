@@ -24,16 +24,22 @@ const hex = (name: string): string => {
 const FILLS = { fire: 'lava-500', water: 'tide-400', earth: 'forest-500', air: 'mist-200' } as const;
 /** The gold edge, light at the top to deep below. */
 const GOLD = [hex('gold-100'), hex('gold-300'), hex('gold-400')];
-/** The edge's width in the marks' 84 units; drawn behind the fill, so half of it shows. */
-const EDGE = 3.2;
+const gold = `<defs><linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">${GOLD.map((c, i) => `<stop offset="${i / 2}" stop-color="${c}"/>`).join('')}</linearGradient></defs>`;
+/**
+ * Shapes filled in `fill` with the gold edge inside them (owner: an edge outside crowded Water's
+ * thin curls): the edge stroked twice as wide and clipped to the shapes, so `edge` units of it
+ * show, all within the outline.
+ */
+const edgedInside = (ds: readonly string[], fill: string, edge: number) => {
+  const paths = ds.map((d) => `<path d="${d}"/>`).join('');
+  return `<clipPath id="shape">${paths}</clipPath>\n<g fill="${fill}">${paths}</g>\n` +
+    `<g clip-path="url(#shape)" fill="none" stroke="url(#gold)" stroke-width="${2 * edge}" stroke-linejoin="round">${paths}</g>`;
+};
 
+/** The emblems' edge, in the marks' 84 units. */
+const EDGE = 1.6;
 for (const [element, step] of Object.entries(FILLS) as [keyof typeof FILLS, string][]) {
-  const paths = ELEMENT_MARKS[element].paths.map((d) => `<path d="${d}"/>`).join('');
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 88 88">
-<defs><linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">${GOLD.map((c, i) => `<stop offset="${i / 2}" stop-color="${c}"/>`).join('')}</linearGradient></defs>
-<g fill="${hex(step)}" stroke="url(#gold)" stroke-width="${EDGE}" stroke-linejoin="round" paint-order="stroke">${paths}</g>
-</svg>
-`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84 84">\n${gold}\n${edgedInside(ELEMENT_MARKS[element].paths, hex(step), EDGE)}\n</svg>\n`;
   writeFileSync(new URL(`../src/art/elements/${element}.svg`, import.meta.url), svg);
 }
 
@@ -44,11 +50,9 @@ const SIGNS = {
   earth: 'M2.5 19.5 9.5 7.5l3.4 5.6 2.6-3.6 6 10Z',
 } as const;
 const WIND = ['M3 8.5h11.5a2.5 2.5 0 1 0-2.5-2.5', 'M3 12.5h15.5', 'M3 16.5h11.5a2.5 2.5 0 1 1-2.5 2.5'];
-const gold = `<defs><linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">${GOLD.map((c, i) => `<stop offset="${i / 2}" stop-color="${c}"/>`).join('')}</linearGradient></defs>`;
 const sign = (body: string) => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">\n${gold}\n${body}\n</svg>\n`;
 for (const [element, d] of Object.entries(SIGNS) as [keyof typeof SIGNS, string][]) {
-  const body = `<path d="${d}" fill="${hex(FILLS[element])}" stroke="url(#gold)" stroke-width="1.6" stroke-linejoin="round" paint-order="stroke"/>`;
-  writeFileSync(new URL(`../src/art/factions/${element}.svg`, import.meta.url), sign(body));
+  writeFileSync(new URL(`../src/art/factions/${element}.svg`, import.meta.url), sign(edgedInside([d], hex(FILLS[element]), 0.8)));
 }
 // Air: each line twice, a wide gold band under a narrower grey one, so it reads edged in gold
 const wind = (stroke: string, width: number) =>

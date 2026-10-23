@@ -8,6 +8,7 @@ import fireSign from './art/factions/fire.svg';
 import waterSign from './art/factions/water.svg';
 import earthSign from './art/factions/earth.svg';
 import airSign from './art/factions/air.svg';
+import { sunburstPath } from './rays.ts';
 
 /**
  * The factions' full-colour emblems (the owner's marks in their colour, edged in gold:
@@ -79,16 +80,20 @@ export function avatarSvg(loadout: Loadout | null | undefined, polish: Polish = 
 
 /**
  * An element's crest (the Affinity cards): its full-colour emblem on a disc of its own hue at its
- * darkest, ringed by two fine gold circles with a gem on a short rail at each side (the
- * seal-and-rails ornament, docs/DESIGN_SYSTEM.md; owner, 2026-10-23: no frame ring).
+ * darkest with a faint gold sunburst on it (rays.ts), ringed by two fine gold circles with a gem on
+ * a short rail at each side (the seal-and-rails ornament, docs/DESIGN_SYSTEM.md; owner, 2026-10-23:
+ * no frame ring).
  */
 export function crestSvg(element: Element): string {
   const gem = (x: number) => `<path class="crest-gem" d="M${x} 47.4 L${x + 2.6} 50 L${x} 52.6 L${x - 2.6} 50 Z"/>`;
   return `<svg class="avatar-art" viewBox="0 0 100 100" aria-hidden="true"><g class="crest el-${element}">` +
     `<circle class="crest-ring" cx="50" cy="50" r="44"/><circle class="crest-ring" cx="50" cy="50" r="47"/>` +
     `<path class="crest-ring" d="M0.5 50 H2.9 M8.9 50 H11.5 M88.5 50 H91.1 M97.1 50 H99.5"/>${gem(5.9)}${gem(94.1)}` +
-    `<circle class="crest-disc" cx="50" cy="50" r="40"/><image href="${EMBLEMS[element]}" x="20" y="20" width="60" height="60"/></g></svg>`;
+    `<circle class="crest-disc" cx="50" cy="50" r="40"/><path class="crest-rays" d="${CREST_RAYS}"/>` +
+    `<image href="${EMBLEMS[element]}" x="20" y="20" width="60" height="60"/></g></svg>`;
 }
+/** The faint sunburst on every crest's disc, behind the emblem (owner, 2026-10-23). */
+const CREST_RAYS = sunburstPath(50, 14, 39);
 
 /** One part alone, as it looks on its own (the Forge's cards): an avatar, or a frame round a plain disc. */
 export function partSvg(id: string, polish = 0, gilt = false): string {

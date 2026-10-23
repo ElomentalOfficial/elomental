@@ -348,6 +348,13 @@ html[data-reduce-motion] .sword-live .sword-flame {
 .crest .crest-disc {
   fill: var(--el-deep);
 }
+/* the disc's sunburst, in the rings' gold, as faint as every sunburst */
+.crest .crest-rays {
+  fill: none;
+  stroke: var(--crest-ring);
+  stroke-width: 0.6;
+  opacity: var(--rays-opacity);
+}
 .crest .crest-ring,
 .crest .crest-gem {
   fill: none;
