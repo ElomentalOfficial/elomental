@@ -45,11 +45,12 @@ closed shapes, `aria-hidden`, and clearance from text. Use one per surface.
    strength is `--rays-opacity` (14%) for every broken-line ornament.
 
 **Home's tile sprites.** Home's tiles carry their names alone, in capitals with a soft drop
-(`--tile-label-shadow`), each on a sprite of its own (`tileSprites.ts`): one minimal, broken hairline
-motif per tile that says what it is (a sunrise on Daily, the one sunburst; ripples on Casual,
-climbing chevrons on Ranked, two gems on a spine on Forge, two coins on Store, the podium on
-Leaderboard, two sliders on Setup), each in a different corner, never repeated. Each is drawn in a
-100-unit square fitted into its corner, so it grows with the tile and stays clear of the name.
+(`--tile-label-shadow`), each on an abstract Art Deco composition of its own (`tileSprites.ts`):
+a few worn hairline pieces (fans of arcs, stepped lines, rules ending in diamonds and dots, hatching,
+chevrons) in the tile's ink at `--rays-opacity`, minimal but never empty; the sunburst only on Daily,
+as a sunrise. Each is laid out from the tile's real size (seeded, so its breaks look random but
+never change) and masked off the frame's four corners and a gap round the name, so it fits every
+layout and never touches the text.
 2. **Seal and diamond rails.** A faint round seal (two thin rings, a band of rune ticks between
    them, the crest in the middle); nested 45° diamonds on each side; short dashed rails running
    out from them to a small dot. Built behind the wide pages' lower Back (`SEAL` in

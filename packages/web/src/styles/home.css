@@ -62,14 +62,14 @@
   width: 100%;
   height: 100%;
 }
-/* Each tile's sprite (tileSprites.ts): its own faint hairline motif across the tile, in the tile's
-   ink, as faint as the sunbursts; the drawing keeps to its corner, clear of the name. */
+/* Each tile's composition (tileSprites.ts): drawn at the tile's own size across the whole tile, in
+   its ink, as faint as the sunbursts; its mask keeps it off the frame's corners and the name. */
 .tile-sprite {
   position: absolute;
-  inset: var(--space-2);
+  inset: 0;
   z-index: -1;
-  width: calc(100% - 2 * var(--space-2));
-  height: calc(100% - 2 * var(--space-2));
+  width: 100%;
+  height: 100%;
   opacity: var(--rays-opacity);
   pointer-events: none;
 }

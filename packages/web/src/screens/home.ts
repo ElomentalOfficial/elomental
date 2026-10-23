@@ -33,7 +33,7 @@ import { homeCard } from './homeCard.ts';
 import { betaTag } from '../beta.ts';
 import { showAwayNews } from '../awayNews.ts';
 import * as copy from '../copy/en.ts';
-import { tileSprite, type Area } from '../tileSprites.ts';
+import { decorateTile, type Area } from '../tileSprites.ts';
 
 /** Layout from the owner's Home frame: Forge and Setup, the profile card, then the mode tiles. */
 export function homeScreen(): Screen {
@@ -47,10 +47,11 @@ export function homeScreen(): Screen {
     then();
   };
 
-  /** A tile: its name alone, on its own faint sprite (tileSprites.ts, decoration). */
+  /** A tile: its name alone, on its own faint composition (tileSprites.ts, decoration). */
   function tile(area: Area, label: string, onTap: (el: HTMLElement) => void, ...extra: (HTMLElement | null)[]) {
     const face = h('span', { class: 'tile-face' }, h('span', { class: 'tile-label', text: label }));
-    const el = h('button', { class: `tile area-${area}`, html: tileSprite(area) }, face, ...extra);
+    const el = h('button', { class: `tile area-${area}` }, face, ...extra);
+    decorateTile(el, area, () => face.firstElementChild!);
     el.addEventListener('click', () => onTap(el));
     enableTilt(el);
     return el;
