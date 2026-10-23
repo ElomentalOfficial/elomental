@@ -32,6 +32,11 @@ export interface HomeCard {
   destroy(): void;
 }
 
+/**
+ * An empty slot's rim (owner's mock-up): a dashed line a little in from the slot's edge, following
+ * its rounded corners. The rect fills its svg, which the CSS insets (home.css .pc-slot-rim).
+ */
+const RIM = '<svg class="pc-slot-rim" aria-hidden="true"><rect width="100%" height="100%"/></svg>';
 /** An empty badge slot: a dashed diamond socket. */
 const SOCKET = '<svg viewBox="-12 -12 24 24" aria-hidden="true"><path d="M0 -10L10 0L0 10L-10 0Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 2"/></svg>';
 /**
@@ -95,7 +100,7 @@ export function homeCard(): HomeCard {
           ? h('button', { class: 'pc-badge-btn', html: badgeArt(id), attrs: { type: 'button', 'aria-label': copy.home.card.a11yBadge(badgeLabel(id).text) } })
           : h('button', { class: 'pc-badge-btn pc-add', html: ADD, attrs: { type: 'button', 'aria-label': copy.home.card.a11yAddBadge } });
         btn.addEventListener('click', chooseBadges);
-        return h('li', { class: `pc-badge${id ? '' : ' empty'}` }, btn);
+        return id ? h('li', { class: 'pc-badge' }, btn) : h('li', { class: 'pc-badge empty', html: RIM }, btn);
       }));
       return;
     }
@@ -108,7 +113,7 @@ export function homeCard(): HomeCard {
       const id = ids[i];
       return id
         ? h('li', { class: 'pc-badge' }, h('span', { class: 'pc-badge-art', html: badgeArt(id), attrs: { role: 'img', 'aria-label': badgeLabel(id).text } }))
-        : h('li', { class: 'pc-badge empty', attrs: { 'aria-hidden': 'true' } }, h('span', { class: 'pc-socket', html: SOCKET }));
+        : h('li', { class: 'pc-badge empty', html: RIM, attrs: { 'aria-hidden': 'true' } }, h('span', { class: 'pc-socket', html: SOCKET }));
     }));
   };
 

@@ -310,8 +310,7 @@
 /* each fill brightens towards its leading edge (tokens.css), and ends in a small bright knob with
    a soft glow, so where it stands reads at a glance (owner) */
 .pc-next .rank-bar span {
-  --knob: var(--c-lava-300);
-  background: var(--pc-elo-fill);
+  --knob: var(--rank-hi);
 }
 .pc-next .xp-bar span {
   --knob: var(--c-gold-100);
@@ -351,14 +350,31 @@
   display: grid;
   place-items: center;
   min-height: 48px;
-  padding: var(--space-2) 0;
+  /* room for an empty slot's inset rim to clear its socket */
+  padding: var(--space-4) 0;
   border-radius: var(--radius-lg);
   background: var(--pc-socket);
 }
-/* an empty slot: its rim a dashed line, darker than the card (owner) */
+/* an empty slot (owner's mock-up): its rim a faint dashed line set a little in from the slot's
+   edge, its corners rounded to match (homeCard.ts RIM) */
 .pc-badge.empty {
-  outline: 1.5px dashed var(--pc-slot-edge);
-  outline-offset: -1.5px;
+  position: relative;
+}
+.pc-slot-rim {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  width: calc(100% - 2 * var(--space-2));
+  height: calc(100% - 2 * var(--space-2));
+  overflow: visible;
+  pointer-events: none;
+}
+.pc-slot-rim rect {
+  rx: calc(var(--radius-lg) - var(--space-2) / 2);
+  fill: none;
+  stroke: var(--pc-slot-edge);
+  stroke-width: 1.2;
+  stroke-dasharray: 5 3;
 }
 .pc-badge-art {
   display: block;
@@ -384,25 +400,26 @@
   width: 100%;
   height: 100%;
 }
-/* the add slot (homeCard.ts ADD): the socket a shade into the card, a fine rim; the "+" in the
-   text's ink with a soft glow round it */
+/* the add slot (homeCard.ts ADD, owner's mock-up): the socket a shade into the card, a fine rim
+   with a fainter one inside; the "+" in the muted ink with a soft glow, all brightening to the
+   text's ink under the pointer */
 .pc-add-socket {
   fill: var(--pc-socket);
   stroke: currentColor;
   stroke-width: 0.5;
-  stroke-opacity: 0.55;
+  stroke-opacity: 0.6;
 }
 .pc-add-inner {
   fill: none;
   stroke: currentColor;
   stroke-width: 0.35;
-  stroke-opacity: 0.25;
+  stroke-opacity: 0.35;
 }
 .pc-add-plus {
-  fill: var(--text);
+  fill: currentColor;
 }
 .pc-add svg {
-  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--text) 45%, transparent));
+  filter: drop-shadow(0 0 2px color-mix(in srgb, currentColor 40%, transparent));
 }
 .pc-badge-btn:active {
   transform: scale(0.94);
@@ -629,11 +646,12 @@
   background: var(--surface);
   overflow: hidden;
 }
+/* in the rank's own metal, as its name (owner, 2026-10-23): deep at the floor, light at the
+   leading edge; both steps are ink (4.5:1 on every surface), so the fill clears 3:1 on its track */
 .rank-bar span {
   display: block;
   height: 100%;
-  /* the text accent: Lava on the dark track is under 3:1, Ember isn't */
-  background: var(--accent-text);
+  background: linear-gradient(90deg, var(--rank-lo), var(--rank-hi));
 }
 /* Windows High Contrast drops backgrounds: an outlined track and a solid fill */
 @media (forced-colors: active) {
