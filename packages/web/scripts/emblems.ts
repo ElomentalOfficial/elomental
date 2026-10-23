@@ -32,10 +32,55 @@ const edgedInside = (ds: readonly string[], fill: string, edge: number) => {
     `<g clip-path="url(#shape)" fill="none" stroke="url(#gold)" stroke-width="${2 * edge}" stroke-linejoin="round">${paths}</g>`;
 };
 
+/**
+ * A mark's true bounds: its points and each curve's extremes (the marks use absolute M, C and Z
+ * only; a curve's control points can lie outside the shape, so they don't count).
+ */
+function bounds(ds: readonly string[]): [number, number, number, number] {
+  let [x0, y0, x1, y1] = [Infinity, Infinity, -Infinity, -Infinity];
+  const add = (x: number, y: number) => {
+    [x0, y0, x1, y1] = [Math.min(x0, x), Math.min(y0, y), Math.max(x1, x), Math.max(y1, y)];
+  };
+  const at = (a: number, b: number, c: number, d: number, t: number) =>
+    (1 - t) ** 3 * a + 3 * (1 - t) ** 2 * t * b + 3 * (1 - t) * t ** 2 * c + t ** 3 * d;
+  /** where a cubic's derivative is zero, inside (0, 1) */
+  const turns = (a: number, b: number, c: number, d: number) => {
+    const [qa, qb, qc] = [-a + 3 * b - 3 * c + d, 2 * (a - 2 * b + c), b - a];
+    if (Math.abs(qa) < 1e-9) return Math.abs(qb) < 1e-9 ? [] : [-qc / qb];
+    const disc = qb * qb - 4 * qa * qc;
+    return disc < 0 ? [] : [(-qb + Math.sqrt(disc)) / (2 * qa), (-qb - Math.sqrt(disc)) / (2 * qa)];
+  };
+  for (const d of ds) {
+    let [px, py] = [0, 0];
+    for (const [, cmd, args] of d.matchAll(/([MCZ])([^MCZ]*)/g)) {
+      const n = args.match(/-?\d*\.?\d+(?:e-?\d+)?/gi)?.map(Number) ?? [];
+      if (cmd === 'M') [px, py] = [n[0], n[1]];
+      for (let i = 0; cmd === 'C' && i < n.length; i += 6) {
+        const [ax, ay, bx, by, x, y] = n.slice(i, i + 6);
+        for (const t of [...turns(px, ax, bx, x), ...turns(py, ay, by, y)].filter((t) => t > 0 && t < 1))
+          add(at(px, ax, bx, x, t), at(py, ay, by, y, t));
+        add(px, py);
+        [px, py] = [x, y];
+      }
+      add(px, py);
+    }
+  }
+  return [x0, y0, x1, y1];
+}
+
 /** The emblems' edge, in the marks' 84 units. */
 const EDGE = 1.6;
+/**
+ * Every emblem the same size, whole and centred (owner, 2026-10-23: some ran off the box's edges):
+ * each mark's true bounds scaled so its longer side is SIZE, in the middle of the 84 box.
+ */
+const SIZE = 80;
 for (const [element, step] of Object.entries(FILLS) as [keyof typeof FILLS, string][]) {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84 84">\n${gold}\n${edgedInside(ELEMENT_MARKS[element].paths, hex(step), EDGE)}\n</svg>\n`;
+  const { paths } = ELEMENT_MARKS[element];
+  const [x0, y0, x1, y1] = bounds(paths);
+  const k = SIZE / Math.max(x1 - x0, y1 - y0);
+  const fit = `translate(${+(42 - (k * (x0 + x1)) / 2).toFixed(3)} ${+(42 - (k * (y0 + y1)) / 2).toFixed(3)}) scale(${+k.toFixed(5)})`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84 84">\n${gold}\n<g transform="${fit}">\n${edgedInside(paths, hex(step), EDGE / k)}\n</g>\n</svg>\n`;
   writeFileSync(new URL(`../src/art/elements/${element}.svg`, import.meta.url), svg);
 }
 console.log('emblems written');
