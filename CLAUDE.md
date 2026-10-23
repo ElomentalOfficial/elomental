@@ -1,5 +1,12 @@
 # Elomental
 
+## Read first
+
+- [docs/WORKFLOW.md](docs/WORKFLOW.md): beta only until the owner asks for live, how to ship to
+  beta (with the deploy nudge), the git identity, machine setup, checks, open threads.
+- [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md): the owner's look rules (minimal ornament, one
+  rule per set, room around text), the three background ornaments, Banner and Doors.
+
 ## Player-facing text
 
 - Read [docs/BRAND_VOICE.md](docs/BRAND_VOICE.md) before writing or changing any text a player
