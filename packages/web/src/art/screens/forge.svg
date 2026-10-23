@@ -1,6 +1,6 @@
 <svg width="617" height="375" viewBox="0 0 617 375" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#clip0_2500_75)">
-<path d="M124.24 184.853C124.24 84.142 205.882 2.5 306.593 2.5C407.303 2.5 488.945 84.142 488.945 184.853C488.945 285.563 407.303 367.205 306.593 367.205C205.882 367.205 124.24 285.563 124.24 184.853Z" fill="#141511" stroke-width="5" stroke-miterlimit="10" stroke="url(#paint0_radial_2500_75)"/>
+<path d="M124.24 184.853C124.24 84.142 205.882 2.5 306.593 2.5C407.303 2.5 488.945 84.142 488.945 184.853C488.945 285.563 407.303 367.205 306.593 367.205C205.882 367.205 124.24 285.563 124.24 184.853Z" fill="#272716" stroke-width="5" stroke-miterlimit="10" stroke="url(#paint0_linear_2500_75)"/>
 <path d="M264.217 8.45603L266.405 7.95703L288.235 113.888L264.217 8.45603Z" fill="url(#paint1_radial_2500_75)"/>
 <path d="M402.872 31.203L404.772 32.398L345.304 122.739L402.872 31.203Z" fill="url(#paint2_radial_2500_75)"/>
 <path d="M484.831 145.332L485.33 147.521L379.398 169.351L484.831 145.332Z" fill="url(#paint3_radial_2500_75)"/>
@@ -34,10 +34,10 @@
 <path d="M198.402 154.042L224.421 90.208H271.026L223.873 208.948C215.652 197.651 203.634 187.999 187.279 181.33L198.402 154.042Z" stroke-width="5" stroke-miterlimit="10" stroke="url(#paint26_radial_2500_75)"/>
 </g>
 <defs>
-<radialGradient id="paint0_radial_2500_75" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(306.593 184.853) scale(184.853 184.853)">
-<stop stop-color="#F7E3B3"/>
+<linearGradient id="paint0_linear_2500_75" x1="303.5" y1="7.5" x2="301" y2="346" gradientUnits="userSpaceOnUse">
+<stop stop-color="#B59E65"/>
 <stop offset="1" stop-color="#C08F17"/>
-</radialGradient>
+</linearGradient>
 <radialGradient id="paint1_radial_2500_75" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(277.32 60.923) scale(54.0669 54.067)">
 <stop stop-color="#F7E3B3"/>
 <stop offset="1" stop-color="#C08F17"/>
