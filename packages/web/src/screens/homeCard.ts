@@ -6,6 +6,7 @@ import { badgeArt, badgeLabel } from '../badges.ts';
 import { paintPlate } from '../plates.ts';
 import { BANNER_DROP, BANNER_EMBLEM, bannerCornerX, bannerPlace, cardWalls, type Box } from '../profileWalls.ts';
 import { cardPlaques } from '../profilePlaques.ts';
+import { openBadgePicker } from '../badgePicker.ts';
 import { loadProfile, rankTier } from '../profile.ts';
 import { rankName } from '../rankName.ts';
 import { h } from '../ui.ts';
@@ -32,11 +33,17 @@ export interface HomeCard {
 
 /** An empty badge slot: a dashed diamond socket. */
 const SOCKET = '<svg viewBox="-12 -12 24 24" aria-hidden="true"><path d="M0 -10L10 0L0 10L-10 0Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 2"/></svg>';
+/** An empty badge slot you can fill: a hexagon socket (the badges' own shape) with a "+". */
+const ADD =
+  '<svg viewBox="-12 -12 24 24" aria-hidden="true"><path class="pc-add-socket" d="M0 -11L9.5 -5.5V5.5L0 11L-9.5 5.5V-5.5Z" fill="none" stroke="currentColor" stroke-width="0.8"/>' +
+  '<path class="pc-add-plus" d="M0 -3.6V3.6M-3.6 0H3.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>';
 
 export function homeCard(): HomeCard {
   /** Your badges when you haven't chosen three: your newest, fetched once a visit to Home. */
   let newest: string[] | null = null;
   let fetching = false;
+  /** Every badge you own, once fetched (for the badge choice). */
+  let owned: string[] | null = null;
   /** The name as painted, for fitting it to its cell (draw). */
   let shown = '';
   const avatar = h('button', { class: 'avatar avatar-btn worn', attrs: { type: 'button', 'aria-label': copy.profile.a11yAvatar } });
@@ -60,8 +67,30 @@ export function homeCard(): HomeCard {
   // (the emblem, placed over the banner, is read out right after your name)
   const el = h('section', { class: 'profile-card area-profile' }, plaques, walls, portrait, name, emblem, level, elo, badges);
 
+  /** Opens the badge choice (badgePicker.ts) with every badge you own. */
+  const chooseBadges = () => {
+    const open = (list: string[]) => openBadgePicker(list, cachedAccount()?.showcase ?? []);
+    if (owned) return open(owned);
+    void myBadges().then((list) => {
+      owned = list ?? [];
+      open(owned);
+    });
+  };
   const paintBadges = (ids: string[]) => {
-    // no badge yet: one line on what the row is for, in place of three empty sockets
+    // a player with an account: three slots, each a way to choose the badges on the card (owner,
+    // 2026-10-23), an empty one a "+" in a hexagon socket
+    if (registered()) {
+      badges.replaceChildren(...[0, 1, 2].map((i) => {
+        const id = ids[i];
+        const btn = id
+          ? h('button', { class: 'pc-badge-btn', html: badgeArt(id), attrs: { type: 'button', 'aria-label': copy.home.card.a11yBadge(badgeLabel(id).text) } })
+          : h('button', { class: 'pc-badge-btn pc-add', html: ADD, attrs: { type: 'button', 'aria-label': copy.home.card.a11yAddBadge } });
+        btn.addEventListener('click', chooseBadges);
+        return h('li', { class: `pc-badge${id ? '' : ' empty'}` }, btn);
+      }));
+      return;
+    }
+    // a guest can't keep badges: no badge yet is one line on what the row is for
     if (!ids.length) {
       badges.replaceChildren(h('li', { class: 'pc-badges-note', text: copy.home.card.noBadges }));
       return;
@@ -104,8 +133,9 @@ export function homeCard(): HomeCard {
       paintBadges([]);
       if (!fetching) {
         fetching = true;
-        void myBadges().then((owned) => {
-          newest = (owned ?? []).slice(0, 3);
+        void myBadges().then((list) => {
+          owned = list ?? [];
+          newest = owned.slice(0, 3);
           if (el.isConnected && !(cachedAccount()?.showcase ?? []).length) {
             paintBadges(newest);
             schedule();

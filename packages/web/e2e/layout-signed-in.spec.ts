@@ -134,8 +134,17 @@ test('Home: the card holds you, your Level and Elo, your badges; the Forge tile 
   // the faction's banner, read out literally
   await expect(page.getByRole('img', { name: 'Faction: Fire' })).toBeVisible();
   // no badges chosen: the newest two, an empty socket for the third
-  await expect(page.locator('.pc-badge-art')).toHaveCount(2);
-  await expect(page.locator('.pc-badge.empty')).toHaveCount(1);
+  // each slot a button to the badge choice: the newest two badges, and a "+" to add one
+  await expect(page.getByRole('button', { name: /\. Change the badges on your card$/ })).toHaveCount(2);
+  const add = page.getByRole('button', { name: 'Add a badge to your card' });
+  await expect(add).toHaveCount(1);
+  await settled(page); // the tiles have turned in
+  await add.click();
+  const choice = page.getByRole('dialog', { name: 'Badges on your card' });
+  await expect(choice.locator('.badge-pick')).toHaveCount(2);
+  await page.keyboard.press('Escape');
+  await expect(choice).toBeHidden();
+  await expect(page.locator('.tile.area-casual')).toBeVisible();
   // the Forge tile carries its name alone, like every tile
   await expect(page.locator('.tile.area-forge')).toHaveAccessibleName('Forge');
   await settled(page); // the tiles have turned in

@@ -66,11 +66,11 @@ export function homeScreen(): Screen {
   card.avatar.addEventListener('click', () => leave(profileCard, () => mount(profileScreen())));
   enableTilt(card.avatar, 6);
   // The whole card looks like a tile, so a tap anywhere on it goes in too (by pointer: the avatar
-  // stays the one control for the keyboard and screen readers): your badges open the Profile at
-  // its Badges, anywhere else the Profile.
+  // stays the one control for the keyboard and screen readers). The card's own buttons do their
+  // own thing: the avatar, and the badge slots, which open the badge choice (homeCard.ts).
   profileCard.addEventListener('click', (event) => {
     const at = event.target as Element;
-    if (at.closest('.avatar-btn')) return;
+    if (at.closest('.avatar-btn, .pc-badge-btn')) return;
     leave(profileCard, () => mount(profileScreen(at.closest('.pc-badges') ? { at: 'badges' } : undefined)));
   });
 

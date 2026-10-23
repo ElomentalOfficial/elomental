@@ -59,7 +59,7 @@
     zoom: var(--wide-zoom, 1);
   }
   /* the card's badges are pictures: they grow with the window, never with Text size */
-  :is(.pc-badge-art, .pc-socket) {
+  :is(.pc-badge-art, .pc-socket, .pc-badge-btn) {
     zoom: calc(var(--wide-zoom, 1) * var(--wide-icon-zoom, 1));
   }
   /* Firefox draws a custom cursor at the zoom of what's under it: the zoomed insides of a tile

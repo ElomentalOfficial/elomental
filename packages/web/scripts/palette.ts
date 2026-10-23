@@ -113,8 +113,8 @@ interface Swatch {
   fill: number;
   /** per-role step overrides where a ramp lacks the standard step: `${role}-${theme}` */
   steps?: Partial<Record<string, number>>;
-  /** the deep role's colour per theme, as `ramp-step`, where it isn't the hue's own (themeRoles) */
-  deep?: { dark: string; light: string };
+  /** the deep role from another ramp (themeRoles): `dark` a `ramp-step`, `tint` the ramp light's is tinted with */
+  deep?: { dark: string; tint: string };
 }
 export const SWATCHES: Swatch[] = [
   { id: 'el-fire', ramp: 'lava', fill: 500 },
@@ -122,7 +122,7 @@ export const SWATCHES: Swatch[] = [
   { id: 'el-earth', ramp: 'forest', fill: 500 },
   // Air's deep is the plain grey neutral at its siblings' steps: mist's own shades read as Water's
   // blue (owner)
-  { id: 'el-air', ramp: 'mist', fill: 200, steps: { 'line-light': 600, 'line-hc-light': 700 }, deep: { dark: 'stone-700', light: 'stone-500' } },
+  { id: 'el-air', ramp: 'mist', fill: 200, steps: { 'line-light': 600, 'line-hc-light': 700 }, deep: { dark: 'stone-700', tint: 'stone' } },
   { id: 'r-common', ramp: 'iron', fill: 500 },
   { id: 'r-rare', ramp: 'azure', fill: 500 },
   { id: 'r-epic', ramp: 'amethyst', fill: 500 },
@@ -153,12 +153,10 @@ function themeRoles(s: Swatch, t: 'dark' | 'light'): Record<string, string> {
     mark: t === 'light' && lightFill(s) ? v(s.ramp, roleStep(s, 'line', t)) : `var(--${s.id}-fill)`,
     edge: edge(s, t),
     // a ground for art drawn on it (a crest disc): the hue at its darkest on dark; on light, where
-    // that stood out too hard against the sand (owner), its 700 half greyed by the sand's own mid grey
-    deep: s.deep
-      ? `var(--c-${s.deep[t]})`
-      : t === 'dark'
-        ? v(s.ramp, 900)
-        : `color-mix(in oklab, ${v(s.ramp, 700)} 50%, var(--c-sand-500))`,
+    // a dark disc stood out too hard (owner), just a shade of the hue over the page's paper
+    deep: t === 'dark'
+      ? (s.deep ? `var(--c-${s.deep.dark})` : v(s.ramp, 900))
+      : `color-mix(in oklab, ${v(s.deep?.tint ?? s.ramp, 500)} 22%, var(--c-sand-50))`,
   };
 }
 /**
@@ -283,7 +281,7 @@ export function paletteCss(): string {
       '   *   edge  the 1px rim of every filled tag, chip, segment and disc: the same rule for all of',
       '   *         them (none on dark, a deeper shade of the hue on light), so a set never mixes rims',
       '   *   deep  a ground for art drawn on it (a crest disc): the hue at its darkest (900) on dark,',
-      '   *         its 700 half greyed by sand 500 on light',
+      '   *         a shade of its 500 (22%) over sand 50 on light',
       '   * Always shown with the name or the crest, never colour alone.',
       '   */',
       ...SWATCHES.flatMap((s) => [`  --${s.id}-fill: ${v(s.ramp, s.fill)};`, `  --${s.id}-on: var(${lightFill(s) ? '--c-stone-900' : '--c-sand-50'});`]),
