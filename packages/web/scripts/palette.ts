@@ -115,14 +115,16 @@ interface Swatch {
   steps?: Partial<Record<string, number>>;
   /** the deep role from another ramp (themeRoles): `dark` a `ramp-step`, `tint` the ramp light's is tinted with */
   deep?: { dark: string; tint: string };
+  /** the coin-mark role on light from another ramp (themeRoles), a `ramp-step` */
+  coinMark?: string;
 }
 export const SWATCHES: Swatch[] = [
   { id: 'el-fire', ramp: 'lava', fill: 500 },
   { id: 'el-water', ramp: 'tide', fill: 400 },
   { id: 'el-earth', ramp: 'forest', fill: 500 },
   // Air's deep is the plain grey neutral at its siblings' steps: mist's own shades read as Water's
-  // blue (owner)
-  { id: 'el-air', ramp: 'mist', fill: 200, steps: { 'line-light': 600, 'line-hc-light': 700 }, deep: { dark: 'stone-700', tint: 'stone' } },
+  // blue (owner); its coin's mark on light a light neutral grey, not mist's dark blue (owner)
+  { id: 'el-air', ramp: 'mist', fill: 200, steps: { 'line-light': 600, 'line-hc-light': 700 }, deep: { dark: 'stone-700', tint: 'stone' }, coinMark: 'steel-500' },
   { id: 'r-common', ramp: 'iron', fill: 500 },
   { id: 'r-rare', ramp: 'azure', fill: 500 },
   { id: 'r-epic', ramp: 'amethyst', fill: 500 },
@@ -166,7 +168,7 @@ function themeRoles(s: Swatch, t: 'dark' | 'light'): Record<string, string> {
     // foot (coin 200), under the mark alone in the hue's 600 (coin-mark)
     coin: t === 'dark' ? deepDark(s) : v(s.ramp, 200),
     'coin-lit': t === 'dark' ? deepDark(s) : v(s.ramp, 100),
-    'coin-mark': t === 'dark' ? `var(--${s.id}-fill)` : v(s.ramp, 600),
+    'coin-mark': t === 'dark' ? `var(--${s.id}-fill)` : s.coinMark ? `var(--c-${s.coinMark})` : v(s.ramp, 600),
   };
 }
 /**

@@ -417,7 +417,7 @@
   --el-air-deep: color-mix(in oklab, var(--c-stone-700) 30%, var(--c-stone-700));
   --el-air-coin: var(--c-mist-200);
   --el-air-coin-lit: var(--c-mist-100);
-  --el-air-coin-mark: var(--c-mist-600);
+  --el-air-coin-mark: var(--c-steel-500);
   --r-common-ink: var(--c-iron-600);
   --r-common-line: var(--c-iron-500);
   --r-common-wash: rgba(109, 104, 97, 0.14);
