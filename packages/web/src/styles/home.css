@@ -187,8 +187,9 @@
   aspect-ratio: 1;
   padding: 5%;
   border-radius: 50%;
-  /* lit at the centre, its own hue at the rim (flat on dark, where both are the deep) */
-  background: radial-gradient(circle, var(--coin-lit) 25%, var(--coin));
+  /* a slight fall of its own hue, lit at the top to deeper at the foot (owner's mock-up; flat on
+     dark, where both are the deep) */
+  background: linear-gradient(180deg, var(--coin-lit) 20%, var(--coin));
   box-shadow: 0 0 0 2px var(--crest-ring);
   pointer-events: none;
 }

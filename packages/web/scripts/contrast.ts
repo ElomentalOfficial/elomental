@@ -177,8 +177,8 @@ for (const metal of ['bronze', 'silver', 'gold']) {
   for (const [n, t] of PLATE_SURFACES) PAIRS.push([`UI: ${metal} medal on ${n}`, `--medal-${metal}`, t, 3]);
   PAIRS.push([`UI: ${metal} medal on your row`, `--medal-${metal}-chosen`, '--chosen-bg', 3, '--surface']);
 }
-// Home's faction coin (home.css .pc-faction): on light its mark on the disc, at the disc's rim and
-// at its lit centre (on dark the full-colour emblem with its gold edge stands in for the mark)
+// Home's faction coin (home.css .pc-faction): on light its mark on the disc, at both ends of the
+// disc's fall (rim: its foot, centre: its lit top) (on dark the full-colour emblem with its gold edge stands in for the mark)
 for (const e of ['fire', 'water', 'earth', 'air']) {
   PAIRS.push([`UI: ${e} coin mark on its disc (rim)`, `--el-${e}-coin-mark`, `--el-${e}-coin`, 3]);
   PAIRS.push([`UI: ${e} coin mark on its disc (centre)`, `--el-${e}-coin-mark`, `--el-${e}-coin-lit`, 3]);

@@ -205,7 +205,7 @@
    *   deep  a ground for art drawn on it (a crest disc): the hue at its darkest (900) on dark,
    *         its 700 at 30% in stone 700 on light
    *   coin  a small coin (Home's faction coin): on dark the deep; on light the pale 200 at its
-   *         rim, coin-lit 100 at its centre, and coin-mark 600 for the mark on it
+   *         foot, coin-lit 100 at its top, and coin-mark 600 for the mark on it
    * Always shown with the name or the crest, never colour alone.
    */
   --el-fire-fill: var(--c-lava-500);
