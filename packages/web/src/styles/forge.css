@@ -728,11 +728,6 @@ html[data-reduce-motion] .part-reveal * {
     border-radius: var(--radius-lg);
     background: var(--surface);
   }
-  /* (its text lines up with the words above it, past the link's own padding) */
-  .forge-lead .link-btn {
-    align-self: flex-start;
-    margin-inline-start: calc(-1 * var(--space-2));
-  }
   .forge.has-banner .forge-spirits .forge-heading-row {
     margin-top: 0;
   }

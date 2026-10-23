@@ -613,10 +613,12 @@ html[data-large-text] .lb-me .lb-jump {
 .setting .field-error:empty {
   display: none;
 }
+/* A text link: its tap target is its height (44px); no side padding, so its words line up with the
+   text around it wherever it sits */
 .link-btn {
   align-self: center;
   min-height: 44px;
-  padding: 0 8px;
+  padding: 0;
   font-family: var(--serif);
   font-size: var(--fs-body);
   color: var(--muted);
