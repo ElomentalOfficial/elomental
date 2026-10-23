@@ -99,7 +99,7 @@ export function profileScreen(start?: { at?: 'badges' }): Screen {
       'div',
       { class: 'profile-body' },
       wide
-        ? h('div', { class: 'door-row profile-doors', attrs: { style: '--doors: 2' } }, forgeBtn, platesDoor(profileScreen))
+        ? h('div', { class: 'door-row field-grid two-up profile-doors' }, forgeBtn, platesDoor(profileScreen))
         : h(
             'section',
             { class: 'profile-hero' },
