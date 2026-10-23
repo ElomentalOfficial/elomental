@@ -1,10 +1,10 @@
-import { partSvg } from '../avatar.ts';
+import { FRAME_TIERS, frameTier, partSvg } from '../avatar.ts';
 import { ALIVE_COST, BLUEPRINT_COST, DEFAULT_AVATAR, FORGE_COST, GILD_COST, MAX_MARKS, SLOTS, gildPart, marksOf, avatarsToWake, callSpirit, equipPart, forgePart, loadForge, polishPart, type Forge, type Part } from '../backend/forge.ts';
 import forgeHero from '../art/screens/forge.svg';
 import { ICONS } from '../icons.ts';
 import { withRays } from '../rays.ts';
 import { spinnable } from '../spin.ts';
-import { ELEMENTS, RARITIES, loadProfile, type Element, type Rarity } from '../profile.ts';
+import { RARITIES, loadProfile, type Rarity } from '../profile.ts';
 import { partName, rarityName } from '../reward.ts';
 import { holdToConfirm } from '../hold.ts';
 import { closeButton, goBack, h, openModal, rebuildOnLayout, subPage, toast, wideLayout, type Screen } from '../ui.ts';
@@ -36,9 +36,8 @@ function stateOf(f: Forge, p: Part): State {
 const costOf = (f: Forge, p: Part) => (f.blueprints.has(p.id) ? BLUEPRINT_COST : FORGE_COST)[p.rarity];
 const price = (f: Forge, p: Part) => (f.blueprints.has(p.id) ? copy.forge.blueprintPrice(BLUEPRINT_COST[p.rarity]) : copy.forge.price(FORGE_COST[p.rarity]));
 const forgeable = (s: State) => s === 'ready' || s === 'needs' || s === 'blueprint' || s === 'blueprint-needs';
-/** "Fire · Frame" for a frame, "Avatar" for an avatar. */
-const kind = (p: Part) => (p.element ? `${copy.forge.elements[p.element]} · ${copy.forge.slots[p.slot]}` : copy.forge.slots[p.slot]);
-const order = (p: Part) => (p.element ? ELEMENTS.indexOf(p.element) : 0);
+/** "Frame" or "Avatar". */
+const kind = (p: Part) => copy.forge.slots[p.slot];
 const rarityTag = (r: Rarity) => h('span', { class: `rarity-tag rarity-${r}`, text: rarityName(r) });
 /** A balance between its two rules (forge.css): the number, then what it counts. */
 const balance = (kind: 'stardust' | 'spirit', n: number, what: string) => {
@@ -128,12 +127,16 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
     );
   }
 
-  /** The season's parts, a group a slot: Happy first (everyone has it), then by element and rarity. */
+  /** The season's parts, a group a slot: Happy first (everyone has it), then by rarity; frames by tier. */
   function groups(f: Forge): HTMLElement[] {
+    const tier = (p: Part) => {
+      const t = frameTier(p.id);
+      return t ? FRAME_TIERS.indexOf(t) : 0;
+    };
     return SLOTS.map((slot) => {
       const parts = f.parts
         .filter((p) => p.slot === slot)
-        .sort((a, b) => Number(b.source === 'starter') - Number(a.source === 'starter') || order(a) - order(b) || RARITIES.indexOf(a.rarity) - RARITIES.indexOf(b.rarity));
+        .sort((a, b) => Number(b.source === 'starter') - Number(a.source === 'starter') || RARITIES.indexOf(a.rarity) - RARITIES.indexOf(b.rarity) || tier(a) - tier(b));
       return h('section', { class: 'forge-group' }, h('h2', { text: copy.forge.slotGroups[slot] }), h('div', { class: wideLayout() ? 'part-grid field-grid' : 'part-grid' }, ...parts.map((p) => partCard(f, p))));
     });
   }

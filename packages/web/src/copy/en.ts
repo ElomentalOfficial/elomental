@@ -315,8 +315,10 @@ export const game = {
 export const forge = {
   rarities: { common: 'Common', rare: 'Rare', epic: 'Epic', mythic: 'Mythic' },
   elements: { fire: 'Fire', water: 'Water', earth: 'Earth', air: 'Air' },
-  /** Each element's frame names start with this: "Ember Frame", "Tide Frame II". */
-  names: { fire: 'Ember', water: 'Tide', earth: 'Stone', air: 'Gale' },
+  /** The frames, one a tier (avatar.ts FRAME_TIERS). */
+  frameTiers: { bronze: 'Bronze', silver: 'Silver', gold: 'Gold', epic: 'Epic', mythic: 'Mythic' },
+  /** "Gold Frame". */
+  frameName: (tier: string) => `${tier} Frame`,
   slots: { avatar: 'Avatar', frame: 'Frame' },
   /** The Forge's group headings. */
   slotGroups: { avatar: 'Avatars', frame: 'Frames' },
@@ -325,16 +327,12 @@ export const forge = {
     happy: 'Happy', upset: 'Upset', angry: 'Angry', silly: 'Silly', sad: 'Sad', bored: 'Bored',
     excited: 'Excited', scared: 'Scared', calm: 'Calm', tired: 'Tired', disappointed: 'Disappointed', shocked: 'Shocked',
   } as Record<string, string>,
-  /** "Ember Frame", "Ember Frame II", "Ember Frame III", "Ember Frame IV" (the Mythic one). */
-  part: (name: string, slot: string, n: number) => `${name} ${slot}${n > 1 ? ` ${['', '', 'II', 'III', 'IV'][n] ?? n}` : ''}`,
 
   // The result pop-up (reward.ts)
   newPart: 'New part',
   /** A drop is a blueprint you forge with Stardust (blueprints). */
   blueprint: 'Blueprint',
   blueprintNote: (stardust: number) => (stardust ? `Forge it for ${formatNumber(stardust)} Stardust.` : 'Free to forge: one tap in the Forge.'),
-  /** Another faction's frame, once your own faction's at that rarity is yours (faction_drops). */
-  gift: (element: string) => `A gift from ${element}`,
   openForge: 'Open the Forge',
   duplicate: (stardust: number) => `Already yours: +${stardust} Stardust instead.`,
   pityHit: (rarity: string) => `${rarity} guaranteed: your luck came due.`,
@@ -344,8 +342,6 @@ export const forge = {
   /** Screen readers hear the part as one literal line. */
   a11yDrop: (name: string, rarity: string) => `New part: ${name}, ${rarity}.`,
   a11yBlueprint: (name: string, rarity: string) => `Blueprint: ${name}, ${rarity}.`,
-  a11yGift: (name: string, rarity: string, element: string) => `A gift from ${element}: blueprint for ${name}, ${rarity}.`,
-
   // The Forge page (screens/forge.ts)
   title: 'Forge',
   /** Wide screens (banner pages): the banner's line. */

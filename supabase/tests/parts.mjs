@@ -1,13 +1,12 @@
-// Parts: a part every 3rd solve with its guarantees, the daily limit, losses; your faction's
-// frames first, the others' as gifts, avatars only without a faction (migration faction_drops).
+// Parts: a part every 3rd solve with its guarantees, the daily limit, losses; the five frames
+// drop to everyone, in a faction or not, and never as gifts (migration tier_frames).
 import { db, check, newPlayer, play, one, day, players } from './harness.mjs';
 
 export default async function () {
   // --- 1. a part every 3rd solve, rarities, guarantees (spread over days so the limit doesn't bite)
-  // (in a faction: its frames first, then the others' as gifts, so it collects everything)
   const a = await newPlayer();
   await db.query(`update public.profiles set affinity = 'air' where id = $1`, [a]);
-  let giftBeforeOwn = false, giftFlagOk = true;
+  let anyGift = false;
   const tally = { common: 0, rare: 0, epic: 0, mythic: 0 };
   let solves = 0, drops = 0, dupes = 0, gapEpic = 0, maxGapEpic = 0, gapMythic = 0, maxGapMythic = 0, progressOk = true;
   for (let i = 0; i < 900; i++) {
@@ -19,13 +18,7 @@ export default async function () {
     if ((solves % 3 === 0) !== !!d) progressOk = false;
     if (!d) continue;
     drops++; tally[d.rarity]++;
-    const [, slot, element] = d.part.split('-');
-    if (d.gift !== (slot === 'frame' && element !== 'air')) giftFlagOk = false;
-    // a gift at a rarity only once the player owns their own faction's frame at that rarity
-    if (d.gift) {
-      const own = (await one(`select count(*)::int n from public.parts pt where pt.element = 'air' and pt.rarity = $2 and private.has_part($1, pt.id)`, [a, d.rarity])).n;
-      if (!own) giftBeforeOwn = true;
-    }
+    if (d.gift) anyGift = true;
     if (d.duplicate) dupes++;
     gapEpic = d.rarity === 'epic' || d.rarity === 'mythic' ? 0 : gapEpic + 1; maxGapEpic = Math.max(maxGapEpic, gapEpic);
     gapMythic = d.rarity === 'mythic' ? 0 : gapMythic + 1; maxGapMythic = Math.max(maxGapMythic, gapMythic);
@@ -37,30 +30,19 @@ export default async function () {
   const owned = (await db.query(`select count(*)::int n from public.parts pt where pt.source = 'craft' and private.has_part($1, pt.id)`, [a])).rows[0].n;
   const owned0 = (await db.query(`select count(*)::int n from public.player_parts where player_id = $1`, [a])).rows[0].n;
   check(owned0 === 0, `drops bring blueprints, not parts (${owned0} parts owned without forging)`);
-  check(owned === 27, `300 drops bring the whole 27-part set as blueprints, every faction's frames included (${owned})`);
-  check(giftFlagOk, 'a drop is a gift exactly when it is another faction\'s frame');
-  check(!giftBeforeOwn, 'another faction\'s frame never drops before your own faction\'s at that rarity');
+  check(owned === 16, `300 drops bring the whole 16-part set as blueprints, all five frames included (${owned})`);
+  check(!anyGift, 'no drop is a gift: the frames belong to no faction');
 
-  // --- 1b. your faction's frame first: the first frame to drop, whatever its rarity, is Earth's
-  const f = await newPlayer();
-  await db.query(`update public.profiles set affinity = 'earth' where id = $1`, [f]);
+  // --- 1b. no faction yet: the frames drop all the same
+  const n = await newPlayer();
   const games = async (uid) => (await one(`insert into public.games (user_id, mode, difficulty, seed, rating, started_at, finished_at, won)
     values ($1, 'casual', 'easy', 's', 400, now() - interval '5 minutes', now(), true) returning id`, [uid])).id;
-  let firstFrame = null;
-  for (let i = 0; i < 60 && !firstFrame; i++) {
-    const d = (await one(`select private.drop_part($1, $2) j`, [f, await games(f)])).j;
-    if (d.part.includes('-frame-')) firstFrame = d.part;
-  }
-  check(!!firstFrame && firstFrame.startsWith('s0-frame-earth'), `the first frame to drop is your own faction's (${firstFrame})`);
-
-  // --- 1c. no faction yet: avatars only
-  const n = await newPlayer();
   let anyFrame = false;
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 60 && !anyFrame; i++) {
     const d = (await one(`select private.drop_part($1, $2) j`, [n, await games(n)])).j;
-    if (d.part.includes('-frame-') || d.gift) anyFrame = true;
+    if (d.part.startsWith('s0-frame-')) anyFrame = true;
   }
-  check(!anyFrame, 'without a faction, only avatars drop');
+  check(anyFrame, 'without a faction, frames drop too');
   const dupDust = (await db.query(`select coalesce(sum(stardust),0)::int s from public.drops where player_id = $1 and duplicate`, [a])).rows[0].s;
   check(dupDust > 0, `duplicates paid Stardust (${dupDust})`);
 

@@ -129,7 +129,7 @@ One name per concept. Player-facing text uses exactly these.
 | Speed reward | **speed bonus** | | |
 | What a solve brings | a **part** (every 3rd solved, rated square) | loot, drop box, chest, item, skin | Parts are always earned, never bought. |
 | Rarity | **Common**, **Rare**, **Epic**, **Mythic** | Legendary, Scrap, Forged | Familiar from other games on purpose. Always written, on its colour tag; never colour alone. |
-| Part names | element word + slot: **Ember** (Fire), **Tide** (Water), **Stone** (Earth), **Gale** (Air): "Tide Frame II" | | |
+| Part names | avatars by their mood ("Calm"); frames by tier + slot: "Bronze Frame", "Silver Frame", "Gold Frame", "Epic Frame", "Mythic Frame" | | |
 | Bad-luck cap | **guarantee**: "Epic or better within 10 parts." | pity, pity timer | "Pity" is only an internal word. |
 | Making parts | **Forge** (the page and the verb): any missing part, for Stardust | craft, buy, upgrade | Parts are **avatars** (whole pictures) and **frames**. |
 | Putting a part on | **Equip** (button), **Equipped** (state), **Unequip** | wear, wearing, take off | Same words for avatars and frames. |

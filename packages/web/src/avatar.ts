@@ -23,15 +23,19 @@ const FACES: Record<string, string> = Object.fromEntries(
 
 /**
  * The player's avatar: one whole picture (the worn avatar part, Happy until another is
- * worn) inside its frame. A frame id says its element and variant ("s0-frame-fire-2": I, II
- * or III); frames are clean vector rings in the element's colour (`.avatar-art .el-*`),
- * richer at each variant. Purely decorative: aria-hidden.
+ * worn) inside its frame. Purely decorative: aria-hidden.
  */
 
-const parse = (id: string | null | undefined): { element: Element; n: number } | null => {
-  if (!id) return null;
-  const [, , element, variant] = id.split('-');
-  return { element: element as Element, n: Number(variant ?? 1) };
+/**
+ * The frames, from plainest to richest (owner, 2026-10-23): one a tier, for every player, no
+ * faction. A frame's id names its tier ("s0-frame-gold").
+ */
+export const FRAME_TIERS = ['bronze', 'silver', 'gold', 'epic', 'mythic'] as const;
+export type FrameTier = (typeof FRAME_TIERS)[number];
+/** A frame's tier from its id, or null for anything else (an avatar, a retired frame). */
+export const frameTier = (id: string | null | undefined): FrameTier | null => {
+  const tier = id?.startsWith('s0-frame-') ? id.slice(9) : null;
+  return FRAME_TIERS.includes(tier as FrameTier) ? (tier as FrameTier) : null;
 };
 /** `count` marks evenly round a circle of radius r, from `draw(x, y, angle)`. */
 const around = (count: number, r: number, draw: (x: number, y: number, a: number) => string, offset = 0) =>
@@ -40,21 +44,29 @@ const around = (count: number, r: number, draw: (x: number, y: number, a: number
     return draw(50 + r * Math.cos(a), 50 + r * Math.sin(a), a);
   }).join('');
 
+/** A diamond gem centred on (x, y), `r` from its centre to each point. */
+const gem = (x: number, y: number, r: number) => `<path class="gem" d="M${x} ${y - r}L${x + r} ${y}L${x} ${y + r}L${x - r} ${y}Z"/>`;
+
 /**
- * A frame: its ring (a second, thin one at III) studded round the avatar. IV, the Mythic
- * one, sets four gems in the element's colour at the quarters, the studs between them.
+ * A frame: a metal ring studded round the avatar, the same build at every tier, a step richer at
+ * each (one rule per set): Bronze four studs, Silver eight, Gold a fine inner ring too. Epic sets
+ * four gems in its rarity's colour at the quarters, the studs between; Mythic gems all eight.
+ * The metal is the tier's (modals.css `.tier-*`).
  */
 function frame(id: string | null | undefined): string {
-  const part = parse(id);
-  if (!part) return '';
-  const { element: e, n } = part;
-  const gems = n >= 4
-    ? around(4, 46, (x, y) => `<rect class="gem" x="${x - 4.6}" y="${y - 4.6}" width="9.2" height="9.2" rx="1.2" transform="rotate(45 ${x} ${y})"/>`, -Math.PI / 2)
-    : '';
+  const tier = frameTier(id);
+  if (!tier) return '';
+  const n = FRAME_TIERS.indexOf(tier);
+  const quarters = -Math.PI / 2;
+  const between = quarters + Math.PI / 4;
+  const studs = tier === 'bronze' ? around(4, 46, (x, y) => `<circle class="stud" cx="${x}" cy="${y}" r="3.2"/>`, quarters)
+    : tier === 'mythic' ? around(4, 46, (x, y) => gem(x, y, 4.4), between)
+    : around(n >= 3 ? 4 : 8, 46, (x, y) => `<circle class="stud" cx="${x}" cy="${y}" r="2.8"/>`, n >= 3 ? between : quarters);
+  const gems = n >= 3 ? around(4, 46, (x, y) => gem(x, y, 6), quarters) : '';
   // the gilt rim (gilding): drawn always, shown only on a gilded frame (.gilt, modals.css)
-  return `<g class="avatar-layer layer-frame el-${e}"><circle class="gilt-ring" cx="50" cy="50" r="50.5" fill="none"/><circle class="ring" cx="50" cy="50" r="46" fill="none"/>${
-    n >= 3 ? '<circle class="ring thin" cx="50" cy="50" r="41.5" fill="none"/>' : ''
-  }${around(n >= 2 ? 8 : 4, 46, (x, y) => `<circle class="stud" cx="${x}" cy="${y}" r="${n >= 2 ? 2.8 : 3.4}"/>`, n >= 4 ? -Math.PI / 8 : -Math.PI / 4)}${gems}</g>`;
+  return `<g class="avatar-layer layer-frame tier-${tier}"><circle class="gilt-ring" cx="50" cy="50" r="50.5" fill="none"/><circle class="ring" cx="50" cy="50" r="46" fill="none"/>${
+    n >= 2 ? '<circle class="ring thin" cx="50" cy="50" r="41.5" fill="none"/>' : ''
+  }${studs}${gems}</g>`;
 }
 
 /** The face picture; brought to life (polished), it moves (styles.css `.avatar-face.alive`). */

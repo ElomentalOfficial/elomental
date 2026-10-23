@@ -312,19 +312,22 @@
   --knob: var(--c-gold-100);
   background: var(--pc-level-fill);
 }
+/* the fill ends square, so its bright head reads as a fine line, not a rounded cap (owner) */
 .pc-next :is(.rank-bar, .xp-bar) span {
   position: relative;
+  border-start-end-radius: 1px;
+  border-end-end-radius: 1px;
 }
 .pc-next :is(.rank-bar, .xp-bar) span::after {
   content: '';
   position: absolute;
   top: 0;
   right: 0;
-  width: 3px;
+  width: 2px;
   height: 100%;
-  border-radius: 1.5px;
   background: var(--c-bright);
-  box-shadow: 0 0 4px 1px var(--knob);
+  opacity: 0.8;
+  box-shadow: 0 0 3px var(--knob);
 }
 /* Your three chosen badges (Profile > Badges), each in a slot recessed a shade into the card. */
 .pc-showcase {

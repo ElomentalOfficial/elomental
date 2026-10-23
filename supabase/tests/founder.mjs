@@ -56,7 +56,7 @@ export default async function () {
   await as(fo);
   await db.query(`select public.dev_action('unlock_all')`);
   const all = (await db.query(`select count(*)::int n from public.player_parts where player_id = $1`, [fo])).rows[0].n;
-  check(all === 27, `unlock every part (${all})`);
+  check(all === 16, `unlock every part: 11 avatars and 5 frames (${all})`);
   await db.query(`select public.dev_action('elo', '1500')`);
   await db.query(`select public.dev_action('level', '100')`);
   const set = (await db.query(`select elo, rank_tier, plate, xp from public.profiles where id = $1`, [fo])).rows[0];

@@ -19,8 +19,6 @@ export const DEFAULT_AVATAR = 's0-avatar-happy';
 export interface Part {
   id: string;
   slot: Slot;
-  /** Frames belong to an element; avatars to none. */
-  element: Element | null;
   rarity: Rarity;
   source: 'craft' | 'starter' | 'rank' | 'achievement' | 'event' | 'daily';
 }
@@ -85,7 +83,7 @@ export async function loadForge(): Promise<Forge | null> {
   if (!uid) return null;
   const now = new Date().toISOString();
   const [parts, owned, blueprints, loadout, profile, season] = await Promise.all([
-    supabase.from('parts').select('id, slot, element, rarity, source'),
+    supabase.from('parts').select('id, slot, rarity, source'),
     supabase.from('player_parts').select('part_id, edition, polish, wins, gilded'),
     supabase.from('player_blueprints').select('part_id'),
     supabase.from('avatar_loadouts').select('avatar, frame').maybeSingle(),

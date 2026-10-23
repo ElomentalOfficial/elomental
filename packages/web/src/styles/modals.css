@@ -315,8 +315,9 @@ html[data-reduce-motion] .sword-live .sword-flame {
   color: var(--text);
   flex: none;
 }
-/* The avatar (avatar.ts): one whole picture in its frame. A frame's --el is its element's
-   colour, palette only. */
+/* The avatar (avatar.ts): one whole picture in its frame. A frame's --metal is its tier's: the
+   medals' bronze, silver and gold, then the plates' Epic and Mythic; its gems take their rarity's
+   colour. Palette only. */
 .avatar-art {
   display: block;
   width: 100%;
@@ -326,20 +327,25 @@ html[data-reduce-motion] .sword-live .sword-flame {
 .avatar-base {
   fill: var(--surface-2);
 }
-.avatar-art .el-fire { --el: var(--el-fire-fill); --el-on: var(--el-fire-on); --el-mark: var(--el-fire-mark); --el-edge: var(--el-fire-edge); --el-deep: var(--el-fire-deep); }
-.avatar-art .el-water { --el: var(--el-water-fill); --el-on: var(--el-water-on); --el-mark: var(--el-water-mark); --el-edge: var(--el-water-edge); --el-deep: var(--el-water-deep); }
-.avatar-art .el-earth { --el: var(--el-earth-fill); --el-on: var(--el-earth-on); --el-mark: var(--el-earth-mark); --el-edge: var(--el-earth-edge); --el-deep: var(--el-earth-deep); }
-.avatar-art .el-air { --el: var(--el-air-fill); --el-on: var(--el-air-on); --el-mark: var(--el-air-mark); --el-edge: var(--el-air-edge); --el-deep: var(--el-air-deep); }
+.avatar-art .el-fire { --el-deep: var(--el-fire-deep); }
+.avatar-art .el-water { --el-deep: var(--el-water-deep); }
+.avatar-art .el-earth { --el-deep: var(--el-earth-deep); }
+.avatar-art .el-air { --el-deep: var(--el-air-deep); }
+.layer-frame.tier-bronze { --metal: var(--medal-bronze); }
+.layer-frame.tier-silver { --metal: var(--medal-silver); }
+.layer-frame.tier-gold { --metal: var(--medal-gold); }
+.layer-frame.tier-epic { --metal: var(--plate-epic); --gem: var(--r-epic-fill); }
+.layer-frame.tier-mythic { --metal: var(--plate-mythic); --gem: var(--r-mythic-fill); }
 .layer-frame .ring {
-  /* the element as a shape: its fill, or its line where a pale fill would vanish (palette.css mark) */
-  stroke: var(--el-mark);
+  stroke: var(--metal);
   stroke-width: 4;
 }
-/* The Mythic frame's gems (avatar.ts frame, IV): the element's colour, edged in its text colour. */
+/* Epic's and Mythic's gems (avatar.ts frame): their rarity's colour, set in the frame's metal. */
 .layer-frame .gem {
-  fill: var(--el);
-  stroke: var(--el-on);
-  stroke-width: 1.6;
+  fill: var(--gem);
+  stroke: var(--metal);
+  stroke-width: 1.4;
+  stroke-linejoin: round;
 }
 /* An element's crest (avatar.ts crestSvg): its full-colour emblem on a disc of its own hue at its
    darkest (palette.css deep), ringed by two fine gold circles with a hollow gem on a rail at each
@@ -374,9 +380,10 @@ html[data-reduce-motion] .sword-live .sword-flame {
 .layer-frame .ring.thin {
   stroke-width: 1.6;
 }
+/* a hollow rivet: set in the metal, open to the page, so it reads on its own ring */
 .layer-frame .stud {
-  fill: var(--el-on);
-  stroke: var(--el-mark);
+  fill: var(--surface-2);
+  stroke: var(--metal);
   stroke-width: 1.6;
 }
 /* Brought to life (polished once, forge.ts): the picture breathes, bobs and sways, softly

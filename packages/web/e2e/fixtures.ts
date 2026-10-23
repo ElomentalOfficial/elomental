@@ -79,12 +79,15 @@ const NAMES = ['Mira Vance', 'Silent Architect', LONG_NAME, 'Kestrel', 'Bogdan',
 const FACES = ['happy', 'calm', 'silly', 'tired', 'excited', 'scared', 'shocked', 'angry', 'sad', 'bored'];
 const ELEMENTS = ['fire', 'water', 'earth', 'air'];
 
-/** A season's parts (the live catalogue's shape): 12 avatars and 12 frames. */
+/** The five frames, plainest first. */
+const FRAMES = ['bronze', 'silver', 'gold', 'epic', 'mythic'];
+
+/** A season's parts (the live catalogue's shape): 12 avatars and the 5 frames. */
 function catalogue() {
-  const parts: Record<string, unknown>[] = [{ id: 's0-avatar-happy', slot: 'avatar', element: null, rarity: 'common', source: 'starter' }];
+  const parts: Record<string, unknown>[] = [{ id: 's0-avatar-happy', slot: 'avatar', rarity: 'common', source: 'starter' }];
   for (const [n, r] of [['bored', 'common'], ['calm', 'common'], ['upset', 'common'], ['sad', 'common'], ['disappointed', 'common'], ['silly', 'rare'], ['angry', 'rare'], ['tired', 'rare'], ['excited', 'epic'], ['scared', 'epic'], ['shocked', 'mythic']])
-    parts.push({ id: `s0-avatar-${n}`, slot: 'avatar', element: null, rarity: r, source: 'craft' });
-  for (const e of ELEMENTS) for (const [n, r] of [[1, 'common'], [2, 'rare'], [3, 'epic']]) parts.push({ id: `s0-frame-${e}-${n}`, slot: 'frame', element: e, rarity: r, source: 'craft' });
+    parts.push({ id: `s0-avatar-${n}`, slot: 'avatar', rarity: r, source: 'craft' });
+  for (const [t, r] of [['bronze', 'common'], ['silver', 'common'], ['gold', 'rare'], ['epic', 'epic'], ['mythic', 'mythic']]) parts.push({ id: `s0-frame-${t}`, slot: 'frame', rarity: r, source: 'craft' });
   return parts;
 }
 
@@ -95,7 +98,7 @@ const rows = (from: number, n: number, base: number, mePlace = 0) =>
       place, id: `00000000-0000-0000-0000-${String(place).padStart(12, '0')}`,
       name: place === mePlace ? ME : `${NAMES[place % NAMES.length]}${place > NAMES.length ? ` ${place}` : ''}`,
       title: place === 2 ? 'Founder' : null, elo: base - i * 23, value: base - i * 23, plate: place <= 4 ? [0, 5, 4, 3, 2][place] : 0,
-      avatar: `s0-avatar-${FACES[place % FACES.length]}`, frame: place % 3 ? `s0-frame-${ELEMENTS[place % 4]}-${1 + (place % 3)}` : null,
+      avatar: `s0-avatar-${FACES[place % FACES.length]}`, frame: place % 3 ? `s0-frame-${FRAMES[place % 5]}` : null,
       alive: place === 1, affinity: ELEMENTS[place % 4], country: 'RO', me: place === mePlace,
     };
   });
@@ -114,14 +117,14 @@ export async function signedIn(page: Page, opts: { affinity?: string | null; tex
   const tables: Record<string, unknown[]> = {
     profiles: [profile], parts: catalogue(),
     player_parts: [
-      ...[['s0-avatar-calm', 1], ['s0-avatar-silly', 0], ['s0-avatar-disappointed', 0], ['s0-frame-fire-2', 0]].map(([id, polish]) => ({ part_id: id, edition: null, polish, wins: id === 's0-frame-fire-2' ? 57 : 0, gilded: false })),
+      ...[['s0-avatar-calm', 1], ['s0-avatar-silly', 0], ['s0-avatar-disappointed', 0], ['s0-frame-gold', 0]].map(([id, polish]) => ({ part_id: id, edition: null, polish, wins: id === 's0-frame-gold' ? 57 : 0, gilded: false })),
       // marks and gilding: a gilded frame, and one with 3 marks still to gild
-      { part_id: 's0-frame-air-1', edition: null, polish: 0, wins: 120, gilded: true },
-      { part_id: 's0-frame-earth-1', edition: null, polish: 0, wins: 120, gilded: false },
+      { part_id: 's0-frame-bronze', edition: null, polish: 0, wins: 120, gilded: true },
+      { part_id: 's0-frame-silver', edition: null, polish: 0, wins: 120, gilded: false },
     ],
-    avatar_loadouts: [{ avatar: 's0-avatar-calm', frame: 's0-frame-fire-2' }],
+    avatar_loadouts: [{ avatar: 's0-avatar-calm', frame: 's0-frame-gold' }],
     // blueprints (migration blueprints): a free Common avatar, an Epic frame for 200
-    player_blueprints: [{ part_id: 's0-avatar-bored' }, { part_id: 's0-frame-fire-3' }],
+    player_blueprints: [{ part_id: 's0-avatar-bored' }, { part_id: 's0-frame-epic' }],
     player_badges: [{ badge: 'daily-2026-10', earned_at: '2026-10-20' }, { badge: 'win-2026-09-fire', earned_at: '2026-10-01' }],
     games: [], daily_mends: [], seasons: [{ id: 0, starts_at: new Date(Date.now() - 2 * 86400000).toISOString() }],
   };
@@ -134,7 +137,7 @@ export async function signedIn(page: Page, opts: { affinity?: string | null; tex
     faction_board: { month: '2026-10-01', endsAt: '2026-11-01T00:00:00Z', mine: affinity, myInfluence: 54, mySolves: 9, myPlace: 12, standings,
       top: rows(1, 10, 0).map((r, i) => ({ id: r.id, name: r.name, influence: 300 - i * 20 })), lastWinner: { month: '2026-09-01', winner: 'fire', winners: ['fire', 'water'] } },
     affinity_standings: standings,
-    player_card: { id: 'x', name: LONG_NAME, title: 'Founder', elo: 1612, tier: 4, plate: 5, level: 82, avatar: 's0-avatar-calm', frame: 's0-frame-fire-3', alive: true, peak: 1640, place: 2, notRanked: false,
+    player_card: { id: 'x', name: LONG_NAME, title: 'Founder', elo: 1612, tier: 4, plate: 5, level: 82, avatar: 's0-avatar-calm', frame: 's0-frame-epic', alive: true, peak: 1640, place: 2, notRanked: false,
       affinity: 'fire', country: 'RO', stats: { solved: 2840, ranked: 1120 }, badges: ['win-2026-09-water', 'daily-2026-10', 'win-2026-07-earth'], showcase: ['win-2026-09-water', 'daily-2026-10', 'win-2026-07-earth'], following: false, me: false },
   };
   // Anything not faked below never leaves the browser (routes added later are tried first).

@@ -65,7 +65,7 @@ export default async function () {
   const lacking = (await db.query(`select id from public.parts where slot = 'avatar' and source = 'craft' and id not in (select part_id from public.player_parts where player_id = $1) limit 1`, [e0])).rows[0].id;
   err = null; try { await db.query(`select public.polish_part($1)`, [lacking]); } catch (e) { err = e.message; }
   check(err?.includes('not_owned'), 'only avatars you own');
-  err = null; try { await db.query(`select public.polish_part('s0-frame-fire-1')`); } catch (e) { err = e.message; }
+  err = null; try { await db.query(`select public.polish_part('s0-frame-bronze')`); } catch (e) { err = e.message; }
   check(err?.includes('not_owned'), 'frames are never brought to life');
   await db.query(`select public.equip_part('avatar', 's0-avatar-happy')`);
   err = null; try { await db.query(`select public.equip_part('avatar', $1)`, [lacking]); } catch (e) { err = e.message; }
@@ -89,7 +89,7 @@ export default async function () {
   // --- 7. catalogue and access
   const cat = (await db.query(`select rarity, count(*)::int n from public.parts where source = 'craft' group by rarity order by rarity`)).rows;
   console.log('  catalogue', cat.map((r) => `${r.rarity}:${r.n}`).join(' '));
-  check(JSON.stringify(cat) === JSON.stringify([{ rarity: 'common', n: 9 }, { rarity: 'epic', n: 6 }, { rarity: 'mythic', n: 5 }, { rarity: 'rare', n: 7 }]), 'Season 0: 11 avatars and 16 frames, 9 Common, 7 Rare, 6 Epic, 5 Mythic (B10: four Mythic frames)');
+  check(JSON.stringify(cat) === JSON.stringify([{ rarity: 'common', n: 7 }, { rarity: 'epic', n: 3 }, { rarity: 'mythic', n: 2 }, { rarity: 'rare', n: 4 }]), 'Season 0: 11 avatars and 5 frames, 7 Common, 4 Rare, 3 Epic, 2 Mythic (tier_frames)');
 
   // --- 8. the Spirit: rolled on solves that count toward parts, guaranteed within 500 (B10; was 700)
   const sp = await newPlayer();
@@ -109,8 +109,9 @@ export default async function () {
   const vParts = (await db.query(`select part_id, polish from public.player_parts where player_id = $1 order by part_id`, [veteran])).rows;
   const vLoad = (await db.query(`select avatar, frame from public.avatar_loadouts where player_id = $1`, [veteran])).rows[0];
   check(v.stardust === 1000 + 250 + 1400 + 200 && v.spirits === 2, `veteran: Rare sigil 250 + polish III 1400 + frame polish I 200 back, Crowns kept as Spirits (${JSON.stringify(v)})`);
-  check(JSON.stringify(vParts) === JSON.stringify([{ part_id: 's0-frame-fire-1', polish: 0 }]), `only the frame stays (${JSON.stringify(vParts)})`);
-  check(vLoad.frame === 's0-frame-fire-1' && vLoad.avatar === null, 'still wears the frame; Happy as the avatar');
+  // (the frame whole_avatars kept went with the faction frames: tier_frames, no refund)
+  check(vParts.length === 0, `nothing left: the old frame is gone (${JSON.stringify(vParts)})`);
+  check(vLoad.frame === null && vLoad.avatar === null, 'no frame worn; Happy as the avatar');
   await db.exec(`set role authenticated`);
   err = null; try { await db.exec(`update public.player_parts set part_id = part_id`); } catch (e) { err = e.message; }
   check(!!err, `players cannot write their parts (${err?.slice(0, 40)})`);

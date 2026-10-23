@@ -1,4 +1,4 @@
-import { partSvg } from './avatar.ts';
+import { frameTier, partSvg } from './avatar.ts';
 import { ICONS } from './icons.ts';
 import type { Drop, Element, Rarity } from './profile.ts';
 import { h } from './ui.ts';
@@ -12,15 +12,13 @@ import * as copy from './copy/en.ts';
  * get one literal line. Still with Reduce motion (styles.css `.part-reveal`).
  */
 
-/** "s0-avatar-calm" → "Calm"; "s0-frame-fire-2" → "Ember Frame II". */
+/** "s0-avatar-calm" → "Calm"; "s0-frame-gold" → "Gold Frame". */
 export function partName(id: string): string {
-  const [, slot, element, n] = id.split('-') as [string, keyof typeof copy.forge.slots, string, string?];
-  if (slot === 'avatar') return copy.forge.avatars[element] ?? element;
-  return copy.forge.part(copy.forge.names[element as Element], copy.forge.slots[slot], Number(n ?? 1));
+  const tier = frameTier(id);
+  if (tier) return copy.forge.frameName(copy.forge.frameTiers[tier]);
+  const face = id.replace('s0-avatar-', '');
+  return copy.forge.avatars[face] ?? face;
 }
-
-/** The element of a part, from its id (frames have one; avatars don't). */
-const partElement = (id: string): Element | null => (id.split('-')[1] === 'frame' ? (id.split('-')[2] as Element) : null);
 
 export const rarityName = (r: Rarity): string => copy.forge.rarities[r];
 
@@ -30,13 +28,10 @@ export const rarityName = (r: Rarity): string => copy.forge.rarities[r];
  */
 export function dropReveal(drop: Drop, onOpenForge?: () => void, compact = false): HTMLElement {
   const name = partName(drop.part);
-  const element = partElement(drop.part);
-  const gift = !!drop.gift && !!element && !drop.duplicate;
+  const slot = frameTier(drop.part) ? copy.forge.slots.frame : copy.forge.slots.avatar;
   // a drop is a blueprint (blueprints); older results were whole parts
   const blueprint = !!drop.blueprint && !drop.duplicate;
-  const label = gift ? copy.forge.a11yGift(name, rarityName(drop.rarity), copy.forge.elements[element!])
-    : blueprint ? copy.forge.a11yBlueprint(name, rarityName(drop.rarity))
-    : copy.forge.a11yDrop(name, rarityName(drop.rarity));
+  const label = blueprint ? copy.forge.a11yBlueprint(name, rarityName(drop.rarity)) : copy.forge.a11yDrop(name, rarityName(drop.rarity));
   const card = h(
     'button',
     { class: `part-reveal rarity-${drop.rarity}${blueprint ? ' is-blueprint' : ''}${compact ? ' compact' : ''}`, attrs: { type: 'button', 'aria-label': label } },
@@ -50,11 +45,8 @@ export function dropReveal(drop: Drop, onOpenForge?: () => void, compact = false
       h(
         'span',
         { class: 'reveal-meta' },
-        element ? h('span', { class: 'drop-element', html: ICONS.elements[element] }) : null,
-        // another faction's frame reads as a gift: "A gift from Fire"; otherwise "New part · Air"
-        h('span', { text: gift
-          ? copy.forge.gift(copy.forge.elements[element!])
-          : [drop.duplicate ? null : blueprint ? copy.forge.blueprint : copy.forge.newPart, element ? copy.forge.elements[element] : copy.forge.slots.avatar].filter(Boolean).join(' · ') }),
+        // "Blueprint · Frame", "New part · Avatar", or the slot alone for a duplicate
+        h('span', { text: [drop.duplicate ? null : blueprint ? copy.forge.blueprint : copy.forge.newPart, slot].filter(Boolean).join(' · ') }),
       ),
     ),
   );

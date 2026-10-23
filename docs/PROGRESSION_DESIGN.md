@@ -107,9 +107,10 @@ it replaces the material-based design in §2, §3.2–3.3, §4.2–4.3, §9–11
 - **Currencies:** Stardust, and the rare **Spirit**. Nothing gives an edge in Ranked.
 - **Parts:** two slots, the **Avatar** (one whole picture) and its **Frame**. Rarities Common,
   Rare, Epic, Mythic, each on its own colour tag (tokens `--r-*`).
-- **Season Alpha's set (27 parts):** 11 avatars (5 Common, 3 Rare, 2 Epic, 1 Mythic;
-  placeholder faces) and 16 frames (Ember, Tide, Stone and Gale I–III, plus a Mythic IV of
-  each, added in `economy_pace`). **Happy** is every player's avatar from the start.
+- **Season Alpha's set (16 parts):** 11 avatars (5 Common, 3 Rare, 2 Epic, 1 Mythic;
+  placeholder faces) and 5 frames for every player, no faction (`tier_frames`, owner
+  2026-10-23; the 16 faction frames went with no refund): Bronze and Silver (Common), Gold
+  (Rare), Epic, Mythic. **Happy** is every player's avatar from the start.
 - **Drops:** a whole part every 3rd rated solve, counting the first **9** solves a day (3
   parts). Rarity 62/28/8/2%; Epic or better within 10 parts, Mythic within 25. A part you
   don't own is picked well ahead of one you do (`drop_part` ranks `rand × 3` for missing parts,

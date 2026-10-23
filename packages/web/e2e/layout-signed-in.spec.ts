@@ -163,23 +163,23 @@ test('Forge: blueprints forge at their price, the rest at the full one', async (
   await bored.click();
   await expect(page.getByRole('dialog')).toContainText('Free with your blueprint');
   await page.keyboard.press('Escape');
-  await page.locator('.part-card', { hasText: 'Ember Frame III' }).click();
+  await page.locator('.part-card', { hasText: 'Epic Frame' }).click();
   await expect(page.getByRole('dialog')).toContainText('With your blueprint: 200 Stardust');
   await page.keyboard.press('Escape');
   // the worn frame's marks: 57 wins, 1 mark, 17 toward the next
-  const worn = page.locator('.part-card', { hasText: 'Ember Frame II' }).first();
+  const worn = page.locator('.part-card', { hasText: 'Gold Frame' });
   await expect(worn).toHaveAccessibleName(/1 of 3 marks, 17 of 40 wins to the next/);
   await worn.click();
   await expect(page.getByRole('dialog')).toContainText('1 of 3 marks. 17 of 40 wins to the next.');
   await page.keyboard.press('Escape');
   // gilding: a gilded frame says so; one with 3 marks offers Gild at its price
-  await expect(page.locator('.part-card', { hasText: 'Gale Frame' }).first()).toHaveAccessibleName(/Gilded/);
-  await page.locator('.part-card', { hasText: 'Stone Frame' }).first().click();
+  await expect(page.locator('.part-card', { hasText: 'Bronze Frame' })).toHaveAccessibleName(/Gilded/);
+  await page.locator('.part-card', { hasText: 'Silver Frame' }).click();
   await expect(page.getByRole('button', { name: 'Gild for 1000 Stardust' })).toBeEnabled();
   await page.keyboard.press('Escape');
   // a part without one: the full price
-  await page.locator('.part-card', { hasText: 'Tide Frame III' }).click();
-  await expect(page.getByRole('dialog')).toContainText('900 Stardust');
+  await page.locator('.part-card', { hasText: 'Mythic Frame' }).click();
+  await expect(page.getByRole('dialog')).toContainText('1800 Stardust');
 });
 
 test('Home: the month your side won shows once, then never again', async ({ page }) => {
