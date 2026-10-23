@@ -137,6 +137,10 @@
   font-weight: 400;
   color: var(--text);
 }
-.forge-balances .link-btn {
+/* "How parts work" at the start of its line: the link's side padding (its wider tap target) is
+   pulled back, so its words line up with the text above */
+.forge-balances .link-btn,
+.forge-lead .link-btn {
   align-self: flex-start;
+  margin-inline-start: -8px;
 }
