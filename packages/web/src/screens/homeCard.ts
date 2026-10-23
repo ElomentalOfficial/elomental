@@ -5,6 +5,7 @@ import { myBadges } from '../backend/leaderboard.ts';
 import { badgeArt, badgeLabel } from '../badges.ts';
 import { paintPlate } from '../plates.ts';
 import { BANNER_DROP, BANNER_EMBLEM, bannerCornerX, bannerPlace, cardWalls, type Box } from '../profileWalls.ts';
+import { cardPlaques } from '../profilePlaques.ts';
 import { loadProfile, rankTier } from '../profile.ts';
 import { rankName } from '../rankName.ts';
 import { h } from '../ui.ts';
@@ -53,9 +54,11 @@ export function homeCard(): HomeCard {
 
   const badges = h('ul', { class: 'pc-cell pc-badges', attrs: { 'aria-label': copy.home.card.badges } });
   const walls = h('div', { class: 'pc-walls', attrs: { 'aria-hidden': 'true' } });
+  // the plaques behind Level, Elo and the badges (profilePlaques.ts), under the walls
+  const plaques = h('div', { class: 'pc-plaques', attrs: { 'aria-hidden': 'true' } });
   const emblem = h('img', { class: 'pc-emblem', attrs: { alt: '' } }) as HTMLImageElement;
   // (the emblem, placed over the banner, is read out right after your name)
-  const el = h('section', { class: 'profile-card area-profile' }, walls, portrait, name, emblem, level, elo, badges);
+  const el = h('section', { class: 'profile-card area-profile' }, plaques, walls, portrait, name, emblem, level, elo, badges);
 
   const paintBadges = (ids: string[]) => {
     // no badge yet: one line on what the row is for, in place of three empty sockets
@@ -174,6 +177,8 @@ export function homeCard(): HomeCard {
     // then the walls, to the cells as they now stand
     const H = el.clientHeight;
     walls.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${cardWalls({ width: W, height: H, unit, portrait: box(portrait), name: box(name), level: box(level), elo: box(elo), badges: box(badges), banner })}</svg>`;
+    const frameCorner = (parseFloat(css.getPropertyValue('--frame-corner')) || 44) * (parseFloat(css.getPropertyValue('--frame-zoom')) || 1);
+    plaques.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${cardPlaques({ width: W, height: H, unit, level: box(level), elo: box(elo), badges: box(badges), frameCorner })}</svg>`;
   };
   let frame = 0;
   function schedule() {

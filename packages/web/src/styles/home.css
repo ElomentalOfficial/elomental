@@ -222,49 +222,28 @@
   grid-area: elo;
   container-type: inline-size;
 }
-/* A faint well behind Level, Elo and the badges (owner, 2026-10-23): the whole cell, up to the walls
-   beside it, its corners notched in two Deco steps clear of the walls' junction ornaments (the
-   badges' lower corners cut deep, round the frame's corner ornaments). Its edges fade out in
-   negative space running along them, like Deco speed lines (owner): the well, a gap, a band, a
-   gap, a hairline, each drawn as its own strip of the well's colour. Worn all over by the tiles'
-   own grain (art/grain.webp, as a light-and-dark mask), so it reads as grunge, not a flat fill. */
-:is(.pc-level, .pc-elo, .pc-badges)::before {
-  --s: var(--space-2);
-  --h: var(--space-1);
-  /* the fade, in from the edge: hairline 0–1px, gap, band 3–5px, gap, the well from 7px */
-  --well: linear-gradient(var(--pc-well), var(--pc-well));
-  content: '';
+/* The plaques behind Level, Elo and the badges (profilePlaques.ts, owner 2026-10-23): their fill
+   in the well's tint (its grain mask lets about half through), their lines in the frame's ink, a
+   little stronger than the walls', worn by the tile frames' own small gaps. */
+.pc-plaques {
   position: absolute;
   inset: 0;
-  z-index: -1;
-  background:
-    var(--well) center / calc(100% - 14px) calc(100% - 14px) no-repeat,
-    var(--well) center top 3px / calc(100% - 6px) 2px no-repeat,
-    var(--well) center bottom 3px / calc(100% - 6px) 2px no-repeat,
-    var(--well) left 3px center / 2px calc(100% - 6px) no-repeat,
-    var(--well) right 3px center / 2px calc(100% - 6px) no-repeat,
-    var(--well) center top / 100% 1px no-repeat,
-    var(--well) center bottom / 100% 1px no-repeat,
-    var(--well) left center / 1px 100% no-repeat,
-    var(--well) right center / 1px 100% no-repeat;
-  mask: url('../art/grain.webp') 0 0 / 224px 224px luminance;
-  /* each corner two steps in (--s, then --h) */
-  clip-path: polygon(
-    var(--s) 0, calc(100% - var(--s)) 0, calc(100% - var(--s)) var(--h), calc(100% - var(--h)) var(--h), calc(100% - var(--h)) var(--s), 100% var(--s),
-    100% calc(100% - var(--s)), calc(100% - var(--h)) calc(100% - var(--s)), calc(100% - var(--h)) calc(100% - var(--h)), calc(100% - var(--s)) calc(100% - var(--h)), calc(100% - var(--s)) 100%,
-    var(--s) 100%, var(--s) calc(100% - var(--h)), var(--h) calc(100% - var(--h)), var(--h) calc(100% - var(--s)), 0 calc(100% - var(--s)),
-    0 var(--s), var(--h) var(--s), var(--h) var(--h), var(--s) var(--h)
-  );
+  z-index: 0;
   pointer-events: none;
 }
-/* the badges' lower corners cut deep instead, round the frame's corner ornaments */
-.pc-badges::before {
-  --low: calc(var(--frame-corner) * var(--frame-zoom, 1) * 0.6);
-  clip-path: polygon(
-    var(--s) 0, calc(100% - var(--s)) 0, calc(100% - var(--s)) var(--h), calc(100% - var(--h)) var(--h), calc(100% - var(--h)) var(--s), 100% var(--s),
-    100% calc(100% - var(--low)), calc(100% - var(--low)) 100%, var(--low) 100%, 0 calc(100% - var(--low)),
-    0 var(--s), var(--h) var(--s), var(--h) var(--h), var(--s) var(--h)
-  );
+.pc-plaques svg {
+  display: block;
+  overflow: visible;
+}
+.pc-plaque-fill {
+  fill: var(--pc-well);
+}
+.pc-plaque-line {
+  fill: none;
+  stroke: var(--frame-line);
+  stroke-width: 1;
+  stroke-dasharray: 11 1.6 7 1.2 16 2 9 1.4;
+  opacity: calc(var(--ornament-opacity) * 3);
 }
 .pc-given {
   display: flex;
