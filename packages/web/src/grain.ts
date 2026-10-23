@@ -18,7 +18,7 @@ const STEP = 10;
 /** The drawing's long side, in drawing units. */
 const LONG = 1600;
 /** How far the lines are blurred, in drawing units. */
-const BLUR = 2;
+const BLUR = 4;
 
 /** Small deterministic PRNG (mulberry32). */
 function rng(seed: number) {
@@ -202,10 +202,10 @@ function grainSvg(aspect: number, stroke = '#fff'): string {
   const h = field(W, H);
   const values = new Float64Array(nx * ny);
   for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) values[j * nx + i] = h(i * STEP, j * STEP);
-  // Each ring gets its own weight, like ink lines drawn by hand: most about 2,
+  // Each ring gets its own weight, like ink lines drawn by hand: most about 3,
   // some thinner, a few a little heavier (a little heavier than a hairline, as the
   // blur spreads them). Grouped so the SVG stays a few paths.
-  const widths = [1.2, 1.6, 2, 2.6];
+  const widths = [1.8, 2.4, 3, 3.8];
   const odds = [0.2, 0.3, 0.35, 0.15];
   const pickWidth = rng(29);
   const groups: string[][] = widths.map(() => []);
