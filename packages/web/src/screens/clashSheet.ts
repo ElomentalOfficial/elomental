@@ -225,7 +225,7 @@ function codeInput(initial: string, onPaste: (code: string) => void, onChange: (
  * code with a space or dash in it ("K7P 2QX") counts too. Never the first six letters of a whole
  * message (full review M8): '' when there's no code.
  */
-export function extractCode(text: string): string {
+function extractCode(text: string): string {
   const fromLink = text.match(/#clash=([A-Za-z0-9]{6})/)?.[1];
   if (fromLink) return normalizeCode(fromLink);
   const words = text.split(/[^A-Za-z0-9]+/).filter(Boolean);

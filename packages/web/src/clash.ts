@@ -34,7 +34,7 @@ export interface ClashResult {
   hints: number;
 }
 
-export interface ClashRecord {
+interface ClashRecord {
   difficulty: Difficulty;
   mine?: ClashResult;
   theirs?: ClashResult;
@@ -72,11 +72,11 @@ export function newCode(difficulty: Difficulty): string {
 
 // --- Results in links ---------------------------------------------------------
 
-export function encodeResult(r: ClashResult): string {
+function encodeResult(r: ClashResult): string {
   return [r.seconds.toString(36), r.mistakes, r.hints, r.solved ? 1 : 0].join('.');
 }
 
-export function decodeResult(token: string): ClashResult | null {
+function decodeResult(token: string): ClashResult | null {
   const [s, m, h, w] = token.split('.');
   const seconds = parseInt(s, 36);
   const mistakes = Number(m);
@@ -86,7 +86,7 @@ export function decodeResult(token: string): ClashResult | null {
   return { seconds, mistakes, hints, solved: w === '1' };
 }
 
-export function shareLink(code: string, result?: ClashResult): string {
+function shareLink(code: string, result?: ClashResult): string {
   const base = `${location.origin}${location.pathname}`;
   return `${base}#clash=${code}${result ? `.${encodeResult(result)}` : ''}`;
 }

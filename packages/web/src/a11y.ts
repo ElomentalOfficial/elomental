@@ -87,7 +87,7 @@ export function storeA11y(prefs: Partial<A11yPrefs>): void {
 
 const media = (query: string) => typeof matchMedia === 'function' && matchMedia(query).matches;
 
-export const highContrast = (p = a11yPrefs()): boolean => p.contrast === 'high' || (p.contrast === 'system' && media('(prefers-contrast: more)'));
+const highContrast = (p = a11yPrefs()): boolean => p.contrast === 'high' || (p.contrast === 'system' && media('(prefers-contrast: more)'));
 
 /** True when animation should be cut down: the player's choice or the system's. */
 export const reducedMotion = (): boolean => a11yPrefs().motion === 'reduce' || media('(prefers-reduced-motion: reduce)');
@@ -98,7 +98,7 @@ export function haptic(ms: number): void {
 }
 
 /** Reflects the preferences on <html>, where styles.css picks them up. */
-export function applyA11y(): void {
+function applyA11y(): void {
   const p = a11yPrefs();
   const root = document.documentElement;
   root.style.setProperty('--text-scale', String(p.textSize / 100));

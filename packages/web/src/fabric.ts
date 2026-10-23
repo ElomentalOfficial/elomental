@@ -55,7 +55,7 @@ function ribbonCanvas(width: number, height: number, scale: number, paint: (ctx:
 }
 
 /** Sets up the cloth canvas over the page for the given welcome SVG. */
-export function createPeel(art: SVGSVGElement): { canvas: HTMLCanvasElement; draw(t: number, now: number): void } {
+function createPeel(art: SVGSVGElement): { canvas: HTMLCanvasElement; draw(t: number, now: number): void } {
   const box = art.getBoundingClientRect();
   // The SVG is laid out "xMidYMin meet": 390 units across its width, top aligned.
   const unit = Math.min(box.width / 390, box.height / 844);

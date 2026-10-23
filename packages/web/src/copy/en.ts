@@ -335,13 +335,6 @@ export const forge = {
   pityHit: (rarity: string) => `${rarity} guaranteed: your luck came due.`,
   /** The counter toward the next part. */
   progress: (count: number, every: number) => `Next part: ${count} of ${every} squares`,
-  progressDone: 'A new part with your next 3 squares.',
-  /** The nearest guarantee still ahead. */
-  guarantee: (rarity: string, n: number) => (n <= 1 ? `${rarity} or better next part.` : `${rarity} or better within ${n} parts.`),
-  /** Mythic is the top rarity: nothing is better. */
-  guaranteeTop: (rarity: string, n: number) => (n <= 1 ? `${rarity} next part.` : `${rarity} within ${n} parts.`),
-  /** Once you own every part of that rarity, its guarantee only brings Stardust: say so. */
-  guaranteeOwned: (rarity: string, stardust: number) => `You own every ${rarity} part: the next one brings ${stardust} Stardust.`,
   influence: (n: number, element: string) => `+${n} influence for ${element}`,
   /** Screen readers hear the part as one literal line. */
   a11yDrop: (name: string, rarity: string) => `New part: ${name}, ${rarity}.`,
@@ -455,7 +448,6 @@ export const plates = {
   /** The page's groups: the plates' bands, cold to lit. */
   bands: { ink: 'Ink', steel: 'Steel', gilt: 'Gilt', star: 'Star', epic: 'Aether', mythic: 'Starforged' } as Record<string, string>,
   equipped: 'Equipped',
-  equip: 'Equip',
   from: (level: number) => `From level ${level}`,
   locked: (level: number) => `Level ${level}`,
   toGo: (xp: number) => `${formatNumber(xp)} XP to go`,

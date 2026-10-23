@@ -32,17 +32,17 @@ export const BLUEPRINT_COST: Record<Rarity, number> = { common: 0, rare: 50, epi
 /** Stardust to gild a frame with 3 marks (private.gild_cost). */
 export const GILD_COST: Record<Rarity, number> = { common: 1000, rare: 1500, epic: 2500, mythic: 4000 };
 /** Rated wins a worn frame needs for each mark, and the most marks it earns (marks). */
-export const MARK_WINS = 40;
+const MARK_WINS = 40;
 export const MAX_MARKS = 3;
 /** A frame's marks and its wins toward the next, from its rated wins. */
 export const marksOf = (wins: number) => ({ marks: Math.min(MAX_MARKS, Math.floor(wins / MARK_WINS)), toNext: wins >= MARK_WINS * MAX_MARKS ? MARK_WINS : wins % MARK_WINS });
 /** Polish brings an avatar to life, once (polish_part): Stardust and a Spirit. */
 export const ALIVE_COST = 6000;
 /** A Spirit is guaranteed within this many counted solves (private.spirit_roll). */
-export const SPIRIT_GUARANTEE = 500;
+const SPIRIT_GUARANTEE = 500;
 /** Call a Spirit (call_spirit): this, then CALL_STEP more for each one called this season. */
-export const CALL_COST = 15000;
-export const CALL_STEP = 5000;
+const CALL_COST = 15000;
+const CALL_STEP = 5000;
 /** Polish per owned part id: 1 when brought to life. */
 export type Polish = Record<string, number>;
 

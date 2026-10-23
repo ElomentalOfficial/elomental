@@ -155,7 +155,7 @@ const gemArc = (): string =>
   }).join('');
 
 /** The level in its medallion (rings by tier, a hanging sun or gems); literal for screen readers. */
-export function plateMedal(level: number, plate = 0): HTMLElement {
+function plateMedal(level: number, plate = 0): HTMLElement {
   const t = TIERS[plate] ?? BLANK;
   const digits = String(level).length;
   return h(
@@ -167,7 +167,7 @@ export function plateMedal(level: number, plate = 0): HTMLElement {
 }
 
 /** The rule alone (plate 0 to 9), to lay over an element with the `name-plate` classes. */
-export function plateFrame(plate: number): HTMLElement | null {
+function plateFrame(plate: number): HTMLElement | null {
   const t = TIERS[plate];
   if (!t) return null;
   return h('span', { class: 'plate-frame', attrs: { 'aria-hidden': 'true' } }, h('span', { class: 'plate-box', html: ruleHtml(t) }));

@@ -110,7 +110,7 @@ export function followButton(c: PlayerCard, onChange?: (following: boolean) => v
   return btn;
 }
 
-export interface CardActions {
+interface CardActions {
   /** Jump the leaderboard to this player. */
   showOnBoard?: (c: PlayerCard) => void;
   /** Open the full profile. */

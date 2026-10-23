@@ -6,8 +6,8 @@ import { createClient } from '@supabase/supabase-js';
  * another (the beta site, .github/workflows/beta.yml: VITE_SUPABASE_URL and
  * VITE_SUPABASE_KEY), so a beta build never touches live players' data.
  */
-export const SUPABASE_URL: string = import.meta.env.VITE_SUPABASE_URL || 'https://xekeiwaxxsmvalezgtyj.supabase.co';
-export const SUPABASE_KEY: string = import.meta.env.VITE_SUPABASE_KEY || 'sb_publishable_n7EsqEfzlcUCn6GI7YFdxw_Y74WqUwT';
+const SUPABASE_URL: string = import.meta.env.VITE_SUPABASE_URL || 'https://xekeiwaxxsmvalezgtyj.supabase.co';
+const SUPABASE_KEY: string = import.meta.env.VITE_SUPABASE_KEY || 'sb_publishable_n7EsqEfzlcUCn6GI7YFdxw_Y74WqUwT';
 
 /**
  * Cloudflare Turnstile site key (public; its secret lives only in Supabase,

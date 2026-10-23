@@ -100,7 +100,7 @@ export async function auditServerGame(gameId: string, givens: string, moves: Mov
   }
 }
 
-export interface ServerFinish {
+interface ServerFinish {
   outcome: Outcome;
   seconds: number;
 }

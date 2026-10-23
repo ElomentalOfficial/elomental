@@ -4,7 +4,7 @@ import { supabase } from './client.ts';
 
 /** Clash results as the server settled them (get_clash, my_clashes). Null when the server can't be reached. */
 
-export interface ServerClashEntry {
+interface ServerClashEntry {
   name: string;
   isMe: boolean;
   result: ClashResult;

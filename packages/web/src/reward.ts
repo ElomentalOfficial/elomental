@@ -20,7 +20,7 @@ export function partName(id: string): string {
 }
 
 /** The element of a part, from its id (frames have one; avatars don't). */
-export const partElement = (id: string): Element | null => (id.split('-')[1] === 'frame' ? (id.split('-')[2] as Element) : null);
+const partElement = (id: string): Element | null => (id.split('-')[1] === 'frame' ? (id.split('-')[2] as Element) : null);
 
 export const rarityName = (r: Rarity): string => copy.forge.rarities[r];
 

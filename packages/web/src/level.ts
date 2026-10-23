@@ -31,7 +31,7 @@ const END = '<svg class="level-end" viewBox="0 0 10 100" preserveAspectRatio="no
   + '<path vector-effect="non-scaling-stroke" d="M10 1H6L1 50L6 99H10"/></svg>';
 
 /** "LEVEL 12" in its cartouche; the accessible name is literal ("Level 12"). */
-export function levelBadge(level: number, cls = ''): HTMLElement {
+function levelBadge(level: number, cls = ''): HTMLElement {
   return h(
     'span',
     { class: `level-badge ${cls}`.trim(), attrs: { role: 'img', 'aria-label': copy.level.label(level) } },

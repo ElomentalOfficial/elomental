@@ -5,7 +5,7 @@ import * as copy from '../copy/en.ts';
 
 /** Square codes (squareCode.ts, migration square_codes). */
 
-export interface SharedSquare {
+interface SharedSquare {
   code: string;
   givens: string;
   difficulty: Difficulty;

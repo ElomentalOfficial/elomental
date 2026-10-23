@@ -8,12 +8,12 @@ import { CODE_ALPHABET } from './clash.ts';
  * empty squares), as other apps share them.
  */
 
-export const SQUARE_CODE_LENGTH = 8;
+const SQUARE_CODE_LENGTH = 8;
 
 /** K7P2QX9M → K7P2-QX9M */
 export const formatSquareCode = (code: string): string => `${code.slice(0, 4)}-${code.slice(4)}`;
 
-export type SquareInput = { kind: 'code'; code: string } | { kind: 'grid'; givens: string } | { kind: 'partial'; length: number };
+type SquareInput = { kind: 'code'; code: string } | { kind: 'grid'; givens: string } | { kind: 'partial'; length: number };
 
 /**
  * What was typed or pasted: a square code (with or without the dash, any case,

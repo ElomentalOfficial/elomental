@@ -36,9 +36,9 @@ export interface Profile {
 
 const KEY = 'elomental:profile';
 
-export const START_ELO = 100;
+const START_ELO = 100;
 // The Elo maths lives in elo.ts (no browser imports, so the database tests can compare it)
-export { PROTECTED_BELOW, eloDelta, rankedOpponent } from './elo.ts';
+export { eloDelta, rankedOpponent } from './elo.ts';
 
 const DUST: Record<Difficulty | 'daily' | 'ranked', number> = { easy: 4, medium: 8, hard: 15, daily: 12, ranked: 20 };
 
@@ -61,7 +61,7 @@ export function parMs(rating: number): number {
 export const HINT_ELO_PENALTY = 0.25;
 
 /** Multiplier bonus applied to a ranked Elo gain, e.g. 0.15 = +15%. */
-export function speedBonus(elapsedMs: number, rating: number): number {
+function speedBonus(elapsedMs: number, rating: number): number {
   const ratio = elapsedMs / parMs(rating);
   if (ratio <= 0.5) return 0.25;
   if (ratio <= 0.75) return 0.15;
@@ -112,7 +112,7 @@ function ladderV2(old: number): number {
   return old <= 100 ? old : Math.round(along(points, old));
 }
 
-export function saveProfile(profile: Profile): void {
+function saveProfile(profile: Profile): void {
   writeJson(KEY, profile);
 }
 
@@ -136,7 +136,7 @@ export function puzzleProfile(mode: Mode, difficulty: Difficulty, dateKey?: stri
 }
 
 /** The run of losses after which the next Ranked square is a stage easier (the comeback square). */
-export const COMEBACK_AFTER = 2;
+const COMEBACK_AFTER = 2;
 
 /**
  * The stage a Ranked game deals (engine RANKED_STAGES): the Elo's own, or one lower after two
@@ -160,7 +160,7 @@ export const rankedTarget = (elo: number): number => stageRating(rankedStage(elo
  */
 const TIERS = [0, 300, 600, 1000, 1450];
 /** A rank is kept until Elo is this far below its floor. Mirrors private.shown_tier. */
-export const RANK_GRACE = 50;
+const RANK_GRACE = 50;
 
 export interface RankTier {
   /** 0 Novice … 4 Elomental. */
@@ -176,7 +176,7 @@ const tierOf = (elo: number): number => TIERS.filter((floor) => elo >= floor).le
  * The rank shown: up as soon as Elo reaches a floor, down only once it is RANK_GRACE below the
  * rank held. Mirrors private.shown_tier. Without the held rank (`prev`), the Elo's own.
  */
-export function shownTier(elo: number, prev?: number | null): number {
+function shownTier(elo: number, prev?: number | null): number {
   const now = tierOf(elo);
   if (prev == null || now >= prev) return now;
   return elo >= TIERS[prev] - RANK_GRACE ? prev : now;
@@ -223,7 +223,7 @@ export function nextResetIn(now = new Date()): number {
   return reset.getTime() - now.getTime();
 }
 
-export interface ResultInput {
+interface ResultInput {
   mode: Mode;
   difficulty: Difficulty;
   rating: number;

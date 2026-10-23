@@ -191,7 +191,7 @@ const pathOf = (points: Point[]) =>
  * The lines as an SVG document shaped like the screen (`aspect` = width /
  * height). White strokes: the CSS mask only uses their shape.
  */
-export function grainSvg(aspect: number, stroke = '#fff'): string {
+function grainSvg(aspect: number, stroke = '#fff'): string {
   const W = Math.round(aspect >= 1 ? LONG : LONG * aspect);
   const H = Math.round(aspect >= 1 ? LONG / aspect : LONG);
   const nx = Math.floor(W / STEP) + 1;

@@ -29,7 +29,7 @@ export interface LbRow {
   me: boolean;
 }
 
-export interface LbPage {
+interface LbPage {
   view: LbView;
   scope: string | null;
   page: number;
@@ -38,7 +38,7 @@ export interface LbPage {
   updated: string | null;
 }
 
-export interface LbAround {
+interface LbAround {
   scope: string | null;
   place: number | null;
   rows: LbRow[];
@@ -60,7 +60,7 @@ export interface LbMe {
   seasonGames?: number | null;
 }
 
-export interface LbTiers {
+interface LbTiers {
   total: number;
   tiers: { floor: number; players: number }[];
 }

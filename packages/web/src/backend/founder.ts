@@ -18,7 +18,7 @@ export async function hasAuthenticator(): Promise<boolean | null> {
   return data.totp.some((f) => f.status === 'verified');
 }
 
-export interface Enrolment {
+interface Enrolment {
   factorId: string;
   /** The QR code as an image URL (an SVG data URL). */
   qr: string;
@@ -63,7 +63,7 @@ export async function verifyCode(code: string, factorId?: string): Promise<strin
   return null;
 }
 
-export interface FounderAction {
+interface FounderAction {
   at: string;
   founder: string | null;
   action: string;

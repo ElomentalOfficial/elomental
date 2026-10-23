@@ -7,14 +7,7 @@ import type { Element } from '../profile.ts';
  * while the player was away. All times are UTC from the server; the app shows them locally.
  */
 
-export interface CycleInfo {
-  now: string;
-  month: { startsAt: string; endsAt: string };
-  season: { id: number; name: string | null; startsAt: string; endsAt: string } | null;
-}
-export const cycleInfo = () => rpcData<CycleInfo>('cycle_info');
-
-export interface CycleNews {
+interface CycleNews {
   seasons: { id: number; name: string | null; games: number; bestTier: number | null; badge: string | null; place: number | null; elo: number; eloAfter: number }[];
   months: { month: string; side: Element; won: boolean; badge: boolean }[];
 }

@@ -9,7 +9,7 @@ import { auditServerGame, finishServerGame } from './games.ts';
  * solved game as a loss). Once the server has answered, counted or refused, it's dropped.
  */
 
-export interface PendingResult {
+interface PendingResult {
   gameId: string;
   /** A Ranked win is audited (its moves replayed) before it's sent. */
   ranked: boolean;
@@ -23,7 +23,7 @@ export interface PendingResult {
   moves: Move[];
 }
 
-export const PENDING_KEY = 'elomental:pending-results';
+const PENDING_KEY = 'elomental:pending-results';
 
 export const pendingResults = (): PendingResult[] => readJson<PendingResult[]>(PENDING_KEY) ?? [];
 

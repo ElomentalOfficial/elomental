@@ -17,7 +17,7 @@ export interface Box {
   bottom: number;
 }
 
-export interface CardLayout {
+interface CardLayout {
   width: number;
   height: number;
   /** One unit of the tile frame's 40-unit corner, in px (its size / 40). */

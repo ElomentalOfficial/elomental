@@ -122,7 +122,7 @@ const PAUSE_WAIT_MS = 5 * 60_000;
  * One saved game per mode (full review H4), so starting a Casual game never replaces a paused
  * Ranked one. `elomental:game` was the single slot before; loadSavedGame moves it over.
  */
-export const SAVE_PREFIX = 'elomental:game';
+const SAVE_PREFIX = 'elomental:game';
 const saveKey = (mode: Mode) => `${SAVE_PREFIX}:${mode}`;
 const MAX_MISTAKES = 3;
 /** Hints per game, in every mode. Each one trims Stardust; in Ranked it also costs Elo (profile.ts). */

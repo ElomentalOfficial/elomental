@@ -17,7 +17,7 @@ import * as copy from '../copy/en.ts';
 export type DevSection = 'devmode' | 'show' | 'tools' | 'account' | 'testers' | 'activity';
 
 /** What the console shares with a section: the Show founders state, and "something changed". */
-export interface DevContext {
+interface DevContext {
   shown: () => boolean | null;
   setShown: (value: boolean) => void;
   changed: () => void;

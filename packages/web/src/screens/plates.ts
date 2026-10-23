@@ -19,14 +19,14 @@ const SEEN_KEY = 'elomental:plates-seen';
 const BANDS: Band[] = ['ink', 'steel', 'gilt', 'star', 'epic', 'mythic'];
 
 /** Plates collected since this page was last opened (the Profile's row shows "New"). */
-export function newPlates(): number {
+function newPlates(): number {
   const account = cachedAccount();
   if (!account) return 0;
   const have = platesAt(xpLevel(account.xp ?? 0).level);
   return Math.max(0, have - (readJson<number>(SEEN_KEY) ?? have));
 }
 
-export function platesScreen(back: () => Screen): Screen {
+function platesScreen(back: () => Screen): Screen {
   const head = h('section', { class: 'plates-head' });
   const groups = h('div', { class: 'plates-groups' });
   let busy = false;

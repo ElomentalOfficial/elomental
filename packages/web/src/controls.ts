@@ -6,7 +6,7 @@ import { h } from './ui.ts';
  * pages look and behave alike (styles.css: .segmented, .choice, .setting-group).
  */
 
-export interface SegmentOption<T> {
+interface SegmentOption<T> {
   value: T;
   label: string;
   /** An icon drawn before the label (SVG markup, decorative). */

@@ -30,7 +30,7 @@ import * as copy from '../copy/en.ts';
 export type FinishReason = 'solved' | 'mistakes' | 'concede';
 
 /** The mistake rule the game ran under: `max` mistakes, or no limit (`on` false, Casual's setting). */
-export interface MistakeRule {
+interface MistakeRule {
   max: number;
   on: boolean;
 }
