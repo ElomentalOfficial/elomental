@@ -258,7 +258,8 @@ function casualDoors(saved: ReturnType<typeof loadSavedGame>): HTMLElement[] {
       'section',
       { class: 'door-group casual-new', attrs: { 'aria-labelledby': 'casual-new-game' } },
       h('h2', { class: 'door-heading', attrs: { id: 'casual-new-game' }, text: say.newGame }),
-      h('div', { class: 'door-row' }, ...DIFFICULTIES.map(difficultyDoor)),
+      // three across at every size: a third alone on a row would read as the odd one out
+      h('div', { class: 'door-row field-grid three-up' }, ...DIFFICULTIES.map(difficultyDoor)),
     ),
     h(
       'section',
@@ -266,7 +267,7 @@ function casualDoors(saved: ReturnType<typeof loadSavedGame>): HTMLElement[] {
       h('h2', { class: 'door-heading', attrs: { id: 'casual-with-friend' }, text: say.withFriend }),
       h(
         'div',
-        { class: 'door-row', attrs: { style: '--doors: 2' } },
+        { class: 'door-row field-grid two-up' },
         friendDoor(ICONS.clash, say.clash, say.clashInfo, () => openClash(now)),
         friendDoor(ICONS.square, say.squareCode, say.squareCodeInfo, () => openSquareCode(now)),
       ),

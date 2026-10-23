@@ -521,10 +521,6 @@ html[data-reduce-motion] .clash-live .brush-art {
   }
   /* the three doors share their rows (subgrid): pips, square, name, line, and the last one you
      played says so under its line, so the names stay level whatever wraps */
-  /* (three across at any Text size: a third alone on a row would read as the odd one out) */
-  html[data-large-text] .casual-new .door-row {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
   .casual-new .door-row {
     grid-template-rows: auto minmax(0, 1fr) auto auto calc(1.3em + var(--space-1));
   }
