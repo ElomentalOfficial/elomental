@@ -210,11 +210,14 @@
 /* the name leads: the display serif, well above the title (owner: substantially bigger); a long
    name (up to 20 letters) is fitted to its cell, never below the label size (homeCard.ts draw) */
 .pc-name .profile-name {
+  max-width: 100%;
   font-family: var(--serif);
   font-size: var(--fs-display);
   font-weight: 400;
   text-transform: none;
   letter-spacing: 0.01em;
+  /* a long name with nowhere to break (no _ or -) still keeps inside the card, at large text */
+  overflow-wrap: anywhere;
 }
 /* the title and rank: the sans, smaller and spaced, so it reads apart from the name */
 .pc-name .profile-rank {
@@ -239,13 +242,14 @@
   pointer-events: none;
   opacity: calc(var(--ornament-opacity) * 2);
 }
-/* the hairline, broken round the diamond so the diamond stands clear (owner) */
+/* the hairline runs up to the diamond's points and stops there, so the diamond stands clear and
+   the line meets it (owner) */
 .pc-stats::before {
   top: 0;
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, var(--frame-line) calc(50% - 10px), transparent calc(50% - 10px) calc(50% + 10px), var(--frame-line) calc(50% + 10px));
+  background: linear-gradient(90deg, var(--frame-line) calc(50% - 6px), transparent calc(50% - 6px) calc(50% + 6px), var(--frame-line) calc(50% + 6px));
 }
 .pc-stats::after {
   top: -4px;
@@ -298,12 +302,29 @@
   border-radius: 3px;
   background: var(--pc-track);
 }
-/* each fill brightens towards its leading edge (tokens.css) */
+/* each fill brightens towards its leading edge (tokens.css), and ends in a small bright knob with
+   a soft glow, so where it stands reads at a glance (owner) */
 .pc-next .rank-bar span {
+  --knob: var(--c-lava-300);
   background: var(--pc-elo-fill);
 }
 .pc-next .xp-bar span {
+  --knob: var(--c-gold-100);
   background: var(--pc-level-fill);
+}
+.pc-next :is(.rank-bar, .xp-bar) span {
+  position: relative;
+}
+.pc-next :is(.rank-bar, .xp-bar) span::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 3px;
+  height: 100%;
+  border-radius: 1.5px;
+  background: var(--c-bright);
+  box-shadow: 0 0 4px 1px var(--knob);
 }
 /* Your three chosen badges (Profile > Badges), each in a slot recessed a shade into the card. */
 .pc-showcase {

@@ -76,7 +76,7 @@
   font-family: var(--serif);
   font-size: var(--fs-small);
 }
-/* your faction's sign beside its name (avatar.ts factionSignUrl), a little taller than the words */
+/* your faction's emblem beside its name (avatar.ts emblemUrl), a little taller than the words */
 .faction-sign {
   display: block;
   flex: none;

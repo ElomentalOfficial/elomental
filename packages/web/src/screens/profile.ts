@@ -1,5 +1,5 @@
 import { signUpForm } from '../accountForm.ts';
-import { avatarSvg, factionSignUrl } from '../avatar.ts';
+import { avatarSvg, emblemUrl } from '../avatar.ts';
 import { badgeArt, badgeLabel } from '../badges.ts';
 import { myBadges } from '../backend/leaderboard.ts';
 import { openBadgePicker } from '../badgePicker.ts';
@@ -46,7 +46,7 @@ export function profileScreen(start?: { at?: 'badges' }): Screen {
   // your side; Change shows while switching is allowed (once a month, in your first 5 days in a faction)
   // no side yet, once it's time: the way to choose one (Home's line has no room on small phones)
   const side = account?.affinity
-    ? h('p', { class: 'forge-affinity' }, h('img', { class: 'faction-sign', attrs: { src: factionSignUrl(account.affinity), alt: '' } }), h('span', { text: copy.forge.elements[account.affinity] }))
+    ? h('p', { class: 'forge-affinity' }, h('img', { class: 'faction-sign', attrs: { src: emblemUrl(account.affinity), alt: '' } }), h('span', { text: copy.forge.elements[account.affinity] }))
     : affinityDue()
       ? h('button', { class: 'link-btn', text: copy.home.line.chooseSide, attrs: { type: 'button' }, onclick: () => mount(affinityScreen(profileScreen)) })
       : null;

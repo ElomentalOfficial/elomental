@@ -1,4 +1,4 @@
-import { avatarSvg, factionSignUrl } from '../avatar.ts';
+import { avatarSvg, emblemUrl } from '../avatar.ts';
 import { cachedAccount, registered } from '../backend/account.ts';
 import { cachedLoadout, cachedPolish } from '../backend/forge.ts';
 import { myBadges } from '../backend/leaderboard.ts';
@@ -133,7 +133,7 @@ export function homeCard(): HomeCard {
     const side = account?.affinity ?? null;
     coin.hidden = !side;
     if (side) {
-      coin.src = factionSignUrl(side);
+      coin.src = emblemUrl(side);
       coin.alt = copy.home.card.faction(copy.forge.elements[side]);
     }
     // your three chosen badges (Profile > Badges), or your newest until you choose

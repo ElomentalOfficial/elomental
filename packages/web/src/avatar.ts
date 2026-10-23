@@ -4,25 +4,17 @@ import fireEmblem from './art/elements/fire.svg';
 import waterEmblem from './art/elements/water.svg';
 import earthEmblem from './art/elements/earth.svg';
 import airEmblem from './art/elements/air.svg';
-import fireSign from './art/factions/fire.svg';
-import waterSign from './art/factions/water.svg';
-import earthSign from './art/factions/earth.svg';
-import airSign from './art/factions/air.svg';
 import { sunburstPath } from './rays.ts';
 
 /**
  * The factions' full-colour emblems (the owner's marks in their colour, edged in gold:
- * scripts/emblems.ts), for the Affinity cards' crests. Plain shapes and gradients only: no SVG
- * filters, which Firefox and iOS Safari draw badly (a white fringe, low resolution).
+ * scripts/emblems.ts): the Affinity cards' crests, and your faction on the Profile card and page.
+ * Plain shapes and gradients only: no SVG filters, which Firefox and iOS Safari draw badly (a
+ * white fringe, low resolution).
  */
 const EMBLEMS: Record<Element, string> = { fire: fireEmblem, water: waterEmblem, earth: earthEmblem, air: airEmblem };
-/**
- * The factions' signs (a flame, a drop, two peaks, the wind, edged in gold: scripts/emblems.ts),
- * for your faction on the Profile card's banner and the Profile page.
- */
-const SIGNS: Record<Element, string> = { fire: fireSign, water: waterSign, earth: earthSign, air: airSign };
-/** An element's sign, as an image URL. */
-export const factionSignUrl = (element: Element): string => SIGNS[element];
+/** An element's emblem, as an image URL. */
+export const emblemUrl = (element: Element): string => EMBLEMS[element];
 
 /** The avatar pictures (art/faces/<name>.svg), by name. */
 const FACES: Record<string, string> = Object.fromEntries(
