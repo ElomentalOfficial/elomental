@@ -191,7 +191,8 @@
   box-shadow: 0 0 0 2px var(--crest-ring);
   pointer-events: none;
 }
-/* Your name inside its plate, your title and rank under it, from the avatar's side. */
+/* Your name (its plate shows on the Profile, not here), your title and rank under it, from the
+   avatar's side. */
 .pc-name {
   grid-area: name;
   container-type: inline-size;

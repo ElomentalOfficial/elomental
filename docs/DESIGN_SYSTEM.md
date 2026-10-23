@@ -71,8 +71,8 @@ round the name, so it fits every layout and never touches the text.
 
 The profile card (`screens/homeCard.ts`, owner's pick of three directions, 2026-10-23) reads in one
 order inside the tile's frame. Who you are leads and takes the spare height: the avatar on a
-sunburst (`withRays`) with the faction's coin on its ring, the name in its plate and the rank
-beside it. Under a hairline with a diamond, Elo and Level, each with its bar and what's next (the
+sunburst (`withRays`) with the faction's coin on its ring, the name (no plate here: plates show on
+the Profile and the player card) and the rank beside it. Under a hairline with a diamond, Elo and Level, each with its bar and what's next (the
 Profile's own `rankProgress` and `levelProgress`, on one track, `--pc-track`). Last, the three
 badges, each in a recessed slot and each a button to the badge choice (`badgePicker.ts`). The
 card's old walls, plaques and hanging banner are gone.

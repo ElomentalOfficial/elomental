@@ -5,7 +5,6 @@ import { myBadges } from '../backend/leaderboard.ts';
 import { badgeArt, badgeLabel } from '../badges.ts';
 import { openBadgePicker } from '../badgePicker.ts';
 import { levelProgress } from '../level.ts';
-import { paintPlate } from '../plates.ts';
 import { loadProfile, rankTier } from '../profile.ts';
 import { rankProgress } from '../rankBar.ts';
 import { rankName } from '../rankName.ts';
@@ -17,7 +16,7 @@ import * as copy from '../copy/en.ts';
 /**
  * Home's profile card, "Ledger" (owner, 2026-10-23): one reading order inside the tile's own Art
  * Deco frame. Who you are leads and takes the room: your avatar on a sunburst with your faction's
- * coin on its ring, your name in its plate and your rank beside it. Under a hairline, how you are
+ * coin on its ring, your name and your rank beside it. Under a hairline, how you are
  * doing: Elo and Level, each with its bar and what's next. Last, the three badges you show off,
  * each in a recessed slot.
  * Stardust and Spirits live on the Forge tile, where they are spent (home.ts).
@@ -117,13 +116,10 @@ export function homeCard(): HomeCard {
     const p = loadProfile();
     const account = cachedAccount();
     avatar.innerHTML = avatarSvg(cachedLoadout(), cachedPolish());
-    // the name inside its plate (plates.ts); the level has its own cell
+    // the name alone: its plate shows on the Profile and the player card, not here (owner,
+    // 2026-10-23); a long name that has to wrap breaks after its _ or -, not inside a word
     shown = p.name;
-    paintPlate(nameEl, p.name, account?.plate ?? 0, null);
-    nameEl.classList.toggle('plate-inline', nameEl.classList.contains('name-plate'));
-    // a long name that has to wrap breaks after its _ or -, not inside a word
-    const label = nameEl.querySelector('.plate-text') ?? nameEl;
-    if (/[_-]./.test(p.name)) label.replaceChildren(...p.name.split(/(?<=[_-])/).flatMap((part, i) => (i ? [h('wbr'), part] : [part])));
+    nameEl.replaceChildren(...p.name.split(/(?<=[_-])/).flatMap((part, i) => (i ? [h('wbr'), part] : [part])));
     const tier = rankTier(p.elo, p.tier);
     rankEl.replaceChildren(rankName(tier.tier, tier.label, p.title));
     // Elo, and how far the next rank is once you've played Ranked (as on the Profile)
@@ -165,9 +161,7 @@ export function homeCard(): HomeCard {
   const zoomOf = (node: Element) => parseFloat(getComputedStyle(node).zoom || '1') || 1;
   const draw = () => {
     if (!el.isConnected || !el.offsetWidth) return;
-    // the name's plate: the rule runs through the name's middle, its ends with room to show
-    const text = nameEl.querySelector<HTMLElement>('.plate-text');
-    const room = name.clientWidth / zoomOf(name.firstElementChild!) - 16;
+    const fit = name.clientWidth / zoomOf(name.firstElementChild!) - 16;
     // a long name shrinks to keep to one line, down to the label size; past that it wraps after
     // its _ or - (see paint), sized so its longest part keeps to a line, down to the body size
     // (both still over the title's)
@@ -181,17 +175,11 @@ export function homeCard(): HomeCard {
       return w;
     };
     const full = measure(shown);
-    const fit = Math.min(room - (text ? 2 * 20 : 0), text ? parseFloat(getComputedStyle(text).maxWidth) || Infinity : Infinity);
     if (full > fit) {
       const size = parseFloat(getComputedStyle(nameEl).fontSize);
       const longest = Math.max(...shown.split(/(?<=[_-])/).map(measure));
       const one = (size * fit) / full;
       nameEl.style.fontSize = `${one >= (size * 20) / 30 ? one : Math.max((size * 16) / 30, Math.min((size * 20) / 30, (size * fit) / longest))}px`;
-    }
-    // the plate hugs the name (its ends 20px out), so the rank lines up under its start
-    if (text && nameEl.classList.contains('plate-inline')) {
-      nameEl.style.setProperty('--medal-d', `${text.offsetWidth + 26}px`);
-      nameEl.style.setProperty('--plate-pad', '20px');
     }
   };
   let frame = 0;
