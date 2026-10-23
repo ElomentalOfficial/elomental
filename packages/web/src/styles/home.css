@@ -226,7 +226,8 @@
    beside it, its corners notched in two Deco steps clear of the walls' junction ornaments (the
    badges' lower corners cut deep, round the frame's corner ornaments). Its edges fade out in
    negative space running along them, like Deco speed lines (owner): the well, a gap, a band, a
-   gap, a hairline, each drawn as its own strip of the well's colour. */
+   gap, a hairline, each drawn as its own strip of the well's colour. Worn all over by the tiles'
+   own grain (art/grain.webp, as a light-and-dark mask), so it reads as grunge, not a flat fill. */
 :is(.pc-level, .pc-elo, .pc-badges)::before {
   --s: var(--space-2);
   --h: var(--space-1);
@@ -246,6 +247,7 @@
     var(--well) center bottom / 100% 1px no-repeat,
     var(--well) left center / 1px 100% no-repeat,
     var(--well) right center / 1px 100% no-repeat;
+  mask: url('../art/grain.webp') 0 0 / 224px 224px luminance;
   /* each corner two steps in (--s, then --h) */
   clip-path: polygon(
     var(--s) 0, calc(100% - var(--s)) 0, calc(100% - var(--s)) var(--h), calc(100% - var(--h)) var(--h), calc(100% - var(--h)) var(--s), 100% var(--s),
