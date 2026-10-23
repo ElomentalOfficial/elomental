@@ -41,7 +41,15 @@ closed shapes, `aria-hidden`, and clearance from text. Use one per surface.
    in `styles/banner.css` paints it in the surface's ink at 14% and stretches it to the oval each
    place sets with `--rays-w` / `--rays-h`, so the tips stay off the text. Used on the wide banners
    (cloth width × hero height) and the phone/tablet Forge head (a little past the icon's sides,
-   twice its height; just past it at large text). Unbroken rays at 6.5% were too faint.
+   twice its height; just past it at large text). Unbroken rays at 6.5% were too faint. The
+   strength is `--rays-opacity` (14%) for every sunburst and the seal.
+   **Stamps:** `rayStamp(seed)` in the same file draws a sunburst of its own per seed (ray count,
+   turn, long/short rhythm, where each ray breaks, sometimes twin hairlines), so a set of marks
+   never repeats one stamp. Home's tiles use it behind the owner's gold letters (`LETTERS` in
+   `screens/home.ts`, art in `art/letters/`, cut from the owner's sheet in `manual_assets`): letter
+   and stamp are one picture, the letter half its width (owner: one ratio on every tile), and the
+   picture fits the room its tile gives the mark (`.tile-icon` in `home.css`), so the rays always
+   end inside the tile's margins and a gap short of the name.
 2. **Seal and diamond rails.** A faint round seal (two thin rings, a band of rune ticks between
    them, the crest in the middle); nested 45° diamonds on each side; short dashed rails running
    out from them to a small dot. Built behind the wide pages' lower Back (`SEAL` in

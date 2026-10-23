@@ -29,7 +29,7 @@
   align-items: center;
   justify-content: center;
   gap: 14px;
-  padding: 10px;
+  padding: var(--space-2);
   text-align: center;
   /* The press tilt (motion.ts) sets transform inline; this eases it in and out. */
   transition: transform 0.14s ease-out, filter 0.15s ease;
@@ -62,96 +62,69 @@
   width: 100%;
   height: 100%;
 }
+/* Each tile's mark (home.ts LETTERS): the owner's gold letter on a sunburst stamp of its own, drawn
+   as one picture (rays.ts rayStamp), the letter half its width, so every tile keeps one ratio. The
+   mark takes all the room its tile gives it and the picture fits inside, so the rays always end
+   within the tile's margins and a gap short of the name: beside the name (a row tile) it is a
+   square as tall as the tile's inside; above it (a column tile) it fills what the name leaves.
+   Whichever way a tile runs sets --mark-flex and --mark-ratio with it. --mark-min keeps a mark
+   where the tile's height comes from its content (short phones, large text). */
+.tile {
+  --mark-flex: 1 1 0;
+  --mark-ratio: auto;
+}
 .tile-icon {
-  width: 36px;
-  height: 36px;
-  flex: none;
-  /* Its own stacking context, so the contact shadow sits behind the icon but on the tile. */
   position: relative;
-  isolation: isolate;
+  flex: var(--mark-flex);
+  aspect-ratio: var(--mark-ratio);
+  align-self: stretch;
+  min-width: 0;
+  min-height: var(--mark-min, 0px);
 }
-/* A soft contact shadow under every Home icon, as if it rests on the tile: faint, a hint
-   of weight rather than a mark of its own. */
-.tile-icon::after {
-  content: '';
+.tile-icon svg {
   position: absolute;
-  z-index: -1;
-  left: 50%;
-  bottom: -4px;
-  width: 62%;
-  height: 16%;
-  max-height: 10px;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--c-lava-highlight) 20%, transparent);
-  filter: blur(1.5px);
-  pointer-events: none;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
-/* The cup is held up in the air: no shadow under it. */
-.area-leader .tile-icon::after {
-  display: none;
+.tile-icon path {
+  opacity: var(--rays-opacity);
 }
-/* The wallet's shadow tucks up under it, not under the coins in front. */
-.area-store .tile-icon::after {
-  bottom: 2px;
-}
-/* On the dark grey tiles the shadow needs more ink to show at all. */
-:root[data-theme='dark'] :is(.area-store, .area-leader, .area-setup, .area-forge) .tile-icon::after {
-  background: color-mix(in srgb, var(--c-bg) 43%, transparent);
-}
-/* Home buttons use the serif (Federo), like the rest of the app's labels. */
+/* Home buttons use the serif (Federo), like the rest of the app's labels, set into the tile by a
+   small, sharp drop under every letter. */
 .tile-label {
   font-family: var(--serif);
   font-weight: 400;
   font-size: var(--fs-label);
   line-height: 1.15;
   letter-spacing: 0.02em;
+  text-shadow: var(--tile-label-shadow);
 }
 .area-daily {
   grid-area: daily;
   background: var(--c-crimson);
   color: var(--c-bright);
-  justify-content: space-between;
-  padding: 26px 8px 18px;
 }
-/* Icon boxes use the exported Figma sizes. */
-.area-daily .tile-icon {
-  width: 46px;
-  height: 50px;
-}
-/* The leaderboard arm reaches in from the tile's left edge (out past the padding);
-   the tile clips it to its rounded corner. */
-.area-leader .tile-icon {
-  flex: 0 1 104px;
-  min-width: 56px;
-  height: 58px;
-  margin-left: -10px;
-}
-.area-daily .tile-label {
-  font-size: var(--fs-label);
-}
+/* The wide tiles: the letter leads its name, the pair centred. */
 .area-store,
-.area-leader {
+.area-leader,
+.area-forge {
   flex-direction: row;
-  gap: 32px;
+  --mark-flex: none;
+  --mark-ratio: 1;
+  gap: var(--space-4);
 }
 .area-store {
   grid-area: store;
-  /* Label on the left, the wallet on the right (wide screens stack them instead). */
-  flex-direction: row-reverse;
-}
-.area-store .tile-icon {
-  width: 64px;
-  height: 57px;
 }
 .area-leader {
   grid-area: leader;
-  /* clip, not hidden: hidden would let the grid shrink this row and squeeze Daily */
-  overflow: clip;
-  gap: var(--space-3);
 }
-.area-leader .tile-label {
-  flex: 1;
+/* The mode tiles keep their own colours and light names in both themes, so the dark drop too. */
+.area-daily,
+.area-casual,
+.area-ranked {
+  --tile-label-shadow: var(--label-drop-dark);
 }
 .area-casual {
   grid-area: casual;
@@ -164,37 +137,16 @@
   background: var(--c-lava);
   color: var(--c-bright);
 }
-.area-casual .tile-icon {
-  width: 70px;
-  height: 45px;
-}
-/* The Forge: a wide tile, label on the left and the gem on the right, like the Store. */
 .area-forge {
   grid-area: forge;
-  flex-direction: row-reverse;
-  gap: 32px;
 }
-.area-forge .tile-icon {
-  width: 70px;
-  height: 53px;
-}
-/* Setup: a small tile, tight, since the cog's shadow and the label's line box already add
-   space between them. */
+/* Setup: a small tile, tight, the label's line box closed up to the mark. */
 .area-setup {
   grid-area: setup;
-  gap: 2px;
-  padding: 8px;
-}
-.area-setup .tile-icon {
-  width: 34px;
-  height: 34px;
+  gap: var(--space-1);
 }
 .area-setup .tile-label {
   line-height: 1;
-}
-.area-ranked .tile-icon {
-  width: 46px;
-  height: 64px;
 }
 /*
  * The profile card (homeCard.ts, owner 2026-10-22 "the Forge Link"): a sudoku box inside the
@@ -367,7 +319,7 @@
   align-items: flex-start;
   gap: var(--space-1);
 }
-.forge-purse {
+.tile-purse {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-1) var(--space-3);
@@ -634,31 +586,13 @@ html[data-reduce-motion] .promotion .rank-name {
     scrollbar-width: none;
   }
   .home-grid {
+    --mark-min: 56px;
     flex: none;
     grid-template-rows: none;
   }
   .area-casual,
   .area-ranked {
     gap: var(--space-2);
-  }
-  .area-store .tile-icon {
-    width: 52px;
-    height: 46px;
-  }
-  .area-leader .tile-icon {
-    height: 48px;
-  }
-  .area-daily .tile-icon {
-    width: 40px;
-    height: 44px;
-  }
-  .area-casual .tile-icon {
-    width: 56px;
-    height: 36px;
-  }
-  .area-ranked .tile-icon {
-    width: 36px;
-    height: 50px;
   }
   .profile-card {
     grid-template-rows: auto;

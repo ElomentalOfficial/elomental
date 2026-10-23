@@ -77,65 +77,20 @@
   .profile-card {
     grid-template-columns: minmax(0, 42fr) minmax(0, 58fr);
   }
-  /* Leaderboard is as tall as the play tiles here: it stacks its icon over the
+  /* Leaderboard is as tall as the play tiles here: it stacks its letter over the
      label like them, so the label fits. */
   .area-leader {
     flex-direction: column;
+    --mark-flex: 1 1 0;
+    --mark-ratio: auto;
     gap: 14px;
   }
-  /* The short top row: Store and Setup keep the phone's icon beside the label. */
-  .area-store,
+  /* The short top row: Store and Setup keep the phone's letter beside the label. */
   .area-setup {
     flex-direction: row;
+    --mark-flex: none;
+    --mark-ratio: 1;
     gap: var(--space-4);
-  }
-  .area-store {
-    flex-direction: row-reverse;
-  }
-  /* The wide tiles have room to spare: every icon at about 1.5x its phone size. */
-  .area-store .tile-icon {
-    width: 72px;
-    height: 64px;
-  }
-  .area-setup .tile-icon {
-    width: 56px;
-    height: 56px;
-  }
-  .area-forge .tile-icon {
-    width: 96px;
-    height: 73px;
-  }
-  .area-daily .tile-icon {
-    width: 64px;
-    height: 70px;
-  }
-  .area-casual .tile-icon {
-    width: 100px;
-    height: 64px;
-  }
-  .area-ranked .tile-icon {
-    width: 66px;
-    height: 92px;
-  }
-  /* The arm still runs in from the tile's left edge (out past the padding, which
-     isn't zoomed); the box ends 36px right of centre so the cup sits over the label. */
-  .area-leader .tile-icon {
-    flex: none;
-    align-self: flex-start;
-    width: calc(50% + 36px + 10px / var(--wide-zoom, 1));
-    height: 84px;
-    margin-left: calc(-10px / var(--wide-zoom, 1));
-  }
-  .area-store .tile-icon::after {
-    bottom: 4px;
-  }
-  .area-leader .tile-label {
-    flex: none;
-  }
-  /* Daily is a near-square tile here: icon and label together, centred. */
-  .area-daily {
-    justify-content: center;
-    padding: 12px 8px;
   }
   /* Corners grow with the tiles, by the same factor as their contents (the
      tiles' frames follow through --frame-zoom). */
@@ -162,18 +117,20 @@
       'profile casual ranked'
       'forge casual ranked';
   }
+  html[data-large-text] .home-grid {
+    --mark-min: 64px;
+  }
   html[data-large-text] .home-grid > .tile {
     flex-direction: column;
+    --mark-flex: 1 1 0;
+    --mark-ratio: auto;
     justify-content: center;
     gap: 14px;
-    padding: 10px;
+    padding: var(--space-2);
     text-align: center;
   }
   html[data-large-text] .home-grid > .tile .tile-label {
     font-size: min(var(--fs-label), 13cqi);
-  }
-  html[data-large-text] .home-grid .tile-icon {
-    zoom: var(--wide-icon-zoom, 1);
   }
   /* The other pages keep their phone column, a little larger. */
   .screen.daily,

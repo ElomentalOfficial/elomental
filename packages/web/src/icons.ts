@@ -12,15 +12,11 @@ import feather from './art/feather.webp';
 import cogDark from './art/cog-dark.webp';
 import cogLight from './art/cog-light.webp';
 import forge from './art/forge.webp';
-import calendar from './art/calendar.png';
 import calendarBack from './art/calendar-back.webp';
 import calendarUnder from './art/calendar-under.webp';
 import calendarStub from './art/calendar-stub.webp';
 import calendarFall from './art/calendar-fall.webp';
 import calendarRings from './art/calendar-rings.webp';
-import walletDark from './art/wallet-dark.png';
-import walletLight from './art/wallet-light.png';
-import sword from './art/sword.png';
 import swordFlame from './art/sword-flame.png';
 import swordBody from './art/sword-body.webp';
 import swordHeat from './art/sword-heat.png';
@@ -51,16 +47,15 @@ const figmaStroke = (body: string) =>
   `<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
 
 export const ICONS = {
-  // Home icons: brush-style art baked to PNGs in art/ (see `brush`).
+  // Page art: brush-style pictures baked to PNGs in art/ (see `brush`). Home's tiles wear the
+  // owner's letters instead (home.ts).
   /** Brush-style cog, one image per theme; the axle hole is see-through. */
   setup: brush(cogLight, 'ic-light') + brush(cogDark, 'ic-dark'),
   /**
    * The Forge: a Stardust gem lit from the right by the forge fire (scripts/forge-icon).
-   * Outlined like the wallet and the sword, so one image suits both themes.
+   * Outlined, so one image suits both themes.
    */
   forge: brush(forge),
-  /** Brush-style wallet with a bill tucked in and coins on its corner, one image per theme. */
-  store: brush(walletLight, 'ic-light') + brush(walletDark, 'ic-dark'),
   /**
    * Leaderboard: a long arm reaching in from the tile edge, raising a cup. Brush-icon
    * style in palette colours only, one image per theme. `brush-arm` covers the box
@@ -78,11 +73,8 @@ export const ICONS = {
     brush(clashRightLight, 'ic-light clash-right') + brush(clashRightDark, 'ic-dark clash-right') +
     brush(clashBurstLight, 'ic-light clash-burst') + brush(clashBurstDark, 'ic-dark clash-burst') +
     '</span>',
-  // Mode-tile icons sit on fixed-colour tiles, so one export serves both themes.
-  /** Brush-style calendar: the days crossed off, today ticked; drawn for the Crimson tile. */
-  daily: brush(calendar),
   /**
-   * The same calendar in layers, for the Daily Square page: the page behind, the next
+   * A brush-style calendar in layers, for the Daily Square page: the page behind, the next
    * day's page right under the front one, the front page in two parts split along a
    * zig-zag tear (the stub at the rings, the rest) and the rings on top. The front page
    * lifts in a breeze now and then (`.calendar-live` in styles.css) and is torn off and
@@ -101,12 +93,10 @@ export const ICONS = {
     '</span>',
   /** Brush-style feather with a Lava shaft, drawn for the Forest tile and badge. */
   casual: brush(feather),
-  /** Brush-style sword wrapped in one flame, drawn for the Lava tile and the Ranked pop-up badge. */
-  ranked: brush(sword),
   /**
-   * The same sword in layers for the Ranked pop-up: the flame behind (it flickers,
-   * `.sword-live` in styles.css), the sword in front (stacked, they match `ranked`), and
-   * the blade glowing hot on top, faded in tap by tap (heatingSword in home.ts).
+   * A brush-style sword wrapped in one flame, in layers for the Ranked pop-up: the flame behind
+   * (it flickers, `.sword-live` in styles.css), the sword in front, and the blade glowing hot
+   * on top, faded in tap by tap (heatingSword in home.ts).
    */
   rankedLive: `<span class="sword-live">${brush(swordFlame, 'sword-flame')}${brush(swordBody)}${brush(swordHeat, 'sword-heat')}</span>`,
   /**

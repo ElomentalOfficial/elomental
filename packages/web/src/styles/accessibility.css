@@ -189,9 +189,13 @@ html[data-large-text] .home-grid {
 }
 html[data-large-text] .home-grid > .tile {
   flex-direction: row;
+  /* the mark a fixed column as wide as the shortest row's inside (76 less the padding): a square
+     taken from the row's height would change the words' width, and so the row's height, again */
+  --mark-flex: 0 0 60px;
+  --mark-ratio: auto;
   justify-content: flex-start;
   gap: 18px;
-  padding: 14px 20px;
+  padding: var(--space-2) 20px;
   text-align: left;
 }
 /* The profile card stacks: you, your name under you, Level and Elo side by side, your badges.

@@ -494,7 +494,7 @@ html[data-reduce-motion] .dealt {
   background: currentColor;
   -webkit-mask: var(--rays) 0 0 / 100% 100% no-repeat;
   mask: var(--rays) 0 0 / 100% 100% no-repeat;
-  opacity: 0.14;
+  opacity: var(--rays-opacity);
 }
 
 /* The Back under a wide page's banner (pageBanner.ts): the owner's Deco arrowhead in a seal with
@@ -526,7 +526,7 @@ html[data-reduce-motion] .dealt {
   aspect-ratio: 260 / 130;
   translate: -50% -50%;
   z-index: -1;
-  opacity: 0.14;
+  opacity: var(--rays-opacity);
   pointer-events: none;
 }
 .banner-back-seal svg {

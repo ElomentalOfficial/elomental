@@ -17,24 +17,8 @@
   text-transform: uppercase;
   pointer-events: none;
 }
-/* Phones: the small Setup tile has no free corner, so on beta its cog is a little smaller and
-   sits lower, under the tag. */
-.area-setup:has(> .beta-tag) {
-  justify-content: flex-end;
-}
-.area-setup:has(> .beta-tag) .tile-icon {
-  width: 28px;
-  height: 28px;
-}
 /* Wide Home: the Setup tile is about twice the size, and so is the room in its corner. */
 @media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
-  .area-setup:has(> .beta-tag) {
-    justify-content: center;
-  }
-  .area-setup:has(> .beta-tag) .tile-icon {
-    width: 56px;
-    height: 56px;
-  }
   .area-setup .beta-tag {
     top: var(--space-3);
     right: var(--space-3);

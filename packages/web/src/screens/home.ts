@@ -33,6 +33,28 @@ import { homeCard } from './homeCard.ts';
 import { betaTag } from '../beta.ts';
 import { showAwayNews } from '../awayNews.ts';
 import * as copy from '../copy/en.ts';
+import { rayStamp } from '../rays.ts';
+import casualLetter from '../art/letters/casual.svg';
+import dailyLetter from '../art/letters/daily.svg';
+import forgeLetter from '../art/letters/forge.svg';
+import leaderLetter from '../art/letters/leaderboard.svg';
+import rankedLetter from '../art/letters/ranked.svg';
+import setupLetter from '../art/letters/setup.svg';
+import storeLetter from '../art/letters/store.svg';
+
+/**
+ * Each tile's mark: the owner's Art Deco letter (art/letters, cut from their sheet in
+ * manual_assets) on a sunburst stamp of its own (rays.ts), the seed fixing which stamp.
+ */
+const LETTERS = {
+  casual: { art: casualLetter, seed: 11 },
+  ranked: { art: rankedLetter, seed: 21 },
+  daily: { art: dailyLetter, seed: 31 },
+  forge: { art: forgeLetter, seed: 41 },
+  leader: { art: leaderLetter, seed: 51 },
+  setup: { art: setupLetter, seed: 61 },
+  store: { art: storeLetter, seed: 71 },
+};
 
 /** Layout from the owner's Home frame: Forge and Setup, the profile card, then the mode tiles. */
 export function homeScreen(): Screen {
@@ -46,8 +68,11 @@ export function homeScreen(): Screen {
     then();
   };
 
-  function tile(area: string, icon: string, label: string, onTap: (el: HTMLElement) => void, ...extra: (HTMLElement | null)[]) {
-    const face = h('span', { class: 'tile-face' }, h('span', { class: 'tile-icon', html: icon }), h('span', { class: 'tile-label', text: label }));
+  function tile(area: keyof typeof LETTERS, label: string, onTap: (el: HTMLElement) => void, ...extra: (HTMLElement | null)[]) {
+    const { art, seed } = LETTERS[area];
+    // the tile's name says what it is: the letter and its sunburst are decoration
+    const icon = h('span', { class: 'tile-icon', html: rayStamp(seed, art), attrs: { 'aria-hidden': 'true' } });
+    const face = h('span', { class: 'tile-face' }, icon, h('span', { class: 'tile-label', text: label }));
     const el = h('button', { class: `tile area-${area}` }, face, ...extra);
     el.addEventListener('click', () => onTap(el));
     enableTilt(el);
@@ -76,12 +101,12 @@ export function homeScreen(): Screen {
     paintPurse();
   };
 
-  const daily = tile('daily', ICONS.daily, copy.home.tiles.daily, (el) => leave(el, () => mount(dailyScreen())));
+  const daily = tile('daily', copy.home.tiles.daily, (el) => leave(el, () => mount(dailyScreen())));
   // Forge and Setup share the top row (the owner's Home frame): the Forge in reach without the Profile.
-  const forge = tile('forge', ICONS.forge, copy.home.tiles.forge, (el) => leave(el, () => mount(forgeScreen())));
+  const forge = tile('forge', copy.home.tiles.forge, (el) => leave(el, () => mount(forgeScreen())));
   // Your Stardust and Spirits ride on the Forge tile, where they are spent (owner, 2026-10-22);
   // the tile's name reads them out, so the numbers themselves are hidden from screen readers
-  const purse = h('span', { class: 'forge-purse', attrs: { 'aria-hidden': 'true' } });
+  const purse = h('span', { class: 'tile-purse', attrs: { 'aria-hidden': 'true' } });
   const forgeLabel = forge.querySelector('.tile-label')!;
   const forgeWords = h('span', { class: 'tile-words' });
   forgeLabel.replaceWith(forgeWords);
@@ -101,12 +126,12 @@ export function homeScreen(): Screen {
   // the leaderboard is split off the main script (lazy.ts): fetched ahead, it opens at once
   if (signedIn()) prefetch(() => import('./leaderboard.ts'));
   // The Store stays, so players know it's coming (the owner's call on D1).
-  const store = tile('store', ICONS.store, copy.home.tiles.store, () => toast(copy.home.storeLater));
-  const leader = tile('leader', ICONS.leaderboard, copy.home.tiles.leaderboard, (el) =>
+  const store = tile('store', copy.home.tiles.store, () => toast(copy.home.storeLater));
+  const leader = tile('leader', copy.home.tiles.leaderboard, (el) =>
     signedIn() ? openLazy(() => import('./leaderboard.ts'), (m) => leave(el, () => mount(m.leaderboardScreen()))) : toast(copy.leaderboard.offline));
-  const casual = tile('casual', ICONS.casual, copy.home.tiles.casual, (el) => leave(el, () => mount(casualScreen())));
-  const ranked = tile('ranked', ICONS.ranked, copy.home.tiles.ranked, (el) => openRanked((go) => leave(el, go)));
-  const setup = tile('setup', ICONS.setup, copy.home.tiles.setup, (el) => leave(el, () => mount(setupScreen())), betaTag());
+  const casual = tile('casual', copy.home.tiles.casual, (el) => leave(el, () => mount(casualScreen())));
+  const ranked = tile('ranked', copy.home.tiles.ranked, (el) => openRanked((go) => leave(el, go)));
+  const setup = tile('setup', copy.home.tiles.setup, (el) => leave(el, () => mount(setupScreen())), betaTag());
 
   const tiles = [forge, setup, profileCard, daily, store, leader, casual, ranked];
   const grid = h('div', { class: 'home-grid' }, ...tiles);
