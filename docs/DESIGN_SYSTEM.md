@@ -51,6 +51,15 @@ closed shapes, `aria-hidden`, and clearance from text. Use one per surface.
    hairline diamond that overlaps its neighbours, small diamonds between them as connectors; the
    active item gets a heavier frame. Not built yet.
 
+## Layout grid (wide pages)
+
+The field beside the banner is 12 columns with one gutter (`--grid-columns`, `--grid-gutter` =
+`--space-4`, tokens.css; `.field-grid` in banner.css). An item spans `--span` columns (all 12 by
+default): doors 4 (three across) or 6 (two across, `.two-up`, and at large text), a page's column
+of cards 8. Rows of 2, 3 and 4 share their edges because 12 divides by each. The banner is a
+fixed column outside the grid. Phones stay one column. Moved so far: Setup and its pages; the
+others follow one by one (the old `.door-row` large-text rule goes when the last one moves).
+
 ## Wide pages: Banner and Doors
 
 On wide screens (900+ wide, 600+ tall, aspect at least 5/4) Casual, Leaderboard, Setup and its

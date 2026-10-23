@@ -191,10 +191,11 @@ function setupDoors(): Screen {
         : null,
     ].filter((x): x is HTMLButtonElement => !!x);
   }
-  const row = h('div', { class: 'door-row setup-doors' });
+  // on the layout grid (banner.css): four doors two across, otherwise three
+  const row = h('div', { class: 'door-row field-grid setup-doors' });
   const paint = () => {
     const list = doors();
-    row.style.setProperty('--doors', list.length === 4 ? '2' : '3');
+    row.classList.toggle('two-up', list.length === 4);
     row.replaceChildren(...list);
   };
   paint();

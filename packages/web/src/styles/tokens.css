@@ -76,6 +76,11 @@
   --surface-2: var(--c-highlight-2);
   --tile: var(--c-highlight);
   --tile-text: var(--c-bright);
+  /* The wide pages' layout grid (banner.css): the field beside the banner is 12 columns with one
+     gutter, so rows of 2, 3 and 4 cards share their edges; an item spans --span columns. The
+     gutter is the card-to-card step. */
+  --grid-columns: 12;
+  --grid-gutter: var(--space-4);
   /* Hairline ornaments, one intensity and one wear everywhere (owner): the Home tiles' frames, the
      banner's side lines, the Forge purse's rules. Drawn in their surface's ink at this opacity, worn
      by the tiles' own dash pattern (icons/build_frames.py: 11 1.6 7 1.2 16 2 9 1.4), as a mask that

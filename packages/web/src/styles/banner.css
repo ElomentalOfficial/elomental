@@ -302,13 +302,41 @@
     grid-template-columns: repeat(var(--doors, 3), minmax(0, 1fr));
     gap: var(--space-4);
   }
-  html[data-large-text] .door-row {
+  /* (rows not yet on the layout grid; goes when every page has moved) */
+  html[data-large-text] .door-row:not(.field-grid) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-  /* Setup's own pages read as one column beside the banner, not a line the field's width */
+  /* The layout grid (tokens.css --grid-columns, --grid-gutter): a page's field, or a row in it, on
+     12 columns; each item spans --span of them (all 12 unless it says). Pages move onto it one
+     by one: Setup and its pages so far. */
+  .field-grid,
+  .screen.setup.has-banner > .sub-body {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+    gap: var(--grid-gutter);
+    align-content: start;
+  }
+  :is(.field-grid, .screen.setup.has-banner > .sub-body) > * {
+    grid-column: span var(--span, var(--grid-columns));
+  }
+  /* Setup's pages: their cards read as a column two-thirds of the field (8 of 12), ending on the
+     second door's edge; the whole field at large text. Setup itself: its doors fill the height. */
   .screen.setup.has-banner > .sub-body > :not(.setup-doors) {
-    width: 100%;
-    max-width: calc(720px * var(--text-scale));
+    --span: 8;
+  }
+  html[data-large-text] .screen.setup.has-banner > .sub-body > * {
+    --span: 12;
+  }
+  .screen.setup.has-banner > .sub-body:has(> .setup-doors) {
+    align-content: stretch;
+  }
+  /* a row of doors on the grid: three across (4 columns each), two across when it says so or at
+     large text */
+  .door-row.field-grid > .door {
+    --span: 4;
+  }
+  :is(.door-row.field-grid.two-up, html[data-large-text] .door-row.field-grid) > .door {
+    --span: 6;
   }
 }
 
