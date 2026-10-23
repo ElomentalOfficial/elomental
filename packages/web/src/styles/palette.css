@@ -203,7 +203,7 @@
    *   edge  the 1px rim of every filled tag, chip, segment and disc: the same rule for all of
    *         them (none on dark, a deeper shade of the hue on light), so a set never mixes rims
    *   deep  a ground for art drawn on it (a crest disc): the hue at its darkest (900) on dark,
-   *         700 on light
+   *         its 700 half greyed by sand 500 on light
    * Always shown with the name or the crest, never colour alone.
    */
   --el-fire-fill: var(--c-lava-500);
@@ -264,7 +264,7 @@
   --el-air-wash: rgba(82, 109, 119, 0.18);
   --el-air-mark: var(--el-air-fill);
   --el-air-edge: var(--el-air-fill);
-  --el-air-deep: var(--c-stone-900);
+  --el-air-deep: var(--c-stone-700);
   --r-common-ink: var(--c-iron-300);
   --r-common-line: var(--c-iron-400);
   --r-common-wash: rgba(109, 104, 97, 0.18);
@@ -352,67 +352,67 @@
   --el-fire-wash: rgba(168, 91, 55, 0.14);
   --el-fire-mark: var(--el-fire-fill);
   --el-fire-edge: var(--c-lava-600);
-  --el-fire-deep: var(--c-lava-700);
+  --el-fire-deep: color-mix(in oklab, var(--c-lava-700) 50%, var(--c-sand-500));
   --el-water-ink: var(--c-tide-600);
   --el-water-line: var(--c-tide-500);
   --el-water-wash: rgba(46, 111, 140, 0.14);
   --el-water-mark: var(--c-tide-500);
   --el-water-edge: var(--c-tide-600);
-  --el-water-deep: var(--c-tide-700);
+  --el-water-deep: color-mix(in oklab, var(--c-tide-700) 50%, var(--c-sand-500));
   --el-earth-ink: var(--c-forest-600);
   --el-earth-line: var(--c-forest-500);
   --el-earth-wash: rgba(99, 105, 69, 0.14);
   --el-earth-mark: var(--el-earth-fill);
   --el-earth-edge: var(--c-forest-600);
-  --el-earth-deep: var(--c-forest-700);
+  --el-earth-deep: color-mix(in oklab, var(--c-forest-700) 50%, var(--c-sand-500));
   --el-air-ink: var(--c-mist-600);
   --el-air-line: var(--c-mist-600);
   --el-air-wash: rgba(82, 109, 119, 0.14);
   --el-air-mark: var(--c-mist-600);
   --el-air-edge: var(--c-mist-600);
-  --el-air-deep: var(--c-stone-700);
+  --el-air-deep: var(--c-stone-500);
   --r-common-ink: var(--c-iron-600);
   --r-common-line: var(--c-iron-500);
   --r-common-wash: rgba(109, 104, 97, 0.14);
   --r-common-mark: var(--r-common-fill);
   --r-common-edge: var(--c-iron-600);
-  --r-common-deep: var(--c-iron-700);
+  --r-common-deep: color-mix(in oklab, var(--c-iron-700) 50%, var(--c-sand-500));
   --r-rare-ink: var(--c-azure-600);
   --r-rare-line: var(--c-azure-500);
   --r-rare-wash: rgba(74, 111, 149, 0.14);
   --r-rare-mark: var(--r-rare-fill);
   --r-rare-edge: var(--c-azure-600);
-  --r-rare-deep: var(--c-azure-700);
+  --r-rare-deep: color-mix(in oklab, var(--c-azure-700) 50%, var(--c-sand-500));
   --r-epic-ink: var(--c-amethyst-600);
   --r-epic-line: var(--c-amethyst-500);
   --r-epic-wash: rgba(111, 75, 129, 0.14);
   --r-epic-mark: var(--r-epic-fill);
   --r-epic-edge: var(--c-amethyst-600);
-  --r-epic-deep: var(--c-amethyst-700);
+  --r-epic-deep: color-mix(in oklab, var(--c-amethyst-700) 50%, var(--c-sand-500));
   --r-mythic-ink: var(--c-flame-600);
   --r-mythic-line: var(--c-flame-500);
   --r-mythic-wash: rgba(174, 73, 45, 0.14);
   --r-mythic-mark: var(--c-flame-500);
   --r-mythic-edge: var(--c-flame-600);
-  --r-mythic-deep: var(--c-flame-700);
+  --r-mythic-deep: color-mix(in oklab, var(--c-flame-700) 50%, var(--c-sand-500));
   --tone-lava-ink: var(--c-lava-600);
   --tone-lava-line: var(--c-lava-500);
   --tone-lava-wash: rgba(168, 91, 55, 0.14);
   --tone-lava-mark: var(--tone-lava-fill);
   --tone-lava-edge: var(--c-lava-600);
-  --tone-lava-deep: var(--c-lava-700);
+  --tone-lava-deep: color-mix(in oklab, var(--c-lava-700) 50%, var(--c-sand-500));
   --tone-forest-ink: var(--c-forest-600);
   --tone-forest-line: var(--c-forest-500);
   --tone-forest-wash: rgba(99, 105, 69, 0.14);
   --tone-forest-mark: var(--tone-forest-fill);
   --tone-forest-edge: var(--c-forest-600);
-  --tone-forest-deep: var(--c-forest-700);
+  --tone-forest-deep: color-mix(in oklab, var(--c-forest-700) 50%, var(--c-sand-500));
   --tone-crimson-ink: var(--c-crimson-600);
   --tone-crimson-line: var(--c-crimson-500);
   --tone-crimson-wash: rgba(148, 88, 86, 0.14);
   --tone-crimson-mark: var(--tone-crimson-fill);
   --tone-crimson-edge: var(--c-crimson-700);
-  --tone-crimson-deep: var(--c-crimson-700);
+  --tone-crimson-deep: color-mix(in oklab, var(--c-crimson-700) 50%, var(--c-sand-500));
   /* name plates */
   --medal-bronze: var(--c-bronze-500);
   --medal-bronze-chosen: var(--c-bronze-600);
