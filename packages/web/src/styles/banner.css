@@ -228,11 +228,6 @@
     --rays-w: 92%;
     --rays-h: var(--hero);
   }
-  /* a page's own hero icon (art/screens): drawn whole, as large as the slot allows */
-  .banner-hero {
-    display: block;
-    object-fit: contain;
-  }
   /* The slot sizes whatever art a page hands it (pageBanner.ts): a square the hero's height, or most
      of the cloth's width for a wide one; the art draws itself whole inside. Pages pass their art
      without banner sizing of their own. (.page-banner gives this the weight of two classes, so a

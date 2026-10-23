@@ -54,11 +54,6 @@
   --rays-w: calc(100% + var(--space-4));
   --rays-h: 200%;
 }
-.forge-avatar {
-  display: block;
-  width: 112px;
-  height: 112px;
-}
 .forge-balances {
   display: flex;
   flex-direction: column;
@@ -270,8 +265,7 @@ html[data-large-text] .part-grid:not(.field-grid) {
   background: var(--chosen-bg);
 }
 /* not yet yours: a dim silhouette */
-.part-card.state-needs .part-art,
-.part-card.state-starter .part-art {
+.part-card.state-needs .part-art {
   opacity: 0.4;
   filter: grayscale(0.6);
 }
@@ -581,9 +575,7 @@ html[data-large-text] .part-grid:not(.field-grid) {
   height: 100%;
 }
 .drop-note,
-.drop-pity,
-.influence-line,
-.part-progress {
+.influence-line {
   font-family: var(--serif);
   font-size: var(--fs-small);
   color: var(--muted);
@@ -596,28 +588,11 @@ html[data-large-text] .part-grid:not(.field-grid) {
   align-self: center;
   font-size: var(--fs-small);
 }
-.influence-line,
-.part-progress {
+.influence-line {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-}
-/* Toward the next part: three steps, filled as squares are solved. */
-.part-steps {
-  display: inline-flex;
-  gap: 4px;
-}
-.part-steps i {
-  width: 18px;
-  height: 6px;
-  border-radius: 3px;
-  background: var(--surface-2);
-  box-shadow: inset 0 0 0 1px var(--line);
-}
-.part-steps i.done {
-  background: var(--accent);
-  box-shadow: none;
 }
 html[data-reduce-motion] .part-reveal,
 html[data-reduce-motion] .part-reveal * {
@@ -688,11 +663,7 @@ html[data-reduce-motion] .part-reveal * {
     align-items: center;
     gap: var(--space-3);
   }
-  .forge-purse-foot .forge-avatar {
-    width: 104px;
-    height: 104px;
-  }
-  /* on the banner: the bands across the cloth, a little in from its edges, your side under them */
+  /* on the banner: the purse across the cloth, a little in from its edges */
   .forge-purse-foot .forge-balances {
     align-self: stretch;
     align-items: center;

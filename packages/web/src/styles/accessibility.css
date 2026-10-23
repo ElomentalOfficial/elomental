@@ -248,9 +248,6 @@ html[data-large-text] .forge-hero-col > .spin {
   width: min(100%, 260px);
   --rays-h: calc(100% + var(--space-5));
 }
-html[data-large-text] .forge-avatar {
-  justify-self: center;
-}
 html[data-large-text] .life-cost-short {
   white-space: normal;
   text-align: center;

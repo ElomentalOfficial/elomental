@@ -262,9 +262,6 @@ html[data-reduce-motion] .sword-live .sword-flame {
   text-align: right;
   color: var(--accent-text);
 }
-.stat .stat-sub.muted {
-  color: var(--muted);
-}
 /* a cut (slow solve, hints) is said plainly, not in the reward colour */
 .stat .stat-sub.plain {
   color: var(--text);
