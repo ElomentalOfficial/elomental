@@ -177,8 +177,8 @@
   height: auto;
   margin: 0;
 }
-/* Your faction's coin on the avatar's ring, low on its right (owner): its sign on the darkest
-   disc, rimmed in the crests' gold */
+/* Your faction's coin on the avatar's ring, low on its right (owner): its sign on a disc of its
+   own hue, rimmed in the crests' gold */
 .pc-faction {
   position: absolute;
   right: 0;
@@ -187,10 +187,15 @@
   aspect-ratio: 1;
   padding: 5%;
   border-radius: 50%;
-  background: var(--medal-fill);
+  background: var(--coin);
   box-shadow: 0 0 0 2px var(--crest-ring);
   pointer-events: none;
 }
+/* the coin's ground in its faction's hue: dark on dark, bright on light (palette.css coin; owner) */
+.pc-faction.el-fire { --coin: var(--el-fire-coin); }
+.pc-faction.el-water { --coin: var(--el-water-coin); }
+.pc-faction.el-earth { --coin: var(--el-earth-coin); }
+.pc-faction.el-air { --coin: var(--el-air-coin); }
 /* Your name (its plate shows on the Profile, not here), your title and rank under it, from the
    avatar's side. */
 .pc-name {

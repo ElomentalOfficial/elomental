@@ -134,6 +134,7 @@ export function homeCard(): HomeCard {
     coin.hidden = !side;
     if (side) {
       coin.src = emblemUrl(side);
+      coin.className = `pc-faction el-${side}`;
       coin.alt = copy.home.card.faction(copy.forge.elements[side]);
     }
     // your three chosen badges (Profile > Badges), or your newest until you choose
