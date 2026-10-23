@@ -230,7 +230,7 @@
   inset: 0;
   z-index: 0;
   color: var(--frame-line);
-  opacity: 0.065;
+  opacity: var(--ornament-opacity);
   pointer-events: none;
 }
 .pc-walls svg {
@@ -419,7 +419,7 @@
 .profile-card::after,
 .door::after {
   --corner: calc(var(--frame-corner, 30px) * var(--frame-zoom, 1));
-  opacity: 0.065;
+  opacity: var(--ornament-opacity);
 }
 .profile-card { --frame-corner: 44px; }
 .area-setup { --frame-corner: 24px; }

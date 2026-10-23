@@ -145,19 +145,20 @@
     opacity: 0.065;
     pointer-events: none;
   }
-  /* a worn hairline down each side of the cloth, a little in from its torn edges, in its ink
-     (pageBanner.ts --worn-v: specks taken out now and then); the cloth's outline cuts them at the tail */
+  /* a hairline down each side of the cloth, a little in from its torn edges, as the Home tiles'
+     frames draw theirs: the cloth's ink, the ornaments' opacity and wear (tokens.css); the cloth's
+     outline cuts them at the tail */
   .page-banner::after {
     content: '';
     position: absolute;
     inset: 0 var(--space-3);
     pointer-events: none;
     background:
-      linear-gradient(currentColor 0 0) left / 1px 100% no-repeat,
-      linear-gradient(currentColor 0 0) right / 1px 100% no-repeat;
-    -webkit-mask: var(--worn-v) 0 0 / 12px 96px repeat;
-    mask: var(--worn-v) 0 0 / 12px 96px repeat;
-    opacity: 0.4;
+      linear-gradient(currentColor 0 0) left / 1.3px 100% no-repeat,
+      linear-gradient(currentColor 0 0) right / 1.3px 100% no-repeat;
+    -webkit-mask: var(--ornament-wear-y);
+    mask: var(--ornament-wear-y);
+    opacity: var(--ornament-opacity);
   }
 
   /* Back at the top corner, the title under it */

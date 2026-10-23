@@ -8,10 +8,6 @@ import { withRays } from './rays.ts';
 const RIBBON_MASK = `url("data:image/svg+xml,${encodeURIComponent(
   `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${RIBBON_BOX.x} 0 ${RIBBON_BOX.width} ${RIBBON_BOX.height}" preserveAspectRatio="none"><path d="${RIBBON_PATH}"/></svg>`,
 )}")`;
-/** The cloth's side lines' wear (banner.css): specks taken out now and then, along their length. */
-const WORN_V = `url("data:image/svg+xml,${encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="96"><filter id="n" x="0" y="0" width="1" height="1"><feTurbulence type="fractalNoise" baseFrequency="0.6 0.3" numOctaves="2" seed="11" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  7 0 0 0 -2.1"/></filter><rect width="12" height="96" filter="url(#n)"/></svg>',
-)}")`;
 /** The torn tail's share of the ribbon's length: its notches reach up to 630 of 740 units. */
 const TAIL = (RIBBON_BOX.height - 630) / RIBBON_BOX.height;
 /** The clear space between the last line on the cloth and the tail's highest spike (px): the
@@ -39,7 +35,6 @@ export function pageBanner(header: HTMLElement, banner: Banner, onBack: () => vo
   );
   const el = h('div', { class: 'page-banner' }, inner);
   el.style.setProperty('--ribbon', RIBBON_MASK);
-  el.style.setProperty('--worn-v', WORN_V);
   // room for the tail under the contents, however tall they grow (a foot that loads later, Text size)
   const fit = () => {
     const style = getComputedStyle(el);

@@ -21,6 +21,12 @@ reuse. Read it before designing or restyling anything.
 - **It's a game, not a dashboard.** The owner rejected app/dashboard looks; screens should feel
   like the forge and the four elements.
 
+## Hairline intensity
+
+Every hairline ornament has one intensity and one wear, the Home tiles' frames': drawn in its
+surface's ink (Bright on dark, Crimson on light, the cloth's ink on a banner) at `--ornament-opacity` (6.5%), worn by the tiles' dash pattern (`--ornament-wear-x` / `-y`,
+tokens.css). The tile frames, the banner's side lines and the Forge purse's rules all use them.
+
 ## Background ornaments
 
 Three faint hairline backgrounds, reused behind icons, titles and rows of controls. All three
@@ -64,9 +70,8 @@ pages, Forge, Profile and Daily are "Banner and Doors".
   `--space-5` step under the art. The page's title is the display size and a half.
 - **The purse** (Forge, `balance`, `FLOURISH` and `WORN` in forge.ts, forge.css), from the owner's
   sketch: no band or box. Each value between two rules on the owner's reference border: a thin
-  gold line like the anvil's stroke (pale in the middle, deeper toward the ends, `--purse-rule-*`),
-  fading near its ends, broken around a small hollow diamond with a smaller one inside, worn only
-  now and then, at 70% so the words lead. Only the words take colour, in a
+  line at the tile frames' intensity (see Hairline intensity), fading near its ends, broken around a
+  small hollow diamond with a smaller one inside. Only the words take colour, in a
   soft top-to-bottom gradient: Stardust a warm gold, Spirits a red (`--purse-gold-*`,
   `--purse-red-*` in tokens.css, both ends 4.5:1 on a tile and on a card). No icons, no faction
   line. (Rejected: framed bands with sundial corners, "ugly"; fading colour bands.)

@@ -44,7 +44,6 @@ const balance = (kind: 'stardust' | 'spirit', n: number, what: string) => {
   const rule = () => h('span', { class: 'purse-rule', attrs: { 'aria-hidden': 'true' } });
   const el = h('span', { class: `balance balance-${kind}` }, rule(), h('strong', { text: copy.formatNumber(n) }), h('span', { text: what }), rule());
   el.style.setProperty('--flourish', FLOURISH);
-  el.style.setProperty('--worn', WORN);
   return el;
 };
 /**
@@ -54,10 +53,6 @@ const balance = (kind: 'stardust' | 'spirit', n: number, what: string) => {
  */
 const FLOURISH = `url("data:image/svg+xml,${encodeURIComponent(
   '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 12"><path d="M12 1.2L19.5 6L12 10.8L4.5 6Z" fill="none" stroke="#000" stroke-width="0.9"/><path d="M12 4.4L14.5 6L12 7.6L9.5 6Z"/></svg>',
-)}")`;
-/** The rules' wear: now and then a speck taken out (fractal noise, tiled, mostly solid), as a mask. */
-const WORN = `url("data:image/svg+xml,${encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="12"><filter id="n" x="0" y="0" width="1" height="1"><feTurbulence type="fractalNoise" baseFrequency="0.35 0.6" numOctaves="2" seed="7" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  9 0 0 0 -2.6"/></filter><rect width="64" height="12" filter="url(#n)"/></svg>',
 )}")`;
 /** A frame's marks: three small diamonds, earned ones filled (the words say it too). */
 const markPips = (n: number) => h('span', { class: 'mark-pips', attrs: { 'aria-hidden': 'true' } },
