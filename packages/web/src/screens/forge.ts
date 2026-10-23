@@ -39,29 +39,26 @@ const forgeable = (s: State) => s === 'ready' || s === 'needs' || s === 'bluepri
 const kind = (p: Part) => (p.element ? `${copy.forge.elements[p.element]} · ${copy.forge.slots[p.slot]}` : copy.forge.slots[p.slot]);
 const order = (p: Part) => (p.element ? ELEMENTS.indexOf(p.element) : 0);
 const rarityTag = (r: Rarity) => h('span', { class: `rarity-tag rarity-${r}`, text: rarityName(r) });
-/** A balance on its band: the number, then what it counts. */
-const balance = (r: Rarity, n: number, what: string) => {
-  const el = h('span', { class: `balance rarity-${r}` }, h('strong', { text: copy.formatNumber(n) }), h('span', { text: what }));
-  for (const [corner, mask] of Object.entries(PURSE_FANS)) el.style.setProperty(`--fan-${corner}`, mask);
+/** A balance between its two rules (forge.css): the number, then what it counts. */
+const balance = (kind: 'stardust' | 'spirit', n: number, what: string) => {
+  const rule = () => h('span', { class: 'purse-rule', attrs: { 'aria-hidden': 'true' } });
+  const el = h('span', { class: `balance balance-${kind}` }, rule(), h('strong', { text: copy.formatNumber(n) }), h('span', { text: what }), rule());
+  el.style.setProperty('--flourish', FLOURISH);
+  el.style.setProperty('--worn', WORN);
   return el;
 };
 /**
- * A band's frame (forge.css): the tiles' corner (art/frames, icons/build_frames.py) without its
- * side line, so the band is framed above and below and open at its ends: in each corner the
- * sundial fan (two arcs and their rungs, worn like the tiles' lines), a stud inside it, and the
- * top or bottom line running out of it. Drawn on the tiles' 40-unit corner, as masks in each turn.
+ * The ornament at the middle of each rule, the owner's reference border: a small hollow diamond
+ * sitting on the line (the line breaks around it), a smaller one nested inside it. A mask in the
+ * rule's colour, 24 × 12 units.
  */
-const PURSE_FANS = (() => {
-  const rungs = Array.from({ length: 11 }, (_, i) => {
-    const a = ((i + 0.5) * Math.PI) / 22;
-    const at = (r: number) => `${(5 + r * Math.cos(a)).toFixed(2)} ${(5 + r * Math.sin(a)).toFixed(2)}`;
-    return `M${at(22)}L${at(30)}`;
-  }).join('');
-  const corner = `<path fill="none" stroke="#000" stroke-width="1.3" stroke-dasharray="11 1.6 7 1.2 16 2 9 1.4" d="M27 5A22 22 0 0 1 5 27M35 5A30 30 0 0 1 5 35${rungs}M5 5L40 5"/><circle cx="14" cy="14" r="2"/>`;
-  const turned = (t: string) =>
-    `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><g transform="${t}">${corner}</g></svg>`)}")`;
-  return { tl: turned(''), tr: turned('matrix(-1 0 0 1 40 0)'), bl: turned('matrix(1 0 0 -1 0 40)'), br: turned('matrix(-1 0 0 -1 40 40)') };
-})();
+const FLOURISH = `url("data:image/svg+xml,${encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 12"><path d="M12 1.2L19.5 6L12 10.8L4.5 6Z" fill="none" stroke="#000" stroke-width="1.3"/><path d="M12 4.2L14.8 6L12 7.8L9.2 6Z"/></svg>',
+)}")`;
+/** The rules' wear: now and then a speck taken out (fractal noise, tiled, mostly solid), as a mask. */
+const WORN = `url("data:image/svg+xml,${encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="12"><filter id="n" x="0" y="0" width="1" height="1"><feTurbulence type="fractalNoise" baseFrequency="0.35 0.6" numOctaves="2" seed="7" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  9 0 0 0 -2.6"/></filter><rect width="64" height="12" filter="url(#n)"/></svg>',
+)}")`;
 /** A frame's marks: three small diamonds, earned ones filled (the words say it too). */
 const markPips = (n: number) => h('span', { class: 'mark-pips', attrs: { 'aria-hidden': 'true' } },
   ...Array.from({ length: MAX_MARKS }, (_, i) => h('span', { class: `mark-pip${i < n ? ' on' : ''}` })));
@@ -97,10 +94,10 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
     }
     const f = forge;
     const craftable = f.parts.filter((p) => p.source === 'craft');
-    // your purse: each on a framed band in a rarity's muted colour (forge.css), Stardust epic's
-    // purple-grey, Spirits mythic's red; the words say what each is
-    const stardust = balance('epic', f.stardust, copy.common.stardust);
-    const spirits = balance('mythic', f.spirits, copy.common.spiritsLabel(f.spirits));
+    // your purse: each between two worn gold rules, its words in its own colour (forge.css),
+    // Stardust a warm gold, Spirits a red; the words say what each is
+    const stardust = balance('stardust', f.stardust, copy.common.stardust);
+    const spirits = balance('spirit', f.spirits, copy.common.spiritsLabel(f.spirits));
     const odds = h('button', { class: 'link-btn', text: copy.forge.oddsButton, attrs: { type: 'button' }, onclick: () => openOdds() });
     if (wide) {
       // you and your purse on the banner; how parts come and the Spirits side by side, then the parts

@@ -43,67 +43,86 @@
   font-size: var(--fs-small);
   color: var(--muted);
 }
-/* Your purse (forge.ts balance): each balance on a band of its rarity's deep shade (muted, both the
-   same depth: Stardust epic, Spirits mythic) in a frame of the tiles' family, closed above and below
-   and open at its ends: a sundial fan in each corner and the top and bottom lines between them
-   (forge.ts PURSE_FANS), in the band's Bright, faint. The number and its name sit clear of the fans.
-   The two bands a small step apart, one set. */
+/* Your purse (forge.ts balance), as the owner's sketch: no band, each value between two fine gold
+   rules, like the stroke on the anvil (pale in the middle, deeper toward the ends, worn with a fine
+   grain of specks), fading out at both ends, a small diamond flourish at each rule's middle
+   (forge.ts FLOURISH and WORN; the seal and diamond rails pared down). Only the words take colour,
+   in a soft top-to-bottom gradient: Stardust a warm gold, Spirits a red (tokens.css --purse-*, both
+   ends 4.5:1 on a tile and on a card). The two a clear step apart, one set. */
 .forge-purse {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  align-items: center;
+  gap: var(--space-3);
 }
 .balance {
-  /* the corner's size, and its unit (the tiles' 40-unit corner) */
-  --c: calc(var(--fs-body) * 1.6);
-  --k: calc(var(--c) / 40);
-  position: relative;
+  /* the rules a whole row each, above and below; the number and its name between them, the name
+     wrapping under the number when they don't fit side by side (large text) */
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  align-content: center;
   justify-content: center;
+  align-items: baseline;
   column-gap: var(--space-2);
-  width: 100%;
-  min-height: calc(var(--c) * 2.1);
-  padding: var(--space-2) calc(var(--c) + var(--space-2));
-  /* open at its ends: the colour fades out under the fans, the words on the solid middle */
-  background: linear-gradient(90deg, transparent, var(--rc-deep) var(--c), var(--rc-deep) calc(100% - var(--c)), transparent);
-  color: var(--c-bright);
+  row-gap: var(--space-1);
+  width: min(100%, calc(var(--fs-label) * 12));
   font-family: var(--serif);
   font-weight: 400;
+  font-size: var(--fs-label);
   text-align: center;
 }
-.balance::after {
-  --lw: calc(1.3 * var(--k));
-  --y: calc(5 * var(--k) - var(--lw) / 2);
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: currentColor;
-  opacity: 0.32;
-  -webkit-mask:
-    var(--fan-tl) left top / var(--c) var(--c) no-repeat,
-    var(--fan-tr) right top / var(--c) var(--c) no-repeat,
-    var(--fan-bl) left bottom / var(--c) var(--c) no-repeat,
-    var(--fan-br) right bottom / var(--c) var(--c) no-repeat,
-    linear-gradient(#000 0 0) left var(--c) top var(--y) / calc(100% - 2 * var(--c)) var(--lw) no-repeat,
-    linear-gradient(#000 0 0) left var(--c) bottom var(--y) / calc(100% - 2 * var(--c)) var(--lw) no-repeat;
-  mask:
-    var(--fan-tl) left top / var(--c) var(--c) no-repeat,
-    var(--fan-tr) right top / var(--c) var(--c) no-repeat,
-    var(--fan-bl) left bottom / var(--c) var(--c) no-repeat,
-    var(--fan-br) right bottom / var(--c) var(--c) no-repeat,
-    linear-gradient(#000 0 0) left var(--c) top var(--y) / calc(100% - 2 * var(--c)) var(--lw) no-repeat,
-    linear-gradient(#000 0 0) left var(--c) bottom var(--y) / calc(100% - 2 * var(--c)) var(--lw) no-repeat;
+.balance-stardust {
+  --hi: var(--purse-gold-hi);
+  --lo: var(--purse-gold-lo);
+}
+.balance-spirit {
+  --hi: var(--purse-red-hi);
+  --lo: var(--purse-red-lo);
+}
+.balance > strong,
+.balance > span:not(.purse-rule) {
+  color: var(--lo);
+  background: linear-gradient(var(--hi) 30%, var(--lo) 85%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 .balance strong {
   font-weight: 400;
-  font-size: var(--fs-label);
 }
-.balance span {
-  font-size: var(--fs-body);
+.balance > span:not(.purse-rule) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+/* A rule, a whole row: its outer layer wears the grain (the worn mask), its inner one draws the gold
+   line and the flourish, so the grain takes specks out of the drawn parts only */
+.purse-rule {
+  flex: 0 0 100%;
+  height: 12px;
+  /* quiet: the words lead, the rules only hold them */
+  opacity: 0.7;
+  -webkit-mask: var(--worn) 0 0 / 64px 12px repeat;
+  mask: var(--worn) 0 0 / 64px 12px repeat;
+}
+.purse-rule::before {
+  content: '';
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--purse-rule-lo), var(--purse-rule-hi), var(--purse-rule-lo));
+  -webkit-mask:
+    var(--flourish) center / 20px 10px no-repeat,
+    linear-gradient(90deg, transparent, #000 15%, #000 calc(50% - 6px), transparent calc(50% - 6px) calc(50% + 6px), #000 calc(50% + 6px), #000 85%, transparent) center / 100% 1px no-repeat;
+  mask:
+    var(--flourish) center / 20px 10px no-repeat,
+    linear-gradient(90deg, transparent, #000 15%, #000 calc(50% - 6px), transparent calc(50% - 6px) calc(50% + 6px), #000 calc(50% + 6px), #000 85%, transparent) center / 100% 1px no-repeat;
+}
+/* (forced colours: the system's text, no painted gradient) */
+@media (forced-colors: active) {
+  .balance > strong,
+  .balance > span:not(.purse-rule) {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    color: CanvasText;
+  }
 }
 .forge-heading {
   margin-top: var(--space-3);
@@ -241,10 +260,10 @@ html[data-large-text] .part-grid {
   letter-spacing: 0.03em;
   white-space: nowrap;
 }
-.rarity-common { --rc: var(--r-common-fill); --rc-on: var(--r-common-on); --rc-edge: var(--r-common-edge); --rc-line: var(--r-common-line); --rc-deep: var(--r-common-deep); }
-.rarity-rare { --rc: var(--r-rare-fill); --rc-on: var(--r-rare-on); --rc-edge: var(--r-rare-edge); --rc-line: var(--r-rare-line); --rc-deep: var(--r-rare-deep); }
-.rarity-epic { --rc: var(--r-epic-fill); --rc-on: var(--r-epic-on); --rc-edge: var(--r-epic-edge); --rc-line: var(--r-epic-line); --rc-deep: var(--r-epic-deep); }
-.rarity-mythic { --rc: var(--r-mythic-fill); --rc-on: var(--r-mythic-on); --rc-edge: var(--r-mythic-edge); --rc-line: var(--r-mythic-line); --rc-deep: var(--r-mythic-deep); }
+.rarity-common { --rc: var(--r-common-fill); --rc-on: var(--r-common-on); --rc-edge: var(--r-common-edge); --rc-line: var(--r-common-line); }
+.rarity-rare { --rc: var(--r-rare-fill); --rc-on: var(--r-rare-on); --rc-edge: var(--r-rare-edge); --rc-line: var(--r-rare-line); }
+.rarity-epic { --rc: var(--r-epic-fill); --rc-on: var(--r-epic-on); --rc-edge: var(--r-epic-edge); --rc-line: var(--r-epic-line); }
+.rarity-mythic { --rc: var(--r-mythic-fill); --rc-on: var(--r-mythic-on); --rc-edge: var(--r-mythic-edge); --rc-line: var(--r-mythic-line); }
 .part-sheet {
   text-align: center;
 }
@@ -661,6 +680,10 @@ html[data-reduce-motion] .part-reveal * {
   }
   .forge-purse-foot .forge-purse {
     align-self: stretch;
+  }
+  /* on the banner, the purse a step larger: the page's one figure */
+  .forge-purse-foot .balance {
+    font-size: var(--fs-title);
   }
   .forge-top {
     align-items: stretch;

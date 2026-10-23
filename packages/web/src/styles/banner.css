@@ -36,22 +36,24 @@
     display: flex;
     flex-direction: column;
     padding: max(var(--space-5), env(safe-area-inset-top)) var(--space-5) 120px;
-    background: var(--accent);
-    color: var(--on-accent);
+    /* the cloth (tokens.css --cloth): a deep forest on dark, the Home tiles' colour on light (owner,
+       for contrast: the accent cloth left coloured text too little room) */
+    background: var(--cloth);
+    color: var(--cloth-ink);
     -webkit-mask: var(--ribbon) 0 0 / 100% 100% no-repeat;
     mask: var(--ribbon) 0 0 / 100% 100% no-repeat;
     text-align: center;
     overflow: hidden;
-    /* Everything on the cloth is in its ink: the page's colours are for the page (the accent, a
-       crimson focus ring and the rank metals would vanish or clash on it) */
+    /* Everything on the cloth is in its ink: the page's colours are for the page (a crimson focus
+       ring and the rank metals would vanish or clash on it) */
     --focus: currentColor;
-    --text: var(--on-accent);
-    --muted: var(--on-accent);
-    --accent-text: var(--on-accent);
-    --xp-fill: var(--on-accent);
-    --level-ink: var(--on-accent);
-    --primary-bg: var(--on-accent);
-    --primary-text: var(--accent);
+    --text: var(--cloth-ink);
+    --muted: var(--cloth-ink);
+    --accent-text: var(--cloth-ink);
+    --xp-fill: var(--cloth-ink);
+    --level-ink: var(--cloth-ink);
+    --primary-bg: var(--cloth-ink);
+    --primary-text: var(--cloth);
   }
   /* the banner's column: the ribbon, then the Back under its tail in the space left below */
   .banner-col {
@@ -109,13 +111,7 @@
   .screen.has-banner .page-banner {
     animation: banner-drop 0.32s cubic-bezier(0.1, 0.9, 0.2, 1) 0.3s both;
   }
-  /* the Home art drawn for the dark grey tiles, in both themes: the cloth is always deep */
-  :root[data-theme] .page-banner .ic-light {
-    display: none;
-  }
-  :root[data-theme] .page-banner .ic-dark {
-    display: block;
-  }
+  /* (the cloth is a tile now: the Home art for each theme's tiles, as on Home) */
   /* a rank or a plate on the cloth: in its ink (its metal shows in the field and on Home) */
   .page-banner .rank-name {
     color: currentColor;

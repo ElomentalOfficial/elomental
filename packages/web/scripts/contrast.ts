@@ -45,12 +45,18 @@ export const PAIRS: Pair[] = [
   ['Casual tile label (Bright on Forest)', '--c-bright', '--c-forest', 4.5],
   ['Ranked tile label (Bright on Lava)', '--c-bright', '--c-lava', 4.5],
   // Wide pages (banner.css): the banner is the splash ribbon in the accent, everything on it in its ink
-  ['Text on a banner (its ink)', '--on-accent', '--accent', 4.5],
-  ['Button on a banner (the accent on its ink)', '--accent', '--on-accent', 4.5],
+  ['Text on a banner (its cloth and ink)', '--cloth-ink', '--cloth', 4.5],
+  ['Button on a banner (the cloth on its ink)', '--cloth', '--cloth-ink', 4.5],
+  // The Forge purse (forge.css): its words in a gradient, both ends checked, on the banner (a tile's
+  // colour) and on the phone's Forge card
+  ...(['gold', 'red'] as const).flatMap((c) => (['hi', 'lo'] as const).flatMap((e) => [
+    [`Purse ${c} text (${e}) on a banner`, `--purse-${c}-${e}`, '--cloth', 4.5] as Pair,
+    [`Purse ${c} text (${e}) on a card`, `--purse-${c}-${e}`, '--surface', 4.5] as Pair,
+  ])),
   ['Privacy door eye (inked disc)', '--surface', '--text', 3],
   ['Podium step number', '--text', '--surface-2', 4.5],
   ['Podium step of your own place', '--text', '--chosen-bg', 4.5, '--surface'],
-  ['UI: focus ring and bars on a banner (its ink)', '--on-accent', '--accent', 3],
+  ['UI: focus ring and bars on a banner (its ink)', '--cloth-ink', '--cloth', 3],
   // Rarities, elements and Home tones: every role of each on every surface, below (SWATCHES)
   ['Chosen card text (wearing, your plate)', '--text', '--chosen-bg', 4.5, '--surface'],
   // Name plates: every metal on every surface a plate sits on, below (PLATE_SURFACES)
@@ -130,7 +136,6 @@ export const PAIRS: Pair[] = [
 const SURFACES: [string, string][] = [['page', '--bg'], ['surface', '--surface'], ['surface-2', '--surface-2'], ['modal', '--modal-bg']];
 for (const { id } of SWATCHES) {
   PAIRS.push([`${id}: on-fill`, `--${id}-on`, `--${id}-fill`, 4.5]);
-  PAIRS.push([`${id}: Bright on its deep band`, '--c-bright', `--${id}-deep`, 4.5]);
   for (const [n, t] of SURFACES) PAIRS.push([`${id}: ink on ${n}`, `--${id}-ink`, t, 4.5]);
   for (const [n, t] of SURFACES) PAIRS.push([`UI: ${id} line vs ${n}`, `--${id}-line`, t, 3]);
   for (const [n, t] of SURFACES) PAIRS.push([`UI: ${id} mark vs ${n}`, `--${id}-mark`, t, 3]);

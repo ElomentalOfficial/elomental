@@ -50,7 +50,8 @@ On wide screens (900+ wide, 600+ tall, aspect at least 5/4) Casual, Leaderboard,
 pages, Forge, Profile and Daily are "Banner and Doors".
 
 - **Banner** (`src/pageBanner.ts`, `styles/banner.css`): the splash ribbon's outline (`ribbon.ts`)
-  in the theme's accent (Lava dark, Crimson light) on every page, never a tile colour. It hangs
+  in `--cloth` on every page: forest on dark, the tiles' colour on light (it was the accent until
+  2026-10-23). It hangs
   from the top only as long as its contents, drops in, and rolls up on Back. Same layout on all
   pages: Back, title, line, one hero icon (same slot and size), details, 32px clear of the tail.
   Everything on the cloth is in its ink (`--on-accent`). The sunburst sits behind the hero.
@@ -61,12 +62,17 @@ pages, Forge, Profile and Daily are "Banner and Doors".
 - **Room under the text:** the last line on the cloth keeps 96px (`BREATH`, pageBanner.ts) above
   the tail's highest spike (the owner's sketch; 32 and 56 read as too tight), and the details sit a
   `--space-5` step under the art. The page's title is the display size and a half.
-- **The purse** (Forge, `balance` and `PURSE_FANS` in forge.ts, forge.css): each balance on a band
-  of its rarity's `-deep` shade (palette role, step 800: dark and muted, Bright text at about 12:1),
-  Stardust Epic (purple-grey), Spirits Mythic (a toned-down red), in the tiles' frame open at its
-  sides: a sundial fan in each corner and the worn top and bottom lines, Bright at 32%, the colour
-  fading out under the fans. No icons, no faction line. The same bands on the wide banner and the
-  phone/tablet Forge head.
+- **The purse** (Forge, `balance`, `FLOURISH` and `WORN` in forge.ts, forge.css), from the owner's
+  sketch: no band or box. Each value between two rules on the owner's reference border: a thin
+  gold line like the anvil's stroke (pale in the middle, deeper toward the ends, `--purse-rule-*`),
+  fading near its ends, broken around a small hollow diamond with a smaller one inside, worn only
+  now and then, at 70% so the words lead. Only the words take colour, in a
+  soft top-to-bottom gradient: Stardust a warm gold, Spirits a red (`--purse-gold-*`,
+  `--purse-red-*` in tokens.css, both ends 4.5:1 on a tile and on a card). No icons, no faction
+  line. (Rejected: framed bands with sundial corners, "ugly"; fading colour bands.)
+- **The cloth's colour:** `--cloth` / `--cloth-ink` (tokens.css): a deep, muted forest on dark,
+  the Home tiles' colour on light, chosen by the owner for contrast (the accent cloth left coloured
+  text too little room). The Home art follows the theme on it, as on the tiles.
 - **Back** (`pageBanner.ts`): one per page. Normally the big one under the ribbon's tail: the
   owner's Deco arrowhead (`art/screens/back.svg`) in the seal and diamond rails, up to about 130px
   tall on big screens, moved 7% left so it looks centred (its weight is in its right-hand panels),
