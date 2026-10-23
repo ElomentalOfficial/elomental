@@ -35,11 +35,13 @@ export interface HomeCard {
 const SOCKET = '<svg viewBox="-12 -12 24 24" aria-hidden="true"><path d="M0 -10L10 0L0 10L-10 0Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="4 2"/></svg>';
 /**
  * An empty badge slot you can fill (owner's mock-up): a hexagon socket (the badges' own shape),
- * sunk a little into the card, its rim a fine line, and a soft glowing "+" whose arms narrow a
+ * sunk a little into the card, its rim a fine line with a fainter, finer one just inside it
+ * (owner), and a soft glowing "+" whose arms narrow a
  * little towards their ends.
  */
 const ADD =
   '<svg viewBox="-12 -12 24 24" aria-hidden="true"><path class="pc-add-socket" d="M0 -11L9.5 -5.5V5.5L0 11L-9.5 5.5V-5.5Z"/>' +
+  '<path class="pc-add-inner" d="M0 -9.6L8.3 -4.8V4.8L0 9.6L-8.3 4.8V-4.8Z"/>' +
   '<path class="pc-add-plus" d="M-0.75 -0.75L-0.3 -4.4H0.3L0.75 -0.75L4.4 -0.3V0.3L0.75 0.75L0.3 4.4H-0.3L-0.75 0.75L-4.4 0.3V-0.3Z"/></svg>';
 
 export function homeCard(): HomeCard {
