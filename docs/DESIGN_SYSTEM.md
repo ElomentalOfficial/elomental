@@ -25,7 +25,8 @@ reuse. Read it before designing or restyling anything.
 
 Every hairline ornament has one intensity and one wear, the Home tiles' frames': drawn in its
 surface's ink (Bright on dark, Crimson on light, the cloth's ink on a banner) at `--ornament-opacity` (6.5%), worn by the tiles' dash pattern (`--ornament-wear-x` / `-y`,
-tokens.css). The tile frames, the banner's side lines and the Forge purse's rules all use them.
+tokens.css). The tile frames and the banner's side lines use them as they are; the Forge purse's rules, which
+frame text, take 2.8 times the opacity (owner: "just a little more visible").
 
 ## Background ornaments
 

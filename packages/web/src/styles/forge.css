@@ -99,7 +99,9 @@
 .purse-rule {
   flex: 0 0 100%;
   height: 12px;
-  opacity: var(--ornament-opacity);
+  /* a little stronger than the other hairlines (owner): the purse's rules frame text, so they
+     must be seen; the same ink and wear */
+  opacity: calc(var(--ornament-opacity) * 2.8);
 }
 .purse-rule::before {
   content: '';
