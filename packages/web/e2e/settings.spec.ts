@@ -91,7 +91,8 @@ test('every choice on the Accessibility page is stored and shown as chosen', asy
   await expect(app.getByRole('dialog')).toBeHidden();
   await expect(app.getByRole('radiogroup', { name: 'Text size' }).getByRole('radio', { name: '150%' })).toHaveAttribute('aria-checked', 'true');
   await app.getByRole('button', { name: 'Reset to defaults' }).click();
-  await app.getByRole('dialog').getByRole('button', { name: 'Reset', exact: true }).click();
+  // held to confirm (hold.ts)
+  await app.getByRole('dialog').getByRole('button', { name: 'Reset', exact: true }).click({ delay: 900 });
   await expect(app.getByRole('status')).toHaveText('Accessibility settings are back to their defaults.');
   expect(await app.evaluate(() => JSON.parse(localStorage.getItem('elomental:a11y')!))).toEqual({
     textSize: 100,

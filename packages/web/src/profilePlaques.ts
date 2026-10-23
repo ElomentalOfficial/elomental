@@ -4,9 +4,8 @@ import { frameLine, underYou, type Box } from './profileWalls.ts';
 /**
  * The plaques behind the profile card's Level, Elo and badges (owner, 2026-10-23): an Art Deco
  * plaque in each cell, drawn to the cell as laid out. Its top and bottom edges rise to a raised
- * middle on 45° shoulders, its corners are cut concave, a back plate's shoulders show behind the
- * raised middle, and a fine worn line runs just inside its edge. The fill is worn by the tiles'
- * own grain, like old print.
+ * middle on 45° shoulders, its corners are cut concave, and a fine worn line runs along its edge:
+ * one contour, nothing more. The fill is worn by the tiles' own grain, like old print.
  */
 
 const n = (v: number) => v.toFixed(1);
@@ -31,28 +30,14 @@ function outline(b: Box, rise: number, r: number, rLow: number, mid: number): st
   ].join('');
 }
 
-const inset = (b: Box, d: number): Box => ({ left: b.left + d, top: b.top + d, right: b.right - d, bottom: b.bottom - d });
-
 /**
- * One plaque in a cell: its fill, its back plate's shoulders, the worn line inside its edge.
+ * One plaque in a cell, its one contour (owner: simpler), for both its fill and its line.
  * `rLow` widens the lower corners (the badges', round the frame's corner ornaments).
  */
-function plaque(b: Box, unit: number, rLow?: number): { fill: string; lines: string } {
+function plaque(b: Box, unit: number, rLow?: number): string {
   const h = b.bottom - b.top;
-  const rise = Math.min(h * 0.12, 7 * unit);
   const r = Math.min(h * 0.2, 9 * unit);
-  rLow ??= r;
-  const mid = 0.5;
-  const fill = outline(b, rise, r, rLow, mid);
-  const line = outline(inset(b, 3 * unit), Math.max(0, rise - unit), Math.max(0, r - 2 * unit), Math.max(0, rLow - 2 * unit), mid);
-  // the back plate: wider shoulders a little lower than the raised middle, top and bottom
-  const cx = (b.left + b.right) / 2;
-  const c = ((b.right - b.left) * mid) / 2 + rise * 2.5;
-  const lift = rise * 0.45;
-  const back =
-    `M${n(cx - c - rise)} ${n(b.top + rise)}L${n(cx - c)} ${n(b.top + lift)}H${n(cx + c)}L${n(cx + c + rise)} ${n(b.top + rise)}` +
-    `M${n(cx - c - rise)} ${n(b.bottom - rise)}L${n(cx - c)} ${n(b.bottom - lift)}H${n(cx + c)}L${n(cx + c + rise)} ${n(b.bottom - rise)}`;
-  return { fill, lines: line + back };
+  return outline(b, Math.min(h * 0.12, 7 * unit), r, rLow ?? r, 0.5);
 }
 
 /**
@@ -86,7 +71,7 @@ export function cardPlaques(c: { width: number; height: number; unit: number; po
   return (
     `<defs><pattern id="pc-grain" patternUnits="userSpaceOnUse" width="224" height="224"><image href="${grain}" width="224" height="224"/></pattern>` +
     `<mask id="pc-grain-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="${c.width}" height="${c.height}"><rect width="${c.width}" height="${c.height}" fill="url(#pc-grain)"/></mask></defs>` +
-    `<g class="pc-plaque-fill" mask="url(#pc-grain-mask)">${plaques.map((p) => `<path d="${p.fill}"/>`).join('')}</g>` +
-    `<g class="pc-plaque-line">${plaques.map((p) => `<path d="${p.lines}"/>`).join('')}</g>`
+    `<g class="pc-plaque-fill" mask="url(#pc-grain-mask)">${plaques.map((d) => `<path d="${d}"/>`).join('')}</g>` +
+    `<g class="pc-plaque-line">${plaques.map((d) => `<path d="${d}"/>`).join('')}</g>`
   );
 }

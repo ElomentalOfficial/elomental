@@ -34,6 +34,7 @@ import { betaTag } from '../beta.ts';
 import { showAwayNews } from '../awayNews.ts';
 import * as copy from '../copy/en.ts';
 import { decorateTile, type Area } from '../tileSprites.ts';
+import { holdToConfirm } from '../hold.ts';
 
 /** Layout from the owner's Home frame: Forge and Setup, the profile card, then the mode tiles. */
 export function homeScreen(): Screen {
@@ -240,15 +241,12 @@ function openRanked(leave: (go: () => void) => void) {
       fresh
         ? h('div', { class: 'ranked-new' }, h('h3', { text: r.newTechnique.title }), h('p', { text: r.newTechnique[fresh] }))
         : null,
-      h('button', {
-        class: 'btn btn-primary btn-start',
-        text: copy.home.ranked.start,
-        onclick: () => {
-          close();
-          // told once: this family and every one before it
-          if (fresh) markTechniquesSeen(stage);
-          leave(() => void startGame({ mode: 'ranked', difficulty }));
-        },
+      // a rated game: held to start (hold.ts)
+      holdToConfirm(h('button', { class: 'btn btn-primary btn-start', text: copy.home.ranked.start }), () => {
+        close();
+        // told once: this family and every one before it
+        if (fresh) markTechniquesSeen(stage);
+        leave(() => void startGame({ mode: 'ranked', difficulty }));
       }),
     ),
   );

@@ -4,6 +4,7 @@ import { loadFounderActivity } from '../backend/founder.ts';
 import { choice, segmented, settingGroup } from '../controls.ts';
 import { RARITIES, type Rarity } from '../profile.ts';
 import { rarityName } from '../reward.ts';
+import { holdToConfirm } from '../hold.ts';
 import { h, openModal, toast } from '../ui.ts';
 import { PLATE_LEVELS, xpLevel } from '../xp.ts';
 import * as copy from '../copy/en.ts';
@@ -202,10 +203,10 @@ function testersSection(): HTMLElement {
         h('h2', { text: t.removeTitle(email) }),
         h('p', { text: t.removeText }),
         status,
-        go,
+        holdToConfirm(go, () => remove()),
         h('button', { class: 'btn', text: copy.common.cancel, attrs: { type: 'button' }, onclick: () => close() })),
     );
-    go.addEventListener('click', () => {
+    const remove = () => {
       go.disabled = true;
       void removeTester(email).then((err) => {
         if (err) {
@@ -217,7 +218,7 @@ function testersSection(): HTMLElement {
         toast(t.removed(email));
         void load();
       });
-    });
+    };
   };
   const row = (tester: Tester) =>
     h('li', {},

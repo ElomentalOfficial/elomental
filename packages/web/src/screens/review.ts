@@ -10,6 +10,7 @@ import {
   type ReviewPlayer,
   type ReviewView,
 } from '../backend.ts';
+import { holdToConfirm } from '../hold.ts';
 import { ICONS } from '../icons.ts';
 import { formatSeconds, h, openModal, toast } from '../ui.ts';
 import * as copy from '../copy/en.ts';
@@ -307,11 +308,11 @@ export function reviewPanel(options: {
       h('p', { text: explain[action] }),
       action === 'lift' ? null : note,
       status,
-      go,
+      holdToConfirm(go, () => void decide()),
       h('button', { class: 'btn', text: copy.common.cancel, onclick: () => close() }),
     );
     const close = openModal(body);
-    go.addEventListener('click', async () => {
+    const decide = async () => {
       go.disabled = true;
       const error = await moderate(player.userId, action, days, note.value);
       if (error) {
@@ -324,7 +325,7 @@ export function reviewPanel(options: {
       // In a list the player leaves (or changes in place): open whichever row is now in their spot.
       // In a search they stay, updated, with the new decision on top.
       void load(index);
-    });
+    };
   }
 
   // the console's own search finds anyone, so a list shows no field; a search keeps one to refine it

@@ -53,6 +53,10 @@ export const common = {
   ok: 'OK',
   close: 'Close',
   cancel: 'Cancel',
+  /** Under a button you hold to confirm (hold.ts). */
+  holdHint: 'Hold to confirm',
+  /** The same button pressed by a screen reader, which can't hold: the next press confirms. */
+  pressAgain: 'Press again to confirm.',
   back: 'Back',
   next: 'Next',
   home: 'Home',

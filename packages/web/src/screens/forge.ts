@@ -6,6 +6,7 @@ import { withRays } from '../rays.ts';
 import { spinnable } from '../spin.ts';
 import { ELEMENTS, RARITIES, loadProfile, type Element, type Rarity } from '../profile.ts';
 import { partName, rarityName } from '../reward.ts';
+import { holdToConfirm } from '../hold.ts';
 import { closeButton, goBack, h, openModal, rebuildOnLayout, subPage, toast, wideLayout, type Screen } from '../ui.ts';
 import { homeScreen } from './home.ts';
 import * as copy from '../copy/en.ts';
@@ -185,11 +186,11 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
         await refresh();
       });
     };
+    // spending Stardust or a Spirit is held to confirm (hold.ts); equipping isn't, it's undone as easily
     if (forgeable(state)) {
       const btn = h('button', { class: 'btn btn-primary', text: copy.forge.forge });
-      if (f.stardust < costOf(f, p)) btn.disabled = true;
-      else btn.addEventListener('click', () => busy(btn, () => forgePart(p.id), copy.forge.forged(name)));
-      action = btn;
+      btn.disabled = f.stardust < costOf(f, p);
+      action = holdToConfirm(btn, () => busy(btn, () => forgePart(p.id), copy.forge.forged(name)));
     } else if (state === 'owned') {
       const btn = h('button', { class: 'btn btn-primary', text: copy.forge.wear });
       btn.addEventListener('click', () => busy(btn, () => equipPart(p.slot, p.id), null));
@@ -205,8 +206,8 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
     if (p.slot === 'avatar' && (state === 'owned' || state === 'wearing') && polish < 1) {
       const can = f.stardust >= ALIVE_COST && f.spirits >= 1;
       const btn = h('button', { class: 'btn', text: copy.forge.lifeButton });
-      if (!can) btn.disabled = true;
-      else btn.addEventListener('click', () => busy(btn, () => polishPart(p.id), copy.forge.broughtToLife(name)));
+      btn.disabled = !can;
+      const hold = holdToConfirm(btn, () => busy(btn, () => polishPart(p.id), copy.forge.broughtToLife(name)));
       const cost = (icon: string, amount: string, label: string, have: number, need: number) =>
         h('li', { class: `panel life-cost-item${have >= need ? '' : ' short'}` },
           h('span', { class: 'life-cost-main' }, h('span', { class: 'life-cost-icon', html: icon }), h('strong', { text: amount })),
@@ -220,7 +221,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
         h('ul', { class: 'life-cost', attrs: { 'aria-label': copy.forge.a11yLifeCost(ALIVE_COST, f.stardust, f.spirits) } },
           cost(ICONS.dust, String(ALIVE_COST), copy.common.stardust, f.stardust, ALIVE_COST),
           cost(ICONS.spirit, '1', copy.forge.lifeSpirit, f.spirits, 1)),
-        btn,
+        hold,
       );
     }
     // a frame you own: its marks, and how close the next is
@@ -232,9 +233,8 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
     else if (fm && fm.marks >= MAX_MARKS) {
       const cost = GILD_COST[p.rarity];
       const btn = h('button', { class: 'btn btn-primary', text: copy.forge.gildButton(cost) });
-      if (f.stardust < cost) btn.disabled = true;
-      else btn.addEventListener('click', () => busy(btn, () => gildPart(p.id), copy.forge.gildDone(name)));
-      gild = [h('p', { class: 'note', text: copy.forge.gildNote }), btn, f.stardust < cost ? h('p', { class: 'note', text: copy.forge.gildShort(f.stardust, cost) }) : null];
+      btn.disabled = f.stardust < cost;
+      gild = [h('p', { class: 'note', text: copy.forge.gildNote }), holdToConfirm(btn, () => busy(btn, () => gildPart(p.id), copy.forge.gildDone(name))), f.stardust < cost ? h('p', { class: 'note', text: copy.forge.gildShort(f.stardust, cost) }) : null];
     } else if (fm) gild = [h('p', { class: 'note', text: copy.forge.gildLocked })];
     const marksSection = fm
       ? h('section', { class: 'marks-section' }, h('h3', {}, copy.forge.marksTitle, markPips(fm.marks)), h('p', { text: copy.forge.marksLine(fm.marks, fm.toNext) }), h('p', { class: 'note', text: copy.forge.marksNote }), ...gild)
@@ -283,7 +283,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
   function openCall() {
     const f = forge!;
     const btn = h('button', { class: 'btn btn-primary', text: copy.forge.callButton(f.callCost) });
-    btn.addEventListener('click', () => {
+    const call = holdToConfirm(btn, () => {
       btn.disabled = true;
       void callSpirit().then(async (err) => {
         close();
@@ -299,7 +299,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
         h('span', { class: 'sheet-icon spirit', html: ICONS.spirit, attrs: { 'aria-hidden': 'true' } }),
         h('h2', { text: copy.forge.callTitle }),
         h('p', { class: 'note', text: copy.forge.callNote }),
-        btn,
+        call,
       ),
     );
   }

@@ -2,6 +2,7 @@ import { DEFAULTS, TEXT_SIZES, a11yPrefs, finePointer, onA11yChange, type A11yPr
 import { saveSettings } from '../backend.ts';
 import { choice as titled, segmented, settingGroup } from '../controls.ts';
 import { openShortcuts } from '../shortcuts.ts';
+import { holdToConfirm } from '../hold.ts';
 import { goBack, h, mount, openModal, rebuildOnLayout, subPage, toast, wideLayout, type Screen } from '../ui.ts';
 import { setupBanner, setupScreen } from './setup.ts';
 import { statementScreen } from './statement.ts';
@@ -43,14 +44,11 @@ function confirmReset(): void {
       h(
         'div',
         { class: 'actions' },
-        h('button', {
-          class: 'btn btn-primary',
-          text: t.resetYes,
-          onclick: () => {
-            close();
-            saveSettings({ a11y: { ...DEFAULTS } });
-            toast(t.resetDone);
-          },
+        // every setting at once: held to confirm (hold.ts)
+        holdToConfirm(h('button', { class: 'btn btn-primary', text: t.resetYes }), () => {
+          close();
+          saveSettings({ a11y: { ...DEFAULTS } });
+          toast(t.resetDone);
         }),
         h('button', { class: 'btn', text: copy.common.cancel, onclick: () => close() }),
       ),

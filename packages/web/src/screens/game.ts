@@ -54,6 +54,7 @@ import { devOn } from '../backend/dev.ts';
 import { dropPending, flushPending, keepPending, markSending, pendingResults } from '../backend/pending.ts';
 import { runHintCoach } from '../hintCoach.ts';
 import { runTutorial, tutorialDone, type TutorialStep } from '../tutorial.ts';
+import { holdToConfirm } from '../hold.ts';
 import { formatSeconds, formatTime, goBack, h, hiddenHeading, mount, openModal, toast, type Screen } from '../ui.ts';
 import { dailyScreen } from './daily.ts';
 import { showClashResult, showResult, type FinishReason } from './result.ts';
@@ -672,7 +673,8 @@ function gameScreen(game: SavedGame): Screen {
         h('div', { class: 'confirm' },
           h('h2', { text: copy.game.hintConfirmTitle }),
           h('p', { text: ranked ? copy.game.hintConfirmText(Math.round(HINT_ELO_PENALTY * 100)) : copy.game.hintConfirmClash }),
-          h('div', { class: 'actions' }, keep, h('button', { class: 'btn', text: copy.game.hintUse, attrs: { type: 'button' }, onclick: () => answer(true) }))),
+          // it costs Elo: held to confirm (hold.ts)
+          h('div', { class: 'actions' }, keep, holdToConfirm(h('button', { class: 'btn', text: copy.game.hintUse, attrs: { type: 'button' } }), () => answer(true)))),
       );
       // Esc or a tap outside is "Keep playing"
       const watch = new MutationObserver(() => {
@@ -974,13 +976,10 @@ function gameScreen(game: SavedGame): Screen {
           { class: 'actions' },
           // the safe choice is the primary one (and first, so it takes the focus)
           h('button', { class: 'btn btn-primary', text: copy.game.keepPlaying, onclick: () => close() }),
-          h('button', {
-            class: 'btn',
-            text: copy.game.concede,
-            onclick: () => {
-              close();
-              finish(false, 'concede');
-            },
+          // a loss: held to confirm (hold.ts)
+          holdToConfirm(h('button', { class: 'btn', text: copy.game.concede }), () => {
+            close();
+            finish(false, 'concede');
           }),
         ),
       ),

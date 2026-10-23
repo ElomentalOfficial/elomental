@@ -12,7 +12,19 @@ test('Ranked: the sheet, the first-hint confirm and the concede confirm', async 
   await expect(sheet).toContainText(/About \d+ min/);
   await expect(sheet).toContainText(/Win about \+\d+/);
   await expect(sheet).toContainText('3 pauses of up to 5 minutes.');
-  await sheet.getByRole('button', { name: 'Start' }).click();
+  // Start is held to confirm (hold.ts): a quick tap only nudges the line under it
+  const start = sheet.getByRole('button', { name: 'Start' });
+  await expect(start).toHaveAccessibleDescription('Hold to confirm');
+  await start.click();
+  await expect(sheet).toBeVisible();
+  // a screen reader's press (a click with no pointer) arms it and says so
+  await start.evaluate((b: HTMLButtonElement) => b.click());
+  await expect(sheet.locator('.hold-hint')).toHaveText('Press again to confirm.');
+  // a held key starts it
+  await start.focus();
+  await app.keyboard.down('Enter');
+  await app.waitForTimeout(900);
+  await app.keyboard.up('Enter');
   await expect(app.getByRole('grid', { name: 'Sudoku board' })).toBeVisible({ timeout: 20_000 });
 
   // the first hint asks; Keep playing (the default) uses none

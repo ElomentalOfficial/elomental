@@ -5,6 +5,7 @@ import { badgeMonth } from '../badges.ts';
 import { cachedAccount, refreshAccount } from '../backend/account.ts';
 import { MEND_COST, MENDS_A_MONTH, mendDaily } from '../backend/forge.ts';
 import { miniBoard, sampleGivens } from '../miniBoard.ts';
+import { holdToConfirm } from '../hold.ts';
 import { closeButton, goBack, h, mount, openModal, rebuildOnLayout, subPage, toast, wideLayout, type Screen } from '../ui.ts';
 import { loadSavedGame, resumeGame, startGame } from './game.ts';
 import { homeScreen } from './home.ts';
@@ -143,8 +144,9 @@ function openMend(key: string, label: string, left: number, badgeNote: string): 
   if (left <= 0) action = h('p', { class: 'note', text: copy.daily.mendNoneLeft });
   else {
     const btn = h('button', { class: 'btn btn-primary', text: copy.daily.mend(MEND_COST) });
-    if (account.stardust < MEND_COST) btn.disabled = true;
-    else btn.addEventListener('click', () => {
+    btn.disabled = account.stardust < MEND_COST;
+    // spends Stardust: held to confirm (hold.ts)
+    action = holdToConfirm(btn, () => {
       btn.disabled = true;
       void mendDaily(key).then(async ({ error, badge }) => {
         close();
@@ -154,7 +156,6 @@ function openMend(key: string, label: string, left: number, badgeNote: string): 
         mount(dailyScreen());
       });
     });
-    action = btn;
   }
   const close = openModal(
     h(

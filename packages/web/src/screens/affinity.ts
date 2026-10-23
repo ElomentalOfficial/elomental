@@ -1,4 +1,5 @@
 import { crestSvg } from '../avatar.ts';
+import { holdToConfirm } from '../hold.ts';
 import { chooseAffinity, loadStandings, putOffAffinity, type Standing } from '../backend/affinity.ts';
 import { loadLoadout } from '../backend/forge.ts';
 import { ELEMENTS, type Element } from '../profile.ts';
@@ -57,9 +58,9 @@ export function affinityScreen(back: () => Screen = homeScreen): Screen {
 
   function confirm(e: Element) {
     const name = copy.forge.elements[e];
-    const join = h('button', { class: 'btn btn-primary', text: copy.affinity.join });
-    join.addEventListener('click', () => {
-      join.disabled = true;
+    const btn = h('button', { class: 'btn btn-primary', text: copy.affinity.join });
+    const join = holdToConfirm(btn, () => {
+      btn.disabled = true;
       void chooseAffinity(e).then((err) => {
         close();
         if (err) {

@@ -30,7 +30,8 @@ test('the Ranked sheet names the rank and, once, the new technique family', asyn
   expect(await axe(page)).toEqual([]);
   if (SHOTS) await page.screenshot({ path: `${SHOTS}/ranked-sheet.png` });
   // Start tells this phone it has seen it (the faked server starts nothing, so it's back Home)
-  await sheet.getByRole('button', { name: 'Start' }).click();
+  // (held to confirm: hold.ts)
+  await sheet.getByRole('button', { name: 'Start' }).click({ delay: 900 });
   await expect.poll(() => page.evaluate(() => localStorage.getItem('elomental:techniques-seen'))).toBe('["wings","pairs","pointing"]');
   await page.reload();
   await page.locator('.screen.welcome').click({ timeout: 2_000 }).catch(() => undefined);
