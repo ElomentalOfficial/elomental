@@ -110,10 +110,10 @@
   background: linear-gradient(90deg, var(--purse-rule-lo), var(--purse-rule-hi), var(--purse-rule-lo));
   -webkit-mask:
     var(--flourish) center / 20px 10px no-repeat,
-    linear-gradient(90deg, transparent, #000 15%, #000 calc(50% - 6px), transparent calc(50% - 6px) calc(50% + 6px), #000 calc(50% + 6px), #000 85%, transparent) center / 100% 1px no-repeat;
+    linear-gradient(90deg, transparent, #000 15%, #000 calc(50% - 6px), transparent calc(50% - 6px) calc(50% + 6px), #000 calc(50% + 6px), #000 85%, transparent) center / 100% 0.75px no-repeat;
   mask:
     var(--flourish) center / 20px 10px no-repeat,
-    linear-gradient(90deg, transparent, #000 15%, #000 calc(50% - 6px), transparent calc(50% - 6px) calc(50% + 6px), #000 calc(50% + 6px), #000 85%, transparent) center / 100% 1px no-repeat;
+    linear-gradient(90deg, transparent, #000 15%, #000 calc(50% - 6px), transparent calc(50% - 6px) calc(50% + 6px), #000 calc(50% + 6px), #000 85%, transparent) center / 100% 0.75px no-repeat;
 }
 /* (forced colours: the system's text, no painted gradient) */
 @media (forced-colors: active) {

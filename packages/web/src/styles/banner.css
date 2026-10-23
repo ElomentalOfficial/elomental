@@ -145,6 +145,20 @@
     opacity: 0.065;
     pointer-events: none;
   }
+  /* a worn hairline down each side of the cloth, a little in from its torn edges, in its ink
+     (pageBanner.ts --worn-v: specks taken out now and then); the cloth's outline cuts them at the tail */
+  .page-banner::after {
+    content: '';
+    position: absolute;
+    inset: 0 var(--space-3);
+    pointer-events: none;
+    background:
+      linear-gradient(currentColor 0 0) left / 1px 100% no-repeat,
+      linear-gradient(currentColor 0 0) right / 1px 100% no-repeat;
+    -webkit-mask: var(--worn-v) 0 0 / 12px 96px repeat;
+    mask: var(--worn-v) 0 0 / 12px 96px repeat;
+    opacity: 0.4;
+  }
 
   /* Back at the top corner, the title under it */
   .page-banner .subbar {
@@ -192,7 +206,8 @@
   /* the page's hero art right under its line, one size on every page (each page's own icon), and the
      page's details right under it */
   .banner-art {
-    --hero: clamp(150px, 26dvh, 230px);
+    /* the page's hero, kept modest so the page's name and its purse lead (owner) */
+    --hero: clamp(130px, 22dvh, 200px);
     flex: 0 1 auto;
     height: var(--hero);
     min-height: 72px;
@@ -203,9 +218,9 @@
     grid-template: minmax(0, 1fr) / minmax(0, 1fr);
     place-items: center;
     margin-block: var(--space-2);
-    /* the sunburst (rays.ts): an oval the cloth's width (the side rays end a little in from its
+    /* the sunburst (rays.ts): an oval most of the cloth's width (the side rays end well in from its
        edges) and the hero's height (the top and bottom ones end clear of the line and the foot) */
-    --rays-w: calc(100% + var(--space-4));
+    --rays-w: 92%;
     --rays-h: var(--hero);
   }
   /* a page's own hero icon (art/screens): drawn whole, as large as the slot allows */
@@ -222,7 +237,7 @@
   }
   /* (a wide hero takes the banner's whole width) */
   .banner-art > :is(.banner-hero, .spin) {
-    width: 100% !important;
+    width: 82% !important;
   }
   .banner-art > * {
     max-width: 100%;

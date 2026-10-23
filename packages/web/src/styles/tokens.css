@@ -81,13 +81,13 @@
   --cloth: var(--c-forest-700);
   --cloth-ink: var(--c-bright);
   /* The Forge purse (forge.css): its words in a soft gradient, Stardust a warm gold, Spirits a red,
-     and its rules gold like the anvil's stroke (art/screens/forge.svg) */
+     and its rules a greyed gold, a quieter echo of the anvil's stroke (art/screens/forge.svg) */
   --purse-gold-hi: var(--c-gold-100);
   --purse-gold-lo: var(--c-gold-300);
   --purse-red-hi: var(--c-flame-200);
   --purse-red-lo: var(--c-flame-300);
-  --purse-rule-hi: var(--c-gold-100);
-  --purse-rule-lo: var(--c-gold-400);
+  --purse-rule-hi: color-mix(in oklab, var(--c-gold-100) 45%, var(--c-iron-200));
+  --purse-rule-lo: color-mix(in oklab, var(--c-gold-400) 45%, var(--c-iron-400));
   /* Home tiles: a crisp drop under each. */
   --tile-shadow: color-mix(in srgb, var(--c-bg), black 22%);
   --feather-shadow: rgba(0, 0, 0, 0.16);
@@ -199,8 +199,8 @@
   --purse-gold-lo: var(--c-gold-700);
   --purse-red-hi: var(--c-flame-600);
   --purse-red-lo: var(--c-flame-700);
-  --purse-rule-hi: var(--c-gold-300);
-  --purse-rule-lo: var(--c-gold-500);
+  --purse-rule-hi: color-mix(in oklab, var(--c-gold-300) 45%, var(--c-iron-300));
+  --purse-rule-lo: color-mix(in oklab, var(--c-gold-500) 45%, var(--c-iron-500));
   --tile-shadow: color-mix(in srgb, var(--c-rock) 45%, transparent);
   --feather-shadow: color-mix(in srgb, var(--c-rock) 30%, transparent);
   --profile-bg: var(--c-second-bright);

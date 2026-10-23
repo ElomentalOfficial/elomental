@@ -53,7 +53,7 @@ const balance = (kind: 'stardust' | 'spirit', n: number, what: string) => {
  * rule's colour, 24 × 12 units.
  */
 const FLOURISH = `url("data:image/svg+xml,${encodeURIComponent(
-  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 12"><path d="M12 1.2L19.5 6L12 10.8L4.5 6Z" fill="none" stroke="#000" stroke-width="1.3"/><path d="M12 4.2L14.8 6L12 7.8L9.2 6Z"/></svg>',
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 12"><path d="M12 1.2L19.5 6L12 10.8L4.5 6Z" fill="none" stroke="#000" stroke-width="0.9"/><path d="M12 4.4L14.5 6L12 7.6L9.5 6Z"/></svg>',
 )}")`;
 /** The rules' wear: now and then a speck taken out (fractal noise, tiled, mostly solid), as a mask. */
 const WORN = `url("data:image/svg+xml,${encodeURIComponent(
