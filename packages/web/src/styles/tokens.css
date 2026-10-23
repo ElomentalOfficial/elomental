@@ -165,7 +165,7 @@
   --notes-on-bg: var(--c-lava);
   --notes-on-text: var(--c-bright);
   /* Background wood grain: barely there. */
-  --grain-color: rgba(232, 232, 206, 0.045);
+  --grain-color: rgba(232, 232, 206, 0.034);
   --wheel-bg: var(--c-second-bright);
   --wheel-text: var(--c-bg);
   --wheel-on: var(--accent);
@@ -266,7 +266,7 @@
   --action-text: var(--c-crimson);
   --notes-on-bg: var(--c-forest);
   --notes-on-text: var(--c-bright);
-  --grain-color: rgba(121, 67, 65, 0.1);
+  --grain-color: rgba(121, 67, 65, 0.075);
   --wheel-bg: var(--c-crimson);
   --wheel-text: var(--c-bright);
   --wheel-on: var(--accent);

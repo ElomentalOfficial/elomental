@@ -8,17 +8,14 @@
  *
  * The drawing is made for the screen's own shape (portrait phone, landscape
  * desktop), so the composition fits instead of being cropped away, and used as
- * a mask (styles.css #app::before): the colour comes from the theme. The lines
- * are softly blurred, out of focus behind the content. Seeded, so every visit
- * draws the same.
+ * a mask (styles.css #app::before): the colour comes from the theme and the
+ * lines stay a hairline at any size. Seeded, so every visit draws the same.
  */
 
 /** Grid spacing for tracing contours, in drawing units. */
 const STEP = 10;
 /** The drawing's long side, in drawing units. */
 const LONG = 1600;
-/** How far the lines are blurred, in drawing units. */
-const BLUR = 4;
 
 /** Small deterministic PRNG (mulberry32). */
 function rng(seed: number) {
@@ -202,10 +199,9 @@ function grainSvg(aspect: number, stroke = '#fff'): string {
   const h = field(W, H);
   const values = new Float64Array(nx * ny);
   for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) values[j * nx + i] = h(i * STEP, j * STEP);
-  // Each ring gets its own weight, like ink lines drawn by hand: most about 3,
-  // some thinner, a few a little heavier (a little heavier than a hairline, as the
-  // blur spreads them). Grouped so the SVG stays a few paths.
-  const widths = [1.8, 2.4, 3, 3.8];
+  // Each ring gets its own weight, like ink lines drawn by hand: most about 1,
+  // some thinner, a few a little heavier. Grouped so the SVG stays a few paths.
+  const widths = [0.6, 0.85, 1.1, 1.45];
   const odds = [0.2, 0.3, 0.35, 0.15];
   const pickWidth = rng(29);
   const groups: string[][] = widths.map(() => []);
@@ -222,9 +218,7 @@ function grainSvg(aspect: number, stroke = '#fff'): string {
   return (
     // Explicit size: without it browsers rasterise data-URL SVGs at a default size and crop them.
     `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">` +
-    // softly out of focus (owner, 2026-10-23), so they sit behind everything rather than on it
-    `<filter id="soft" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="${BLUR}"/></filter>` +
-    `<g fill="none" stroke="${stroke}" stroke-linecap="round" stroke-linejoin="round" filter="url(#soft)">` +
+    `<g fill="none" stroke="${stroke}" stroke-linecap="round" stroke-linejoin="round">` +
     groups.map((g, i) => (g.length ? `<path stroke-width="${widths[i]}" d="${g.join('')}"/>` : '')).join('') +
     `</g></svg>`
   );
@@ -245,7 +239,7 @@ function grainUrl(aspect: number): string {
 }
 
 /** The page's own background lines: --grain-color for each theme, baked into the strokes. */
-const LINE_COLOURS = { dark: 'rgba(232,232,206,0.045)', light: 'rgba(121,67,65,0.1)' } as const;
+const LINE_COLOURS = { dark: 'rgba(232,232,206,0.034)', light: 'rgba(121,67,65,0.075)' } as const;
 
 /**
  * The same lines painted on the page itself (html), under the app. In the home-screen
