@@ -174,16 +174,11 @@
   display: grid;
   place-items: center;
 }
-/* Your portrait: as large as its cell allows, on a glow of your faction's colour. */
+/* Your portrait: as large as its cell allows, on the card itself (no glow: owner, 2026-10-23). */
 .pc-portrait {
   grid-area: portrait;
   container-type: size;
-  background: radial-gradient(closest-side, var(--pc-glow, transparent), transparent);
 }
-.profile-card.el-fire { --pc-glow: var(--el-fire-wash); }
-.profile-card.el-water { --pc-glow: var(--el-water-wash); }
-.profile-card.el-earth { --pc-glow: var(--el-earth-wash); }
-.profile-card.el-air { --pc-glow: var(--el-air-wash); }
 .pc-portrait .avatar {
   width: min(100cqw, 100cqh);
   height: auto;

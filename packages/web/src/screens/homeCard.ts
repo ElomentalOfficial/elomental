@@ -87,11 +87,9 @@ export function homeCard(): HomeCard {
     levelNum.textContent = String(account ? xpLevel(account.xp ?? 0).level : 1);
     eloNum.textContent = copy.formatNumber(p.elo);
     const side = account?.affinity ?? null;
-    el.classList.remove('el-fire', 'el-water', 'el-earth', 'el-air');
     el.classList.toggle('has-faction', !!side);
     emblem.hidden = !side;
     if (side) {
-      el.classList.add(`el-${side}`);
       emblem.src = factionSignUrl(side);
       emblem.alt = copy.home.card.faction(copy.forge.elements[side]);
     }
