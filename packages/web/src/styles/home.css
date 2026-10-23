@@ -406,22 +406,6 @@
 .profile-card {
   isolation: isolate;
 }
-/* A light, even noise over each tile's surface, so the flat colour looks a little rough
-   (art/grain.webp, plain grey noise, blurred then sharpened, shown a bit larger than baked), overlay-blended
-   into the tile's colour, under the frame. */
-.home-grid > .tile::before,
-.profile-card::before,
-.door::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  background: url('../art/grain.webp') 0 0 / 448px 448px;
-  mix-blend-mode: overlay;
-  opacity: 0.065;
-  pointer-events: none;
-}
 /* (the wide pages' doors wear the tiles' frames too: banner.css) */
 .home-grid > .tile::after,
 .profile-card::after,

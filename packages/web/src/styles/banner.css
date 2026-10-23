@@ -134,7 +134,7 @@
     padding-top: max(var(--field-y), calc(var(--status-clear) + var(--status-gap)));
   }
 
-  /* the tiles' grain, faint over the cloth */
+  /* a faint grain over the cloth (art/grain.webp, plain grey noise, overlay-blended) */
   .page-banner::before {
     content: '';
     position: absolute;
