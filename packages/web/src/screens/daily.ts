@@ -313,7 +313,7 @@ export function dailyScreen(): Screen {
     },
     wide
       // today's door first, for the keyboard and at large text (one column); the month sits left of it (pages.css)
-      ? h('div', { class: 'daily-field' }, h('div', { class: 'daily-side' }, todayDoor, reward), monthCard)
+      ? h('div', { class: 'daily-field field-grid' }, h('div', { class: 'daily-side' }, todayDoor, reward), monthCard)
       : h('div', { class: 'daily-body' }, tearOffCalendar(), monthCard, reward, h('div', { class: 'daily-actions' }, action, resetNote)),
   );
   rebuildOnLayout(el, dailyScreen);

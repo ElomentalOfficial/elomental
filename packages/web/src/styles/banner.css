@@ -318,7 +318,8 @@
     gap: var(--grid-gutter);
     align-content: start;
   }
-  :is(.field-grid, .screen.setup.has-banner > .sub-body) > * {
+  /* (no weight of its own, :where, so a page's placement of an item always wins) */
+  :where(.field-grid, .screen.setup.has-banner > .sub-body) > * {
     grid-column: span var(--span, var(--grid-columns));
   }
   /* Setup's pages: their cards read as a column two-thirds of the field (8 of 12), ending on the

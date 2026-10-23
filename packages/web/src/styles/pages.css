@@ -1261,26 +1261,22 @@ html:not([data-large-text]) .daily-body > .daily-art {
  * month's count at its foot; the month beside today's door (one click plays it) and the badge.
  */
 @media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+  /* on the layout grid (banner.css .field-grid): the month on 7 columns, today and the badge on 5;
+     one under the other at large text */
   .daily-field {
-    display: grid;
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
     align-items: start;
-    gap: var(--space-4);
   }
   /* (today's door comes first in the page, for the keyboard; the month is drawn to its left) */
   .daily-field > .month-card {
-    grid-column: 1;
+    grid-column: 1 / span 7;
     grid-row: 1;
   }
   .daily-field > .daily-side {
-    grid-column: 2;
+    grid-column: 8 / span 5;
     grid-row: 1;
   }
-  html[data-large-text] .daily-field {
-    grid-template-columns: minmax(0, 1fr);
-  }
   html[data-large-text] .daily-field > :is(.month-card, .daily-side) {
-    grid-column: auto;
+    grid-column: 1 / -1;
     grid-row: auto;
   }
   .daily-side {
