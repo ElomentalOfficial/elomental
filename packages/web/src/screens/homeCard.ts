@@ -1,10 +1,10 @@
-import { avatarSvg, emblemUrl } from '../avatar.ts';
+import { avatarSvg, factionSignUrl } from '../avatar.ts';
 import { cachedAccount, registered } from '../backend/account.ts';
 import { cachedLoadout, cachedPolish } from '../backend/forge.ts';
 import { myBadges } from '../backend/leaderboard.ts';
 import { badgeArt, badgeLabel } from '../badges.ts';
 import { paintPlate } from '../plates.ts';
-import { BANNER_EMBLEM, bannerPlace, cardWalls, type Box } from '../profileWalls.ts';
+import { BANNER_DROP, BANNER_EMBLEM, bannerCornerX, bannerPlace, cardWalls, type Box } from '../profileWalls.ts';
 import { loadProfile, rankTier } from '../profile.ts';
 import { rankName } from '../rankName.ts';
 import { h } from '../ui.ts';
@@ -92,7 +92,7 @@ export function homeCard(): HomeCard {
     emblem.hidden = !side;
     if (side) {
       el.classList.add(`el-${side}`);
-      emblem.src = emblemUrl(side);
+      emblem.src = factionSignUrl(side);
       emblem.alt = copy.home.card.faction(copy.forge.elements[side]);
     }
     // your three chosen badges (Profile > Badges), or your newest until you choose
@@ -151,24 +151,31 @@ export function homeCard(): HomeCard {
     const css = getComputedStyle(el);
     const unit = ((parseFloat(css.getPropertyValue('--frame-corner')) || 44) * (parseFloat(css.getPropertyValue('--frame-zoom')) || 1)) / 40;
     const W = el.clientWidth;
-    const bannerW = el.classList.contains('has-faction') ? 31 * unit : 0;
-    // the name keeps clear of the banner hung above its cell: centred while it fits under it, else
-    // pushed down just enough (at large text the name sits lower, under the portrait: no need)
+    // the faction's banner (owner, 2026-10-23: centred, bigger): where the name sits beside the
+    // portrait it hangs centred over the name, as large as the cell leaves room for under it (up to
+    // half as wide again as it was, never wider than the cell); at large text the name sits under
+    // the portrait, and the banner keeps to the top right corner at its own size
     name.style.paddingTop = '';
-    if (bannerW) {
-      const b = bannerPlace(W, unit, bannerW);
-      // inside the banner's outline, above the step in its tip (profileWalls.ts BANNER_EMBLEM)
-      const size = (BANNER_EMBLEM.size / 62) * bannerW;
-      Object.assign(emblem.style, { left: `${b.cx - size / 2}px`, top: `${b.top + ((BANNER_EMBLEM.top - 6) / 62) * bannerW}px`, width: `${size}px`, height: `${size}px` });
-      const under = b.cx - bannerW / 2 < name.offsetLeft + name.offsetWidth && b.cx + bannerW / 2 > name.offsetLeft;
-      const need = b.bottom + 4 - name.offsetTop;
+    let banner: { cx: number; w: number } | null = null;
+    if (el.classList.contains('has-faction')) {
       const inner = name.firstElementChild as HTMLElement;
       const cellH = name.offsetHeight, contentH = inner.offsetHeight * zoomOf(inner);
+      const beside = name.offsetTop < portrait.offsetTop + portrait.offsetHeight / 2;
+      const room = (name.offsetTop + cellH - contentH - 8 - bannerPlace(unit, 0).top) / BANNER_DROP;
+      const w = beside ? Math.max(31 * unit, Math.min(50 * unit, room, name.offsetWidth - 8 * unit)) : 31 * unit;
+      banner = { cx: beside ? name.offsetLeft + name.offsetWidth / 2 : bannerCornerX(W, unit, w), w };
+      const b = bannerPlace(unit, w);
+      // the emblem inside the banner's outline, above the step in its tip (profileWalls.ts BANNER_EMBLEM)
+      const size = (BANNER_EMBLEM.size / 62) * w;
+      Object.assign(emblem.style, { left: `${banner.cx - size / 2}px`, top: `${b.top + ((BANNER_EMBLEM.top - 6) / 62) * w}px`, width: `${size}px`, height: `${size}px` });
+      // the name keeps clear of it: centred while it fits under it, else pushed down just enough
+      const under = banner.cx - w / 2 < name.offsetLeft + name.offsetWidth && banner.cx + w / 2 > name.offsetLeft;
+      const need = b.bottom + 4 - name.offsetTop;
       if (under && need > (cellH - contentH) / 2) name.style.paddingTop = `${2 * need - cellH + contentH}px`;
     }
     // then the walls, to the cells as they now stand
     const H = el.clientHeight;
-    walls.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${cardWalls({ width: W, height: H, unit, portrait: box(portrait), name: box(name), level: box(level), elo: box(elo), badges: box(badges), banner: bannerW })}</svg>`;
+    walls.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${cardWalls({ width: W, height: H, unit, portrait: box(portrait), name: box(name), level: box(level), elo: box(elo), badges: box(badges), banner })}</svg>`;
   };
   let frame = 0;
   function schedule() {

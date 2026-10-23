@@ -86,6 +86,13 @@
   font-family: var(--serif);
   font-size: var(--fs-small);
 }
+/* your faction's sign beside its name (avatar.ts factionSignUrl), a little taller than the words */
+.faction-sign {
+  display: block;
+  flex: none;
+  width: 1.6em;
+  height: 1.6em;
+}
 
 /* The drop odds sheet (forge.ts openOdds): exact numbers, plain. */
 .odds-sheet {

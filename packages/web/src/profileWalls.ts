@@ -27,8 +27,8 @@ interface CardLayout {
   level: Box;
   elo: Box;
   badges: Box;
-  /** The faction's banner: its width in px, or 0 for none. */
-  banner: number;
+  /** The faction's banner: its centre and width in px, or null for none. */
+  banner: { cx: number; w: number } | null;
 }
 
 interface Wall {
@@ -168,13 +168,18 @@ function banner(p: Pen, cx: number, top: number, w: number): string {
 /** Where the emblem sits on the banner, in its units: inside the outline (10 to 52), above the step. */
 export const BANNER_EMBLEM = { size: 34, top: 20 };
 
-/** Where the banner hangs (its centre and top, px) and how far down it reaches, for the layout. */
-export function bannerPlace(width: number, unit: number, w: number): { cx: number; top: number; bottom: number } {
+/** The banner's height for its width (its 96 units tall, from the rod to the gem's tip at 88.5). */
+export const BANNER_DROP = 88.5 / 62;
+
+/** Where a banner `w` wide hangs from the frame line (top, px) and how far down it reaches. */
+export function bannerPlace(unit: number, w: number): { top: number; bottom: number } {
   const frame = 11 * unit;
-  // clear of the corner's ornament (40 units square), a little air beside it
-  const cx = width - 40 * unit - 2 * unit - w / 2;
-  return { cx, top: frame, bottom: frame + (88.5 / 62) * w };
+  return { top: frame, bottom: frame + BANNER_DROP * w };
 }
+
+/** A banner's centre in the card's top right corner: clear of the corner's ornament (40 units
+    square), a little air beside it. */
+export const bannerCornerX = (width: number, unit: number, w: number): number => width - 40 * unit - 2 * unit - w / 2;
 
 const sideBySide = (a: Box, b: Box) => a.right <= b.left + 0.5;
 
@@ -259,9 +264,6 @@ export function cardWalls(c: CardLayout): string {
     const place = w.o === 'h' ? `translate(${w.a.toFixed(1)} ${w.at.toFixed(1)})` : `translate(${w.at.toFixed(1)} ${w.a.toFixed(1)}) rotate(90)`;
     lines += `<g mask="url(#pc-wall-${i})"><g transform="${place}">${body}</g></g>`;
   });
-  if (c.banner) {
-    const b = bannerPlace(W, c.unit, c.banner);
-    marks += banner(p, b.cx, b.top, c.banner);
-  }
+  if (c.banner) marks += banner(p, c.banner.cx, bannerPlace(c.unit, c.banner.w).top, c.banner.w);
   return `<defs>${defs}</defs>${lines}${marks}`;
 }
