@@ -243,8 +243,9 @@ html[data-large-text] .action {
 html[data-large-text] .forge-head {
   grid-template-columns: minmax(0, 1fr);
 }
-/* (the words are under the icon now: its sunburst stops short of them) */
-html[data-large-text] .forge-head > .spin {
+/* (one column: the icon and purse, then the words; the sunburst stops short of the purse) */
+html[data-large-text] .forge-hero-col > .spin {
+  width: min(100%, 260px);
   --rays-h: calc(100% + var(--space-5));
 }
 html[data-large-text] .forge-avatar {

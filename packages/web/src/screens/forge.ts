@@ -96,7 +96,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
     const odds = h('button', { class: 'link-btn', text: copy.forge.oddsButton, attrs: { type: 'button' }, onclick: () => openOdds() });
     if (wide) {
       // you and your purse on the banner; how parts come and the Spirits side by side, then the parts
-      purse.replaceChildren(h('div', { class: 'forge-balances forge-purse' }, stardust, spirits));
+      purse.replaceChildren(h('div', { class: 'forge-balances forge-purse' }, spirits, stardust));
       body.replaceChildren(
         h('div', { class: 'door-row forge-top', attrs: { style: '--doors: 2' } },
           h('section', { class: 'forge-lead' }, h('h2', { class: 'forge-heading', text: copy.forge.blueprintsTitle }), h('p', { class: 'forge-intro', text: copy.forge.intro }), odds),
@@ -109,15 +109,10 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
     const head = h(
       'section',
       { class: 'forge-head' },
-      // the page's own icon, as on a wide screen's banner (you turn it to catch the light)
-      withRays(spinnable(forgeHero)),
-      h(
-        'div',
-        { class: 'forge-balances' },
-        h('p', { class: 'forge-intro', text: copy.forge.intro }),
-        odds,
-        h('div', { class: 'forge-purse' }, stardust, spirits),
-      ),
+      // one side the page's own icon (you turn it to catch the light) with your purse under it, the
+      // other how parts come, read from the start of the line
+      h('div', { class: 'forge-hero-col' }, withRays(spinnable(forgeHero)), h('div', { class: 'forge-purse' }, spirits, stardust)),
+      h('div', { class: 'forge-balances' }, h('p', { class: 'forge-intro', text: copy.forge.intro }), odds),
     );
     body.replaceChildren(
       head,

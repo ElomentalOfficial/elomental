@@ -13,14 +13,40 @@
 }
 .forge-head {
   display: grid;
-  grid-template-columns: minmax(0, 132px) 1fr;
+  grid-template-columns: minmax(0, 42%) 1fr;
   align-items: center;
-  gap: var(--space-4);
-  padding: var(--space-4);
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-4);
   border-radius: var(--radius-lg);
   background: var(--surface);
 }
-.forge-head > .spin {
+/* one side: the icon, your purse centred under it, a clear step apart */
+.forge-hero-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  min-width: 0;
+}
+/* the other: how parts come, from the start of the line, room between its lines */
+.forge-head > .forge-balances {
+  align-items: flex-start;
+  gap: var(--space-3);
+  text-align: start;
+}
+.forge-head .forge-intro {
+  line-height: 1.5;
+}
+/* the purse smaller here than on the banner, its rules as wide as the column */
+.forge-head .forge-purse {
+  align-self: stretch;
+  gap: var(--space-2);
+}
+.forge-head .balance {
+  width: 100%;
+  font-size: var(--fs-body);
+}
+.forge-hero-col > .spin {
   width: 100%;
   aspect-ratio: 617 / 375;
   /* its sunburst (rays.ts), as on the wide banner: a little past the icon's sides (clear of the
@@ -94,20 +120,20 @@
   overflow-wrap: anywhere;
 }
 /* A rule, a whole row, as the Home tiles' frames draw their lines (owner: one intensity and wear
-   throughout): the ornaments' opacity and the tiles' dash wear (tokens.css), the greyed gold line
-   broken around the flourish */
+   throughout): the tiles' dash wear (tokens.css), the line broken around the flourish */
 .purse-rule {
   flex: 0 0 100%;
   height: 12px;
   /* a little stronger than the other hairlines (owner): the purse's rules frame text, so they
      must be seen; the same ink and wear */
-  opacity: calc(var(--ornament-opacity) * 2.8);
+  opacity: calc(var(--ornament-opacity) * 2);
 }
 .purse-rule::before {
   content: '';
   display: block;
   height: 100%;
-  background: var(--rule-ink);
+  /* the ink greyed toward iron, so the rules sit back behind the coloured words */
+  background: color-mix(in oklab, var(--rule-ink) 45%, var(--c-iron-400));
   -webkit-mask:
     var(--flourish) center / 20px 10px no-repeat,
     linear-gradient(90deg, transparent, #000 15%, #000 calc(50% - 6px), transparent calc(50% - 6px) calc(50% + 6px), #000 calc(50% + 6px), #000 85%, transparent) center / 100% 1.3px no-repeat;
