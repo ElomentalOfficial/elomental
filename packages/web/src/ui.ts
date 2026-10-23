@@ -1,4 +1,5 @@
 import { reducedMotion } from './a11y.ts';
+import backArt from './art/screens/back.svg';
 import { ICONS } from './icons.ts';
 import { turnstileIn, turnstileOut } from './motion.ts';
 import { pageBanner } from './pageBanner.ts';
@@ -120,14 +121,15 @@ export interface Banner {
 export function subPage(options: { className: string; title: string | HTMLElement; onBack: () => void; banner?: Banner }, ...body: Child[]): HTMLElement {
   // long titles ("Leaderboard and card") take the smaller size, so they fit in two short lines
   const title = typeof options.title === 'string' ? h('h1', { class: options.title.length > 16 ? 'long' : '', text: options.title }) : options.title;
-  const header = h(
-    'header',
-    { class: 'subbar' },
-    h('button', { class: 'icon-btn', html: ICONS.back, attrs: { 'aria-label': copy.common.back }, onclick: options.onBack }),
-    title,
-    h('span', { class: 'icon-btn-spacer' }),
-  );
-  const banner = options.banner && wideLayout() ? pageBanner(header, options.banner, options.onBack) : null;
+  const wide = !!options.banner && wideLayout();
+  // Back: the owner's Deco arrowhead on phones and tablets; on the ribbon the plain chevron, the
+  // arrowhead being the big Back right under it (pageBanner.ts)
+  const back = wide
+    ? h('button', { class: 'icon-btn', html: ICONS.back, attrs: { 'aria-label': copy.common.back }, onclick: options.onBack })
+    : h('button', { class: 'icon-btn sub-back', attrs: { 'aria-label': copy.common.back }, onclick: options.onBack },
+      h('img', { class: 'sub-back-art', attrs: { src: backArt, alt: '', draggable: 'false' } }));
+  const header = h('header', { class: 'subbar' }, back, title, h('span', { class: 'icon-btn-spacer' }));
+  const banner = wide ? pageBanner(header, options.banner!, options.onBack) : null;
   return h(
     'div',
     { class: `screen sub ${options.className}${banner ? ' has-banner' : ''}` },

@@ -61,6 +61,33 @@
   text-transform: uppercase;
   color: var(--muted);
 }
+/* Back on phones and tablets (ui.ts subPage): the owner's Deco arrowhead in the usual chip, a
+   little larger than a line icon, moved 7% left to look centred (its weight is in its right-hand
+   panels, as on the wide pages' big Back), nudging left under the pointer */
+.sub-back {
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+/* (a set height: a percentage one doesn't resolve inside a button) the chip's 44px less 6px each side */
+.sub-back-art {
+  display: block;
+  width: auto;
+  height: 32px;
+  translate: -7% 0;
+  pointer-events: none;
+  user-select: none;
+  transition: transform 0.15s ease-out;
+}
+@media (hover: hover) {
+  .sub-back:hover .sub-back-art {
+    transform: translateX(-2px);
+  }
+}
+html[data-reduce-motion] .sub-back-art {
+  transition: none;
+  transform: none !important;
+}
 .subbar h1 {
   font-size: var(--fs-title);
   text-transform: uppercase;

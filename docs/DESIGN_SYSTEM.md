@@ -64,7 +64,9 @@ pages, Forge, Profile and Daily are "Banner and Doors".
   of the tab order and the screen reader (the ribbon's Back serves them, so there's never a second
   "Back"); it stays put (never spins) and nudges left under the pointer. It sizes to the room under the tail and steps
   aside when that room is under 130px (short windows, large text); the Back at the ribbon's top is
-  always there. Wide layout only, like the ribbon.
+  always there. On phones and tablets the same arrowhead is the header Back, in the usual 44px
+  chip (`.sub-back`, pages.css); the ribbon's own top Back keeps the plain chevron, so a wide page
+  never shows the arrowhead twice.
 - **Hero icon** (`src/spin.ts` `spinnable`): drag to tilt like Apple Fitness awards, at most 70°
   (never flips), three slim edge layers, a shine band, springs back. Also on the phone Forge head.
 - **Still to come:** the owner sends one icon per page into `manual_assets/screen_icons/` (only
