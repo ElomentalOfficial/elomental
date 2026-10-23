@@ -127,7 +127,7 @@ export function subPage(options: { className: string; title: string | HTMLElemen
     title,
     h('span', { class: 'icon-btn-spacer' }),
   );
-  const banner = options.banner && wideLayout() ? pageBanner(header, options.banner) : null;
+  const banner = options.banner && wideLayout() ? pageBanner(header, options.banner, options.onBack) : null;
   return h(
     'div',
     { class: `screen sub ${options.className}${banner ? ' has-banner' : ''}` },
@@ -240,9 +240,9 @@ export async function goBack(next: () => Screen): Promise<void> {
   const leaving = current?.el;
   closeAllModals();
   if (leaving && !reducedMotion()) {
-    // The game's banner and a page's banner (wide layouts) roll up out of sight first, so they don't
-    // swing with the page.
-    const banner = leaving.querySelector<HTMLElement>('.brand-banner, .page-banner');
+    // The game's banner and a page's banner (wide layouts, with the Back under it) roll up out of
+    // sight first, so they don't swing with the page.
+    const banner = leaving.querySelector<HTMLElement>('.brand-banner, .banner-col');
     const rollUp = !!banner && banner.offsetParent !== null;
     if (rollUp) {
       await banner!

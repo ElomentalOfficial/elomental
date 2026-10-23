@@ -53,6 +53,45 @@
     --primary-bg: var(--on-accent);
     --primary-text: var(--accent);
   }
+  /* the banner's column: the ribbon, then the Back under its tail in the space left below */
+  .banner-col {
+    /* the Back's height: its seal and rails (3.2 times as wide) fit the column */
+    --back: min(clamp(64px, 11dvh, 96px), var(--banner-w) / 3.4);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+  }
+  /* (its own length, as when it hung alone: shrinking it in the column would feed back into the
+     tail's room, pageBanner.ts fit) */
+  .banner-col > .page-banner {
+    align-self: stretch;
+    flex: none;
+  }
+  /* the room left under the tail: the Back fits it, smaller when it's short, and stays away when
+     there's too little (the Back at the banner's top is always there) */
+  .banner-back-slot {
+    flex: 1 1 0;
+    min-height: 0;
+    container-type: size;
+    display: grid;
+    place-items: center;
+    animation: banner-back-in 0.3s ease-out 0.55s both;
+  }
+  /* (below about 80px tall it would be a poor target, its seal crowding the screen's edge) */
+  @container (max-height: 130px) {
+    .banner-back-slot > .banner-back {
+      display: none;
+    }
+  }
+  @keyframes banner-back-in {
+    from {
+      opacity: 0;
+    }
+  }
+  html[data-reduce-motion] .banner-back-slot {
+    animation: none;
+  }
   .banner-inner {
     flex: 0 1 auto;
     min-height: 0;
@@ -414,6 +453,72 @@ html[data-reduce-motion] .dealt {
   -webkit-mask: var(--rays) 0 0 / 100% 100% no-repeat;
   mask: var(--rays) 0 0 / 100% 100% no-repeat;
   opacity: 0.14;
+}
+
+/* The Back under a wide page's banner (pageBanner.ts): the owner's Deco arrowhead in a seal with
+   diamond rails (the second background ornament), the seal in the page's ink, as faint as the
+   sunburst. It stays put; it nudges back toward where it goes under the pointer. */
+.banner-back {
+  /* its height: the column's, or less in a short slot (the seal is 1.39 times as tall, and keeps
+     clear of the slot's edges) */
+  --b: min(var(--back), 62cqh);
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  width: calc(var(--b) * 220 / 273);
+  height: var(--b);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: none;
+  color: var(--text);
+  cursor: var(--cursor-pointer);
+  -webkit-tap-highlight-color: transparent;
+}
+.banner-back-seal {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--b) * 3.2);
+  aspect-ratio: 300 / 130;
+  translate: -50% -50%;
+  z-index: -1;
+  opacity: 0.14;
+  pointer-events: none;
+}
+.banner-back-seal svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.banner-back-art {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* centred by eye, not by its box: the arrowhead's weight is in its two panels on the right (its
+     centre of mass sits 12% right of the box's middle), so it moves a little over half of that */
+  translate: -7% 0;
+  pointer-events: none;
+  user-select: none;
+  transition: transform 0.18s ease-out, filter 0.15s ease;
+}
+@media (hover: hover) {
+  .banner-back:hover .banner-back-art {
+    transform: translateX(-4px);
+    filter: brightness(1.08);
+  }
+}
+.banner-back:active .banner-back-art {
+  transform: translateX(-2px) scale(0.97);
+}
+html[data-reduce-motion] .banner-back-art {
+  transition: none;
+  transform: none !important;
+}
+.banner-back:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 6px;
 }
 
 /* A hero icon you can turn (spin.ts): the face, and a few copies stacked close behind it for a slim

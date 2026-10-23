@@ -35,9 +35,11 @@ closed shapes, `aria-hidden`, and clearance from text. Use one per surface.
    place sets with `--rays-w` / `--rays-h`, so the tips stay off the text. Used on the wide banners
    (cloth width × hero height) and the phone/tablet Forge head (a little past the icon's sides,
    twice its height; just past it at large text). Unbroken rays at 6.5% were too faint.
-2. **Seal and diamond rails.** A faint round seal behind a title (two thin rings, a band of runes,
-   a crest in the middle); nested 45° diamonds at the ends of a bar; short dashed lines running
-   out from them to a small dot or tick. Not built yet.
+2. **Seal and diamond rails.** A faint round seal (two thin rings, a band of rune ticks between
+   them, the crest in the middle); nested 45° diamonds on each side; short dashed rails running
+   out from them to a small dot. Built behind the wide pages' lower Back (`SEAL` in
+   `pageBanner.ts`, `.banner-back-seal` in `banner.css`, 14% like the sunburst), where the owner
+   picked it over a second sunburst ("too repetitive on the page").
 3. **Diamond chain.** One thin spine line through a row or column of items, each item in a large
    hairline diamond that overlaps its neighbours, small diamonds between them as connectors; the
    active item gets a heavier frame. Not built yet.
@@ -56,6 +58,13 @@ pages, Forge, Profile and Daily are "Banner and Doors".
   profile card's frames in turn along a row). Never change the tile frame design. Each card turns
   in and out on its own like Home's tiles (`ui.ts` tilesIn/turnstileOut), stagger capped to Home's
   total time.
+- **Lower Back** (`pageBanner.ts`): under the ribbon's tail, the owner's Deco arrowhead
+  (`art/screens/back.svg`) in the seal and diamond rails, the arrowhead moved 7% left so it looks
+  centred (its weight is in its right-hand panels). A button for the pointer and touch, kept out
+  of the tab order and the screen reader (the ribbon's Back serves them, so there's never a second
+  "Back"); it stays put (never spins) and nudges left under the pointer. It sizes to the room under the tail and steps
+  aside when that room is under 130px (short windows, large text); the Back at the ribbon's top is
+  always there. Wide layout only, like the ribbon.
 - **Hero icon** (`src/spin.ts` `spinnable`): drag to tilt like Apple Fitness awards, at most 70°
   (never flips), three slim edge layers, a shine band, springs back. Also on the phone Forge head.
 - **Still to come:** the owner sends one icon per page into `manual_assets/screen_icons/` (only
