@@ -49,7 +49,7 @@ export function affinityScreen(back: () => Screen = homeScreen): Screen {
             onclick: () => confirm(e),
           },
           fewest === e ? h('span', { class: 'affinity-tag', text: copy.affinity.needsYou, attrs: { 'aria-hidden': 'true' } }) : null,
-          h('span', { class: 'affinity-art', html: crestSvg(e, 2), attrs: { 'aria-hidden': 'true' } }),
+          h('span', { class: 'affinity-art', html: crestSvg(e), attrs: { 'aria-hidden': 'true' } }),
           h('strong', { class: 'affinity-name', text: name, attrs: { 'aria-hidden': 'true' } }),
           h('span', { class: 'affinity-line', text: line, attrs: { 'aria-hidden': 'true' } }),
           s && where
@@ -85,7 +85,7 @@ export function affinityScreen(back: () => Screen = homeScreen): Screen {
         'div',
         { class: 'sheet affinity-confirm' },
         closeButton(() => close()),
-        h('span', { class: 'affinity-art', html: crestSvg(e, 3), attrs: { 'aria-hidden': 'true' } }),
+        h('span', { class: 'affinity-art', html: crestSvg(e), attrs: { 'aria-hidden': 'true' } }),
         h('h2', { text: copy.affinity.confirmTitle(name) }),
         h('p', { class: 'note', text: copy.affinity.confirmText }),
         join,

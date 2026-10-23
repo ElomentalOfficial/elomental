@@ -326,10 +326,10 @@ html[data-reduce-motion] .sword-live .sword-flame {
 .avatar-base {
   fill: var(--surface-2);
 }
-.avatar-art .el-fire { --el: var(--el-fire-fill); --el-on: var(--el-fire-on); --el-mark: var(--el-fire-mark); --el-edge: var(--el-fire-edge); }
-.avatar-art .el-water { --el: var(--el-water-fill); --el-on: var(--el-water-on); --el-mark: var(--el-water-mark); --el-edge: var(--el-water-edge); }
-.avatar-art .el-earth { --el: var(--el-earth-fill); --el-on: var(--el-earth-on); --el-mark: var(--el-earth-mark); --el-edge: var(--el-earth-edge); }
-.avatar-art .el-air { --el: var(--el-air-fill); --el-on: var(--el-air-on); --el-mark: var(--el-air-mark); --el-edge: var(--el-air-edge); }
+.avatar-art .el-fire { --el: var(--el-fire-fill); --el-on: var(--el-fire-on); --el-mark: var(--el-fire-mark); --el-edge: var(--el-fire-edge); --el-deep: var(--el-fire-deep); }
+.avatar-art .el-water { --el: var(--el-water-fill); --el-on: var(--el-water-on); --el-mark: var(--el-water-mark); --el-edge: var(--el-water-edge); --el-deep: var(--el-water-deep); }
+.avatar-art .el-earth { --el: var(--el-earth-fill); --el-on: var(--el-earth-on); --el-mark: var(--el-earth-mark); --el-edge: var(--el-earth-edge); --el-deep: var(--el-earth-deep); }
+.avatar-art .el-air { --el: var(--el-air-fill); --el-on: var(--el-air-on); --el-mark: var(--el-air-mark); --el-edge: var(--el-air-edge); --el-deep: var(--el-air-deep); }
 .layer-frame .ring {
   /* the element as a shape: its fill, or its line where a pale fill would vanish (palette.css mark) */
   stroke: var(--el-mark);
@@ -341,12 +341,18 @@ html[data-reduce-motion] .sword-live .sword-flame {
   stroke: var(--el-on);
   stroke-width: 1.6;
 }
-/* An element's crest (avatar.ts crestSvg): its full-colour emblem on a plain disc, the disc
-   edged in the element's colour (the same for each element: palette.css edge). */
-.crest circle {
-  fill: var(--surface-2);
-  stroke: var(--el-edge);
-  stroke-width: 1.6;
+/* An element's crest (avatar.ts crestSvg): its full-colour emblem on a disc of its own hue at its
+   darkest (palette.css deep), ringed by two fine gold circles with a hollow gem on a rail at each
+   side, and nothing else (owner, 2026-10-23: no frame ring). The same in both themes, like the
+   emblems. */
+.crest .crest-disc {
+  fill: var(--el-deep);
+}
+.crest .crest-ring,
+.crest .crest-gem {
+  fill: none;
+  stroke: var(--crest-ring);
+  stroke-width: 0.8;
 }
 /* A gilded frame (gilding): a fine gilt rim just outside its ring, in the plates' gilt metal.
    Drawn in every frame, shown only when gilded. */

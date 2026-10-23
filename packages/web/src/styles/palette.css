@@ -202,30 +202,42 @@
    *         a light fill would vanish (light theme)
    *   edge  the 1px rim of every filled tag, chip, segment and disc: the same rule for all of
    *         them (none on dark, a deeper shade of the hue on light), so a set never mixes rims
+   *   deep  the hue at its darkest (900), a ground for art drawn on it (a crest disc)
    * Always shown with the name or the crest, never colour alone.
    */
   --el-fire-fill: var(--c-lava-500);
   --el-fire-on: var(--c-sand-50);
+  --el-fire-deep: var(--c-lava-900);
   --el-water-fill: var(--c-tide-400);
   --el-water-on: var(--c-stone-900);
+  --el-water-deep: var(--c-tide-900);
   --el-earth-fill: var(--c-forest-500);
   --el-earth-on: var(--c-sand-50);
+  --el-earth-deep: var(--c-forest-900);
   --el-air-fill: var(--c-mist-200);
   --el-air-on: var(--c-stone-900);
+  --el-air-deep: var(--c-mist-900);
   --r-common-fill: var(--c-iron-500);
   --r-common-on: var(--c-sand-50);
+  --r-common-deep: var(--c-iron-900);
   --r-rare-fill: var(--c-azure-500);
   --r-rare-on: var(--c-sand-50);
+  --r-rare-deep: var(--c-azure-900);
   --r-epic-fill: var(--c-amethyst-500);
   --r-epic-on: var(--c-sand-50);
+  --r-epic-deep: var(--c-amethyst-900);
   --r-mythic-fill: var(--c-flame-400);
   --r-mythic-on: var(--c-stone-900);
+  --r-mythic-deep: var(--c-flame-900);
   --tone-lava-fill: var(--c-lava-500);
   --tone-lava-on: var(--c-sand-50);
+  --tone-lava-deep: var(--c-lava-900);
   --tone-forest-fill: var(--c-forest-500);
   --tone-forest-on: var(--c-sand-50);
+  --tone-forest-deep: var(--c-forest-900);
   --tone-crimson-fill: var(--c-crimson-600);
   --tone-crimson-on: var(--c-sand-50);
+  --tone-crimson-deep: var(--c-crimson-900);
   /* the fill under its short name */
   --el-fire: var(--el-fire-fill);
   --el-water: var(--el-water-fill);

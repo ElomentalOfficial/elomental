@@ -123,6 +123,9 @@
   --plate-ink: var(--muted);
   --plate-ink-chosen: var(--muted-chosen);
   --medal-fill: var(--c-stone-950);
+  /* The faction crests (avatar.ts crestSvg, the Affinity cards): a fine gold ring round the emblem
+     (its disc is the element's own deep, palette.css); the same in both themes, as the emblems are */
+  --crest-ring: var(--c-gold-300);
   --medal-ink: var(--c-bright);
   --level-ink: var(--text);
   --xp-fill: var(--text);
