@@ -222,22 +222,49 @@
   grid-area: elo;
   container-type: inline-size;
 }
-/* A faint well behind Level, Elo and the badges (owner, 2026-10-23): inside each cell, so the walls
-   and the frame stay clear, its corners cut at 45° like the walls' ornaments; the badges' lower
-   corners cut deep, round the frame's corner ornaments. */
+/* A faint well behind Level, Elo and the badges (owner, 2026-10-23): the whole cell, up to the walls
+   beside it, its corners notched in two Deco steps clear of the walls' junction ornaments (the
+   badges' lower corners cut deep, round the frame's corner ornaments). Its edges wear away into
+   negative space: a band round it broken by the hairline ornaments' own dash pattern
+   (--ornament-wear), so the well fades out into the card rather than stopping at a line. */
 :is(.pc-level, .pc-elo, .pc-badges)::before {
-  --cut: var(--space-2);
-  --cut-low: var(--cut);
+  --s: var(--space-2);
+  --h: var(--space-1);
+  --edge: var(--space-1);
   content: '';
   position: absolute;
-  inset: var(--space-1);
+  inset: 0;
   z-index: -1;
   background: var(--pc-well);
-  clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut-low)), calc(100% - var(--cut-low)) 100%, var(--cut-low) 100%, 0 calc(100% - var(--cut-low)), 0 var(--cut));
+  /* each corner two steps in (--s, then --h) */
+  clip-path: polygon(
+    var(--s) 0, calc(100% - var(--s)) 0, calc(100% - var(--s)) var(--h), calc(100% - var(--h)) var(--h), calc(100% - var(--h)) var(--s), 100% var(--s),
+    100% calc(100% - var(--s)), calc(100% - var(--h)) calc(100% - var(--s)), calc(100% - var(--h)) calc(100% - var(--h)), calc(100% - var(--s)) calc(100% - var(--h)), calc(100% - var(--s)) 100%,
+    var(--s) 100%, var(--s) calc(100% - var(--h)), var(--h) calc(100% - var(--h)), var(--h) calc(100% - var(--s)), 0 calc(100% - var(--s)),
+    0 var(--s), var(--h) var(--s), var(--h) var(--h), var(--s) var(--h)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) center / calc(100% - 2 * var(--edge)) calc(100% - 2 * var(--edge)) no-repeat,
+    var(--ornament-wear-x) top / 100% var(--edge) no-repeat,
+    var(--ornament-wear-x) bottom / 100% var(--edge) no-repeat,
+    var(--ornament-wear-y) left / var(--edge) 100% no-repeat,
+    var(--ornament-wear-y) right / var(--edge) 100% no-repeat;
+  mask:
+    linear-gradient(#000 0 0) center / calc(100% - 2 * var(--edge)) calc(100% - 2 * var(--edge)) no-repeat,
+    var(--ornament-wear-x) top / 100% var(--edge) no-repeat,
+    var(--ornament-wear-x) bottom / 100% var(--edge) no-repeat,
+    var(--ornament-wear-y) left / var(--edge) 100% no-repeat,
+    var(--ornament-wear-y) right / var(--edge) 100% no-repeat;
   pointer-events: none;
 }
+/* the badges' lower corners cut deep instead, round the frame's corner ornaments */
 .pc-badges::before {
-  --cut-low: calc(var(--frame-corner) * var(--frame-zoom, 1) * 0.75);
+  --low: calc(var(--frame-corner) * var(--frame-zoom, 1) * 0.6);
+  clip-path: polygon(
+    var(--s) 0, calc(100% - var(--s)) 0, calc(100% - var(--s)) var(--h), calc(100% - var(--h)) var(--h), calc(100% - var(--h)) var(--s), 100% var(--s),
+    100% calc(100% - var(--low)), calc(100% - var(--low)) 100%, var(--low) 100%, 0 calc(100% - var(--low)),
+    0 var(--s), var(--h) var(--s), var(--h) var(--h), var(--s) var(--h)
+  );
 }
 .pc-given {
   display: flex;
