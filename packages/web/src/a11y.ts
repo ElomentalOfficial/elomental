@@ -27,7 +27,8 @@ export interface A11yPrefs {
   haptics: boolean;
   sounds: boolean;
   /**
-   * With a mouse or trackpad: the gem cursor, or the system's (which keeps the size and colour
+   * With a mouse or trackpad: the drawn cursor (the gold arrow; 'gem', after the cursor it replaced,
+   * so saved choices keep working), or the system's (which keeps the size and colour
    * set on the device). This device only: the account doesn't keep it (save_settings drops it).
    */
   cursor: 'gem' | 'system';

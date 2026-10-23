@@ -154,7 +154,7 @@ test('Colour-blind friendly marks same numbers with a bar', async ({ app }) => {
   expect(await same.evaluate((c) => getComputedStyle(c, '::after').content)).not.toBe('none');
 });
 
-test('Pointer: the gem with a mouse, lit over a button, the text cursor in a field; System gives it back', async ({ app }) => {
+test('Pointer: the gold arrow with a mouse, lit over a button, the text cursor in a field; System gives it back', async ({ app }) => {
   const cursors = () => app.evaluate(() => {
     const field = document.createElement('input');
     document.body.append(field);
@@ -163,10 +163,10 @@ test('Pointer: the gem with a mouse, lit over a button, the text cursor in a fie
     field.remove();
     return out;
   });
-  const gem = await cursors();
-  expect(gem.page).toContain('gem');
-  expect(gem.button).toContain('gem-lit');
-  expect(gem.field).toBe('text');
+  const drawn = await cursors();
+  expect(drawn.page).toContain('arrow');
+  expect(drawn.button).toContain('arrow-lit');
+  expect(drawn.field).toBe('text');
   await usePrefs(app, { cursor: 'system' });
   expect(await cursors()).toEqual({ page: 'auto', button: 'pointer', field: 'text' });
 });

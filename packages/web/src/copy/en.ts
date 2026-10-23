@@ -1010,8 +1010,8 @@ export const setup = {
     colourBlindHelp: 'Adds marks to highlighted and wrong cells, so no state relies on colour.',
     /** Shown only with a mouse or trackpad (a11y.ts finePointer). */
     cursor: 'Pointer',
-    cursorHelp: 'The gem lights up over anything you can click. System keeps your device’s own pointer, at its size. This device only.',
-    gem: 'Gem',
+    cursorHelp: 'The gold arrow lights up over anything you can click. System keeps your device’s own pointer, at its size. This device only.',
+    gem: 'Gold arrow',
     motion: 'Reduce motion',
     motionHelp: 'Cuts page turns, ripples and pops. System follows your device.',
     reduce: 'Reduce',

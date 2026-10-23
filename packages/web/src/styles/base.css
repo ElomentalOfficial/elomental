@@ -18,11 +18,11 @@ html {
 }
 
 /*
- * The gem cursor (assets/cursors; scripts/cursors.ts renders the PNGs): with a mouse or a
+ * The Deco arrow cursor (assets/cursors; scripts/cursors.ts renders the PNGs): with a mouse or a
  * trackpad, unless the player picked the system's in Setup > Accessibility (a11y.ts sets
  * data-cursor) or the system forces its colours. A drawn cursor ignores the size and colour
  * set for the system's, so it never applies there. Rules ask for var(--cursor-pointer) where
- * they'd say pointer: the lit gem over something to click.
+ * they'd say pointer: the lit arrow over something to click.
  */
 :root {
   --cursor-default: auto;
@@ -30,14 +30,14 @@ html {
 }
 @media (pointer: fine) and (forced-colors: none) {
   :root[data-cursor='gem'] {
-    --cursor-default: url('../assets/cursors/gem.png') 3 3, auto;
-    --cursor-pointer: url('../assets/cursors/gem-lit.png') 3 3, pointer;
+    --cursor-default: url('../assets/cursors/arrow.png') 3 3, auto;
+    --cursor-pointer: url('../assets/cursors/arrow-lit.png') 3 3, pointer;
   }
   /* crisp on 2x screens where the browser takes image-set() for a cursor */
   @supports (cursor: image-set(url('x.png') 1x) 2 2, auto) {
     :root[data-cursor='gem'] {
-      --cursor-default: image-set(url('../assets/cursors/gem.png') 1x, url('../assets/cursors/gem@2x.png') 2x) 3 3, auto;
-      --cursor-pointer: image-set(url('../assets/cursors/gem-lit.png') 1x, url('../assets/cursors/gem-lit@2x.png') 2x) 3 3, pointer;
+      --cursor-default: image-set(url('../assets/cursors/arrow.png') 1x, url('../assets/cursors/arrow@2x.png') 2x) 3 3, auto;
+      --cursor-pointer: image-set(url('../assets/cursors/arrow-lit.png') 1x, url('../assets/cursors/arrow-lit@2x.png') 2x) 3 3, pointer;
     }
   }
 }

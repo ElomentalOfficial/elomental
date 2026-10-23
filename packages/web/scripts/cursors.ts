@@ -1,5 +1,5 @@
 /**
- * Renders the gem cursors (src/assets/cursors/*.svg, drawn on a 32-unit grid) to the PNGs the
+ * Renders the arrow cursors (src/assets/cursors/*.svg, drawn on a 32-unit grid) to the PNGs the
  * app uses: SIZE px and twice that (for 2x screens), transparent. PNG because every browser
  * takes it as a cursor; SVG cursors are blurry or ignored in some. The hotspot in base.css is
  * scaled to match (2 units in). Run after changing an SVG or the size:
@@ -14,7 +14,7 @@ const SIZE = 40;
 
 const dir = new URL('../src/assets/cursors/', import.meta.url);
 const browser = await chromium.launch();
-for (const name of ['gem', 'gem-lit']) {
+for (const name of ['arrow', 'arrow-lit']) {
   const svg = readFileSync(new URL(`${name}.svg`, dir), 'utf8');
   for (const scale of [1, 2]) {
     const page = await browser.newPage({ viewport: { width: SIZE, height: SIZE }, deviceScaleFactor: scale });
