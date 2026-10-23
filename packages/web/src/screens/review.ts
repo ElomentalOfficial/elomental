@@ -255,7 +255,7 @@ export function reviewPanel(options: {
       'div',
       { class: 'review-detail' },
       h('p', { class: 'note', text: copy.review.emailAndElo(player.email ?? copy.review.guestAccount, player.elo) }),
-      searching() ? h('p', { class: 'note review-id', text: copy.review.id(player.userId) }) : null,
+      searching() ? h('p', { class: 'review-id', text: copy.review.id(player.userId) }) : null,
       latest ? h('p', { class: 'review-verdict', text: `${verdict(latest)}: ${why(latest)}` }) : null,
       player.restricted
         ? h('p', { class: 'note', text: copy.review.bannedLine(banLength(player), player.restrictionReason) })

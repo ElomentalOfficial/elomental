@@ -5,7 +5,7 @@
 .square-field {
   width: 100%;
   text-align: center;
-  font-size: var(--fs-title) !important;
+  font-size: var(--fs-title);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }

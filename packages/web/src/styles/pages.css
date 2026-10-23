@@ -84,10 +84,6 @@
     transform: translateX(-2px);
   }
 }
-html[data-reduce-motion] .sub-back-art {
-  transition: none;
-  transform: none !important;
-}
 .subbar h1 {
   font-size: var(--fs-title);
   text-transform: uppercase;
@@ -189,9 +185,6 @@ html.standalone .screen.scrollable {
 .sub-body.fade-bottom {
   --fade-b: 28px;
 }
-.field-hint {
-  font-size: var(--fs-small) !important;
-}
 .setting {
   display: flex;
   flex-direction: column;
@@ -212,6 +205,10 @@ html.standalone .screen.scrollable {
   font-size: var(--fs-body);
   line-height: 1.45;
   color: var(--muted);
+}
+/* A hint under a field in a card: a step smaller than the card's lines */
+.setting .field-hint {
+  font-size: var(--fs-small);
 }
 /* A title and its help line belong together: the smallest step. */
 .setting :is(h2, h3) + p {
@@ -278,8 +275,11 @@ html.standalone .screen.scrollable {
   font-size: var(--fs-body);
   color: var(--muted);
 }
+/* a player's id under a search: small, and selected whole with one click to copy */
 .review-id {
-  font-size: var(--fs-caption) !important;
+  font-family: var(--serif);
+  font-size: var(--fs-caption);
+  color: var(--muted);
   user-select: all;
 }
 .review-log.inline {
