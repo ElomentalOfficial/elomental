@@ -222,6 +222,23 @@
   grid-area: elo;
   container-type: inline-size;
 }
+/* A faint well behind Level, Elo and the badges (owner, 2026-10-23): inside each cell, so the walls
+   and the frame stay clear, its corners cut at 45° like the walls' ornaments; the badges' lower
+   corners cut deep, round the frame's corner ornaments. */
+:is(.pc-level, .pc-elo, .pc-badges)::before {
+  --cut: var(--space-2);
+  --cut-low: var(--cut);
+  content: '';
+  position: absolute;
+  inset: var(--space-1);
+  z-index: -1;
+  background: var(--pc-well);
+  clip-path: polygon(var(--cut) 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% calc(100% - var(--cut-low)), calc(100% - var(--cut-low)) 100%, var(--cut-low) 100%, 0 calc(100% - var(--cut-low)), 0 var(--cut));
+  pointer-events: none;
+}
+.pc-badges::before {
+  --cut-low: calc(var(--frame-corner) * var(--frame-zoom, 1) * 0.75);
+}
 .pc-given {
   display: flex;
   flex-direction: column;
