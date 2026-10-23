@@ -1,5 +1,5 @@
 import grain from './art/grain.webp';
-import type { Box } from './profileWalls.ts';
+import { frameLine, underYou, type Box } from './profileWalls.ts';
 
 /**
  * The plaques behind the profile card's Level, Elo and badges (owner, 2026-10-23): an Art Deco
@@ -55,9 +55,34 @@ function plaque(b: Box, unit: number, rLow?: number): { fill: string; lines: str
   return { fill, lines: line + back };
 }
 
+/**
+ * Each cell's plaque box (owner: bigger, out to the box's margins): grown from the cell out to a
+ * small gap short of each neighbouring cell's plaque, and where it has no neighbour out to just
+ * inside the frame's line (or the wall under you, above).
+ */
+function grown(cells: Box[], width: number, height: number, unit: number, ceiling: number): Box[] {
+  const E = frameLine(unit) + 4 * unit;
+  const gap = 2 * unit;
+  const overlaps = (a0: number, a1: number, b0: number, b1: number) => a0 < b1 - 0.5 && b0 < a1 - 0.5;
+  return cells.map((b) => {
+    const others = cells.filter((o) => o !== b);
+    const left = others.filter((o) => o.right <= b.left + 0.5 && overlaps(o.top, o.bottom, b.top, b.bottom));
+    const right = others.filter((o) => o.left >= b.right - 0.5 && overlaps(o.top, o.bottom, b.top, b.bottom));
+    const above = others.filter((o) => o.bottom <= b.top + 0.5 && overlaps(o.left, o.right, b.left, b.right));
+    const below = others.filter((o) => o.top >= b.bottom - 0.5 && overlaps(o.left, o.right, b.left, b.right));
+    return {
+      left: left.length ? (Math.max(...left.map((o) => o.right)) + b.left) / 2 + gap : E,
+      right: right.length ? (Math.min(...right.map((o) => o.left)) + b.right) / 2 - gap : width - E,
+      top: above.length ? (Math.max(...above.map((o) => o.bottom)) + b.top) / 2 + gap : ceiling + 4 * unit,
+      bottom: below.length ? (Math.min(...below.map((o) => o.top)) + b.bottom) / 2 - gap : height - E,
+    };
+  });
+}
+
 /** The plaques for the card's cells, as SVG content for a `width` × `height` drawing. */
-export function cardPlaques(c: { width: number; height: number; unit: number; level: Box; elo: Box; badges: Box; frameCorner: number }): string {
-  const plaques = [plaque(c.level, c.unit), plaque(c.elo, c.unit), plaque(c.badges, c.unit, c.frameCorner * 0.6)];
+export function cardPlaques(c: { width: number; height: number; unit: number; portrait: Box; name: Box; level: Box; elo: Box; badges: Box; frameCorner: number }): string {
+  const [level, elo, badges] = grown([c.level, c.elo, c.badges], c.width, c.height, c.unit, underYou(c));
+  const plaques = [plaque(level, c.unit), plaque(elo, c.unit), plaque(badges, c.unit, c.frameCorner * 0.6)];
   return (
     `<defs><pattern id="pc-grain" patternUnits="userSpaceOnUse" width="224" height="224"><image href="${grain}" width="224" height="224"/></pattern>` +
     `<mask id="pc-grain-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="${c.width}" height="${c.height}"><rect width="${c.width}" height="${c.height}" fill="url(#pc-grain)"/></mask></defs>` +

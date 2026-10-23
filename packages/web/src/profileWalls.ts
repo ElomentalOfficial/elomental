@@ -102,20 +102,10 @@ const STYLES = {
       return out;
     },
   },
-  // the frame's own pair, as far apart as its two edge lines: the floor
-  double: {
-    hw: (p: Pen) => 3 * p.u,
-    draw: (p: Pen, L: number) => p.worn(`M0 ${-3 * p.u} H${L} M0 ${3 * p.u} H${L}`),
-  },
   // a fine pair, close together: beside your portrait
   fineDouble: {
     hw: (p: Pen) => 1.8 * p.u,
     draw: (p: Pen, L: number) => p.worn(`M0 ${-1.6 * p.u} H${L} M0 ${1.6 * p.u} H${L}`, p.lw * 0.6),
-  },
-  // one fine line: Level and Elo apart
-  fine: {
-    hw: (p: Pen) => p.u,
-    draw: (p: Pen, L: number) => p.worn(`M0 0 H${L}`, p.lw * 0.65),
   },
 };
 
@@ -132,18 +122,6 @@ const TERMS = {
   },
   // the Casual corner's rings
   rings: { reach: 14, draw: (p: Pen) => p.worn(p.arc(5) + p.arc(9.5) + p.arc(14)) + p.dot(0, 0, 1.6) },
-  // a fluted block on the frame, a bar the wall rests on
-  capital: {
-    reach: 13,
-    draw: (p: Pen) => p.worn(p.scaled('M-11 0 V10 H11 V0 M-5.5 0 V7 M0 0 V7 M5.5 0 V7 M-7 13 H7')) + p.dot(-8.5, 11.5, 1) + p.dot(8.5, 11.5, 1),
-  },
-  // the Store corner's chamfered band with rungs, and its gem
-  chamfer: {
-    reach: 12,
-    draw: (p: Pen) =>
-      p.worn(p.scaled('M-15 0 L-8 12 H8 L15 0 M-9 0 L-4.5 7 H4.5 L9 0 M-12.67 4 L-7.5 2.33 M-10.33 8 L-6 4.67 M-8 12 L-4.5 7 M12.67 4 L7.5 2.33 M10.33 8 L6 4.67 M8 12 L4.5 7')) +
-      p.gem(0, 3.2, 2),
-  },
   // a gem hung on a short stem, a rivet either side
   pendant: {
     reach: 14,
@@ -185,34 +163,22 @@ const sideBySide = (a: Box, b: Box) => a.right <= b.left + 0.5;
 
 /** The ornaments' size against the tile corners' (owner, 2026-10-22: smaller). */
 const ORN = 0.65;
-/** Junction ornaments, drawn whole about their centre (units); JUNCTION_R is how far they reach. */
-const JUNCTION_R = 8;
-const JUNCTIONS = {
-  // nested lozenges, a gem at the heart
-  lozenge: (p: Pen) => p.worn(p.scaled('M0 -8 L8 0 L0 8 L-8 0 Z M0 -4.5 L4.5 0 L0 4.5 L-4.5 0 Z')) + p.gem(0, 0, 1.8),
-  // a ring with eight short rays, a rivet at the heart
-  rosette: (p: Pen) => {
-    let d = `M${p.n(4)} 0 A${p.n(4)} ${p.n(4)} 0 1 1 ${p.n(-4)} 0 A${p.n(4)} ${p.n(4)} 0 1 1 ${p.n(4)} 0 `;
-    for (let a = 0; a < 360; a += 45) d += p.ray(a, 5.5, 8);
-    return p.worn(d) + p.dot(0, 0, 1.4);
-  },
-};
+/** Where the wall under you runs: between you and your name above, Level and Elo below. */
+export const underYou = (c: Pick<CardLayout, 'portrait' | 'name' | 'level' | 'elo'>): number =>
+  (Math.max(c.portrait.bottom, c.name.bottom) + Math.min(c.level.top, c.elo.top)) / 2;
+/** The frame's inner line, in from the card's edge (its 40-unit corner's 11th unit). */
+export const frameLine = (unit: number): number => 11 * unit;
 
 export function cardWalls(c: CardLayout): string {
   const p = pen(c.unit);
-  const E = 11 * c.unit, W = c.width, H = c.height;
+  const E = frameLine(c.unit), W = c.width, H = c.height;
   const walls: Wall[] = [];
-  const topBottom = Math.max(c.portrait.bottom, c.name.bottom);
-  const pairTop = Math.min(c.level.top, c.elo.top), pairBottom = Math.max(c.level.bottom, c.elo.bottom);
-  const yMid = (topBottom + pairTop) / 2, yFloor = (pairBottom + c.badges.top) / 2;
-  // the floor: you above it, your badges below
-  walls.push({ o: 'h', at: yFloor, a: E, b: W - E, style: 'double', ends: ['capital', 'chamfer'], rank: 0 });
-  // under you: you and your name above, Level and Elo below
+  const yMid = underYou(c);
+  // under you: you and your name above, Level and Elo below (those and your badges each sit on a
+  // plaque of their own, profilePlaques.ts, with no walls between them: owner, 2026-10-23)
   walls.push({ o: 'h', at: yMid, a: E, b: W - E, style: 'beaded', ends: ['rings', 'wheel'], rank: 1 });
   // beside your portrait, when your name sits beside it (at large text it sits under it)
   if (sideBySide(c.portrait, c.name)) walls.push({ o: 'v', at: (c.portrait.right + c.name.left) / 2, a: E, b: yMid, style: 'fineDouble', ends: ['pendant', null], rank: 2 });
-  // Level and Elo apart
-  if (sideBySide(c.level, c.elo)) walls.push({ o: 'v', at: (c.level.right + c.elo.left) / 2, a: yMid, b: yFloor, style: 'fine', ends: [null, null], rank: 3 });
 
   // a corner's ornament reaches 40 units in: no terminal inside it
   const clear = (x: number, y: number) => !((x < 46 * c.unit || x > W - 46 * c.unit) && (y < 46 * c.unit || y > H - 46 * c.unit));
@@ -232,19 +198,7 @@ export function cardWalls(c: CardLayout): string {
 
   // the ornaments drawn at 0.65 of their size, their lines as fine as the walls'
   const small = pen(c.unit * ORN, c.unit);
-  // two small ornaments where the Level and Elo wall meets the walls above and below it, each its own
-  const mid = walls.find((w) => w.o === 'v' && Math.abs(w.a - yMid) < 0.5 && Math.abs(w.b - yFloor) < 0.5);
-  const junctions = mid ? [{ x: mid.at, y: yMid, draw: JUNCTIONS.lozenge }, { x: mid.at, y: yFloor, draw: JUNCTIONS.rosette }] : [];
-  const JR = JUNCTION_R * c.unit * ORN + AIR;
-  walls.forEach((w, i) => {
-    for (const j of junctions) {
-      const along = w.o === 'h' ? j.x : j.y, across = w.o === 'h' ? j.y : j.x;
-      if (Math.abs(w.at - across) < 0.5 && along >= w.a - 0.5 && along <= w.b + 0.5) cuts[i].push([along - JR, along + JR]);
-    }
-  });
-
   let marks = '', lines = '', defs = '';
-  for (const j of junctions) marks += `<g transform="translate(${j.x.toFixed(1)} ${j.y.toFixed(1)})">${j.draw(small)}</g>`;
   walls.forEach((w, i) => {
     const limit = w.o === 'v' ? H - E : W - E;
     ([[w.a, Math.abs(w.a - E) < 0.5, w.o === 'v' ? 0 : -90, 1], [w.b, Math.abs(w.b - limit) < 0.5, w.o === 'v' ? 180 : 90, -1]] as const).forEach(([pos, atFrame, rot, dir], j) => {

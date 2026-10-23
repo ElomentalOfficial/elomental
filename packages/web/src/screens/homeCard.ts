@@ -178,7 +178,7 @@ export function homeCard(): HomeCard {
     const H = el.clientHeight;
     walls.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${cardWalls({ width: W, height: H, unit, portrait: box(portrait), name: box(name), level: box(level), elo: box(elo), badges: box(badges), banner })}</svg>`;
     const frameCorner = (parseFloat(css.getPropertyValue('--frame-corner')) || 44) * (parseFloat(css.getPropertyValue('--frame-zoom')) || 1);
-    plaques.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${cardPlaques({ width: W, height: H, unit, level: box(level), elo: box(elo), badges: box(badges), frameCorner })}</svg>`;
+    plaques.innerHTML = `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${cardPlaques({ width: W, height: H, unit, portrait: box(portrait), name: box(name), level: box(level), elo: box(elo), badges: box(badges), frameCorner })}</svg>`;
   };
   let frame = 0;
   function schedule() {
