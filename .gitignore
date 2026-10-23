@@ -2,8 +2,9 @@ node_modules/
 *.jsonl
 dist/
 mood_board/
-packages/web/test-results/
-packages/web/playwright-report/
+# Playwright output, wherever a run starts
+test-results/
+playwright-report/
 
 # secrets and database dumps never go in (packages/web/.env.beta holds only public values)
 .env
