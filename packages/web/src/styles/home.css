@@ -74,7 +74,8 @@
   pointer-events: none;
 }
 /* Home's tiles carry their names alone (owner, 2026-10-23): the serif (Federo) in capitals, spaced,
-   lifted off the tile by a soft drop. */
+   lifted off the tile by a soft drop. Bold, though Federo has one weight: its strokes thickened by
+   an outline in the text's own colour, which stays crisp where the browser's synthetic bold smears. */
 .tile-label {
   font-family: var(--serif);
   font-weight: 400;
@@ -82,6 +83,7 @@
   line-height: 1.15;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  -webkit-text-stroke: 0.035em currentColor;
   text-shadow: var(--tile-label-shadow);
 }
 .area-daily {
@@ -286,34 +288,6 @@
   position: absolute;
   z-index: 1;
   pointer-events: none;
-}
-/* The Forge tile carries your purse: its name, your Stardust and Spirits under it. */
-.tile-words {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-1);
-}
-.tile-purse {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--space-1) var(--space-3);
-  font-family: var(--font);
-  font-size: var(--fs-small);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-.forge-coin {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-/* in the label's own colour, as on the reward chips: the icon tells the two numbers apart */
-.forge-coin-icon {
-  display: block;
-  width: calc(14px * var(--text-scale));
-  height: calc(14px * var(--text-scale));
 }
 /* A faint Art Deco frame inside every Home tile and the profile card, each tile its
    own design, worn by small gaps in the corner lines.

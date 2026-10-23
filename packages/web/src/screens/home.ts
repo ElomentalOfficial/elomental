@@ -73,31 +73,13 @@ export function homeScreen(): Screen {
     leave(profileCard, () => mount(profileScreen(at.closest('.pc-badges') ? { at: 'badges' } : undefined)));
   });
 
-  /** Signed in, the numbers come from the server cache and update when it refreshes. */
-  const paintProfile = () => {
-    card.paint();
-    paintPurse();
-  };
-
   const daily = tile('daily', copy.home.tiles.daily, (el) => leave(el, () => mount(dailyScreen())));
   // Forge and Setup share the top row (the owner's Home frame): the Forge in reach without the Profile.
+  // (its name alone, like every tile: your Stardust and Spirits show in the Forge itself; owner, 2026-10-23)
   const forge = tile('forge', copy.home.tiles.forge, (el) => leave(el, () => mount(forgeScreen())));
-  // Your Stardust and Spirits ride on the Forge tile, where they are spent (owner, 2026-10-22);
-  // the tile's name reads them out, so the numbers themselves are hidden from screen readers
-  const purse = h('span', { class: 'tile-purse', attrs: { 'aria-hidden': 'true' } });
-  const forgeLabel = forge.querySelector('.tile-label')!;
-  const forgeWords = h('span', { class: 'tile-words' });
-  forgeLabel.replaceWith(forgeWords);
-  forgeWords.append(forgeLabel, purse);
-  const coin = (kind: string, icon: string, n: number) => h('span', { class: `forge-coin ${kind}` }, h('span', { class: 'forge-coin-icon', html: icon }), copy.formatNumber(n));
-  function paintPurse() {
-    const p = loadProfile();
-    // Spirits are rare (months for most players): they show once there's one (decision D6)
-    purse.replaceChildren(coin('dust', ICONS.dust, p.dust), ...(p.spirits ? [coin('spirit', ICONS.spirit, p.spirits)] : []));
-    forge.setAttribute('aria-label', copy.home.a11yForge(p.dust, p.spirits));
-  }
-  paintProfile();
-  const stopProfile = onAccountChange(paintProfile);
+  // Signed in, the card's numbers come from the server cache and update when it refreshes.
+  card.paint();
+  const stopProfile = onAccountChange(() => card.paint());
   if (signedIn()) void refreshAccount();
   // a season or faction month ended while the player was away: say what came of it, once
   showAwayNews();

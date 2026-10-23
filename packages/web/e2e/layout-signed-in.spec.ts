@@ -136,9 +136,8 @@ test('Home: the card holds you, your Level and Elo, your badges; the Forge tile 
   // no badges chosen: the newest two, an empty socket for the third
   await expect(page.locator('.pc-badge-art')).toHaveCount(2);
   await expect(page.locator('.pc-badge.empty')).toHaveCount(1);
-  // the fixture has 6400 Stardust and 1 Spirit: both on the Forge tile, in its name too
-  await expect(page.locator('.tile.area-forge')).toHaveAccessibleName('Forge, 6400 Stardust, 1 Spirit');
-  await expect(page.locator('.forge-coin')).toHaveCount(2);
+  // the Forge tile carries its name alone, like every tile
+  await expect(page.locator('.tile.area-forge')).toHaveAccessibleName('Forge');
   await settled(page); // the tiles have turned in
   await page.getByRole('button', { name: 'Store', exact: true }).click();
   await expect(page.getByText('The Store opens soon.')).toBeVisible();

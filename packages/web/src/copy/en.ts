@@ -109,9 +109,6 @@ export const home = {
     ranked: 'Play Ranked',
   },
   storeLater: 'The Store opens soon.',
-  /** The Forge tile, read out with what's in your purse (it carries your Stardust and Spirits). */
-  a11yForge: (dust: number, spirits: number) =>
-    spirits ? `Forge, ${formatNumber(dust)} Stardust, ${plural(spirits, 'Spirit')}` : `Forge, ${formatNumber(dust)} Stardust`,
   /** The profile card (homeCard.ts). */
   card: {
     badges: 'Your badges',
