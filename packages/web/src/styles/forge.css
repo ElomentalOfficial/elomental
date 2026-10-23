@@ -43,22 +43,39 @@
   font-size: var(--fs-small);
   color: var(--muted);
 }
-.balance {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+/* Your purse (forge.ts balance): each balance on a band of its rarity's deep shade that fades out at
+   both ends, the number and its name in Bright on the band's solid middle (the side padding is the
+   fade's length, so the words never reach the fade). The two bands sit close, one set. */
+.forge-purse {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
 }
-.balance svg {
-  width: 20px;
-  height: 20px;
-  color: var(--accent);
+.balance {
+  --fade: 20%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  column-gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-3) var(--fade);
+  background: linear-gradient(90deg, transparent, var(--rc-deep) var(--fade), var(--rc-deep) calc(100% - var(--fade)), transparent);
+  /* soft above and below too, like a glow laid on the cloth: a set fade inside the padding, so
+     words that wrap (large text) still sit on the solid middle */
+  -webkit-mask: linear-gradient(transparent, #000 var(--space-2), #000 calc(100% - var(--space-2)), transparent);
+  mask: linear-gradient(transparent, #000 var(--space-2), #000 calc(100% - var(--space-2)), transparent);
+  color: var(--c-bright);
+  font-family: var(--serif);
+  font-weight: 400;
+  text-align: center;
 }
 .balance strong {
+  font-weight: 400;
   font-size: var(--fs-label);
 }
-.balance span:last-child {
-  color: var(--muted);
-  font-size: var(--fs-small);
+.balance span {
+  font-size: var(--fs-body);
 }
 .forge-heading {
   margin-top: var(--space-3);
@@ -196,10 +213,10 @@ html[data-large-text] .part-grid {
   letter-spacing: 0.03em;
   white-space: nowrap;
 }
-.rarity-common { --rc: var(--r-common-fill); --rc-on: var(--r-common-on); --rc-edge: var(--r-common-edge); --rc-line: var(--r-common-line); }
-.rarity-rare { --rc: var(--r-rare-fill); --rc-on: var(--r-rare-on); --rc-edge: var(--r-rare-edge); --rc-line: var(--r-rare-line); }
-.rarity-epic { --rc: var(--r-epic-fill); --rc-on: var(--r-epic-on); --rc-edge: var(--r-epic-edge); --rc-line: var(--r-epic-line); }
-.rarity-mythic { --rc: var(--r-mythic-fill); --rc-on: var(--r-mythic-on); --rc-edge: var(--r-mythic-edge); --rc-line: var(--r-mythic-line); }
+.rarity-common { --rc: var(--r-common-fill); --rc-on: var(--r-common-on); --rc-edge: var(--r-common-edge); --rc-line: var(--r-common-line); --rc-deep: var(--r-common-deep); }
+.rarity-rare { --rc: var(--r-rare-fill); --rc-on: var(--r-rare-on); --rc-edge: var(--r-rare-edge); --rc-line: var(--r-rare-line); --rc-deep: var(--r-rare-deep); }
+.rarity-epic { --rc: var(--r-epic-fill); --rc-on: var(--r-epic-on); --rc-edge: var(--r-epic-edge); --rc-line: var(--r-epic-line); --rc-deep: var(--r-epic-deep); }
+.rarity-mythic { --rc: var(--r-mythic-fill); --rc-on: var(--r-mythic-on); --rc-edge: var(--r-mythic-edge); --rc-line: var(--r-mythic-line); --rc-deep: var(--r-mythic-deep); }
 .part-sheet {
   text-align: center;
 }
@@ -598,6 +615,7 @@ html[data-reduce-motion] .part-reveal * {
     object-fit: contain;
   }
   .forge-purse-foot {
+    align-self: stretch;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -607,21 +625,14 @@ html[data-reduce-motion] .part-reveal * {
     width: 104px;
     height: 104px;
   }
+  /* on the banner: the bands across the cloth, a little in from its edges, your side under them */
   .forge-purse-foot .forge-balances {
+    align-self: stretch;
     align-items: center;
     gap: var(--space-1);
   }
-  /* on the banner's cloth, the purse in its ink (the icons keep their shape) */
-  .forge-purse-foot .balance svg {
-    color: inherit;
-  }
-  .forge-purse-foot .balance span:last-child {
-    color: inherit;
-  }
-  /* the banner feet's numbers, one rule: the serif */
-  .forge-purse-foot .balance strong {
-    font-family: var(--serif);
-    font-weight: 400;
+  .forge-purse-foot .forge-purse {
+    align-self: stretch;
   }
   .forge-top {
     align-items: stretch;
@@ -651,7 +662,7 @@ html[data-reduce-motion] .part-reveal * {
     margin-top: 0;
   }
   .forge-purse-foot .forge-affinity {
-    margin-top: var(--space-1);
+    margin-top: var(--space-2);
   }
   .forge.has-banner .forge-heading-row {
     margin-top: var(--space-5);

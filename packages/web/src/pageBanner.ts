@@ -10,8 +10,9 @@ const RIBBON_MASK = `url("data:image/svg+xml,${encodeURIComponent(
 )}")`;
 /** The torn tail's share of the ribbon's length: its notches reach up to 630 of 740 units. */
 const TAIL = (RIBBON_BOX.height - 630) / RIBBON_BOX.height;
-/** The clear space between the last line on the cloth and the tail's highest spike (px). */
-const BREATH = 56;
+/** The clear space between the last line on the cloth and the tail's highest spike (px): the
+ *  owner's sketch, after 32 and then 56 read as too tight. */
+const BREATH = 96;
 
 /**
  * A wide page's banner (ui.ts subPage): the splash ribbon itself (ribbon.ts), with its small tear
@@ -39,8 +40,8 @@ export function pageBanner(header: HTMLElement, banner: Banner, onBack: () => vo
     const style = getComputedStyle(el);
     const top = parseFloat(style.paddingTop) || 0;
     const k = TAIL / (1 - TAIL);
-    // the tail's reach, then room for the last line to breathe above its spikes (--space-6 and
-    // --space-5: the owner found one --space-6 too tight). At its longest (a short window, large
+    // the tail's reach, then room for the last line to breathe above its spikes (BREATH). At its
+    // longest (a short window, large
     // text) the contents give up height to the tail, so the room is the one that fits that length
     // (solved, not reached by measuring back and forth)
     const max = parseFloat(style.maxHeight);

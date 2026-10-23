@@ -40,6 +40,9 @@ const forgeable = (s: State) => s === 'ready' || s === 'needs' || s === 'bluepri
 const kind = (p: Part) => (p.element ? `${copy.forge.elements[p.element]} · ${copy.forge.slots[p.slot]}` : copy.forge.slots[p.slot]);
 const order = (p: Part) => (p.element ? ELEMENTS.indexOf(p.element) : 0);
 const rarityTag = (r: Rarity) => h('span', { class: `rarity-tag rarity-${r}`, text: rarityName(r) });
+/** A balance on its band: the number, then what it counts. */
+const balance = (r: Rarity, n: number, what: string) =>
+  h('span', { class: `balance rarity-${r}` }, h('strong', { text: copy.formatNumber(n) }), h('span', { text: what }));
 /** A frame's marks: three small diamonds, earned ones filled (the words say it too). */
 const markPips = (n: number) => h('span', { class: 'mark-pips', attrs: { 'aria-hidden': 'true' } },
   ...Array.from({ length: MAX_MARKS }, (_, i) => h('span', { class: `mark-pip${i < n ? ' on' : ''}` })));
@@ -76,12 +79,14 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
     }
     const f = forge;
     const craftable = f.parts.filter((p) => p.source === 'craft');
-    const stardust = h('span', { class: 'balance' }, h('span', { html: ICONS.dust, attrs: { 'aria-hidden': 'true' } }), h('strong', { text: copy.formatNumber(f.stardust) }), h('span', { text: copy.common.stardust }));
-    const spirits = h('span', { class: 'balance' }, h('span', { html: ICONS.spirit, attrs: { 'aria-hidden': 'true' } }), h('strong', { text: copy.formatNumber(f.spirits) }), h('span', { text: copy.common.spiritsLabel(f.spirits) }));
+    // your purse: each on a band in a rarity's colour (forge.css), Stardust the everyday treasure
+    // (rare), Spirits the scarcest drop (mythic); the words say what each is
+    const stardust = balance('rare', f.stardust, copy.common.stardust);
+    const spirits = balance('mythic', f.spirits, copy.common.spiritsLabel(f.spirits));
     const odds = h('button', { class: 'link-btn', text: copy.forge.oddsButton, attrs: { type: 'button' }, onclick: () => openOdds() });
     if (wide) {
       // you and your purse on the banner; how parts come and the Spirits side by side, then the parts
-      purse.replaceChildren(h('div', { class: 'forge-balances' }, stardust, spirits, f.affinity ? affinityLine(f.affinity) : null));
+      purse.replaceChildren(h('div', { class: 'forge-balances forge-purse' }, stardust, spirits, f.affinity ? affinityLine(f.affinity) : null));
       body.replaceChildren(
         h('div', { class: 'door-row forge-top', attrs: { style: '--doors: 2' } },
           h('section', { class: 'forge-lead' }, h('h2', { class: 'forge-heading', text: copy.forge.blueprintsTitle }), h('p', { class: 'forge-intro', text: copy.forge.intro }), odds),
@@ -102,8 +107,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
         h('p', { class: 'forge-intro', text: copy.forge.intro }),
         odds,
         f.affinity ? affinityLine(f.affinity) : null,
-        stardust,
-        spirits,
+        h('div', { class: 'forge-purse' }, stardust, spirits),
       ),
     );
     body.replaceChildren(

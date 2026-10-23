@@ -130,6 +130,7 @@ export const PAIRS: Pair[] = [
 const SURFACES: [string, string][] = [['page', '--bg'], ['surface', '--surface'], ['surface-2', '--surface-2'], ['modal', '--modal-bg']];
 for (const { id } of SWATCHES) {
   PAIRS.push([`${id}: on-fill`, `--${id}-on`, `--${id}-fill`, 4.5]);
+  PAIRS.push([`${id}: Bright on its deep band`, '--c-bright', `--${id}-deep`, 4.5]);
   for (const [n, t] of SURFACES) PAIRS.push([`${id}: ink on ${n}`, `--${id}-ink`, t, 4.5]);
   for (const [n, t] of SURFACES) PAIRS.push([`UI: ${id} line vs ${n}`, `--${id}-line`, t, 3]);
   for (const [n, t] of SURFACES) PAIRS.push([`UI: ${id} mark vs ${n}`, `--${id}-mark`, t, 3]);

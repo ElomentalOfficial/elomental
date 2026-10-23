@@ -173,7 +173,9 @@
     text-align: center;
     font-family: var(--serif);
     font-weight: 400;
-    font-size: min(var(--fs-display), 14cqi);
+    /* the page's name, larger than any heading in the field (the display size and a half, so it
+       still follows Text size), never wider than the cloth */
+    font-size: min(calc(var(--fs-display) * 1.5), 15cqi);
     letter-spacing: 0.02em;
     text-transform: none;
   }
@@ -236,6 +238,8 @@
     align-items: center;
     gap: var(--space-2);
     width: 100%;
+    /* a clear step under the art, as in the owner's sketch */
+    margin-top: var(--space-5);
   }
   /* A number and what it counts (Casual's squares solved, for one). */
   .banner-stat strong {
