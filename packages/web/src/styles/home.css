@@ -238,12 +238,13 @@
   pointer-events: none;
   opacity: calc(var(--ornament-opacity) * 2);
 }
+/* the hairline, broken round the diamond so the diamond stands clear (owner) */
 .pc-stats::before {
   top: 0;
   left: 0;
   right: 0;
   height: 1px;
-  background: var(--frame-line);
+  background: linear-gradient(90deg, var(--frame-line) calc(50% - 10px), transparent calc(50% - 10px) calc(50% + 10px), var(--frame-line) calc(50% + 10px));
 }
 .pc-stats::after {
   top: -4px;
@@ -252,7 +253,6 @@
   height: 7px;
   transform: rotate(45deg);
   border: 1px solid var(--frame-line);
-  background: var(--profile-bg);
   opacity: calc(var(--ornament-opacity) * 4);
 }
 .pc-stat {
@@ -297,6 +297,13 @@
   border-radius: 3px;
   background: var(--pc-track);
 }
+/* each fill brightens towards its leading edge (tokens.css) */
+.pc-next .rank-bar span {
+  background: var(--pc-elo-fill);
+}
+.pc-next .xp-bar span {
+  background: var(--pc-level-fill);
+}
 /* Your three chosen badges (Profile > Badges), each in a slot recessed a shade into the card. */
 .pc-showcase {
   grid-area: showcase;
@@ -317,6 +324,11 @@
   padding: var(--space-2) 0;
   border-radius: var(--radius-lg);
   background: var(--pc-socket);
+}
+/* an empty slot: its rim a dashed line, darker than the card (owner) */
+.pc-badge.empty {
+  outline: 1.5px dashed var(--pc-slot-edge);
+  outline-offset: -1.5px;
 }
 .pc-badge-art {
   display: block;
@@ -458,6 +470,22 @@
     var(--line) left var(--y2) top var(--corner) / var(--lw) var(--run) no-repeat,
     var(--line) right var(--y1) top var(--corner) / var(--lw) var(--run) no-repeat,
     var(--line) right var(--y2) top var(--corner) / var(--lw) var(--run) no-repeat;
+}
+/* The profile card keeps its top corners only (owner, 2026-10-23: the badge slots sit low, clear
+   of any ornament): its side lines run down to meet its bottom lines in a plain square corner. */
+.home-grid > .profile-card::after {
+  --down: calc(100% - var(--corner));
+  background:
+    var(--f-tl) left top / var(--corner) var(--corner) no-repeat,
+    var(--f-tr) right top / var(--corner) var(--corner) no-repeat,
+    var(--line) left var(--corner) top var(--y1) / var(--run) var(--lw) no-repeat,
+    var(--line) left var(--corner) top var(--y2) / var(--run) var(--lw) no-repeat,
+    var(--line) left var(--y1) bottom var(--y1) / calc(100% - 2 * var(--y1)) var(--lw) no-repeat,
+    var(--line) left var(--y2) bottom var(--y2) / calc(100% - 2 * var(--y2)) var(--lw) no-repeat,
+    var(--line) left var(--y1) top var(--corner) / var(--lw) calc(var(--down) - var(--y1)) no-repeat,
+    var(--line) left var(--y2) top var(--corner) / var(--lw) calc(var(--down) - var(--y2)) no-repeat,
+    var(--line) right var(--y1) top var(--corner) / var(--lw) calc(var(--down) - var(--y1)) no-repeat,
+    var(--line) right var(--y2) top var(--corner) / var(--lw) calc(var(--down) - var(--y2)) no-repeat;
 }
 /* Which ink: Bright on the dark theme, Crimson on the light one (frames.css gives each
    frame its pair; the coloured mode tiles keep Bright in both). */

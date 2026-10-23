@@ -114,6 +114,12 @@
   --pc-socket: color-mix(in srgb, var(--c-bg) 40%, transparent);
   /* the profile card's bars' track (home.css .pc-next): a step into the card */
   --pc-track: var(--c-bg);
+  /* and their fills, each brightening towards its leading edge: Elo in the rank's ember, Level in
+     the crests' gold (owner) */
+  --pc-elo-fill: linear-gradient(90deg, var(--c-lava-500), var(--c-lava-300));
+  --pc-level-fill: linear-gradient(90deg, var(--c-gold-400), var(--c-gold-100));
+  /* an empty badge slot's rim: a dashed line, darker than the card */
+  --pc-slot-edge: color-mix(in srgb, var(--c-stone-950) 70%, transparent);
   --profile-text: var(--c-bright);
   --chip-bg: rgba(38, 39, 33, 0.35);
   --avatar-bg: var(--c-highlight);
@@ -230,6 +236,9 @@
   --profile-bg: var(--c-second-bright);
   --pc-socket: color-mix(in srgb, var(--c-mud) 60%, transparent);
   --pc-track: var(--bar-bg);
+  --pc-elo-fill: linear-gradient(90deg, var(--c-crimson-700), var(--c-crimson-400));
+  --pc-level-fill: linear-gradient(90deg, var(--c-gold-500), var(--c-gold-300));
+  --pc-slot-edge: color-mix(in srgb, var(--c-sand-500) 55%, transparent);
   --profile-text: var(--c-crimson);
   --chip-bg: rgba(38, 39, 33, 0.07);
   --avatar-bg: var(--c-bright);
