@@ -27,7 +27,7 @@ function newPlates(): number {
 }
 
 function platesScreen(back: () => Screen): Screen {
-  const head = h('section', { class: 'plates-head' });
+  const head = h('section', { class: 'panel plates-head' });
   const groups = h('div', { class: 'plates-groups' });
   let busy = false;
 
@@ -66,7 +66,7 @@ function platesScreen(back: () => Screen): Screen {
         kids.push(h('span', { class: 'xp-bar' }, fill), h('span', { class: 'plate-next', text: copy.plates.toGo(xpTotal(at) - xp) }));
       }
       for (const k of kids) k?.setAttribute('aria-hidden', 'true');
-      const cls = `plate-card tier-card-${n}${yours ? ' state-yours' : ''}${unlocked ? '' : ' is-blueprint'}`;
+      const cls = `panel plate-card tier-card-${n}${yours ? ' state-yours' : ''}${unlocked ? '' : ' is-blueprint'}`;
       if (!unlocked) return h('div', { class: cls, attrs: { role: 'group', 'aria-label': copy.plates.a11yLocked(name, at) } }, ...kids);
       return h('button', {
         class: cls,

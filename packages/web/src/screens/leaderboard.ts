@@ -53,7 +53,7 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
   let focusId = start?.focus ?? null;
 
   // ---- the affinities this month (compact; details in a sheet)
-  const faction = h('section', { class: 'lb-faction', attrs: { 'aria-busy': 'true' } }, h('p', { class: 'note', text: t.loading }));
+  const faction = h('section', { class: 'panel lb-faction', attrs: { 'aria-busy': 'true' } }, h('p', { class: 'note', text: t.loading }));
 
   // ---- search
   const searchField = h('input', {
@@ -74,11 +74,11 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
   const ranksBtn = h('button', { class: 'btn lb-ranks', text: t.ranks, attrs: { type: 'button' }, onclick: () => openTiers() });
   const list = h('ol', { class: 'lb-list', attrs: { 'aria-live': 'polite', 'aria-busy': 'true' } });
   const more = h('button', { class: 'btn lb-more', text: t.showMore, attrs: { type: 'button' }, onclick: () => void load(page + 1) });
-  const notice = h('div', { class: 'lb-notice' });
+  const notice = h('div', { class: 'panel lb-notice' });
   const meBar = h('div', { class: 'lb-me', attrs: { role: 'region', 'aria-label': t.you } }, h('p', { class: 'note', text: t.meLoading }));
   // wide screens: the top three of a list stand on a podium beside the month's pennants
   const wide = wideLayout();
-  const podium = h('ol', { class: 'lb-podium', attrs: { 'aria-label': t.a11yPodium } });
+  const podium = h('ol', { class: 'panel lb-podium', attrs: { 'aria-label': t.a11yPodium } });
   podium.hidden = true;
 
   const search = h('div', { class: 'lb-search' }, searchField, searchStatus);

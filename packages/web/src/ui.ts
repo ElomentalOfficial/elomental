@@ -289,7 +289,7 @@ const openModals = new Set<() => void>();
  * opened it.
  */
 export function openModal(content: HTMLElement, options: { dismissible?: boolean; class?: string } = {}): () => void {
-  const panel = h('div', { class: `modal ${options.class ?? ''}`, attrs: { role: 'dialog', 'aria-modal': 'true' } }, content);
+  const panel = h('div', { class: `panel modal ${options.class ?? ''}`, attrs: { role: 'dialog', 'aria-modal': 'true' } }, content);
   const backdrop = h('div', { class: 'backdrop scrollable' }, panel);
   const dismissible = options.dismissible !== false;
   let release = () => {};

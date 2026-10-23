@@ -329,39 +329,24 @@
   }
 }
 /*
- * Every other panel in the app (page cards, pop-ups) gets the plainest frame of the same
- * family (one worn line with a small step in each corner), fainter than Home's, so the
- * pages feel related without competing with their content.
+ * Every other card, tile and pop-up in the app (`.panel`, given where each is built; owner,
+ * 2026-10-23: every one off Home, none without) gets the plainest frame of the same family (one
+ * worn line with a small step in each corner, frames.css), fainter than Home's, so the pages feel
+ * related without competing with their content. Only Home's tiles wear the detailed frames.
  */
-.setting,
-.month-card,
-.reward-card,
-.casual-card,
-.friend-option,
-.resume-card,
-.door,
-.modal,
-.review-row,
-.review-log {
+.panel,
+.door {
   position: relative;
   isolation: isolate;
 }
-.setting::after,
-.month-card::after,
-.reward-card::after,
-.casual-card::after,
-.friend-option::after,
-.resume-card::after,
-.modal::after,
-.review-row::after,
-.review-log::after {
+.panel::after {
   --corner: 16px;
   opacity: 0.045;
 }
 /* The drawing, shared by every frame: corners at the four corners, then each edge line
    (one or two per frame, --o1 and --o2 units in) between them, --fw units thick. A
    corner is 40 units, so one unit is --corner / 40. */
-:is(.home-grid > .tile, .profile-card, .setting, .month-card, .reward-card, .casual-card, .friend-option, .resume-card, .door, .modal, .review-row, .review-log)::after {
+:is(.home-grid > .tile, .profile-card, .door, .panel)::after {
   --k: calc(var(--corner) / 40);
   --lw: calc(var(--fw, 1.3) * var(--k));
   --y1: calc(var(--o1, 5) * var(--k) - var(--lw) / 2);
@@ -389,14 +374,14 @@
 }
 /* Which ink: Bright on the dark theme, Crimson on the light one (frames.css gives each
    frame its pair; the coloured mode tiles keep Bright in both). */
-:is(.home-grid > .tile, .profile-card, .setting, .month-card, .reward-card, .casual-card, .friend-option, .resume-card, .door, .modal, .review-row, .review-log) {
+:is(.home-grid > .tile, .profile-card, .door, .panel) {
   --f-tl: var(--f-tl-b);
   --f-tr: var(--f-tr-b);
   --f-bl: var(--f-bl-b);
   --f-br: var(--f-br-b);
   --frame-line: var(--fl-b);
 }
-:root[data-theme='light'] :is(.home-grid > .tile, .profile-card, .setting, .month-card, .reward-card, .casual-card, .friend-option, .resume-card, .door, .modal, .review-row, .review-log) {
+:root[data-theme='light'] :is(.home-grid > .tile, .profile-card, .door, .panel) {
   --f-tl: var(--f-tl-c);
   --f-tr: var(--f-tr-c);
   --f-bl: var(--f-bl-c);

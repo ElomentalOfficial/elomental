@@ -29,7 +29,7 @@ export function devPanel(section: DevSection, ctx: DevContext): { el: HTMLElemen
   const on = () => !!cachedAccount()?.devMode;
   const group = (title: string, ...items: (HTMLElement | null)[]) => settingGroup(title, items);
   // a section with one group: just its card (the section's own title names it)
-  const card = (...items: (HTMLElement | null)[]) => h('div', { class: 'setting choice-list' }, ...items);
+  const card = (...items: (HTMLElement | null)[]) => h('div', { class: 'panel setting choice-list' }, ...items);
 
   /** A tool button: runs the action, then says it's done (or why not). */
   const tool = (label: string, action: DevAction, value?: () => string | number | null, done?: () => string) => {
@@ -235,6 +235,6 @@ function testersSection(): HTMLElement {
 
   return h('div', { class: 'console-section' },
     h('p', { class: 'page-intro', text: t.intro }),
-    h('div', { class: 'setting choice-list' }, choice('tester-add', t.addTitle, t.addHelp, h('div', { class: 'dev-row' }, field, add))),
+    h('div', { class: 'panel setting choice-list' }, choice('tester-add', t.addTitle, t.addHelp, h('div', { class: 'dev-row' }, field, add))),
     settingGroup(t.listTitle, [list]));
 }

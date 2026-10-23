@@ -109,7 +109,7 @@ export function casualScreen(): Screen {
     const percent = Math.max(0, Math.round((filled / Math.max(1, 81 - givens)) * 100));
     resume = h(
       'button',
-      { class: 'resume-card', onclick: () => resumeGame(saved) },
+      { class: 'panel resume-card', onclick: () => resumeGame(saved) },
       h(
         'span',
         { class: 'resume-text' },
@@ -123,7 +123,7 @@ export function casualScreen(): Screen {
   const friend = (icon: string, label: string, info: string, onTap: () => void) =>
     h(
       'button',
-      { class: 'friend-option', onclick: onTap },
+      { class: 'panel friend-option', onclick: onTap },
       h('span', { class: 'friend-icon', html: icon, attrs: { 'aria-hidden': 'true' } }),
       h('strong', { text: label }),
       h('small', { text: info }),
@@ -156,7 +156,7 @@ export function casualScreen(): Screen {
             resume,
             h(
               'section',
-              { class: 'casual-card', attrs: { 'aria-labelledby': 'casual-new-game' } },
+              { class: 'panel casual-card', attrs: { 'aria-labelledby': 'casual-new-game' } },
               h('div', { class: 'casual-field' },
                 h('h2', { class: 'casual-label', attrs: { id: 'casual-new-game' }, text: say.newGame }),
                 h('div', { class: 'difficulty-picker', attrs: { role: 'radiogroup', 'aria-labelledby': 'casual-new-game' } }, ...segments)),

@@ -95,16 +95,16 @@ function lookSections(): HTMLElement[] {
   // gives the title)
   if (wideLayout()) {
     return [
-      h('div', { class: 'setting choice-list' },
+      h('div', { class: 'panel setting choice-list' },
         choice('setup-theme', copy.setup.theme, copy.setup.themeHelp, theme.el),
         choice('setup-wheel', copy.setup.notesWheel, copy.setup.notesWheelHelp, wheel.el),
         choice('setup-tutorial', copy.setup.tutorial, copy.setup.tutorialHelp, tutorial)),
     ];
   }
   return [
-    h('section', { class: 'setting' }, h('div', {}, h('h2', { text: copy.setup.theme }), h('p', { text: copy.setup.themeHelp })), theme.el),
-    h('section', { class: 'setting' }, h('div', {}, h('h2', { text: copy.setup.notesWheel }), h('p', { text: copy.setup.notesWheelHelp })), wheel.el),
-    h('section', { class: 'setting' }, h('div', {}, h('h2', { text: copy.setup.tutorial }), h('p', { text: copy.setup.tutorialHelp })), tutorial),
+    h('section', { class: 'panel setting' }, h('div', {}, h('h2', { text: copy.setup.theme }), h('p', { text: copy.setup.themeHelp })), theme.el),
+    h('section', { class: 'panel setting' }, h('div', {}, h('h2', { text: copy.setup.notesWheel }), h('p', { text: copy.setup.notesWheelHelp })), wheel.el),
+    h('section', { class: 'panel setting' }, h('div', {}, h('h2', { text: copy.setup.tutorial }), h('p', { text: copy.setup.tutorialHelp })), tutorial),
   ];
 }
 
@@ -219,7 +219,7 @@ function accessibilityLink(): HTMLElement {
   const t = copy.setup.a11y;
   return h(
     'section',
-    { class: 'setting' },
+    { class: 'panel setting' },
     h('div', {}, h('h2', { text: t.title }), h('p', { text: t.summary })),
     h('button', { class: 'btn', text: t.open, onclick: () => mount(accessibilityScreen()) }),
   );
@@ -234,10 +234,10 @@ function privacyLink(): HTMLElement | null {
   const account = cachedAccount();
   if (!account) return null;
   const t = copy.privacy;
-  if (account.anonymous) return h('section', { class: 'setting' }, h('div', {}, h('h2', { text: t.title }), h('p', { text: t.guestRow })));
+  if (account.anonymous) return h('section', { class: 'panel setting' }, h('div', {}, h('h2', { text: t.title }), h('p', { text: t.guestRow })));
   return h(
     'section',
-    { class: 'setting' },
+    { class: 'panel setting' },
     h('div', {}, h('h2', { text: t.title }), h('p', { text: t.summary })),
     h('button', { class: 'btn', text: t.open, attrs: { 'aria-label': t.a11yOpen }, onclick: () => openLazy(() => import('./privacy.ts'), (m) => mount(m.privacyScreen())) }),
   );
@@ -249,7 +249,7 @@ function addToHomeRow(): HTMLElement | null {
   const t = copy.install;
   return h(
     'section',
-    { class: 'setting' },
+    { class: 'panel setting' },
     h('div', {}, h('h2', { text: t.title }), h('p', { text: t.help })),
     h('button', { class: 'btn', text: t.open, onclick: () => void addToHome() }),
   );
@@ -262,7 +262,7 @@ function addToHomeRow(): HTMLElement | null {
 function founderGate(): HTMLElement {
   const t = copy.founder;
   const button = h('button', { class: 'btn', text: t.unlock, attrs: { type: 'button' } });
-  const section = h('section', { class: 'setting' }, h('div', {}, h('h2', { text: t.title }), h('p', { text: t.lockedHelp })), button);
+  const section = h('section', { class: 'panel setting' }, h('div', {}, h('h2', { text: t.title }), h('p', { text: t.lockedHelp })), button);
   let enrolled: boolean | null = null;
   button.addEventListener('click', () => (enrolled === false ? openSetUp() : openCode()));
   const paint = () => {
@@ -338,7 +338,7 @@ function devSection(): HTMLElement {
   const help = h('p');
   const section = h(
     'section',
-    { class: 'setting' },
+    { class: 'panel setting' },
     h('div', {}, h('h2', { text: copy.setup.dev }), help),
     h('button', { class: 'btn', text: copy.setup.openDev, onclick: () => openLazy(() => import('./founderConsole.ts'), (m) => mount(m.founderConsole())) }),
   );
@@ -356,7 +356,7 @@ function devSection(): HTMLElement {
 
 /** Registered: name and sign-out. Guest: the passwordless sign-up form. */
 function accountSection(): HTMLElement {
-  const section = h('section', { class: 'setting account' });
+  const section = h('section', { class: 'panel setting account' });
   let busy = false;
 
   const field = (attrs: Record<string, string>) => h('input', { class: 'text-field', attrs: { autocapitalize: 'off', autocorrect: 'off', spellcheck: 'false', ...attrs } });

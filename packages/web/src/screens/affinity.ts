@@ -8,8 +8,8 @@ import * as copy from '../copy/en.ts';
 
 /**
  * Choosing an affinity (docs/PROGRESSION_DESIGN.md §13.2), opened from Home's line after the
- * third solved square: the four elements, each with its crest, its line and this month's
- * standing, the weakest side tagged "Needs you". Joining asks once (it holds for the
+ * third solved square: the four elements, each with its crest and its line, the weakest side this
+ * month tagged "Needs you". Joining asks once (it holds for the
  * season), then sets it. "Decide later" puts Home's line away for 5 solves. The Profile's
  * Change button opens it again while switching is allowed (once a month, in your first 5 days in a faction),
  * and it goes back to wherever it was opened from.
@@ -30,36 +30,26 @@ export function affinityScreen(back: () => Screen = homeScreen): Screen {
   );
 
   const render = (standings: Standing[] | null) => {
-    const place = (e: Element) => (standings ? standings.findIndex((s) => s.affinity === e) + 1 : 0);
     // the side with the lowest strength (standings come best first), once anyone counts
     const active = standings?.some((s) => s.members > 0);
     const weakest = active ? standings![standings!.length - 1] : null;
     const fewest = weakest && weakest.standing < standings![0].standing ? weakest.affinity : null;
     grid.replaceChildren(
       ...ELEMENTS.map((e) => {
-        const s = standings?.find((x) => x.affinity === e);
         const name = copy.forge.elements[e];
         const line = copy.affinity.character[e];
-        const where = place(e) ? copy.affinity.place(place(e)) : '';
+        // its crest, its name and its line alone (owner, 2026-10-23: no month's place or count)
         return h(
           'button',
           {
-            class: `affinity-card el-${e}`,
-            attrs: { type: 'button', 'aria-label': copy.affinity.a11yCard(name, line, where, fewest === e) },
+            class: `panel affinity-card el-${e}`,
+            attrs: { type: 'button', 'aria-label': copy.affinity.a11yCard(name, line, fewest === e) },
             onclick: () => confirm(e),
           },
           fewest === e ? h('span', { class: 'affinity-tag', text: copy.affinity.needsYou, attrs: { 'aria-hidden': 'true' } }) : null,
           h('span', { class: 'affinity-art', html: crestSvg(e), attrs: { 'aria-hidden': 'true' } }),
           h('strong', { class: 'affinity-name', text: name, attrs: { 'aria-hidden': 'true' } }),
           h('span', { class: 'affinity-line', text: line, attrs: { 'aria-hidden': 'true' } }),
-          s && where
-            ? h(
-                'span',
-                { class: 'affinity-standing', attrs: { 'aria-hidden': 'true' } },
-                h('strong', { text: `${where} ${copy.affinity.thisMonth.toLowerCase()}` }),
-                h('span', { text: copy.affinity.members(s.members) }),
-              )
-            : null,
         );
       }),
     );

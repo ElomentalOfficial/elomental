@@ -59,7 +59,7 @@ export function profileScreen(start?: { at?: 'badges' }): Screen {
   const badgeBtn = h('button', { class: 'btn', text: copy.badges.choose, attrs: { type: 'button' } });
   const badgeNote = h('p', { class: 'note' });
   const badgesSection = account && !account.anonymous
-    ? h('section', { class: 'profile-section card-badges' }, h('h2', { text: copy.badges.title }), badgeList, badgeNote, badgeBtn)
+    ? h('section', { class: 'panel profile-section card-badges' }, h('h2', { text: copy.badges.title }), badgeList, badgeNote, badgeBtn)
     : null;
   const paintBadges = (owned: string[], chosen: string[]) => {
     const onCard = chosen.length ? chosen.filter((b) => owned.includes(b)) : owned.slice(0, 3);
@@ -102,7 +102,7 @@ export function profileScreen(start?: { at?: 'badges' }): Screen {
         ? h('div', { class: 'door-row field-grid two-up profile-doors' }, forgeBtn, platesDoor(profileScreen))
         : h(
             'section',
-            { class: 'profile-hero' },
+            { class: 'panel profile-hero' },
             avatar,
             nameEl,
             tierLine,
@@ -116,7 +116,7 @@ export function profileScreen(start?: { at?: 'badges' }): Screen {
           ),
       h(
         'section',
-        { class: 'profile-section' },
+        { class: 'panel profile-section' },
         h('h2', { text: copy.profile.stats }),
         h(
           'dl',
@@ -128,11 +128,11 @@ export function profileScreen(start?: { at?: 'badges' }): Screen {
           stat(copy.profile.dailyMonth(monthName), copy.profile.dailyCount(dailyDone, dailyGoal(dailyDone, days))),
         ),
       ),
-      h('section', { class: 'profile-section' }, h('h2', { text: copy.profile.collection }), collection, bar),
+      h('section', { class: 'panel profile-section' }, h('h2', { text: copy.profile.collection }), collection, bar),
       badgesSection,
       // a guest gets the way to act on it: the sign-up form, one tap away
       account?.anonymous
-        ? h('section', { class: 'profile-section' }, signUpForm({ collapsed: true, title: copy.account.keepRewards, text: copy.profile.guestNote, onDone: () => mount(profileScreen()) }))
+        ? h('section', { class: 'panel profile-section' }, signUpForm({ collapsed: true, title: copy.account.keepRewards, text: copy.profile.guestNote, onDone: () => mount(profileScreen()) }))
         : null,
     ),
   );
@@ -193,7 +193,7 @@ function openBadgePicker(owned: string[], current: string[], done: (chosen: stri
     btn.setAttribute('aria-label', t.a11yPick(badgeLabel(id).text, on));
   });
   for (const id of owned) {
-    const btn = h('button', { class: 'badge-pick', attrs: { type: 'button' } },
+    const btn = h('button', { class: 'panel badge-pick', attrs: { type: 'button' } },
       h('span', { class: 'badge-medal', html: badgeArt(id), attrs: { 'aria-hidden': 'true' } }),
       h('span', { class: 'badge-name', text: badgeLabel(id).text, attrs: { 'aria-hidden': 'true' } }));
     btn.addEventListener('click', () => {

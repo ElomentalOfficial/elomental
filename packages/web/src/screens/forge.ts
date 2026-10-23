@@ -99,7 +99,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
       purse.replaceChildren(h('div', { class: 'forge-balances forge-purse' }, spirits, stardust));
       body.replaceChildren(
         h('div', { class: 'door-row field-grid two-up forge-top' },
-          h('section', { class: 'forge-lead' }, h('h2', { class: 'forge-heading', text: copy.forge.blueprintsTitle }), h('p', { class: 'forge-intro', text: copy.forge.intro }), odds),
+          h('section', { class: 'panel forge-lead' }, h('h2', { class: 'forge-heading', text: copy.forge.blueprintsTitle }), h('p', { class: 'forge-intro', text: copy.forge.intro }), odds),
           spiritsSection(f)),
         h('div', { class: 'forge-heading-row' }, h('h2', { class: 'forge-heading', text: copy.forge.parts }), h('span', { class: 'forge-count', text: copy.forge.collected(craftable.filter((p) => f.owned.has(p.id)).length, craftable.length) })),
         ...groups(f),
@@ -108,7 +108,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
     }
     const head = h(
       'section',
-      { class: 'forge-head' },
+      { class: 'panel forge-head' },
       // one side the page's own icon (you turn it to catch the light) with your purse under it, the
       // other how parts come, read from the start of the line
       h('div', { class: 'forge-hero-col' }, withRays(spinnable(forgeHero)), h('div', { class: 'forge-purse' }, spirits, stardust)),
@@ -156,7 +156,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
     return h(
       'button',
       {
-        class: `part-card rarity-${p.rarity} state-${state}`,
+        class: `panel part-card rarity-${p.rarity} state-${state}`,
         attrs: { type: 'button', 'aria-label': `${name}, ${rarityName(p.rarity)}, ${kind(p)}. ${label}.${marks ? ` ${copy.forge.a11yMarks(marks.marks, marks.toNext)}.` : ''}${gilded ? ` ${copy.forge.gilded}.` : ''}` },
         onclick: () => openPart(p),
       },
@@ -208,7 +208,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
       if (!can) btn.disabled = true;
       else btn.addEventListener('click', () => busy(btn, () => polishPart(p.id), copy.forge.broughtToLife(name)));
       const cost = (icon: string, amount: string, label: string, have: number, need: number) =>
-        h('li', { class: `life-cost-item${have >= need ? '' : ' short'}` },
+        h('li', { class: `panel life-cost-item${have >= need ? '' : ' short'}` },
           h('span', { class: 'life-cost-main' }, h('span', { class: 'life-cost-icon', html: icon }), h('strong', { text: amount })),
           h('span', { class: 'life-cost-label', text: label }),
           h('span', { class: 'life-cost-have', text: copy.forge.lifeHave(have) }),
@@ -267,7 +267,8 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
     btn.disabled = !toWake || short;
     return h(
       'section',
-      { class: 'forge-spirits' },
+      // a card of its own (framed) on the wide pages; on phones a part of the page's column
+      { class: wide ? 'panel forge-spirits' : 'forge-spirits' },
       h('div', { class: 'forge-heading-row' }, h('h2', { class: 'forge-heading', text: t.spiritsTitle }), h('span', { class: 'forge-count', text: String(f.spirits) })),
       h('p', { class: 'forge-intro', text: t.spiritIn(f.spiritIn) }),
       h('h3', { class: 'forge-subheading', text: t.callTitle }),

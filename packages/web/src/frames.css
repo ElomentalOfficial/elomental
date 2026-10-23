@@ -108,7 +108,8 @@
   --f-bl-c: url('./art/frames/ranked-bright-bl.svg');
   --f-br-c: url('./art/frames/ranked-bright-br.svg');
 }
-.setting, .month-card, .reward-card, .casual-card, .friend-option, .resume-card, .modal, .review-row, .review-log {
+/* Every card, tile and pop-up off Home (`.panel`, home.css): the plainest frame. */
+.panel {
   --fw: 3.2;
   --o1: 14;
   --o2: 14;

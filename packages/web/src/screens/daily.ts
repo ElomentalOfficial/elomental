@@ -262,7 +262,7 @@ export function dailyScreen(): Screen {
 
   const monthCard = h(
     'section',
-    { class: 'month-card' },
+    { class: 'panel month-card' },
     h(
       'div',
       { class: 'month-head' },
@@ -275,7 +275,7 @@ export function dailyScreen(): Screen {
   );
   const reward = h(
     'div',
-    { class: 'reward-card' },
+    { class: 'panel reward-card' },
     h('span', { class: `avatar-reward ${earned ? 'unlocked' : ''}`, html: earned ? ICONS.crown : ICONS.lock }),
     h('div', {}, h('strong', { text: copy.daily.monthBadge(monthName) }), h('p', { text: badgeLine })),
   );
@@ -288,7 +288,7 @@ export function dailyScreen(): Screen {
   const wide = wideLayout();
   const doorLine = h('span', { class: 'door-line', text: copy.daily.nextIn(hours, minutes) });
   const todayDoor = doneToday
-    ? h('div', { class: 'today-card' }, action, resetNote)
+    ? h('div', { class: 'panel today-card' }, action, resetNote)
     : h(
         'button',
         { class: 'door today-door', attrs: { type: 'button' }, onclick: playToday },

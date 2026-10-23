@@ -50,7 +50,8 @@ export const RAMPS: Ramp[] = [
   { name: 'forest', what: 'Earth, Casual, what is on', steps: STEPS, anchors: { 200: '#c9d09d', 500: '#636945' } },
   { name: 'crimson', what: 'Daily, the light theme ink and accent', steps: STEPS, anchors: { 600: '#794341' } },
   { name: 'tide', what: 'Water: a dusty sea blue, a light fill', steps: STEPS, anchors: { 400: { C: 0.08, H: 230 } } },
-  { name: 'mist', what: 'Air: a cool grey-white, cloud rather than paper', steps: STEPS, profile: FLAT, anchors: { 200: { C: 0.02, H: 220 }, 500: { C: 0.035, H: 225 } } },
+  // flat, but its shades quiet like every hue's, so its deep reads as Air's grey, not Water's blue
+  { name: 'mist', what: 'Air: a cool grey-white, cloud rather than paper', steps: STEPS, profile: { ...FLAT, 800: PROFILE[800], 900: PROFILE[900] }, anchors: { 200: { C: 0.02, H: 220 }, 500: { C: 0.035, H: 225 } } },
   { name: 'azure', what: 'Rare: a deep slate blue', steps: STEPS, anchors: { 500: { C: 0.0731, H: 249.5, Y: 0.15 } } },
   { name: 'amethyst', what: 'Epic: heather', steps: STEPS, anchors: { 500: '#6f4b81' } },
   { name: 'flame', what: 'Mythic: the forge-heart flame, a light fill', steps: STEPS, anchors: { 400: { C: 0.14, H: 36 } } },

@@ -190,25 +190,21 @@ html[data-large-text] .part-grid:not(.field-grid) {
   text-align: center;
   cursor: var(--cursor-pointer);
 }
-/* Mythic looks it (M31): a still inner edge in its rarity colour and a folded corner. No motion. */
+/* Mythic looks it (M31): a still inner edge in its rarity colour and a folded corner. No motion.
+   The fold is a corner of the card's own background (its ::after is the frame every card wears),
+   inside the state ring; the card's rounding clips it to the corner's curve. */
+.part-card.rarity-mythic {
+  background-image: linear-gradient(225deg, var(--r-mythic-line) 50%, transparent 50%);
+  background-position: right 2px top 2px;
+  background-size: 14px 14px;
+  background-repeat: no-repeat;
+}
 .part-card.rarity-mythic::before {
   content: '';
   position: absolute;
   inset: 6px;
   border: 1px solid var(--r-mythic-line);
   border-radius: calc(var(--radius-lg) - 6px);
-  pointer-events: none;
-}
-.part-card.rarity-mythic::after {
-  content: '';
-  position: absolute;
-  /* inside the state ring, following its curve */
-  top: 2px;
-  right: 2px;
-  width: 14px;
-  height: 14px;
-  border-top-right-radius: calc(var(--radius-lg) - 2px);
-  background: linear-gradient(225deg, var(--r-mythic-line) 50%, transparent 50%);
   pointer-events: none;
 }
 /* an avatar brought to life: the Spirit glyph beside "Alive" */
@@ -262,7 +258,7 @@ html[data-large-text] .part-grid:not(.field-grid) {
   box-shadow: inset 0 0 0 2px var(--field-border);
 }
 .part-card.state-wearing {
-  background: var(--chosen-bg);
+  background-color: var(--chosen-bg);
 }
 /* not yet yours: a dim silhouette */
 .part-card.state-needs .part-art {

@@ -229,7 +229,7 @@ export function reviewPanel(options: {
       searching() && player.toReview ? h('span', { class: 'review-pill', text: copy.review.pillOpen }) : null,
       h('span', { class: 'review-chevron', html: ICONS.back }),
     );
-    return h('section', { class: `review-row${open ? ' open' : ''}` }, head, open ? detail(player, index) : null);
+    return h('section', { class: `panel review-row${open ? ' open' : ''}` }, head, open ? detail(player, index) : null);
   }
 
   function detail(player: ReviewPlayer, index: number): HTMLElement {
@@ -354,7 +354,7 @@ function logRow(entry: ReviewDecision, named: boolean): HTMLElement {
   if (entry.flags) facts.push(copy.review.flags(entry.flags));
   return h(
     'div',
-    { class: `review-log ${entry.action}${named ? '' : ' inline'}` },
+    { class: `panel review-log ${entry.action}${named ? '' : ' inline'}` },
     named ? h('strong', { text: entry.name }) : null,
     h('span', { text: decisionText(entry.action, entry.days) + (entry.note ? `: ${entry.note}` : '') }),
     h('span', { class: 'note', text: facts.join(' · ') }),

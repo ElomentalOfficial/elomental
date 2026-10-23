@@ -13,7 +13,7 @@ export const betaLocked = (): boolean => IS_BETA && !registered();
 
 export function betaGateScreen(): Screen {
   const el = h('main', { class: 'screen beta-gate scrollable' },
-    h('div', { class: 'setting beta-gate-card' },
+    h('div', { class: 'panel setting beta-gate-card' },
       h('div', { class: 'beta-gate-head' },
         h('h1', { text: copy.common.betaGateTitle }),
         h('p', { text: copy.common.betaGateText })),

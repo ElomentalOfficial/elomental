@@ -504,14 +504,9 @@ export const affinity = {
     earth: 'Steady, every day.',
     air: 'A light touch, many squares.',
   } as Record<string, string>,
-  thisMonth: 'This month',
-  place: (n: number) => ['1st', '2nd', '3rd', '4th'][n - 1] ?? `${n}th`,
-  /** Players with 5+ squares on that side this month. */
-  members: (n: number) => (n === 1 ? '1 player counted' : `${n} players counted`),
   needsYou: 'Needs you',
   /** The card, read in full by screen readers. */
-  a11yCard: (element: string, line: string, place: string, needsYou = false) =>
-    `${element}. ${line}${place ? ` ${place} this month.` : ''}${needsYou ? ' Needs you.' : ''}`,
+  a11yCard: (element: string, line: string, needsYou = false) => `${element}. ${line}${needsYou ? ' Needs you.' : ''}`,
   confirmTitle: (element: string) => `Join ${element}?`,
   confirmText: 'You can switch once a month, in your first 5 days in a faction. Your faction’s frames start dropping for you.',
   /** The Profile's faction line, while switching is allowed. */

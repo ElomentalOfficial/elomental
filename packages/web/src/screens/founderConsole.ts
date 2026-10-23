@@ -109,7 +109,7 @@ export function founderConsole(): Screen {
     'nav',
     { class: 'console-nav', attrs: { 'aria-label': t.title } },
     searchBox,
-    ...GROUPS.map((g) => h('section', { class: 'setting-group' }, h('h2', { text: g.title }), h('div', { class: 'console-rows' }, ...g.sections.map(row)))),
+    ...GROUPS.map((g) => h('section', { class: 'setting-group' }, h('h2', { text: g.title }), h('div', { class: 'panel console-rows' }, ...g.sections.map(row)))),
   );
 
   function paintNav() {
