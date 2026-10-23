@@ -3,6 +3,7 @@ import { loadStandings, type Standing } from '../backend/affinity.ts';
 import { ALIVE_COST, BLUEPRINT_COST, DEFAULT_AVATAR, FORGE_COST, GILD_COST, MAX_MARKS, SLOTS, gildPart, marksOf, avatarsToWake, callSpirit, equipPart, forgePart, loadForge, polishPart, type Forge, type Part } from '../backend/forge.ts';
 import forgeHero from '../art/screens/forge.svg';
 import { ICONS } from '../icons.ts';
+import { withRays } from '../rays.ts';
 import { spinnable } from '../spin.ts';
 import { ELEMENTS, RARITIES, loadProfile, type Element, type Rarity } from '../profile.ts';
 import { partName, rarityName } from '../reward.ts';
@@ -94,7 +95,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
       'section',
       { class: 'forge-head' },
       // the page's own icon, as on a wide screen's banner (you turn it to catch the light)
-      spinnable(forgeHero),
+      withRays(spinnable(forgeHero)),
       h(
         'div',
         { class: 'forge-balances' },

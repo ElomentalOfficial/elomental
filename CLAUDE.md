@@ -7,6 +7,13 @@
 - [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md): the owner's look rules (minimal ornament, one
   rule per set, room around text), the three background ornaments, Banner and Doors.
 
+## Every layout
+
+- A change to how something looks or works goes to phone, tablet and desktop together, never one
+  layout only. The wide pages (Banner and Doors) and the phone pages are separate code paths: find
+  the same element in each and change both. Only what exists on one input alone stays there (the
+  custom mouse cursor, hover-only effects). Check every layout before calling it done.
+
 ## Player-facing text
 
 - Read [docs/BRAND_VOICE.md](docs/BRAND_VOICE.md) before writing or changing any text a player

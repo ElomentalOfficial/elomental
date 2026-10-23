@@ -28,12 +28,13 @@ share one hairline weight, one colour (the surface's ink, e.g. `--on-accent` on 
 a palette role), low opacity, 45° and radial angles only, broken lines and gaps rather than
 closed shapes, `aria-hidden`, and clearance from text. Use one per surface.
 
-1. **Sunburst rays.** Broken rays from one centre, behind a hero. Built for the wide-page banners:
-   `RAYS_MASK` in `packages/web/src/pageBanner.ts` draws 36 rays, long and short in turn, each split
-   into two or three dashes by one of the `RAY_DASHES` patterns, as an SVG mask; `.banner-art::before`
-   in `styles/banner.css` paints it in the cloth's ink at 14% and stretches it to an oval (the
-   cloth's width, the hero's height) so the tips stay inside the cloth and off the text. Unbroken
-   rays at 6.5% were too faint.
+1. **Sunburst rays.** Broken rays from one centre, behind a hero. `withRays(el)` in
+   `packages/web/src/rays.ts` puts it behind any element: 36 rays, long and short in turn, each
+   split into two or three dashes by one of the `RAY_DASHES` patterns, as an SVG mask; `.rays::before`
+   in `styles/banner.css` paints it in the surface's ink at 14% and stretches it to the oval each
+   place sets with `--rays-w` / `--rays-h`, so the tips stay off the text. Used on the wide banners
+   (cloth width × hero height) and the phone/tablet Forge head (a little past the icon's sides,
+   twice its height; just past it at large text). Unbroken rays at 6.5% were too faint.
 2. **Seal and diamond rails.** A faint round seal behind a title (two thin rings, a band of runes,
    a crest in the middle); nested 45° diamonds at the ends of a bar; short dashed lines running
    out from them to a small dot or tick. Not built yet.

@@ -23,6 +23,10 @@
 .forge-head > .spin {
   width: 100%;
   aspect-ratio: 617 / 375;
+  /* its sunburst (rays.ts), as on the wide banner: a little past the icon's sides (clear of the
+     words beside it), twice its height */
+  --rays-w: calc(100% + var(--space-4));
+  --rays-h: 200%;
 }
 .forge-avatar {
   display: block;
