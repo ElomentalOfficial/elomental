@@ -157,8 +157,9 @@ export function casualScreen(): Screen {
             h(
               'section',
               { class: 'casual-card', attrs: { 'aria-labelledby': 'casual-new-game' } },
-              h('h2', { class: 'casual-label', attrs: { id: 'casual-new-game' }, text: say.newGame }),
-              h('div', { class: 'difficulty-picker', attrs: { role: 'radiogroup', 'aria-labelledby': 'casual-new-game' } }, ...segments),
+              h('div', { class: 'casual-field' },
+                h('h2', { class: 'casual-label', attrs: { id: 'casual-new-game' }, text: say.newGame }),
+                h('div', { class: 'difficulty-picker', attrs: { role: 'radiogroup', 'aria-labelledby': 'casual-new-game' } }, ...segments)),
               playButton,
             ),
             h(

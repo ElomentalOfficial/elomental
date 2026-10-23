@@ -197,8 +197,12 @@
   .banner-col.back-below .page-banner .subbar {
     padding-top: var(--space-4);
   }
+  /* the title and its line, the cloth's full width (a .heading-group) */
+  .banner-head {
+    align-self: stretch;
+    align-items: center;
+  }
   .banner-help {
-    margin-top: calc(-1 * var(--space-2));
     font-family: var(--serif);
     font-size: var(--fs-body);
     line-height: 1.4;

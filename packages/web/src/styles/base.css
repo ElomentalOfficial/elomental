@@ -9,6 +9,13 @@
 [hidden] {
   display: none !important;
 }
+/* A title kept with its line (a subtitle, a note): the closest spacing step, whatever gap the
+   container around them uses */
+.heading-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
 /* Nothing in the app is selectable text; this also covers modals and the
    notes wheel, which live outside #app. */
 *,

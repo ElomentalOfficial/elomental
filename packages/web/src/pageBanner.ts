@@ -28,8 +28,7 @@ export function pageBanner(header: HTMLElement, banner: Banner, onBack: () => vo
   const inner = h(
     'div',
     { class: 'banner-inner' },
-    header,
-    banner.help ? h('p', { class: 'banner-help', text: banner.help }) : null,
+    h('div', { class: 'heading-group banner-head' }, header, banner.help ? h('p', { class: 'banner-help', text: banner.help }) : null),
     withRays(h('div', { class: 'banner-art', attrs: { 'aria-hidden': 'true' } }, banner.art)),
     banner.foot ? h('div', { class: 'banner-foot' }, banner.foot) : null,
   );

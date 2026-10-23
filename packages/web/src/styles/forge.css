@@ -364,7 +364,6 @@ html[data-large-text] .part-grid {
   letter-spacing: 0.04em;
 }
 .life-section .note {
-  margin-top: calc(-1 * var(--space-2));
   font-size: var(--fs-small);
   color: var(--muted);
 }

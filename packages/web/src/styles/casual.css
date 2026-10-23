@@ -151,10 +151,12 @@ html:not([data-large-text]) .casual-feather-art {
     padding: 8px;
   }
 }
-.casual-friends {
+/* a label and the control it names: a step closer than the parts of a card */
+.casual-friends,
+.casual-field {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-2);
 }
 .casual-card,
 .friend-option {
@@ -301,7 +303,6 @@ html[data-reduce-motion] .casual-feather-shadow {
   padding: 0 var(--space-1);
 }
 .casual-label {
-  margin-bottom: -6px;
   font-size: var(--fs-small);
   font-weight: 700;
   letter-spacing: 0.08em;

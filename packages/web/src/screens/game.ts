@@ -374,8 +374,7 @@ function gameScreen(game: SavedGame): Screen {
     'button',
     { class: 'pause-cover', onclick: () => setPaused(false) },
     h('span', { class: 'play-badge', html: ICONS.play }),
-    copy.game.paused,
-    competitive ? h('small', { class: 'pause-note' }) : null,
+    h('span', { class: 'heading-group' }, copy.game.paused, competitive ? h('small', { class: 'pause-note' }) : null),
   );
   const pauseNote = pauseCover.querySelector<HTMLElement>('.pause-note');
   const boardWrap = h('div', { class: 'board-wrap' }, board, pauseCover);

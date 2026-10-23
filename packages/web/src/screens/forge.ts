@@ -216,8 +216,7 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
       life = h(
         'section',
         { class: 'life-section' },
-        h('h3', { text: copy.forge.lifeTitle }),
-        h('p', { class: 'note', text: copy.forge.lifeNote }),
+        h('div', { class: 'heading-group' }, h('h3', { text: copy.forge.lifeTitle }), h('p', { class: 'note', text: copy.forge.lifeNote })),
         h('ul', { class: 'life-cost', attrs: { 'aria-label': copy.forge.a11yLifeCost(ALIVE_COST, f.stardust, f.spirits) } },
           cost(ICONS.dust, String(ALIVE_COST), copy.common.stardust, f.stardust, ALIVE_COST),
           cost(ICONS.spirit, '1', copy.forge.lifeSpirit, f.spirits, 1)),

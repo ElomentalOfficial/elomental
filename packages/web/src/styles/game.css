@@ -287,8 +287,10 @@
 .paused .pause-cover {
   display: flex;
 }
+.pause-cover .heading-group {
+  align-items: center;
+}
 .pause-note {
-  margin-top: -6px;
   font-size: var(--fs-body);
   color: var(--muted);
 }
