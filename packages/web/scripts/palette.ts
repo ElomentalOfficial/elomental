@@ -50,8 +50,7 @@ export const RAMPS: Ramp[] = [
   { name: 'forest', what: 'Earth, Casual, what is on', steps: STEPS, anchors: { 200: '#c9d09d', 500: '#636945' } },
   { name: 'crimson', what: 'Daily, the light theme ink and accent', steps: STEPS, anchors: { 600: '#794341' } },
   { name: 'tide', what: 'Water: a dusty sea blue, a light fill', steps: STEPS, anchors: { 400: { C: 0.08, H: 230 } } },
-  // flat, but its shades quiet like every hue's, so its deep reads as Air's grey, not Water's blue
-  { name: 'mist', what: 'Air: a cool grey-white, cloud rather than paper', steps: STEPS, profile: { ...FLAT, 800: PROFILE[800], 900: PROFILE[900] }, anchors: { 200: { C: 0.02, H: 220 }, 500: { C: 0.035, H: 225 } } },
+  { name: 'mist', what: 'Air: a cool grey-white, cloud rather than paper', steps: STEPS, profile: FLAT, anchors: { 200: { C: 0.02, H: 220 }, 500: { C: 0.035, H: 225 } } },
   { name: 'azure', what: 'Rare: a deep slate blue', steps: STEPS, anchors: { 500: { C: 0.0731, H: 249.5, Y: 0.15 } } },
   { name: 'amethyst', what: 'Epic: heather', steps: STEPS, anchors: { 500: '#6f4b81' } },
   { name: 'flame', what: 'Mythic: the forge-heart flame, a light fill', steps: STEPS, anchors: { 400: { C: 0.14, H: 36 } } },
@@ -114,12 +113,16 @@ interface Swatch {
   fill: number;
   /** per-role step overrides where a ramp lacks the standard step: `${role}-${theme}` */
   steps?: Partial<Record<string, number>>;
+  /** the deep role's colour per theme, as `ramp-step`, where it isn't the hue's own 900 / 700 */
+  deep?: { dark: string; light: string };
 }
 export const SWATCHES: Swatch[] = [
   { id: 'el-fire', ramp: 'lava', fill: 500 },
   { id: 'el-water', ramp: 'tide', fill: 400 },
   { id: 'el-earth', ramp: 'forest', fill: 500 },
-  { id: 'el-air', ramp: 'mist', fill: 200, steps: { 'line-light': 600, 'line-hc-light': 700 } },
+  // Air's deep is the plain grey neutral at its siblings' steps: mist's own shades read as Water's
+  // blue (owner)
+  { id: 'el-air', ramp: 'mist', fill: 200, steps: { 'line-light': 600, 'line-hc-light': 700 }, deep: { dark: 'stone-900', light: 'stone-700' } },
   { id: 'r-common', ramp: 'iron', fill: 500 },
   { id: 'r-rare', ramp: 'azure', fill: 500 },
   { id: 'r-epic', ramp: 'amethyst', fill: 500 },
@@ -149,6 +152,9 @@ function themeRoles(s: Swatch, t: 'dark' | 'light'): Record<string, string> {
     // a light fill can't stand on the light theme's pale surfaces: as a shape it takes its line
     mark: t === 'light' && lightFill(s) ? v(s.ramp, roleStep(s, 'line', t)) : `var(--${s.id}-fill)`,
     edge: edge(s, t),
+    // a ground for art drawn on it (a crest disc): the hue at its darkest on dark, a step lighter on
+    // light, where the darkest stood out too hard against the sand (owner)
+    deep: `var(--c-${s.deep?.[t] ?? `${s.ramp}-${t === 'dark' ? 900 : 700}`})`,
   };
 }
 /**
@@ -272,10 +278,11 @@ export function paletteCss(): string {
       '   *         a light fill would vanish (light theme)',
       '   *   edge  the 1px rim of every filled tag, chip, segment and disc: the same rule for all of',
       '   *         them (none on dark, a deeper shade of the hue on light), so a set never mixes rims',
-      '   *   deep  the hue at its darkest (900), a ground for art drawn on it (a crest disc)',
+      '   *   deep  a ground for art drawn on it (a crest disc): the hue at its darkest (900) on dark,',
+      '   *         700 on light',
       '   * Always shown with the name or the crest, never colour alone.',
       '   */',
-      ...SWATCHES.flatMap((s) => [`  --${s.id}-fill: ${v(s.ramp, s.fill)};`, `  --${s.id}-on: var(${lightFill(s) ? '--c-stone-900' : '--c-sand-50'});`, `  --${s.id}-deep: ${v(s.ramp, 900)};`]),
+      ...SWATCHES.flatMap((s) => [`  --${s.id}-fill: ${v(s.ramp, s.fill)};`, `  --${s.id}-on: var(${lightFill(s) ? '--c-stone-900' : '--c-sand-50'});`]),
       '  /* the fill under its short name */',
       ...SWATCHES.filter((s) => !s.id.startsWith('tone-')).map((s) => `  --${s.id}: var(--${s.id}-fill);`),
     ]),
