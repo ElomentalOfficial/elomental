@@ -1,5 +1,4 @@
 import { partSvg } from '../avatar.ts';
-import { loadStandings, type Standing } from '../backend/affinity.ts';
 import { ALIVE_COST, BLUEPRINT_COST, DEFAULT_AVATAR, FORGE_COST, GILD_COST, MAX_MARKS, SLOTS, gildPart, marksOf, avatarsToWake, callSpirit, equipPart, forgePart, loadForge, polishPart, type Forge, type Part } from '../backend/forge.ts';
 import forgeHero from '../art/screens/forge.svg';
 import { ICONS } from '../icons.ts';
@@ -41,8 +40,28 @@ const kind = (p: Part) => (p.element ? `${copy.forge.elements[p.element]} · ${c
 const order = (p: Part) => (p.element ? ELEMENTS.indexOf(p.element) : 0);
 const rarityTag = (r: Rarity) => h('span', { class: `rarity-tag rarity-${r}`, text: rarityName(r) });
 /** A balance on its band: the number, then what it counts. */
-const balance = (r: Rarity, n: number, what: string) =>
-  h('span', { class: `balance rarity-${r}` }, h('strong', { text: copy.formatNumber(n) }), h('span', { text: what }));
+const balance = (r: Rarity, n: number, what: string) => {
+  const el = h('span', { class: `balance rarity-${r}` }, h('strong', { text: copy.formatNumber(n) }), h('span', { text: what }));
+  for (const [corner, mask] of Object.entries(PURSE_FANS)) el.style.setProperty(`--fan-${corner}`, mask);
+  return el;
+};
+/**
+ * A band's frame (forge.css): the tiles' corner (art/frames, icons/build_frames.py) without its
+ * side line, so the band is framed above and below and open at its ends: in each corner the
+ * sundial fan (two arcs and their rungs, worn like the tiles' lines), a stud inside it, and the
+ * top or bottom line running out of it. Drawn on the tiles' 40-unit corner, as masks in each turn.
+ */
+const PURSE_FANS = (() => {
+  const rungs = Array.from({ length: 11 }, (_, i) => {
+    const a = ((i + 0.5) * Math.PI) / 22;
+    const at = (r: number) => `${(5 + r * Math.cos(a)).toFixed(2)} ${(5 + r * Math.sin(a)).toFixed(2)}`;
+    return `M${at(22)}L${at(30)}`;
+  }).join('');
+  const corner = `<path fill="none" stroke="#000" stroke-width="1.3" stroke-dasharray="11 1.6 7 1.2 16 2 9 1.4" d="M27 5A22 22 0 0 1 5 27M35 5A30 30 0 0 1 5 35${rungs}M5 5L40 5"/><circle cx="14" cy="14" r="2"/>`;
+  const turned = (t: string) =>
+    `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><g transform="${t}">${corner}</g></svg>`)}")`;
+  return { tl: turned(''), tr: turned('matrix(-1 0 0 1 40 0)'), bl: turned('matrix(1 0 0 -1 0 40)'), br: turned('matrix(-1 0 0 -1 40 40)') };
+})();
 /** A frame's marks: three small diamonds, earned ones filled (the words say it too). */
 const markPips = (n: number) => h('span', { class: 'mark-pips', attrs: { 'aria-hidden': 'true' } },
   ...Array.from({ length: MAX_MARKS }, (_, i) => h('span', { class: `mark-pip${i < n ? ' on' : ''}` })));
@@ -65,10 +84,9 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
   );
   rebuildOnLayout(el, () => forgeScreen(back));
   let forge: Forge | null = null;
-  let standings: Standing[] | null = null;
 
   const refresh = async () => {
-    [forge, standings] = await Promise.all([loadForge(), loadStandings()]);
+    forge = await loadForge();
     render();
   };
 
@@ -79,14 +97,14 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
     }
     const f = forge;
     const craftable = f.parts.filter((p) => p.source === 'craft');
-    // your purse: each on a band in a rarity's colour (forge.css), Stardust the everyday treasure
-    // (rare), Spirits the scarcest drop (mythic); the words say what each is
-    const stardust = balance('rare', f.stardust, copy.common.stardust);
+    // your purse: each on a framed band in a rarity's muted colour (forge.css), Stardust epic's
+    // purple-grey, Spirits mythic's red; the words say what each is
+    const stardust = balance('epic', f.stardust, copy.common.stardust);
     const spirits = balance('mythic', f.spirits, copy.common.spiritsLabel(f.spirits));
     const odds = h('button', { class: 'link-btn', text: copy.forge.oddsButton, attrs: { type: 'button' }, onclick: () => openOdds() });
     if (wide) {
       // you and your purse on the banner; how parts come and the Spirits side by side, then the parts
-      purse.replaceChildren(h('div', { class: 'forge-balances forge-purse' }, stardust, spirits, f.affinity ? affinityLine(f.affinity) : null));
+      purse.replaceChildren(h('div', { class: 'forge-balances forge-purse' }, stardust, spirits));
       body.replaceChildren(
         h('div', { class: 'door-row forge-top', attrs: { style: '--doors: 2' } },
           h('section', { class: 'forge-lead' }, h('h2', { class: 'forge-heading', text: copy.forge.blueprintsTitle }), h('p', { class: 'forge-intro', text: copy.forge.intro }), odds),
@@ -106,7 +124,6 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
         { class: 'forge-balances' },
         h('p', { class: 'forge-intro', text: copy.forge.intro }),
         odds,
-        f.affinity ? affinityLine(f.affinity) : null,
         h('div', { class: 'forge-purse' }, stardust, spirits),
       ),
     );
@@ -131,18 +148,6 @@ export function forgeScreen(back: () => Screen = homeScreen): Screen {
         .sort((a, b) => Number(b.source === 'starter') - Number(a.source === 'starter') || order(a) - order(b) || RARITIES.indexOf(a.rarity) - RARITIES.indexOf(b.rarity));
       return h('section', { class: 'forge-group' }, h('h2', { text: copy.forge.slotGroups[slot] }), h('div', { class: 'part-grid' }, ...parts.map((p) => partCard(f, p))));
     });
-  }
-
-  /** Your side and where it stands this month. */
-  function affinityLine(e: Element): HTMLElement {
-    const place = (standings?.findIndex((s) => s.affinity === e) ?? -1) + 1;
-    const name = copy.forge.elements[e];
-    return h(
-      'p',
-      { class: 'forge-affinity' },
-      h('span', { class: 'drop-element', html: ICONS.elements[e], attrs: { 'aria-hidden': 'true' } }),
-      h('span', { text: place ? copy.affinity.yours(name, copy.affinity.place(place)) : name }),
-    );
   }
 
   function stateLabel(state: State): string {

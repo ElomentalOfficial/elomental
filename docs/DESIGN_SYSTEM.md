@@ -61,10 +61,12 @@ pages, Forge, Profile and Daily are "Banner and Doors".
 - **Room under the text:** the last line on the cloth keeps 96px (`BREATH`, pageBanner.ts) above
   the tail's highest spike (the owner's sketch; 32 and 56 read as too tight), and the details sit a
   `--space-5` step under the art. The page's title is the display size and a half.
-- **The purse** (Forge, `balance` in forge.ts, forge.css): each balance on a band of its rarity's
-  `-deep` shade (palette role, Bright text at about 10:1), fading out at the sides and softly above
-  and below, the words always on its solid middle; Stardust Rare, Spirits Mythic; no icons. The
-  same bands on the wide banner and the phone/tablet Forge head.
+- **The purse** (Forge, `balance` and `PURSE_FANS` in forge.ts, forge.css): each balance on a band
+  of its rarity's `-deep` shade (palette role, step 800: dark and muted, Bright text at about 12:1),
+  Stardust Epic (purple-grey), Spirits Mythic (a toned-down red), in the tiles' frame open at its
+  sides: a sundial fan in each corner and the worn top and bottom lines, Bright at 32%, the colour
+  fading out under the fans. No icons, no faction line. The same bands on the wide banner and the
+  phone/tablet Forge head.
 - **Back** (`pageBanner.ts`): one per page. Normally the big one under the ribbon's tail: the
   owner's Deco arrowhead (`art/screens/back.svg`) in the seal and diamond rails, up to about 130px
   tall on big screens, moved 7% left so it looks centred (its weight is in its right-hand panels),

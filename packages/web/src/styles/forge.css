@@ -43,32 +43,60 @@
   font-size: var(--fs-small);
   color: var(--muted);
 }
-/* Your purse (forge.ts balance): each balance on a band of its rarity's deep shade that fades out at
-   both ends, the number and its name in Bright on the band's solid middle (the side padding is the
-   fade's length, so the words never reach the fade). The two bands sit close, one set. */
+/* Your purse (forge.ts balance): each balance on a band of its rarity's deep shade (muted, both the
+   same depth: Stardust epic, Spirits mythic) in a frame of the tiles' family, closed above and below
+   and open at its ends: a sundial fan in each corner and the top and bottom lines between them
+   (forge.ts PURSE_FANS), in the band's Bright, faint. The number and its name sit clear of the fans.
+   The two bands a small step apart, one set. */
 .forge-purse {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
+  gap: var(--space-2);
 }
 .balance {
-  --fade: 20%;
+  /* the corner's size, and its unit (the tiles' 40-unit corner) */
+  --c: calc(var(--fs-body) * 1.6);
+  --k: calc(var(--c) / 40);
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
+  align-content: center;
   justify-content: center;
   column-gap: var(--space-2);
   width: 100%;
-  padding: var(--space-3) var(--fade);
-  background: linear-gradient(90deg, transparent, var(--rc-deep) var(--fade), var(--rc-deep) calc(100% - var(--fade)), transparent);
-  /* soft above and below too, like a glow laid on the cloth: a set fade inside the padding, so
-     words that wrap (large text) still sit on the solid middle */
-  -webkit-mask: linear-gradient(transparent, #000 var(--space-2), #000 calc(100% - var(--space-2)), transparent);
-  mask: linear-gradient(transparent, #000 var(--space-2), #000 calc(100% - var(--space-2)), transparent);
+  min-height: calc(var(--c) * 2.1);
+  padding: var(--space-2) calc(var(--c) + var(--space-2));
+  /* open at its ends: the colour fades out under the fans, the words on the solid middle */
+  background: linear-gradient(90deg, transparent, var(--rc-deep) var(--c), var(--rc-deep) calc(100% - var(--c)), transparent);
   color: var(--c-bright);
   font-family: var(--serif);
   font-weight: 400;
   text-align: center;
+}
+.balance::after {
+  --lw: calc(1.3 * var(--k));
+  --y: calc(5 * var(--k) - var(--lw) / 2);
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: currentColor;
+  opacity: 0.32;
+  -webkit-mask:
+    var(--fan-tl) left top / var(--c) var(--c) no-repeat,
+    var(--fan-tr) right top / var(--c) var(--c) no-repeat,
+    var(--fan-bl) left bottom / var(--c) var(--c) no-repeat,
+    var(--fan-br) right bottom / var(--c) var(--c) no-repeat,
+    linear-gradient(#000 0 0) left var(--c) top var(--y) / calc(100% - 2 * var(--c)) var(--lw) no-repeat,
+    linear-gradient(#000 0 0) left var(--c) bottom var(--y) / calc(100% - 2 * var(--c)) var(--lw) no-repeat;
+  mask:
+    var(--fan-tl) left top / var(--c) var(--c) no-repeat,
+    var(--fan-tr) right top / var(--c) var(--c) no-repeat,
+    var(--fan-bl) left bottom / var(--c) var(--c) no-repeat,
+    var(--fan-br) right bottom / var(--c) var(--c) no-repeat,
+    linear-gradient(#000 0 0) left var(--c) top var(--y) / calc(100% - 2 * var(--c)) var(--lw) no-repeat,
+    linear-gradient(#000 0 0) left var(--c) bottom var(--y) / calc(100% - 2 * var(--c)) var(--lw) no-repeat;
 }
 .balance strong {
   font-weight: 400;
@@ -660,9 +688,6 @@ html[data-reduce-motion] .part-reveal * {
   }
   .forge-lead .forge-heading {
     margin-top: 0;
-  }
-  .forge-purse-foot .forge-affinity {
-    margin-top: var(--space-2);
   }
   .forge.has-banner .forge-heading-row {
     margin-top: var(--space-5);
