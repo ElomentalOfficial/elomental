@@ -110,9 +110,6 @@
   --feather-shadow: rgba(0, 0, 0, 0.16);
   /* Dark home: the profile card is a dark Highlight surface with light text (Figma update). */
   --profile-bg: var(--c-highlight-2);
-  /* the plaques behind the profile card's givens and badges (profilePlaques.ts); their grain mask
-     lets about half of the tint through */
-  --pc-well: color-mix(in srgb, var(--c-bg) 60%, transparent);
   --profile-text: var(--c-bright);
   --chip-bg: rgba(38, 39, 33, 0.35);
   --avatar-bg: var(--c-highlight);
@@ -227,7 +224,6 @@
   --tile-label-shadow: 0.06em 0.08em 0.06em color-mix(in srgb, var(--c-bright) 50%, transparent);
   --feather-shadow: color-mix(in srgb, var(--c-rock) 30%, transparent);
   --profile-bg: var(--c-second-bright);
-  --pc-well: color-mix(in srgb, var(--c-mud) 70%, transparent);
   --profile-text: var(--c-crimson);
   --chip-bg: rgba(38, 39, 33, 0.07);
   --avatar-bg: var(--c-bright);

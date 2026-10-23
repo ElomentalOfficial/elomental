@@ -54,7 +54,7 @@ export function homeCard(): HomeCard {
 
   const badges = h('ul', { class: 'pc-cell pc-badges', attrs: { 'aria-label': copy.home.card.badges } });
   const walls = h('div', { class: 'pc-walls', attrs: { 'aria-hidden': 'true' } });
-  // the plaques behind Level, Elo and the badges (profilePlaques.ts), under the walls
+  // the plaques round Level, Elo and the badges (profilePlaques.ts), under the walls
   const plaques = h('div', { class: 'pc-plaques', attrs: { 'aria-hidden': 'true' } });
   const emblem = h('img', { class: 'pc-emblem', attrs: { alt: '' } }) as HTMLImageElement;
   // (the emblem, placed over the banner, is read out right after your name)

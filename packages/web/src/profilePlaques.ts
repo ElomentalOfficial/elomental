@@ -1,11 +1,9 @@
-import grain from './art/grain.webp';
 import { frameLine, underYou, type Box } from './profileWalls.ts';
 
 /**
- * The plaques behind the profile card's Level, Elo and badges (owner, 2026-10-23): an Art Deco
+ * The plaques round the profile card's Level, Elo and badges (owner, 2026-10-23): an Art Deco
  * plaque in each cell, drawn to the cell as laid out. Its top and bottom edges rise to a raised
- * middle on 45° shoulders, its corners are cut concave, and a fine worn line runs along its edge:
- * one contour, nothing more. The fill is worn by the tiles' own grain, like old print.
+ * middle on 45° shoulders, its corners are cut concave: one fine worn contour, no fill.
  */
 
 const n = (v: number) => v.toFixed(1);
@@ -31,7 +29,7 @@ function outline(b: Box, rise: number, r: number, rLow: number, mid: number): st
 }
 
 /**
- * One plaque in a cell, its one contour (owner: simpler), for both its fill and its line.
+ * One plaque in a cell: its one contour (owner: simpler).
  * `rLow` widens the lower corners (the badges', round the frame's corner ornaments).
  */
 function plaque(b: Box, unit: number, rLow?: number): string {
@@ -68,10 +66,5 @@ function grown(cells: Box[], width: number, height: number, unit: number, ceilin
 export function cardPlaques(c: { width: number; height: number; unit: number; portrait: Box; name: Box; level: Box; elo: Box; badges: Box; frameCorner: number }): string {
   const [level, elo, badges] = grown([c.level, c.elo, c.badges], c.width, c.height, c.unit, underYou(c));
   const plaques = [plaque(level, c.unit), plaque(elo, c.unit), plaque(badges, c.unit, c.frameCorner * 0.6)];
-  return (
-    `<defs><pattern id="pc-grain" patternUnits="userSpaceOnUse" width="224" height="224"><image href="${grain}" width="224" height="224"/></pattern>` +
-    `<mask id="pc-grain-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="${c.width}" height="${c.height}"><rect width="${c.width}" height="${c.height}" fill="url(#pc-grain)"/></mask></defs>` +
-    `<g class="pc-plaque-fill" mask="url(#pc-grain-mask)">${plaques.map((d) => `<path d="${d}"/>`).join('')}</g>` +
-    `<g class="pc-plaque-line">${plaques.map((d) => `<path d="${d}"/>`).join('')}</g>`
-  );
+  return `<g class="pc-plaque-line">${plaques.map((d) => `<path d="${d}"/>`).join('')}</g>`;
 }

@@ -222,9 +222,8 @@
   grid-area: elo;
   container-type: inline-size;
 }
-/* The plaques behind Level, Elo and the badges (profilePlaques.ts, owner 2026-10-23): their fill
-   in the well's tint (its grain mask lets about half through), their lines in the frame's ink at
-   the tile frames' own faintness, worn by their small gaps. */
+/* The plaques round Level, Elo and the badges (profilePlaques.ts, owner 2026-10-23): outlines only,
+   in the frame's ink at the tile frames' own faintness, worn by their small gaps. */
 .pc-plaques {
   position: absolute;
   inset: 0;
@@ -234,9 +233,6 @@
 .pc-plaques svg {
   display: block;
   overflow: visible;
-}
-.pc-plaque-fill {
-  fill: var(--pc-well);
 }
 .pc-plaque-line {
   fill: none;
