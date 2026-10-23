@@ -187,15 +187,35 @@
   aspect-ratio: 1;
   padding: 5%;
   border-radius: 50%;
-  background: var(--coin);
+  /* lit at the centre, its own hue at the rim (flat on dark, where both are the deep) */
+  background: radial-gradient(circle, var(--coin-lit) 25%, var(--coin));
   box-shadow: 0 0 0 2px var(--crest-ring);
   pointer-events: none;
 }
-/* the coin's ground in its faction's hue: dark on dark, bright on light (palette.css coin; owner) */
-.pc-faction.el-fire { --coin: var(--el-fire-coin); }
-.pc-faction.el-water { --coin: var(--el-water-coin); }
-.pc-faction.el-earth { --coin: var(--el-earth-coin); }
-.pc-faction.el-air { --coin: var(--el-air-coin); }
+/* the coin in its faction's hue (palette.css coin; owner): dark on dark, bright on light */
+.pc-faction.el-fire { --coin: var(--el-fire-coin); --coin-lit: var(--el-fire-coin-lit); color: var(--el-fire-coin-mark); }
+.pc-faction.el-water { --coin: var(--el-water-coin); --coin-lit: var(--el-water-coin-lit); color: var(--el-water-coin-mark); }
+.pc-faction.el-earth { --coin: var(--el-earth-coin); --coin-lit: var(--el-earth-coin-lit); color: var(--el-earth-coin-mark); }
+.pc-faction.el-air { --coin: var(--el-air-coin); --coin-lit: var(--el-air-coin-lit); color: var(--el-air-coin-mark); }
+/* on dark the full-colour emblem, edged in gold; on light the mark alone in the hue's deep shade,
+   at the emblem's size (its mark fills 80 of its 84 units) */
+.pc-faction-art,
+.pc-faction-mark,
+.pc-faction-mark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.pc-faction-mark {
+  display: none;
+  padding: calc(100% * 2 / 84);
+}
+:root[data-theme='light'] .pc-faction-art {
+  display: none;
+}
+:root[data-theme='light'] .pc-faction-mark {
+  display: block;
+}
 /* Your name (its plate shows on the Profile, not here), your title and rank under it, from the
    avatar's side. */
 .pc-name {

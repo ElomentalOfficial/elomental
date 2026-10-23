@@ -177,6 +177,12 @@ for (const metal of ['bronze', 'silver', 'gold']) {
   for (const [n, t] of PLATE_SURFACES) PAIRS.push([`UI: ${metal} medal on ${n}`, `--medal-${metal}`, t, 3]);
   PAIRS.push([`UI: ${metal} medal on your row`, `--medal-${metal}-chosen`, '--chosen-bg', 3, '--surface']);
 }
+// Home's faction coin (home.css .pc-faction): on light its mark on the disc, at the disc's rim and
+// at its lit centre (on dark the full-colour emblem with its gold edge stands in for the mark)
+for (const e of ['fire', 'water', 'earth', 'air']) {
+  PAIRS.push([`UI: ${e} coin mark on its disc (rim)`, `--el-${e}-coin-mark`, `--el-${e}-coin`, 3]);
+  PAIRS.push([`UI: ${e} coin mark on its disc (centre)`, `--el-${e}-coin-mark`, `--el-${e}-coin-lit`, 3]);
+}
 
 /**
  * Pairs that may stay under their ratio, and why. Anything else failing is a regression. A key
@@ -199,6 +205,13 @@ for (const s of SWATCHES.filter((s) => !lightFill(s)))
     for (const [n] of SURFACES)
       ACCEPTED[`${theme}: UI: ${s.id} mark vs ${n}`] =
         'a deep fill as a shape always sits beside its name or crest; where a shape alone must be seen, the line role is 3:1';
+
+// The coin's one-colour mark is drawn on the light theme only; on dark the full-colour emblem,
+// edged in gold, stands on the disc instead (home.css .pc-faction)
+for (const e of ['fire', 'water', 'earth', 'air'])
+  for (const theme of ['dark', 'dark-hc'])
+    for (const at of ['rim', 'centre'])
+      ACCEPTED[`${theme}: UI: ${e} coin mark on its disc (${at})`] = 'not drawn on dark: the gold-edged emblem stands there';
 
 // Name plates are see-through (PLATE_OPACITY, owner 2026-10-21): measured as drawn, and allowed
 // under 3:1 there, since a plate is decoration under a name that is always written. (High

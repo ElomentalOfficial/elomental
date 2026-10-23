@@ -1,5 +1,6 @@
 import { avatarSvg, emblemUrl } from '../avatar.ts';
 import { cachedAccount, registered } from '../backend/account.ts';
+import { elementMark } from '../elementMarks.ts';
 import { cachedLoadout, cachedPolish } from '../backend/forge.ts';
 import { myBadges } from '../backend/leaderboard.ts';
 import { badgeArt, badgeLabel } from '../badges.ts';
@@ -60,7 +61,11 @@ export function homeCard(): HomeCard {
 
   // ---- who you are: the avatar on its sunburst, your faction's coin on its ring; name and rank
   const avatar = h('button', { class: 'avatar avatar-btn worn', attrs: { type: 'button', 'aria-label': copy.profile.a11yAvatar } });
-  const coin = h('img', { class: 'pc-faction', attrs: { alt: '' } }) as HTMLImageElement;
+  // your faction's coin: on dark its full-colour emblem, on light its mark alone in the hue
+  // (home.css .pc-faction); read out once, from the coin
+  const coinArt = h('img', { class: 'pc-faction-art', attrs: { alt: '' } }) as HTMLImageElement;
+  const coinMark = h('span', { class: 'pc-faction-mark' });
+  const coin = h('span', { class: 'pc-faction', attrs: { role: 'img' } }, coinArt, coinMark);
   const portrait = h('div', { class: 'pc-cell pc-portrait' }, withRays(h('span', { class: 'pc-medallion' }, avatar, coin)));
   const nameEl = h('strong', { class: 'profile-name' });
   const rankEl = h('span', { class: 'profile-rank' });
@@ -138,9 +143,10 @@ export function homeCard(): HomeCard {
     const side = account?.affinity ?? null;
     coin.hidden = !side;
     if (side) {
-      coin.src = emblemUrl(side);
+      coinArt.src = emblemUrl(side);
+      coinMark.innerHTML = elementMark(side);
       coin.className = `pc-faction el-${side}`;
-      coin.alt = copy.home.card.faction(copy.forge.elements[side]);
+      coin.setAttribute('aria-label', copy.home.card.faction(copy.forge.elements[side]));
     }
     // your three chosen badges (Profile > Badges), or your newest until you choose
     const chosen = account?.showcase ?? [];

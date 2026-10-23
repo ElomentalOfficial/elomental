@@ -115,16 +115,14 @@ interface Swatch {
   steps?: Partial<Record<string, number>>;
   /** the deep role from another ramp (themeRoles): `dark` a `ramp-step`, `tint` the ramp light's is tinted with */
   deep?: { dark: string; tint: string };
-  /** the coin role's light-theme ground from another ramp (themeRoles), a `ramp-step` */
-  coin?: string;
 }
 export const SWATCHES: Swatch[] = [
   { id: 'el-fire', ramp: 'lava', fill: 500 },
   { id: 'el-water', ramp: 'tide', fill: 400 },
   { id: 'el-earth', ramp: 'forest', fill: 500 },
   // Air's deep is the plain grey neutral at its siblings' steps: mist's own shades read as Water's
-  // blue (owner); its light coin a mid grey, a step deeper, so its pale emblem still shows
-  { id: 'el-air', ramp: 'mist', fill: 200, steps: { 'line-light': 600, 'line-hc-light': 700 }, deep: { dark: 'stone-700', tint: 'stone' }, coin: 'stone-300' },
+  // blue (owner)
+  { id: 'el-air', ramp: 'mist', fill: 200, steps: { 'line-light': 600, 'line-hc-light': 700 }, deep: { dark: 'stone-700', tint: 'stone' } },
   { id: 'r-common', ramp: 'iron', fill: 500 },
   { id: 'r-rare', ramp: 'azure', fill: 500 },
   { id: 'r-epic', ramp: 'amethyst', fill: 500 },
@@ -146,6 +144,9 @@ function roleStep(s: Swatch, role: 'ink' | 'line' | 'ink-hc' | 'line-hc', theme:
 const v = (ramp: string, step: number) => `var(--c-${ramp}-${step})`;
 const rgba = (hex: string, a: number) => `rgba(${parseHex(hex).join(', ')}, ${a})`;
 
+/** The hue at its darkest, on the dark theme: its 900, or another ramp's step (Air). */
+const deepDark = (s: Swatch) => (s.deep ? `var(--c-${s.deep.dark})` : v(s.ramp, 900));
+
 function themeRoles(s: Swatch, t: 'dark' | 'light'): Record<string, string> {
   return {
     ink: v(s.ramp, roleStep(s, 'ink', t)),
@@ -158,13 +159,14 @@ function themeRoles(s: Swatch, t: 'dark' | 'light'): Record<string, string> {
     // enough for its emblem to stand out (owner) but barely coloured: a dark grey with a hint of
     // the hue (its 700 at 30% in stone 700)
     deep: t === 'dark'
-      ? (s.deep ? `var(--c-${s.deep.dark})` : v(s.ramp, 900))
+      ? deepDark(s)
       : `color-mix(in oklab, ${v(s.deep?.tint ?? s.ramp, 700)} 30%, var(--c-stone-700))`,
-    // the ground of a small coin (Home's faction coin), dark on dark and bright on light (owner,
-    // 2026-10-23): the deep on dark, the hue's pale 200 on light
-    coin: t === 'dark'
-      ? (s.deep ? `var(--c-${s.deep.dark})` : v(s.ramp, 900))
-      : (s.coin ? `var(--c-${s.coin})` : v(s.ramp, 200)),
+    // a small coin (Home's faction coin; owner, 2026-10-23): on dark the deep, flat, under the
+    // full-colour emblem; on light a pale disc of the hue, lit at the centre (coin-lit 100) to its
+    // rim (coin 200), under the mark alone in the hue's 600 (coin-mark)
+    coin: t === 'dark' ? deepDark(s) : v(s.ramp, 200),
+    'coin-lit': t === 'dark' ? deepDark(s) : v(s.ramp, 100),
+    'coin-mark': t === 'dark' ? `var(--${s.id}-fill)` : v(s.ramp, 600),
   };
 }
 /**
@@ -290,7 +292,8 @@ export function paletteCss(): string {
       '   *         them (none on dark, a deeper shade of the hue on light), so a set never mixes rims',
       '   *   deep  a ground for art drawn on it (a crest disc): the hue at its darkest (900) on dark,',
       '   *         its 700 at 30% in stone 700 on light',
-      '   *   coin  the ground of a small coin (Home\'s faction coin): the deep on dark, the pale 200 on light',
+      '   *   coin  a small coin (Home\'s faction coin): on dark the deep; on light the pale 200 at its',
+      '   *         rim, coin-lit 100 at its centre, and coin-mark 600 for the mark on it',
       '   * Always shown with the name or the crest, never colour alone.',
       '   */',
       ...SWATCHES.flatMap((s) => [`  --${s.id}-fill: ${v(s.ramp, s.fill)};`, `  --${s.id}-on: var(${lightFill(s) ? '--c-stone-900' : '--c-sand-50'});`]),
