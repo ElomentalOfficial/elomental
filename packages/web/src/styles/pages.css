@@ -720,7 +720,7 @@ html:not([data-large-text]) .daily-body > * {
 /* It grows into the height the cards leave free and, like the feather, never shrinks
    below a size worth seeing: on short screens the month's days get shorter instead
    (fitWithoutScrolling, daily.ts), so the page never scrolls. */
-html:not([data-large-text]) .daily-art {
+html:not([data-large-text]) .daily-body > .daily-art {
   flex: 1 1 0;
   height: auto;
   min-height: 200px;
@@ -769,7 +769,7 @@ html:not([data-large-text]) .daily-art {
     column-gap: var(--space-6);
     row-gap: 14px;
   }
-  html:not([data-large-text]) .daily-art {
+  html:not([data-large-text]) .daily-body > .daily-art {
     grid-column: 1;
     grid-row: 1 / span 3;
     align-self: center;
@@ -1033,9 +1033,6 @@ html:not([data-large-text]) .daily-art {
 @media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
   .setup-banner-art {
     display: block;
-    width: min(150px, 60%);
-    aspect-ratio: 1;
-    transform: rotate(12deg);
   }
   .setup-banner-art .brush-art {
     width: 100%;
@@ -1271,12 +1268,6 @@ html:not([data-large-text]) .daily-art {
  * month's count at its foot; the month beside today's door (one click plays it) and the badge.
  */
 @media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
-  .daily.has-banner .banner-art .daily-art {
-    width: 100%;
-    height: min(280px, 100%);
-    min-height: 0;
-    max-height: none;
-  }
   .daily-field {
     display: grid;
     grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);

@@ -42,7 +42,7 @@ html:not([data-large-text]) .casual-body > .casual-head {
   flex: 1 1 auto;
   min-height: 0;
 }
-html:not([data-large-text]) .casual-feather {
+html:not([data-large-text]) .casual-head > .casual-feather {
   flex: 1 1 0;
   width: min(100%, 260px);
   height: auto;
@@ -63,7 +63,7 @@ html:not([data-large-text]) .casual-feather-art {
     gap: var(--space-3);
     text-align: left;
   }
-  html:not([data-large-text]) .casual-feather {
+  html:not([data-large-text]) .casual-head > .casual-feather {
     flex: none;
     width: 76px;
     height: 58px;
@@ -100,7 +100,7 @@ html:not([data-large-text]) .casual-feather-art {
   html:not([data-large-text]) .casual-body > :not(.casual-head) {
     grid-column: 2;
   }
-  html:not([data-large-text]) .casual-feather {
+  html:not([data-large-text]) .casual-head > .casual-feather {
     max-height: 300px;
   }
 }
@@ -504,10 +504,6 @@ html[data-reduce-motion] .clash-live .brush-art {
  * under them.
  */
 @media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
-  .casual.has-banner .banner-art .casual-feather {
-    width: min(260px, 100%);
-    height: min(220px, 100%);
-  }
   .casual.has-banner .casual-new {
     flex: 1 0 auto;
   }

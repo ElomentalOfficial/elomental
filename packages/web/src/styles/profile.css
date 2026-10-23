@@ -97,13 +97,6 @@ html[data-large-text] .profile-section h2 {
  * doors, then the stats, collection and badges.
  */
 @media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
-  .profile-page.has-banner .banner-art .profile-avatar {
-    width: min(176px, 100%);
-    height: auto;
-    max-height: 100%;
-    aspect-ratio: 1;
-    margin: 0;
-  }
   .profile-banner-foot {
     display: flex;
     flex-direction: column;

@@ -883,7 +883,7 @@ html[data-large-text] .lb-me .lb-avatar {
     justify-items: start;
   }
   /* the arm reaches in from the banner's edge, as it does on its Home tile */
-  .lb-banner-art {
+  .page-banner .banner-art > .lb-banner-art {
     display: block;
     width: 90%;
     height: min(128px, 100%);
