@@ -77,10 +77,6 @@
   .profile-card {
     grid-template-columns: minmax(0, 42fr) minmax(0, 58fr);
   }
-  /* its badges heading grows with the window, as the rest of the card does */
-  .pc-shelf-head {
-    zoom: var(--wide-zoom, 1);
-  }
   /* Corners grow with the tiles, by the same factor as their contents (the
      tiles' frames follow through --frame-zoom). */
   .home-grid > .tile,

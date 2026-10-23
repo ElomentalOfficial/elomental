@@ -18,7 +18,8 @@ import * as copy from '../copy/en.ts';
  * Home's profile card, "Ledger" (owner, 2026-10-23): one reading order inside the tile's own Art
  * Deco frame. Who you are leads and takes the room: your avatar on a sunburst with your faction's
  * coin on its ring, your name in its plate and your rank beside it. Under a hairline, how you are
- * doing: Elo and Level, each with its bar and what's next. Last, the three badges you show off.
+ * doing: Elo and Level, each with its bar and what's next. Last, the three badges you show off,
+ * each in a recessed slot.
  * Stardust and Spirits live on the Forge tile, where they are spent (home.ts).
  */
 export interface HomeCard {
@@ -70,10 +71,9 @@ export function homeCard(): HomeCard {
     h('div', { class: `pc-stat ${cls}` }, h('div', { class: 'pc-in' }, h('span', { class: 'pc-cap', text: cap }), num, next));
   const stats = h('div', { class: 'pc-cell pc-stats' }, stat('pc-elo', copy.common.elo, eloNum, eloNext), stat('pc-level', copy.level.cap, levelNum, levelNext));
 
-  // ---- what you show off: your three badges, under their heading (and Edit, with an account)
+  // ---- what you show off: your three badges, each in its own recessed slot
   const badges = h('ul', { class: 'pc-badges', attrs: { 'aria-label': copy.home.card.badges } });
-  const edit = h('button', { class: 'link-btn pc-edit', text: copy.home.card.editBadges, attrs: { type: 'button', 'aria-label': copy.home.card.a11yEditBadges } });
-  const showcase = h('div', { class: 'pc-cell pc-showcase' }, h('div', { class: 'pc-shelf-head' }, h('span', { class: 'pc-cap', text: copy.badges.title }), edit), badges);
+  const showcase = h('div', { class: 'pc-cell pc-showcase' }, badges);
 
   const el = h('section', { class: 'profile-card area-profile' }, portrait, name, stats, showcase);
 
@@ -86,11 +86,9 @@ export function homeCard(): HomeCard {
       open(owned);
     });
   };
-  edit.addEventListener('click', chooseBadges);
   const paintBadges = (ids: string[]) => {
     // a player with an account: three slots, each a way to choose the badges on the card (owner,
     // 2026-10-23), an empty one a "+" in a hexagon socket
-    edit.hidden = !registered();
     if (registered()) {
       badges.replaceChildren(...[0, 1, 2].map((i) => {
         const id = ids[i];
@@ -190,10 +188,10 @@ export function homeCard(): HomeCard {
       const one = (size * fit) / full;
       nameEl.style.fontSize = `${one >= (size * 20) / 30 ? one : Math.max((size * 16) / 30, Math.min((size * 20) / 30, (size * fit) / longest))}px`;
     }
+    // the plate hugs the name (its ends 20px out), so the rank lines up under its start
     if (text && nameEl.classList.contains('plate-inline')) {
-      const tw = text.offsetWidth;
-      nameEl.style.setProperty('--medal-d', `${tw + 26}px`);
-      nameEl.style.setProperty('--plate-pad', `${Math.max(20, Math.min(56, (room - tw) / 2))}px`);
+      nameEl.style.setProperty('--medal-d', `${text.offsetWidth + 26}px`);
+      nameEl.style.setProperty('--plate-pad', '20px');
     }
   };
   let frame = 0;

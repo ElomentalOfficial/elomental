@@ -191,18 +191,18 @@
   box-shadow: 0 0 0 2px var(--crest-ring);
   pointer-events: none;
 }
-/* Your name inside its plate, your title and rank under it. */
+/* Your name inside its plate, your title and rank under it, from the avatar's side. */
 .pc-name {
   grid-area: name;
   container-type: inline-size;
   display: grid;
-  place-items: center;
-  text-align: center;
+  place-items: center start;
+  text-align: left;
 }
 .pc-name .pc-in {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-1);
   max-width: 100%;
 }
@@ -297,25 +297,14 @@
   border-radius: 3px;
   background: var(--pc-track);
 }
-/* Your three chosen badges (Profile > Badges) under their heading, Edit at its end. */
+/* Your three chosen badges (Profile > Badges), each in a slot recessed a shade into the card. */
 .pc-showcase {
   grid-area: showcase;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-.pc-shelf-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-3);
-}
-.pc-edit {
-  font-size: var(--fs-small);
 }
 .pc-badges {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -325,6 +314,9 @@
   display: grid;
   place-items: center;
   min-height: 48px;
+  padding: var(--space-2) 0;
+  border-radius: var(--radius-lg);
+  background: var(--pc-socket);
 }
 .pc-badge-art {
   display: block;

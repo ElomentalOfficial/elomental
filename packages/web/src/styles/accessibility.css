@@ -207,6 +207,14 @@ html[data-large-text] .pc-portrait {
 html[data-large-text] .pc-medallion {
   width: min(84cqw, 132px);
 }
+/* stacked, the name sits centred under you */
+html[data-large-text] .pc-name {
+  place-items: center;
+  text-align: center;
+}
+html[data-large-text] .pc-name .pc-in {
+  align-items: center;
+}
 html[data-large-text] .tile-label {
   overflow-wrap: break-word;
   hyphens: auto;

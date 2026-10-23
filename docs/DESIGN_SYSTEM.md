@@ -73,8 +73,8 @@ The profile card (`screens/homeCard.ts`, owner's pick of three directions, 2026-
 order inside the tile's frame. Who you are leads and takes the spare height: the avatar on a
 sunburst (`withRays`) with the faction's coin on its ring, the name in its plate and the rank
 beside it. Under a hairline with a diamond, Elo and Level, each with its bar and what's next (the
-Profile's own `rankProgress` and `levelProgress`, on one track, `--pc-track`). Last, a Badges
-heading with Edit and the three slots, each a button to the badge choice (`badgePicker.ts`). The
+Profile's own `rankProgress` and `levelProgress`, on one track, `--pc-track`). Last, the three
+badges, each in a recessed slot and each a button to the badge choice (`badgePicker.ts`). The
 card's old walls, plaques and hanging banner are gone.
 
 ## Layout grid (wide pages)
