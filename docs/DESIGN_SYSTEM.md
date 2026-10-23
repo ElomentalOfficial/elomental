@@ -43,14 +43,6 @@ closed shapes, `aria-hidden`, and clearance from text. Use one per surface.
    (cloth width × hero height) and the phone/tablet Forge head (a little past the icon's sides,
    twice its height; just past it at large text). Unbroken rays at 6.5% were too faint. The
    strength is `--rays-opacity` (14%) for every broken-line ornament.
-
-**Home's tile sprites.** Home's tiles carry their names alone, in capitals with a soft drop
-(`--tile-label-shadow`), each on an abstract Art Deco composition of its own (`tileSprites.ts`):
-a few worn hairline pieces (fans of arcs, stepped lines, rules ending in diamonds and dots, hatching,
-chevrons) in the tile's ink at `--rays-opacity`, minimal but never empty; the sunburst only on Daily,
-as a sunrise. Each is laid out from the tile's real size (seeded, so its breaks look random but
-never change) and masked off the frame's four corners and a gap round the name, so it fits every
-layout and never touches the text.
 2. **Seal and diamond rails.** A faint round seal (two thin rings, a band of rune ticks between
    them, the crest in the middle); nested 45° diamonds on each side; short dashed rails running
    out from them to a small dot. Built behind the wide pages' lower Back (`SEAL` in
@@ -59,6 +51,21 @@ layout and never touches the text.
 3. **Diamond chain.** One thin spine line through a row or column of items, each item in a large
    hairline diamond that overlaps its neighbours, small diamonds between them as connectors; the
    active item gets a heavier frame. Not built yet.
+
+## Home's tiles: Facet
+
+Home's tiles carry their names alone, in bold capitals with a soft drop (`--tile-label-shadow`),
+each on an abstract Art Deco composition in the Facet style (`tileSprites.ts`; owner's pick of three
+directions, 2026-10-23): diamonds, lozenges, 45° rules, chevrons, dot grids and steps, every tile
+built its own way so no two repeat. Daily: a faceted sunrise (the only sunburst). Casual: nested
+lozenges round the name. Ranked: a chevron column under a 45° X. Forge: a gem chain. Store: a
+harlequin lattice. Leaderboard: a stepped pyramid. Setup: a zig-zag frieze.
+
+Every stroke is grunge, never a continuous line: walked in uneven dashes, a few dropped, a quarter
+in a fainter ink (the tile's seed places the wear, so it looks random but never changes), in the
+tile's ink at `--rays-opacity`. Each composition is laid out from the tile's real size and the
+name's place, redrawn when the tile resizes, and masked off the frame's four corners and a gap
+round the name, so it fits every layout and never touches the text.
 
 ## Layout grid (wide pages)
 
