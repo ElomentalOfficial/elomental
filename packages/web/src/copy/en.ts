@@ -117,6 +117,9 @@ export const home = {
   card: {
     badges: 'Your badges',
     noBadges: 'Badges you earn show here.',
+    /** Beside the card's badges heading: opens the badge choice. */
+    editBadges: 'Edit',
+    a11yEditBadges: 'Change the badges on your card',
     /** An empty badge slot on the card, a button that opens the badge choice. */
     a11yAddBadge: 'Add a badge to your card',
     /** A badge on the card, a button that opens the badge choice. */

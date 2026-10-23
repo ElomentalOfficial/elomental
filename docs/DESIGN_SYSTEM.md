@@ -67,6 +67,16 @@ tile's ink at `--rays-opacity`. Each composition is laid out from the tile's rea
 name's place, redrawn when the tile resizes, and masked off the frame's four corners and a gap
 round the name, so it fits every layout and never touches the text.
 
+## Home's profile card: Ledger
+
+The profile card (`screens/homeCard.ts`, owner's pick of three directions, 2026-10-23) reads in one
+order inside the tile's frame. Who you are leads and takes the spare height: the avatar on a
+sunburst (`withRays`) with the faction's coin on its ring, the name in its plate and the rank
+beside it. Under a hairline with a diamond, Elo and Level, each with its bar and what's next (the
+Profile's own `rankProgress` and `levelProgress`, on one track, `--pc-track`). Last, a Badges
+heading with Edit and the three slots, each a button to the badge choice (`badgePicker.ts`). The
+card's old walls, plaques and hanging banner are gone.
+
 ## Layout grid (wide pages)
 
 The field beside the banner is 12 columns with one gutter (`--grid-columns`, `--grid-gutter` =

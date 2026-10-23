@@ -126,10 +126,9 @@
   line-height: 1;
 }
 /*
- * The profile card (homeCard.ts, owner 2026-10-22 "the Forge Link"): a sudoku box inside the
- * tile's own frame. You and your name, then Level and Elo, then your three badges; the walls
- * between them (profileWalls.ts) run along the gaps, so the cells sit a frame line plus half a
- * wall in from the edge.
+ * The profile card, "Ledger" (homeCard.ts, owner 2026-10-23): inside the tile's own frame, one
+ * reading order. Who you are leads and takes all the spare height: your avatar on its sunburst
+ * beside your name and rank. Under a hairline, Elo and Level with what's next. Last, your badges.
  */
 .profile-card {
   grid-area: profile;
@@ -146,48 +145,58 @@
   grid-template-rows: minmax(0, 1fr) auto auto;
   grid-template-areas:
     'portrait name'
-    'level elo'
-    'badges badges';
+    'stats stats'
+    'showcase showcase';
   gap: var(--pc-gap);
-  padding: calc(var(--pc-frame) + var(--pc-gap) / 2);
+  padding: calc(var(--pc-frame) + var(--pc-gap));
   /* a tap anywhere on it opens your Profile (home.ts); the avatar is its control */
   cursor: var(--cursor-pointer);
 }
-/* The walls: the frame's ink, as faint as the tile frames themselves (owner: same intensity). */
-.pc-walls {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  color: var(--frame-line);
-  opacity: var(--ornament-opacity);
-  pointer-events: none;
-}
-.pc-walls svg {
-  display: block;
-  overflow: visible;
-}
 .pc-cell {
   position: relative;
-  z-index: 1;
   min-width: 0;
   min-height: 0;
-  display: grid;
-  place-items: center;
 }
-/* Your portrait: as large as its cell allows, on the card itself (no glow: owner, 2026-10-23). */
+/* Your portrait: the avatar as large as its cell allows, less room for its sunburst (rays.ts) */
 .pc-portrait {
   grid-area: portrait;
   container-type: size;
+  display: grid;
+  place-items: center;
 }
-.pc-portrait .avatar {
-  width: min(100cqw, 100cqh);
+.pc-medallion {
+  --rays-w: 124%;
+  --rays-h: 124%;
+  display: block;
+  width: calc(min(100cqw, 100cqh) * 0.84);
+  aspect-ratio: 1;
+}
+.pc-medallion .avatar {
+  display: block;
+  width: 100%;
   height: auto;
   margin: 0;
+}
+/* Your faction's coin on the avatar's ring, low on its right (owner): its sign on the darkest
+   disc, rimmed in the crests' gold */
+.pc-faction {
+  position: absolute;
+  right: 0;
+  bottom: 2%;
+  width: 28%;
+  aspect-ratio: 1;
+  padding: 5%;
+  border-radius: 50%;
+  background: var(--medal-fill);
+  box-shadow: 0 0 0 2px var(--crest-ring);
+  pointer-events: none;
 }
 /* Your name inside its plate, your title and rank under it. */
 .pc-name {
   grid-area: name;
   container-type: inline-size;
+  display: grid;
+  place-items: center;
   text-align: center;
 }
 .pc-name .pc-in {
@@ -213,40 +222,47 @@
   font-weight: 600;
   letter-spacing: 0.04em;
 }
-/* Level and Elo: the givens. A number grows only as far as its cell has room for. */
-.pc-level {
-  grid-area: level;
-  container-type: inline-size;
+/* Elo and Level side by side under a hairline with a diamond at its middle, in the frame's ink at
+   the frames' faintness; each a caption, the number, its bar and what's next */
+.pc-stats {
+  grid-area: stats;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+  padding-top: var(--pc-gap);
 }
-.pc-elo {
-  grid-area: elo;
-  container-type: inline-size;
-}
-/* The plaques round Level, Elo and the badges (profilePlaques.ts, owner 2026-10-23): outlines only,
-   in the frame's ink at the tile frames' own faintness, worn by their small gaps. */
-.pc-plaques {
+.pc-stats::before,
+.pc-stats::after {
+  content: '';
   position: absolute;
-  inset: 0;
-  z-index: 0;
   pointer-events: none;
+  opacity: calc(var(--ornament-opacity) * 2);
 }
-.pc-plaques svg {
-  display: block;
-  overflow: visible;
+.pc-stats::before {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--frame-line);
 }
-.pc-plaque-line {
-  fill: none;
-  stroke: var(--frame-line);
-  stroke-width: 1;
-  stroke-dasharray: 11 1.6 7 1.2 16 2 9 1.4;
-  opacity: var(--ornament-opacity);
+.pc-stats::after {
+  top: -4px;
+  left: calc(50% - 4px);
+  width: 7px;
+  height: 7px;
+  transform: rotate(45deg);
+  border: 1px solid var(--frame-line);
+  background: var(--profile-bg);
+  opacity: calc(var(--ornament-opacity) * 4);
 }
-.pc-given {
+.pc-stat {
+  min-width: 0;
+  container-type: inline-size;
+}
+.pc-stat .pc-in {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: var(--space-1);
-  padding-block: var(--space-1);
 }
 .pc-cap {
   font-size: var(--fs-caption);
@@ -261,12 +277,47 @@
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
-/* Your three chosen badges (Profile > Badges); an empty slot is a faint socket. */
+/* what's next (rankBar.ts, level.ts): the bar across the whole column, its line under it in the
+   caption size; the two bars on one track, each in its own fill (rank, level) */
+.pc-next .rank-progress,
+.pc-next .level-progress {
+  width: 100%;
+  gap: var(--space-1);
+}
+.pc-next .rank-progress-text {
+  order: 1;
+}
+.pc-next :is(.rank-progress-text, .xp-caption) {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
+}
+.pc-next :is(.rank-bar, .xp-bar) {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--pc-track);
+}
+/* Your three chosen badges (Profile > Badges) under their heading, Edit at its end. */
+.pc-showcase {
+  grid-area: showcase;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.pc-shelf-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.pc-edit {
+  font-size: var(--fs-small);
+}
 .pc-badges {
-  grid-area: badges;
+  display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   margin: 0;
-  padding: var(--space-1) 0;
+  padding: 0;
   list-style: none;
 }
 /* every slot as tall as a badge, filled or not, so the row keeps its height */
@@ -343,12 +394,6 @@
   height: 28px;
   color: var(--muted);
   opacity: 0.5;
-}
-/* The faction's emblem, on the banner the walls hang from the frame (homeCard.ts places it). */
-.pc-emblem {
-  position: absolute;
-  z-index: 1;
-  pointer-events: none;
 }
 /* A faint Art Deco frame inside every Home tile and the profile card, each tile its
    own design, worn by small gaps in the corner lines.
@@ -591,8 +636,8 @@ html[data-reduce-motion] .promotion .rank-name {
   .pc-portrait {
     container-type: inline-size;
   }
-  .pc-portrait .avatar {
-    width: min(100cqw, 84px);
+  .pc-medallion {
+    width: min(84cqw, 96px);
   }
   .pc-badge,
   .pc-badges-note {

@@ -190,22 +190,22 @@ html[data-large-text] .home-grid {
 html[data-large-text] .home-grid > .tile {
   padding-inline: 20px;
 }
-/* The profile card stacks: you, your name under you, Level and Elo side by side, your badges.
-   Its rows take their content's height, so the portrait sets its own size. */
+/* The profile card stacks: you, your name under you, then Elo and Level, then your badges. Its
+   rows take their content's height, so the portrait sets its own size. */
 html[data-large-text] .profile-card {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto;
   grid-template-areas:
-    'portrait portrait'
-    'name name'
-    'level elo'
-    'badges badges';
+    'portrait'
+    'name'
+    'stats'
+    'showcase';
 }
 html[data-large-text] .pc-portrait {
   container-type: inline-size;
 }
-html[data-large-text] .pc-portrait .avatar {
-  width: min(100cqw, 132px);
+html[data-large-text] .pc-medallion {
+  width: min(84cqw, 132px);
 }
 html[data-large-text] .tile-label {
   overflow-wrap: break-word;
