@@ -188,15 +188,7 @@ html[data-large-text] .home-grid {
   grid-auto-rows: minmax(76px, auto);
 }
 html[data-large-text] .home-grid > .tile {
-  flex-direction: row;
-  /* the mark a fixed column as wide as the shortest row's inside (76 less the padding): a square
-     taken from the row's height would change the words' width, and so the row's height, again */
-  --mark-flex: 0 0 60px;
-  --mark-ratio: auto;
-  justify-content: flex-start;
-  gap: 18px;
-  padding: var(--space-2) 20px;
-  text-align: left;
+  padding-inline: 20px;
 }
 /* The profile card stacks: you, your name under you, Level and Elo side by side, your badges.
    Its rows take their content's height, so the portrait sets its own size. */

@@ -33,28 +33,7 @@ import { homeCard } from './homeCard.ts';
 import { betaTag } from '../beta.ts';
 import { showAwayNews } from '../awayNews.ts';
 import * as copy from '../copy/en.ts';
-import { rayStamp } from '../rays.ts';
-import casualLetter from '../art/letters/casual.svg';
-import dailyLetter from '../art/letters/daily.svg';
-import forgeLetter from '../art/letters/forge.svg';
-import leaderLetter from '../art/letters/leaderboard.svg';
-import rankedLetter from '../art/letters/ranked.svg';
-import setupLetter from '../art/letters/setup.svg';
-import storeLetter from '../art/letters/store.svg';
-
-/**
- * Each tile's mark: the owner's Art Deco letter (art/letters, cut from their sheet in
- * manual_assets) on a sunburst stamp of its own (rays.ts), the seed fixing which stamp.
- */
-const LETTERS = {
-  casual: { art: casualLetter, seed: 11 },
-  ranked: { art: rankedLetter, seed: 21 },
-  daily: { art: dailyLetter, seed: 31 },
-  forge: { art: forgeLetter, seed: 41 },
-  leader: { art: leaderLetter, seed: 51 },
-  setup: { art: setupLetter, seed: 61 },
-  store: { art: storeLetter, seed: 71 },
-};
+import { tileSprite, type Area } from '../tileSprites.ts';
 
 /** Layout from the owner's Home frame: Forge and Setup, the profile card, then the mode tiles. */
 export function homeScreen(): Screen {
@@ -68,12 +47,10 @@ export function homeScreen(): Screen {
     then();
   };
 
-  function tile(area: keyof typeof LETTERS, label: string, onTap: (el: HTMLElement) => void, ...extra: (HTMLElement | null)[]) {
-    const { art, seed } = LETTERS[area];
-    // the tile's name says what it is: the letter and its sunburst are decoration
-    const icon = h('span', { class: 'tile-icon', html: rayStamp(seed, art), attrs: { 'aria-hidden': 'true' } });
-    const face = h('span', { class: 'tile-face' }, icon, h('span', { class: 'tile-label', text: label }));
-    const el = h('button', { class: `tile area-${area}` }, face, ...extra);
+  /** A tile: its name alone, on its own faint sprite (tileSprites.ts, decoration). */
+  function tile(area: Area, label: string, onTap: (el: HTMLElement) => void, ...extra: (HTMLElement | null)[]) {
+    const face = h('span', { class: 'tile-face' }, h('span', { class: 'tile-label', text: label }));
+    const el = h('button', { class: `tile area-${area}`, html: tileSprite(area) }, face, ...extra);
     el.addEventListener('click', () => onTap(el));
     enableTilt(el);
     return el;

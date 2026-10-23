@@ -77,21 +77,6 @@
   .profile-card {
     grid-template-columns: minmax(0, 42fr) minmax(0, 58fr);
   }
-  /* Leaderboard is as tall as the play tiles here: it stacks its letter over the
-     label like them, so the label fits. */
-  .area-leader {
-    flex-direction: column;
-    --mark-flex: 1 1 0;
-    --mark-ratio: auto;
-    gap: 14px;
-  }
-  /* The short top row: Store and Setup keep the phone's letter beside the label. */
-  .area-setup {
-    flex-direction: row;
-    --mark-flex: none;
-    --mark-ratio: 1;
-    gap: var(--space-4);
-  }
   /* Corners grow with the tiles, by the same factor as their contents (the
      tiles' frames follow through --frame-zoom). */
   .home-grid > .tile,
@@ -117,17 +102,8 @@
       'profile casual ranked'
       'forge casual ranked';
   }
-  html[data-large-text] .home-grid {
-    --mark-min: 64px;
-  }
   html[data-large-text] .home-grid > .tile {
-    flex-direction: column;
-    --mark-flex: 1 1 0;
-    --mark-ratio: auto;
-    justify-content: center;
-    gap: 14px;
-    padding: var(--space-2);
-    text-align: center;
+    padding-inline: var(--space-2);
   }
   html[data-large-text] .home-grid > .tile .tile-label {
     font-size: min(var(--fs-label), 13cqi);

@@ -86,11 +86,12 @@
      by the tiles' own dash pattern (art/frames: 11 1.6 7 1.2 16 2 9 1.4), as a mask that
      runs along the line (-x across, -y down). */
   --ornament-opacity: 0.065;
-  /* The sunbursts (rays.ts) behind a hero or a Home letter: broken rays, so a little stronger */
+  /* Broken-line ornaments (the sunbursts in rays.ts, the Back's seal, Home's tile sprites): a little
+     stronger than the solid hairlines */
   --rays-opacity: 0.14;
-  /* Home's tile names: a small, sharp drop under every letter (owner: 1px, 50%), dark under light
-     text; the coloured mode tiles keep the dark one in both themes */
-  --label-drop-dark: 0 1px 0 rgba(0, 0, 0, 0.5);
+  /* Home's tile names: a soft drop down and to the right, sized with the text (owner: about 50%
+     dark), dark under light text; the coloured mode tiles keep the dark one in both themes */
+  --label-drop-dark: 0.06em 0.08em 0.06em rgba(0, 0, 0, 0.5);
   --tile-label-shadow: var(--label-drop-dark);
   --ornament-wear-x: repeating-linear-gradient(90deg, #000 0 11px, transparent 11px 12.6px, #000 12.6px 19.6px, transparent 19.6px 20.8px, #000 20.8px 36.8px, transparent 36.8px 38.8px, #000 38.8px 47.8px, transparent 47.8px 49.2px);
   --ornament-wear-y: repeating-linear-gradient(#000 0 11px, transparent 11px 12.6px, #000 12.6px 19.6px, transparent 19.6px 20.8px, #000 20.8px 36.8px, transparent 36.8px 38.8px, #000 38.8px 47.8px, transparent 47.8px 49.2px);
@@ -217,7 +218,7 @@
   --purse-red-lo: var(--c-flame-700);
   --tile-shadow: color-mix(in srgb, var(--c-rock) 45%, transparent);
   /* a dark drop doubles dark text on the light tiles: a light one presses it in the same way */
-  --tile-label-shadow: 0 1px 0 color-mix(in srgb, var(--c-bright) 50%, transparent);
+  --tile-label-shadow: 0.06em 0.08em 0.06em color-mix(in srgb, var(--c-bright) 50%, transparent);
   --feather-shadow: color-mix(in srgb, var(--c-rock) 30%, transparent);
   --profile-bg: var(--c-second-bright);
   --profile-text: var(--c-crimson);
