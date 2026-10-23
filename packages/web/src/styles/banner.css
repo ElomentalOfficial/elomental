@@ -159,6 +159,27 @@
     display: grid;
     place-items: center;
     margin-block: var(--space-2);
+    position: relative;
+    isolation: isolate;
+  }
+  /* behind the hero, a sunburst (pageBanner.ts draws it): broken hairline rays in the cloth's ink,
+     faint, clear of the icon's middle and of the lines above and below */
+  .banner-art::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    /* an oval: the cloth's width (the side rays end a little in from its edges), the hero's height
+       (the top and bottom ones end clear of the line and the foot) */
+    width: calc(100% + var(--space-4));
+    height: var(--hero);
+    translate: -50% -50%;
+    z-index: -1;
+    pointer-events: none;
+    background: currentColor;
+    -webkit-mask: var(--rays) 0 0 / 100% 100% no-repeat;
+    mask: var(--rays) 0 0 / 100% 100% no-repeat;
+    opacity: 0.14;
   }
   /* a page's own hero icon (art/screens): drawn whole, as large as the slot allows */
   .banner-hero {
