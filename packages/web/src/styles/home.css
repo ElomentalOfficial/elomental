@@ -224,18 +224,28 @@
 }
 /* A faint well behind Level, Elo and the badges (owner, 2026-10-23): the whole cell, up to the walls
    beside it, its corners notched in two Deco steps clear of the walls' junction ornaments (the
-   badges' lower corners cut deep, round the frame's corner ornaments). Its edges wear away into
-   negative space: a band round it broken by the hairline ornaments' own dash pattern
-   (--ornament-wear), so the well fades out into the card rather than stopping at a line. */
+   badges' lower corners cut deep, round the frame's corner ornaments). Its edges fade out in
+   negative space running along them, like Deco speed lines (owner): the well, a gap, a band, a
+   gap, a hairline, each drawn as its own strip of the well's colour. */
 :is(.pc-level, .pc-elo, .pc-badges)::before {
   --s: var(--space-2);
   --h: var(--space-1);
-  --edge: var(--space-1);
+  /* the fade, in from the edge: hairline 0–1px, gap, band 3–5px, gap, the well from 7px */
+  --well: linear-gradient(var(--pc-well), var(--pc-well));
   content: '';
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: var(--pc-well);
+  background:
+    var(--well) center / calc(100% - 14px) calc(100% - 14px) no-repeat,
+    var(--well) center top 3px / calc(100% - 6px) 2px no-repeat,
+    var(--well) center bottom 3px / calc(100% - 6px) 2px no-repeat,
+    var(--well) left 3px center / 2px calc(100% - 6px) no-repeat,
+    var(--well) right 3px center / 2px calc(100% - 6px) no-repeat,
+    var(--well) center top / 100% 1px no-repeat,
+    var(--well) center bottom / 100% 1px no-repeat,
+    var(--well) left center / 1px 100% no-repeat,
+    var(--well) right center / 1px 100% no-repeat;
   /* each corner two steps in (--s, then --h) */
   clip-path: polygon(
     var(--s) 0, calc(100% - var(--s)) 0, calc(100% - var(--s)) var(--h), calc(100% - var(--h)) var(--h), calc(100% - var(--h)) var(--s), 100% var(--s),
@@ -243,18 +253,6 @@
     var(--s) 100%, var(--s) calc(100% - var(--h)), var(--h) calc(100% - var(--h)), var(--h) calc(100% - var(--s)), 0 calc(100% - var(--s)),
     0 var(--s), var(--h) var(--s), var(--h) var(--h), var(--s) var(--h)
   );
-  -webkit-mask:
-    linear-gradient(#000 0 0) center / calc(100% - 2 * var(--edge)) calc(100% - 2 * var(--edge)) no-repeat,
-    var(--ornament-wear-x) top / 100% var(--edge) no-repeat,
-    var(--ornament-wear-x) bottom / 100% var(--edge) no-repeat,
-    var(--ornament-wear-y) left / var(--edge) 100% no-repeat,
-    var(--ornament-wear-y) right / var(--edge) 100% no-repeat;
-  mask:
-    linear-gradient(#000 0 0) center / calc(100% - 2 * var(--edge)) calc(100% - 2 * var(--edge)) no-repeat,
-    var(--ornament-wear-x) top / 100% var(--edge) no-repeat,
-    var(--ornament-wear-x) bottom / 100% var(--edge) no-repeat,
-    var(--ornament-wear-y) left / var(--edge) 100% no-repeat,
-    var(--ornament-wear-y) right / var(--edge) 100% no-repeat;
   pointer-events: none;
 }
 /* the badges' lower corners cut deep instead, round the frame's corner ornaments */
