@@ -501,21 +501,43 @@
     var(--line) right var(--y1) top var(--corner) / var(--lw) var(--run) no-repeat,
     var(--line) right var(--y2) top var(--corner) / var(--lw) var(--run) no-repeat;
 }
-/* The profile card keeps its top corners only (owner, 2026-10-23: the badge slots sit low, clear
-   of any ornament): its side lines run down to meet its bottom lines in a plain square corner. */
+/* The profile card keeps its ornate corners on top only (owner, 2026-10-23: the badge slots sit
+   low, clear of any ornament): at the bottom its two lines turn in a plain rounded corner. Halfway
+   down each side, one small hollow diamond (frames.css side, 16 × 24 units, the stats line's
+   diamond) takes both lines into its points: each side line runs in two halves around it. */
 .home-grid > .profile-card::after {
-  --down: calc(100% - var(--corner));
+  --side-w: calc(16 * var(--k));
+  --side-h: calc(24 * var(--k));
+  --half: calc(50% - var(--corner) - var(--side-h) / 2);
   background:
     var(--f-tl) left top / var(--corner) var(--corner) no-repeat,
     var(--f-tr) right top / var(--corner) var(--corner) no-repeat,
+    var(--f-blr) left bottom / var(--corner) var(--corner) no-repeat,
+    var(--f-brr) right bottom / var(--corner) var(--corner) no-repeat,
+    var(--f-side) left center / var(--side-w) var(--side-h) no-repeat,
+    var(--f-side) right center / var(--side-w) var(--side-h) no-repeat,
     var(--line) left var(--corner) top var(--y1) / var(--run) var(--lw) no-repeat,
     var(--line) left var(--corner) top var(--y2) / var(--run) var(--lw) no-repeat,
-    var(--line) left var(--y1) bottom var(--y1) / calc(100% - 2 * var(--y1)) var(--lw) no-repeat,
-    var(--line) left var(--y2) bottom var(--y2) / calc(100% - 2 * var(--y2)) var(--lw) no-repeat,
-    var(--line) left var(--y1) top var(--corner) / var(--lw) calc(var(--down) - var(--y1)) no-repeat,
-    var(--line) left var(--y2) top var(--corner) / var(--lw) calc(var(--down) - var(--y2)) no-repeat,
-    var(--line) right var(--y1) top var(--corner) / var(--lw) calc(var(--down) - var(--y1)) no-repeat,
-    var(--line) right var(--y2) top var(--corner) / var(--lw) calc(var(--down) - var(--y2)) no-repeat;
+    var(--line) left var(--corner) bottom var(--y1) / var(--run) var(--lw) no-repeat,
+    var(--line) left var(--corner) bottom var(--y2) / var(--run) var(--lw) no-repeat,
+    var(--line) left var(--y1) top var(--corner) / var(--lw) var(--half) no-repeat,
+    var(--line) left var(--y2) top var(--corner) / var(--lw) var(--half) no-repeat,
+    var(--line) right var(--y1) top var(--corner) / var(--lw) var(--half) no-repeat,
+    var(--line) right var(--y2) top var(--corner) / var(--lw) var(--half) no-repeat,
+    var(--line) left var(--y1) bottom var(--corner) / var(--lw) var(--half) no-repeat,
+    var(--line) left var(--y2) bottom var(--corner) / var(--lw) var(--half) no-repeat,
+    var(--line) right var(--y1) bottom var(--corner) / var(--lw) var(--half) no-repeat,
+    var(--line) right var(--y2) bottom var(--corner) / var(--lw) var(--half) no-repeat;
+}
+.home-grid > .profile-card {
+  --f-blr: var(--f-blr-b);
+  --f-brr: var(--f-brr-b);
+  --f-side: var(--f-side-b);
+}
+:root[data-theme='light'] .home-grid > .profile-card {
+  --f-blr: var(--f-blr-c);
+  --f-brr: var(--f-brr-c);
+  --f-side: var(--f-side-c);
 }
 /* Which ink: Bright on the dark theme, Crimson on the light one (frames.css gives each
    frame its pair; the coloured mode tiles keep Bright in both). */

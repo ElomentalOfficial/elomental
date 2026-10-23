@@ -17,6 +17,15 @@
   --f-bl-c: url('./art/frames/profile-crimson-bl.svg');
   --f-br-c: url('./art/frames/profile-crimson-br.svg');
 }
+/* Home's profile card alone: plain rounded bottom corners and a diamond on each side (home.css) */
+.profile-card {
+  --f-blr-b: url('./art/frames/profile-bright-bl-round.svg');
+  --f-brr-b: url('./art/frames/profile-bright-br-round.svg');
+  --f-side-b: url('./art/frames/profile-bright-side.svg');
+  --f-blr-c: url('./art/frames/profile-crimson-bl-round.svg');
+  --f-brr-c: url('./art/frames/profile-crimson-br-round.svg');
+  --f-side-c: url('./art/frames/profile-crimson-side.svg');
+}
 .area-store, .door, .door-row > .door:nth-child(4n + 1) {
   --fw: 1.3;
   --o1: 5;
