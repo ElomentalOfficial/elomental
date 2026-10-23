@@ -194,34 +194,41 @@ const COMPOSITIONS: Record<Area, Compose> = {
 };
 
 /**
- * Draws a tile's composition behind its name, and again whenever the tile changes size. Waits
- * for the tile's own animations (the turnstile) to settle first, so the name is measured where it
- * rests. `name` finds what the lines keep clear of.
+ * Where an element inside a tile sits, in the tile's own px, from layout alone (offsets, through
+ * any zoomed box between): the turnstile's swing and the press tilt are transforms, which layout
+ * ignores, so the name can be measured the moment the tile is laid out, mid-swing or not.
  */
-export function decorateTile(tile: HTMLElement, area: Area, name: () => Element): void {
+function placeIn(tile: HTMLElement, el: HTMLElement): { x: number; y: number; w: number; h: number } {
+  let x = 0;
+  let y = 0;
+  let zoom = 1;
+  for (let at: HTMLElement | null = el; at && at !== tile; at = at.offsetParent as HTMLElement | null) {
+    x += at.offsetLeft;
+    y += at.offsetTop;
+  }
+  for (let at: HTMLElement | null = el; at && at !== tile; at = at.parentElement) zoom *= parseFloat(getComputedStyle(at).zoom) || 1;
+  return { x: x * zoom, y: y * zoom, w: el.offsetWidth * zoom, h: el.offsetHeight * zoom };
+}
+
+/**
+ * Draws a tile's composition behind its name as soon as the tile is laid out (before it is first
+ * painted, so it never appears over the tile afterwards), and again whenever the tile changes
+ * size. `name` finds what the lines keep clear of.
+ */
+export function decorateTile(tile: HTMLElement, area: Area, name: () => HTMLElement): void {
   const svg = document.createElementNS(SVG, 'svg');
   svg.setAttribute('class', 'tile-sprite');
   svg.setAttribute('aria-hidden', 'true');
   tile.prepend(svg);
   const draw = () => {
-    if (!tile.isConnected) return;
-    const moving = tile.getAnimations().filter((a) => a.playState === 'running' || a.pending);
-    if (moving.length) return void Promise.allSettled(moving.map((a) => a.finished)).then(draw);
     const w = tile.clientWidth;
     const h = tile.clientHeight;
     if (!w || !h) return;
-    const box = tile.getBoundingClientRect();
-    const scale = w / box.width;
-    const at = name().getBoundingClientRect();
+    const at = placeIn(tile, name());
     const style = getComputedStyle(tile);
     const corner = (parseFloat(style.getPropertyValue('--frame-corner')) || 30) * (parseFloat(style.getPropertyValue('--frame-zoom')) || 1);
     // the name's box with its clearance: the lines frame it and the mask keeps them out of it
-    const hole = {
-      x: (at.left - box.left) * scale - CLEAR,
-      y: (at.top - box.top) * scale - CLEAR,
-      w: at.width * scale + 2 * CLEAR,
-      h: at.height * scale + 2 * CLEAR,
-    };
+    const hole = { x: at.x - CLEAR, y: at.y - CLEAR, w: at.w + 2 * CLEAR, h: at.h + 2 * CLEAR };
     const p = pen(SEEDS[area]);
     COMPOSITIONS[area](p, { w, h, i: corner * 0.4, m: Math.min(w, h), name: hole });
     const { strong, faint } = p.ink();

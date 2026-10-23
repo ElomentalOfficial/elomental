@@ -51,7 +51,7 @@ export function homeScreen(): Screen {
   function tile(area: Area, label: string, onTap: (el: HTMLElement) => void, ...extra: (HTMLElement | null)[]) {
     const face = h('span', { class: 'tile-face' }, h('span', { class: 'tile-label', text: label }));
     const el = h('button', { class: `tile area-${area}` }, face, ...extra);
-    decorateTile(el, area, () => face.firstElementChild!);
+    decorateTile(el, area, () => face.firstElementChild as HTMLElement);
     el.addEventListener('click', () => onTap(el));
     enableTilt(el);
     return el;
