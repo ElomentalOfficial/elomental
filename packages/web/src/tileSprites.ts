@@ -65,7 +65,10 @@ function pen(seed: number) {
     line(cx + Math.cos(rad(a)) * r1, cy + Math.sin(rad(a)) * r1, cx + Math.cos(rad(a)) * r2, cy + Math.sin(rad(a)) * r2);
   const diamond = (x: number, y: number, rx: number, ry = rx) => steps([[x, y - ry], [x + rx, y], [x, y + ry], [x - rx, y], [x, y - ry]]);
   const dot = (x: number, y: number) => (strong += `M${n(x - 0.6)} ${n(y)}h1.2`);
-  return { line, steps, ray, diamond, dot, ink: () => ({ strong, faint }) };
+  /** An elliptical arc round (cx, cy), radii rx and ry, from a0 to a1 degrees (0 right, 90 down). */
+  const arc = (cx: number, cy: number, rx: number, ry: number, a0: number, a1: number) =>
+    wear((Math.abs(rad(a1 - a0)) * (rx + ry)) / 2, (t) => [cx + Math.cos(rad(a0 + (a1 - a0) * t)) * rx, cy + Math.sin(rad(a0 + (a1 - a0) * t)) * ry]);
+  return { line, steps, ray, diamond, dot, arc, ink: () => ({ strong, faint }) };
 }
 
 type Pen = ReturnType<typeof pen>;
@@ -131,64 +134,85 @@ const COMPOSITIONS: Record<Area, Compose> = {
     p.diamond((ends[0] + r + name.x) / 2, cy, 3);
     p.diamond((ends[1] - r + name.x + name.w) / 2, cy, 3);
   },
-  // Store: a harlequin lattice of crossing diagonals filling the side beside the name, a dot where
-  // they cross
+  // Store: a Deco fan of nested arcs at either end, opening toward the name, a spine from each
+  // fan to the name with a small gem where it leaves the fan
   store: (p, { w, h, i, name }) => {
-    const x0 = name.x + name.w + 6;
-    const x1 = w - i;
-    const top = i;
-    const floor = h - i;
-    const cell = 10;
-    // rising lines (y = floor - (x - c)) and falling ones (y = top + (x - c)), each kept to the side
-    for (let c = x0 - (floor - top); c < x1; c += cell) {
-      for (const rising of [true, false]) {
-        const t0 = Math.max(0, x0 - c);
-        const t1 = Math.min(floor - top, x1 - c);
-        if (t1 <= t0) continue;
-        if (rising) p.line(c + t0, floor - t0, c + t1, floor - t1);
-        else p.line(c + t0, top + t0, c + t1, top + t1);
-      }
+    const cy = name.y + name.h / 2;
+    const r = (h - 2 * i) * 0.46;
+    p.line(i + r + 4, cy, name.x - 4, cy);
+    p.line(name.x + name.w + 4, cy, w - i - r - 4, cy);
+    for (const k of [0.45, 0.72, 1]) {
+      p.arc(i, cy, r * k, r * k, -90, 90);
+      p.arc(w - i, cy, r * k, r * k, 90, 270);
     }
-    for (let c = x0 - (floor - top); c < x1; c += cell) {
-      for (let d = x0 - (floor - top); d < x1; d += cell) {
-        const x = (floor - top + c + d) / 2;
-        const y = floor - (x - c);
-        if (x > x0 + 2 && x < x1 - 2 && y > top + 2 && y < floor - 2) p.dot(x, y);
-      }
-    }
+    p.diamond(i + r + 4, cy, 3);
+    p.diamond(w - i - r - 4, cy, 3);
   },
-  // Leaderboard: a stepped pyramid, a ziggurat under the name where the tile has room below it, or
-  // its steps climbing either side of the name where it hasn't; a dot grid high on the left
+  // Leaderboard: a medal. With room under the name, two ribbon bands fall in a V from the top to
+  // one medal there (nested rings, a gem at the heart); in a short tile, where there's none, a
+  // smaller medal hangs on each side of the name from its own short ribbon (owner, 2026-10-24)
   leader: (p, { w, h, i, name }) => {
     const cx = w / 2;
     const floor = h - i;
-    const levels = 4;
-    const below = floor - (name.y + name.h + 2);
-    // under the name: from the floor up to the name, wide at the base, narrow at the top
-    const under = below >= 24;
-    const rise = under ? below / levels : (floor - Math.max(i, name.y - 6)) / levels;
-    const top = under ? Math.min(name.w / 2, (w / 2 - i) * 0.35) : name.w / 2 + 4;
-    const run = Math.min(under ? (w / 2 - i - top) / levels : Math.max(6, rise * 1.2), Math.max(4, (w / 2 - i - top) / levels));
-    const points: [number, number][] = [[cx - top - levels * run, floor]];
-    for (let k = 1; k <= levels; k++) {
-      const x = cx - top - (levels - k + 1) * run;
-      points.push([x, floor - rise * (k - 1)], [x + run, floor - rise * (k - 1)], [x + run, floor - rise * k]);
+    const below = floor - (name.y + name.h);
+    const medal = (x: number, y: number, r: number) => {
+      p.arc(x, y, r, r, 0, 360);
+      p.arc(x, y, r * 0.7, r * 0.7, 0, 360);
+      p.diamond(x, y, r * 0.3);
+    };
+    const r = Math.min(below * 0.42, (w - 2 * i) * 0.16);
+    if (r >= 12) {
+      const my = name.y + name.h + 4 + r;
+      for (const off of [0, 7]) {
+        p.line(cx - w * 0.28 - off, i, cx - r * 0.6, my - r * 0.8);
+        p.line(cx + w * 0.28 + off, i, cx + r * 0.6, my - r * 0.8);
+      }
+      medal(cx, my, r);
+      return;
     }
-    const right = points.map(([x, y]) => [2 * cx - x, y] as [number, number]).reverse();
-    p.steps([...points, ...right]);
-    for (let r = 0; r < 3; r++) for (let c = 0; c < 4; c++) p.dot(i * 2.5 + c * 6, i + 4 + r * 6);
+    // beside the name: as large as the side's room allows, a little low, its ribbon a narrow V
+    // from the top edge to the medal's shoulders
+    const side = name.x - i;
+    const rs = Math.min((h - 2 * i) * 0.3, (side - 6) / 2);
+    if (rs < 6) return;
+    const my = h / 2 + rs * 0.35;
+    for (const s of [-1, 1]) {
+      const x = cx + s * (name.w / 2 + 4 + rs);
+      for (const d of [-1, 1]) p.line(x + d * rs * 0.95, i, x + d * rs * 0.45, my - rs * 0.9);
+      medal(x, my, rs);
+    }
   },
-  // Setup: a zig-zag frieze along the top and the bottom, a small gem set in the middle of each,
-  // the name left open between them
-  setup: (p, { w, h, i }) => {
-    const cx = w / 2;
-    const rise = 4;
-    const run = 8;
-    for (const [y, flip] of [[i + 2, 1], [h - i - 2, -1]] as const) {
-      const points: [number, number][] = [];
-      for (let x = i, k = 0; x <= w - i; x += run / 2, k++) points.push([x, y + (k % 2 ? rise * flip : 0)]);
-      p.steps(points);
-      p.diamond(cx, y + rise * flip * 2.2, 2.5);
+  // Setup: a dial, the name in a nested octagon with short ticks round it, the long ones at the
+  // eight points, and a rule out to each side where the tile is wide enough
+  setup: (p, { w, h, i, name }) => {
+    const cx = name.x + name.w / 2;
+    const cy = name.y + name.h / 2;
+    const oct = (a: number, b: number): [number, number][] =>
+      Array.from({ length: 9 }, (_, k) => [cx + Math.cos(rad(22.5 + 45 * k)) * a, cy + Math.sin(rad(22.5 + 45 * k)) * b]);
+    const tick = (a: number, b: number, from: number, to: (k: number) => number) => {
+      for (let k = 0; k < 16; k++) {
+        const [c, s] = [Math.cos(rad(k * 22.5)), Math.sin(rad(k * 22.5))];
+        p.line(cx + c * (a + from), cy + s * (b + from), cx + c * (a + to(k)), cy + s * (b + to(k)));
+      }
+    };
+    // the outer ticks reach 17 px past the inner octagon: all of it kept inside the tile
+    const a = Math.min(name.w / 2 + 16, w / 2 - i - 17);
+    const b = Math.min(name.h / 2 + 14, h / 2 - i - 17);
+    if (a < name.w / 2 + 4 || b < name.h / 2 + 4) {
+      // a small tile, no room round the name: the dial drawn out at the tile's rim instead, one
+      // octagon with its ticks pointing in
+      const ra = w / 2 - i - 2;
+      const rb = h / 2 - i - 2;
+      p.steps(oct(ra, rb));
+      tick(ra, rb, -3, (k) => (k % 2 ? -6 : -9));
+      return;
+    }
+    p.steps(oct(a, b));
+    p.steps(oct(a + 7, b + 7));
+    tick(a, b, 10, (k) => (k % 2 ? 13 : 17));
+    if (cx - a - 21 > i + 8) {
+      p.line(i, cy, cx - a - 21, cy);
+      p.line(cx + a + 21, cy, w - i, cy);
     }
   },
 };

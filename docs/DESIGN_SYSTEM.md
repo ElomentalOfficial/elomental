@@ -58,8 +58,11 @@ Home's tiles carry their names alone, in bold capitals with a soft drop (`--tile
 each on an abstract Art Deco composition in the Facet style (`tileSprites.ts`; owner's pick of three
 directions, 2026-10-23): diamonds, lozenges, 45° rules, chevrons, dot grids and steps, every tile
 built its own way so no two repeat. Daily: a faceted sunrise (the only sunburst). Casual: nested
-lozenges round the name. Ranked: a chevron column under a 45° X. Forge: a gem chain. Store: a
-harlequin lattice. Leaderboard: a stepped pyramid. Setup: a zig-zag frieze.
+lozenges round the name. Ranked: a chevron column under a 45° X. Forge: a gem chain. Store: a Deco
+fan of nested arcs at each end, a spine to the name. Leaderboard: a medal, ribbons falling in a V
+to it under the name; in a short tile a smaller medal on each side of the name, each on its own
+short ribbon. Setup: a dial, a nested octagon with ticks round the name; in a small tile the dial
+at the tile's rim, ticks pointing in.
 
 Every stroke is grunge, never a continuous line: walked in uneven dashes, a few dropped, a quarter
 in a fainter ink (the tile's seed places the wear, so it looks random but never changes), in the
