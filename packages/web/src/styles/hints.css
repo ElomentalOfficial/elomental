@@ -3,8 +3,6 @@
 .hint-layer {
   position: fixed;
   inset: 0;
-  /* the whole screen in home-screen mode (base.css body) */
-  height: var(--screen-h, auto);
   z-index: 40;
   touch-action: none;
   transition: opacity 0.18s ease;

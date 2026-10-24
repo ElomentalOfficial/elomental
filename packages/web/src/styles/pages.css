@@ -9,7 +9,7 @@
 /* Sub-pages (ui.ts subPage): the header stays put, only the body below it scrolls. The body runs
    to the screen's bottom edge, under the home indicator, and its end clears it (--sub-end). */
 .screen.sub {
-  --sub-end: max(var(--gutter), env(safe-area-inset-bottom, 0px));
+  --sub-end: max(var(--gutter), var(--safe-bottom));
   gap: 0;
   overflow: hidden;
   padding-bottom: 0;

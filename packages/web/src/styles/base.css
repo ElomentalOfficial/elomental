@@ -87,9 +87,18 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  /* Home-screen mode: the whole screen (viewport.ts --screen-h), since iOS ends fixed layers
-     short of the bottom there; with a height set, bottom gives way to it. */
-  height: var(--screen-h, 100%);
+}
+/*
+ * The room a screen keeps at its foot for the home indicator. On an iPhone's Home Screen app iOS
+ * ends the page (every fixed layer, and anything drawn past it is cut) short of the screen's
+ * bottom, by --standalone-gap (viewport.ts); that strip already clears the indicator, so only
+ * what's left of the safe area is kept, never both.
+ */
+:root {
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+html.standalone {
+  --safe-bottom: max(0px, env(safe-area-inset-bottom, 0px) - var(--standalone-gap, 0px));
 }
 /*
  * Home-screen mode draws under the status bar. Clear it with the reported
@@ -334,7 +343,7 @@ h2 {
   /* The column widens with Text size, so larger words keep the same line lengths (phones are narrower anyway). */
   max-width: calc(440px * var(--text-scale, 1));
   height: 100%;
-  padding: max(var(--gutter), env(safe-area-inset-top)) var(--gutter) max(var(--gutter), env(safe-area-inset-bottom));
+  padding: max(var(--gutter), env(safe-area-inset-top)) var(--gutter) max(var(--gutter), var(--safe-bottom));
   display: flex;
   flex-direction: column;
 }

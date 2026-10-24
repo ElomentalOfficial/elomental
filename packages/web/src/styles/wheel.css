@@ -12,8 +12,6 @@
 .wheel-layer {
   position: fixed;
   inset: 0;
-  /* the whole screen in home-screen mode (base.css body) */
-  height: var(--screen-h, auto);
   z-index: 30;
   touch-action: none;
 }
