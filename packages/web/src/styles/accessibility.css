@@ -36,7 +36,7 @@
 .statement-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-3);
   padding-left: 1.2em;
   font-family: var(--serif);
   font-size: var(--fs-body);
@@ -305,7 +305,7 @@ html[data-large-text] .topbar {
 html[data-large-text] .status {
   height: auto;
   flex-wrap: wrap;
-  gap: 4px 12px;
+  gap: var(--space-1) var(--space-3);
 }
 html[data-large-text] .puzzle-info {
   flex-wrap: wrap;

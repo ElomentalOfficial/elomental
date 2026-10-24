@@ -2,13 +2,13 @@
 .btn {
   width: 100%;
   min-height: 52px;
-  padding: 0 20px;
+  padding: 0 var(--space-4);
   border-radius: var(--radius);
   background: var(--surface-2);
   color: var(--text);
   font-family: var(--serif);
   font-size: var(--fs-label);
-  transition: transform 0.08s ease, filter 0.15s ease;
+  transition: transform 0.08s ease;
 }
 .btn:active {
   transform: scale(0.97);
@@ -16,6 +16,45 @@
 .btn-primary {
   background: var(--primary-bg);
   color: var(--primary-text);
+}
+/* The two button sizes: .btn (52 tall, the page's actions) and .btn-compact (44, a button beside
+   other things in a row: Ranks, Next, the Clash log, Paste). One label size each. */
+.btn-compact {
+  min-height: 44px;
+  font-size: var(--fs-body);
+}
+/* Hover and press, one rule for every control that has a fill or a row (tokens.css state layers):
+   the layer sits over the control's own background, so its colours and edges stay as they are.
+   The game's keys, Home's tiles and the doors keep the states drawn for them. */
+:is(.btn, .icon-btn, .close-btn, .segment, .difficulty, .friend-option, .resume-card, .log-row, button.plate-card) {
+  --state-ink: currentColor;
+}
+.btn.btn-primary {
+  --state-ink: var(--primary-state-ink);
+}
+@media (hover: hover) {
+  :is(.btn, .icon-btn, .close-btn, .segment, .difficulty, .friend-option, .resume-card, .log-row, button.plate-card):not(:disabled, [aria-disabled='true']):hover {
+    --state: color-mix(in srgb, var(--state-ink) var(--state-hover), transparent);
+    background-image: linear-gradient(var(--state), var(--state));
+  }
+}
+:is(.btn, .icon-btn, .close-btn, .segment, .difficulty, .friend-option, .resume-card, .log-row, button.plate-card):not(:disabled, [aria-disabled='true']):active {
+  --state: color-mix(in srgb, var(--state-ink) var(--state-press), transparent);
+  background-image: linear-gradient(var(--state), var(--state));
+}
+/* Not yet usable: a plain neutral button, never a faded primary (full review L24). */
+.btn:is(:disabled, [aria-disabled='true']) {
+  background: var(--disabled-bg);
+  color: var(--disabled-text);
+  box-shadow: none;
+  transform: none;
+  cursor: var(--cursor-default);
+}
+/* not colour alone: a dashed edge where an enabled button has a fill; an aria-disabled button can
+   still take focus, and then shows its focus ring instead */
+.btn:is(:disabled, [aria-disabled='true']):not(:focus-visible) {
+  outline: 1.5px dashed var(--field-border);
+  outline-offset: -1.5px;
 }
 /* Hold to confirm (hold.ts): while held, a bar in the label's own colour sweeps along the button's
    foot (under the label, never behind it, so the label keeps its contrast); the line under it says
@@ -94,13 +133,16 @@ html[data-reduce-motion] .hold-hint.nudge {
   width: 44px;
   flex: none;
 }
+/* The ✕ of a pop-up: a full 44px target (WCAG 2.5.8 asks 24; 44 is our floor for every control),
+   the same 16px cross, and above the sheet's own content so a wide line can't cover it. */
 .close-btn {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  width: 38px;
-  height: 38px;
-  padding: 11px;
+  z-index: var(--z-raised);
+  top: var(--space-2);
+  right: var(--space-2);
+  width: 44px;
+  height: 44px;
+  padding: 14px;
   border-radius: var(--radius);
   background: var(--surface-2);
 }

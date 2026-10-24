@@ -203,7 +203,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
-  padding: 6px 0 var(--space-5);
+  padding: var(--space-2) 0 var(--space-5);
 }
 .plates-head {
   display: flex;
@@ -223,6 +223,12 @@
   font-family: var(--serif);
   font-size: var(--fs-small);
   color: var(--muted);
+}
+/* the groups (Ink, Steel, Gilt…): one group to the next --space-6, as the page's own sections */
+.plates-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
 }
 .plate-group {
   display: flex;
@@ -266,9 +272,6 @@ html[data-large-text] .plate-grid {
 button.plate-card {
   cursor: var(--cursor-pointer);
   box-shadow: inset 0 0 0 2px var(--field-border);
-}
-button.plate-card:active {
-  background: var(--surface-2);
 }
 .plate-card.state-yours {
   background: var(--chosen-bg);

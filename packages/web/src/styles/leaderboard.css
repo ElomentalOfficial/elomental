@@ -76,7 +76,7 @@
 }
 .lb-strength {
   display: flex;
-  gap: 4px;
+  gap: var(--space-1);
   height: 20px;
 }
 .strength-seg {
@@ -183,7 +183,6 @@ html[data-large-text] .lb-strength-legend {
 }
 .lb-faction .link-btn {
   align-self: flex-start;
-  font-size: var(--fs-small);
 }
 /* Search */
 .lb-search-field {
@@ -270,9 +269,6 @@ html[data-large-text] .lb-tab {
 .lb-ranks {
   justify-self: start;
   width: auto;
-  min-height: 44px;
-  padding-inline: var(--space-4);
-  font-size: var(--fs-small);
 }
 /* large text: the button goes under the words rather than squeezing them */
 html[data-large-text] .lb-meta-row {
@@ -435,7 +431,7 @@ html:not([data-large-text]) .lb-name wbr {
 .lb-sub {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-1);
   font-family: var(--serif);
   font-size: var(--fs-small);
   color: var(--muted);
@@ -552,9 +548,6 @@ html[data-large-text] .lb-me .lb-avatar {
 .lb-jump {
   flex: none;
   width: auto;
-  min-height: 44px;
-  padding: 4px 16px;
-  font-size: var(--fs-body);
   white-space: nowrap;
 }
 /* The affinities sheet and the ranks sheet */
@@ -697,7 +690,7 @@ html[data-large-text] .lb-me .lb-avatar {
 .card-fact {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-1);
 }
 .card-fact .drop-element {
   display: inline-flex;
@@ -750,7 +743,7 @@ html[data-large-text] .lb-me .lb-avatar {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
   min-height: 112px;
   padding: var(--space-2);
   border-radius: var(--radius-lg);
@@ -835,7 +828,7 @@ html[data-large-text] .lb-me .lb-avatar {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
   padding: var(--space-2);
   border: 0;
   border-radius: var(--radius-lg);

@@ -80,6 +80,11 @@
   --z-toast: 60;
   --z-toast-top: 61;
   --z-captcha: 1000;
+  /* State layers (buttons.css): how strongly hover and press wash a control's fill with its state ink
+     (its own text colour, or --primary-state-ink on a primary), so they show on any fill in either
+     theme (a brightness filter did nothing on light ones); scripts/contrast.ts checks the labels */
+  --state-hover: 8%;
+  --state-press: 14%;
   /* Each theme's board, named once: the themes take theirs below, and a square drawn in the
      other theme's colours (Setup's Look and play door, pages.css) takes these too. */
   --board-dark-line: var(--c-stone-450);
@@ -240,6 +245,8 @@
   --modal-border: rgba(255, 255, 229, 0.12);
   --primary-bg: var(--accent);
   --primary-text: var(--on-accent);
+  /* its state layer deepens the copper (a wash of the light label would pale it under 4.5:1) */
+  --primary-state-ink: var(--c-lava-800);
   /* Colours taken from the Figma icon exports (eraser shade follows the accent). */
   --separator: var(--c-stone-700);
   /* Mistake skulls: an unused one outlined in --muted, a used one filled in Lava (game.css). */
@@ -356,6 +363,8 @@
   --modal-border: rgba(38, 39, 33, 0.14);
   --primary-bg: var(--accent);
   --primary-text: var(--on-accent);
+  /* its state layer deepens the copper (a wash of the light label would pale it under 4.5:1) */
+  --primary-state-ink: var(--c-lava-800);
   --separator: var(--c-paper-300);
   --mistake-off: var(--muted);
   --mistake-on: var(--c-lava);

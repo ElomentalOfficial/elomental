@@ -21,7 +21,7 @@ export function runHintCoach(options: {
     const counter = h('span', { class: 'coach-count' });
     const title = h('h3');
     const text = h('p');
-    const next = h('button', { class: 'btn btn-primary coach-next' });
+    const next = h('button', { class: 'btn btn-primary btn-compact coach-next' });
     const close = h('button', { class: 'coach-skip', text: copy.common.close });
     // Focus stays on Next while the stages change; the live text announces each one.
     const card = h(

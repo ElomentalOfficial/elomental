@@ -376,6 +376,7 @@ export function openModal(content: HTMLElement, options: { dismissible?: boolean
     openModals.delete(close);
     relabel.disconnect();
     refit.disconnect();
+    overflow.disconnect();
     backdrop.remove();
     release();
     syncScrimEdges();
@@ -397,6 +398,11 @@ export function openModal(content: HTMLElement, options: { dismissible?: boolean
   const refit = new MutationObserver(fitTitle);
   refit.observe(panel, { childList: true, subtree: true });
   relabel.observe(panel, { childList: true, subtree: true });
+  // taller than the screen (large Text size, a short phone): its main action stays at the foot
+  // of the screen while the rest scrolls under it (modals.css)
+  const overflow = new ResizeObserver(() => backdrop.classList.toggle('overflows', backdrop.scrollHeight > backdrop.clientHeight + 1));
+  overflow.observe(backdrop);
+  overflow.observe(panel);
   release = holdFocus(panel, { onEscape: dismissible ? close : undefined });
   syncScrimEdges();
   return close;

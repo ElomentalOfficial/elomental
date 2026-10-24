@@ -21,6 +21,35 @@ reuse. Read it before designing or restyling anything.
 - **It's a game, not a dashboard.** The owner rejected app/dashboard looks; screens should feel
   like the forge and the four elements.
 
+## Controls
+
+One shape per kind of control, defined once in `styles/buttons.css` (screens add only layout:
+width, alignment, their place in a row). Type, radius and layer values come from the tokens in
+`tokens.css` (`--fw-*`, `--lh-*`, `--ls-*`, `--radius-*`, `--z-*`), never a bare number.
+
+- **Two button sizes.** `.btn` is 52 tall with a `--fs-label` label: a page's or a pop-up's
+  actions. `.btn-compact` is 44 tall with a `--fs-body` label: a button that sits beside other
+  things (Ranks, Next in the tutorial, the Clash log). Nothing in between.
+- **One height for full-width controls.** Buttons, segments and text fields are all 52.
+- **Close (✕).** 44 × 44 in the pop-up's corner, the same 16px cross, layered above the sheet's
+  content (`--z-raised`) so nothing can cover it.
+- **Not usable yet.** `.btn:disabled` or `[aria-disabled='true']`: a neutral fill and a dashed
+  edge, never a faded primary.
+- **Chosen.** Every option group (segments, difficulties, rows) marks the chosen one with a 2px
+  `--select` ring, plus `aria-checked` / `aria-selected` for screen readers.
+- **Hover and press.** One state layer for every filled control: a wash of its state ink over its
+  fill (`--state-hover` 8%, `--state-press` 14%), so it shows on any fill in either theme. The ink
+  is the control's own text colour, except on a primary, which deepens toward `--primary-state-ink`
+  so its light label gains contrast instead of losing it (the pairs are in `scripts/contrast.ts`).
+  Hover only where a pointer can hover. The game's keys, Home's tiles and the doors keep the
+  states drawn for them.
+- **Text links** (`.link-btn`) are one size, `--fs-body`, 44 tall, with no side padding.
+- **Pill tags** (rarity, the reveal's rarity, the affinity tag) are `2px` by `--space-2`,
+  `--fs-small`, bold.
+- **A pop-up taller than the screen** keeps its main action pinned at the foot of the screen on
+  the panel's colour, with a hairline on top, while the words scroll under it: its own primary
+  button if it has one (never a risky choice after it), else its last row of actions or hold.
+
 ## Hairline intensity
 
 Every hairline ornament has one intensity and one wear, the Home tiles' frames': drawn in its

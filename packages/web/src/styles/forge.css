@@ -182,7 +182,7 @@ html[data-large-text] .part-grid:not(.field-grid) {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
   padding: var(--space-3) var(--space-2);
   border: 0;
   border-radius: var(--radius-lg);
@@ -271,7 +271,8 @@ html[data-large-text] .part-grid:not(.field-grid) {
    the edge every fill takes (palette.css: fill, on, edge). */
 .rarity-tag {
   display: inline-block;
-  padding: 1px 8px;
+  /* every pill tag (rarity, the reveal's rarity, the affinity tag) is 2px by --space-2 */
+  padding: 2px var(--space-2);
   border-radius: var(--radius-pill);
   background: var(--rc);
   color: var(--rc-on);
@@ -280,7 +281,7 @@ html[data-large-text] .part-grid:not(.field-grid) {
   font-family: var(--font);
   font-size: var(--fs-small);
   font-weight: var(--fw-bold);
-  letter-spacing: 0.03em;
+  letter-spacing: var(--ls-tight);
   white-space: nowrap;
 }
 .rarity-common { --rc: var(--r-common-fill); --rc-on: var(--r-common-on); --rc-edge: var(--r-common-edge); --rc-line: var(--r-common-line); }
@@ -382,7 +383,7 @@ html[data-large-text] .part-grid:not(.field-grid) {
 /* what's missing, in words on the accent (never colour alone) */
 .life-cost-short {
   margin-top: var(--space-1);
-  padding: 2px 10px;
+  padding: 2px var(--space-2);
   border-radius: var(--radius-pill);
   background: var(--accent);
   color: var(--on-accent);
@@ -393,7 +394,7 @@ html[data-large-text] .part-grid:not(.field-grid) {
 .life-cost-main {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
 }
 .life-cost-main strong {
   font-size: var(--fs-label);
@@ -427,7 +428,7 @@ html[data-large-text] .part-grid:not(.field-grid) {
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
   font-size: var(--fs-small);
   color: var(--muted);
 }
@@ -507,7 +508,7 @@ html[data-large-text] .part-grid:not(.field-grid) {
   min-width: 0;
 }
 .reveal-rarity {
-  padding: 1px 8px;
+  padding: 2px var(--space-2);
   border-radius: var(--radius-pill);
   background: var(--rc);
   color: var(--rc-on);
@@ -525,7 +526,7 @@ html[data-large-text] .part-grid:not(.field-grid) {
 .reveal-meta {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
   font-size: var(--fs-small);
   color: var(--muted);
 }
@@ -590,7 +591,7 @@ html[data-large-text] .part-grid:not(.field-grid) {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: var(--space-2);
 }
 html[data-reduce-motion] .part-reveal,
 html[data-reduce-motion] .part-reveal * {
@@ -599,21 +600,8 @@ html[data-reduce-motion] .part-reveal * {
 .actions {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-3);
 }
-/* Not yet usable: a plain neutral button, never a faded primary (full review L24). */
-.btn:disabled,
-.btn-primary:disabled {
-  background: var(--disabled-bg);
-  color: var(--disabled-text);
-  box-shadow: none;
-  /* not colour alone: a dashed edge where an enabled button has a fill (it can't take focus) */
-  outline: 1.5px dashed var(--field-border);
-  outline-offset: -1.5px;
-  transform: none;
-  cursor: var(--cursor-default);
-}
-
 /* The Fill-in and Call sheets, and the Spirits section (forge.ts spiritsSection) */
 .mend-sheet,
 .call-sheet {

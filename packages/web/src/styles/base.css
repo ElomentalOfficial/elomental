@@ -289,7 +289,7 @@ button:focus-visible,
   top: 8px;
   left: 50%;
   z-index: var(--z-overlay);
-  padding: 10px 16px;
+  padding: var(--space-3) var(--space-4);
   border-radius: var(--radius);
   background: var(--primary-bg);
   color: var(--primary-text);

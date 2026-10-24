@@ -110,7 +110,7 @@ export function openClash(leave: (go: () => void) => void, prefill = '') {
   const log =
     listClashes().length || signedIn()
       ? h('button', {
-          class: 'btn clash-log-btn',
+          class: 'btn btn-compact clash-log-btn',
           text: copy.clash.log,
           onclick: () => {
             close();

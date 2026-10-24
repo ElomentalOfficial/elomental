@@ -26,6 +26,23 @@
   margin: auto 0;
   flex: none;
 }
+/* A pop-up taller than the screen (ui.ts openModal): its main action stays at the foot of the
+   screen, on the panel's colour, while the words scroll under it: the primary button when the sheet
+   has one of its own (never a risky choice after it), else its last row of actions or hold. A
+   hairline on top says the words go on underneath. It only sticks once the rest can't fit. */
+.backdrop.overflows :is(.sheet, .confirm) > .btn-primary:not(:has(~ .btn-primary)),
+.backdrop.overflows :is(.sheet, .confirm):not(:has(> .btn-primary)) > :is(.actions, .hold):not(:has(~ :is(.actions, .hold))) {
+  position: sticky;
+  bottom: calc(var(--safe-bottom) + var(--space-3));
+  z-index: var(--z-raised);
+  /* the panel's colour round it and on down past the screen's foot, under it the hairline */
+  box-shadow: 0 0 0 var(--space-3) var(--modal-bg), 0 var(--space-6) 0 var(--space-3) var(--modal-bg),
+    0 -1px 0 var(--space-3) var(--line);
+}
+/* a row or a hold (button and its line) is filled between its parts too; a button has its own fill */
+.backdrop.overflows :is(.sheet, .confirm):not(:has(> .btn-primary)) > :is(.actions, .hold):not(:has(~ :is(.actions, .hold))) {
+  background-color: var(--modal-bg);
+}
 /* Home-screen app: centred in the space between the status bar (and its blur)
    and the home indicator, never under either. */
 html.standalone .backdrop {
@@ -61,7 +78,7 @@ html.standalone .backdrop {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
   text-align: center;
 }
 .sheet h2 {
@@ -78,7 +95,7 @@ html.standalone .backdrop {
 .sheet-icon {
   width: 72px;
   height: 72px;
-  padding: 16px;
+  padding: var(--space-4);
   border-radius: var(--radius-round);
   color: var(--c-bright);
 }
@@ -218,7 +235,7 @@ html[data-reduce-motion] .sword-live .sword-flame {
 }
 /* Ranked pop-up: "Start" is the theme's primary button (lava in both themes). */
 .btn-start {
-  margin-top: 6px;
+  margin-top: 0;
 }
 .result {
   display: flex;
@@ -237,7 +254,7 @@ html[data-reduce-motion] .sword-live .sword-flame {
 .stats {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
 .stat {
   display: flex;
@@ -245,7 +262,7 @@ html[data-reduce-motion] .sword-live .sword-flame {
   justify-content: space-between;
   align-items: baseline;
   column-gap: var(--space-3);
-  padding-bottom: 6px;
+  padding-bottom: var(--space-2);
   border-bottom: 1px solid var(--line);
   font-family: var(--serif);
   font-size: var(--fs-label);

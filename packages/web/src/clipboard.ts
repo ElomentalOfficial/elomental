@@ -39,7 +39,7 @@ export function routePaste(field: HTMLInputElement, fill: (text: string) => void
 export function pasteButton(fill: (text: string) => void, blocked: string): HTMLButtonElement | null {
   if (!('readText' in (navigator.clipboard ?? {}))) return null;
   return h('button', {
-    class: 'paste-btn',
+    class: 'btn btn-compact paste-btn',
     text: copy.common.paste,
     onclick: async () => {
       try {

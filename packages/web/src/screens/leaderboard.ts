@@ -71,7 +71,7 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
   // the list's header: what it ranks, when it was updated, and the ranks behind it
   const about = h('p', { class: 'lb-about' });
   const meta = h('p', { class: 'lb-meta' });
-  const ranksBtn = h('button', { class: 'btn lb-ranks', text: t.ranks, attrs: { type: 'button' }, onclick: () => openTiers() });
+  const ranksBtn = h('button', { class: 'btn btn-compact lb-ranks', text: t.ranks, attrs: { type: 'button' }, onclick: () => openTiers() });
   const list = h('ol', { class: 'lb-list', attrs: { 'aria-live': 'polite', 'aria-busy': 'true' } });
   const more = h('button', { class: 'btn lb-more', text: t.showMore, attrs: { type: 'button' }, onclick: () => void load(page + 1) });
   const notice = h('div', { class: 'panel lb-notice' });
@@ -277,7 +277,7 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
     if (account.anonymous) {
       return [
         h('span', { class: 'lb-me-text' }, h('strong', { text: t.you }), h('span', { text: t.guestBar })),
-        h('button', { class: 'btn btn-primary lb-jump', text: t.guestSignUp, attrs: { type: 'button' }, onclick: openGuestSignUp }),
+        h('button', { class: 'btn btn-primary btn-compact lb-jump', text: t.guestSignUp, attrs: { type: 'button' }, onclick: openGuestSignUp }),
       ];
     }
     let text: string;
@@ -293,7 +293,7 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
       canJump = !(wide && me.place <= 3);
     }
     const jump = h('button', {
-      class: 'btn btn-primary lb-jump',
+      class: 'btn btn-primary btn-compact lb-jump',
       text: around ? t.showTop : t.showMe,
       attrs: { type: 'button' },
       onclick: () => {

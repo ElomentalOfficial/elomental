@@ -43,7 +43,7 @@ export function runTutorial(steps: TutorialStep[]): Promise<void> {
     const counter = h('span', { class: 'coach-count' });
     const title = h('h3');
     const text = h('p');
-    const next = h('button', { class: 'btn btn-primary coach-next' });
+    const next = h('button', { class: 'btn btn-primary btn-compact coach-next' });
     const skip = h('button', { class: 'coach-skip', text: copy.tutorial.skip });
     // Focus stays on Next while the steps change; the live text announces each step.
     const card = h(

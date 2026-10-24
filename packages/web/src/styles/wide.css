@@ -26,7 +26,7 @@
   .screen.home {
     --pad-y: clamp(24px, 5dvh, 64px);
     max-width: none;
-    padding: var(--pad-y) clamp(24px, 5vw, 96px);
+    padding: var(--pad-y) clamp(var(--space-5), 5vw, 96px);
     align-items: center;
     justify-content: center;
   }

@@ -22,7 +22,9 @@ export type Theme = 'dark' | 'light' | 'dark-hc' | 'light-hc';
 type RGBA = [number, number, number, number];
 
 /** [label, foreground token, background token, required ratio, what a translucent background sits on, foreground opacity] */
-type Pair = [string, string, string, number, string?, number?];
+// [label, fg, bg, need, under?, fg opacity?, layer?]: with a layer (a token holding a percentage, the
+// state layers in tokens.css), bg is drawn at that strength over under, as a hovered or pressed control
+type Pair = [string, string, string, number, string?, number?, string?];
 
 export const PAIRS: Pair[] = [
   // Text: 4.5:1, or 3:1 at 24px+ (or 18.66px+ bold).
@@ -64,6 +66,11 @@ export const PAIRS: Pair[] = [
   ['Stat chip label', '--muted', '--chip-bg', 4.5, '--profile-bg'],
   ['Profile card caption and title (Level, Elo, Founder)', '--muted', '--profile-bg', 4.5],
   ['Primary button text', '--primary-text', '--primary-bg', 4.5],
+  // hover and press: the state layer (buttons.css) over the button's fill, the label on top
+  ['Primary button text, hovered', '--primary-text', '--primary-state-ink', 4.5, '--primary-bg', undefined, '--state-hover'],
+  ['Primary button text, pressed', '--primary-text', '--primary-state-ink', 4.5, '--primary-bg', undefined, '--state-press'],
+  ['Button text, pressed', '--text', '--text', 4.5, '--surface-2', undefined, '--state-press'],
+  ['Chosen segment text, pressed', '--text', '--text', 4.5, '--seg-on-bg', undefined, '--state-press'],
   ['Action button text (Hint, Undo, Notes)', '--action-text', '--action-bg', 4.5],
   ['Notes button on', '--notes-on-text', '--notes-on-bg', 4.5],
   ['Hint count badge', '--on-accent', '--accent', 4.5],
@@ -308,9 +315,10 @@ export interface Row {
 export function contrast(css: string): Record<Theme, Row[]> {
   const out = { dark: [], light: [], 'dark-hc': [], 'light-hc': [] } as Record<Theme, Row[]>;
   for (const [theme, vars] of Object.entries(themes(css)) as [Theme, Record<string, string>][]) {
-    for (const [label, fgToken, bgToken, need, underToken, opacity] of PAIRS) {
+    for (const [label, fgToken, bgToken, need, underToken, opacity, layer] of PAIRS) {
       const under = underToken ? colour(vars, underToken) : undefined;
-      const bg = colour(vars, bgToken, under);
+      let bg = colour(vars, bgToken, under);
+      if (bg && under && layer) bg = over([bg[0], bg[1], bg[2], parseFloat(resolve(vars, `var(${layer})`)) / 100], under);
       let fg = bg && colour(vars, fgToken, bg);
       if (!fg || !bg) continue; // a transparent token: nothing drawn in this theme
       if (opacity !== undefined) fg = over([fg[0], fg[1], fg[2], opacity], bg);

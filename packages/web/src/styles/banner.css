@@ -20,7 +20,7 @@
     height: 100%;
     display: grid;
     grid-template-columns: var(--banner-w) minmax(0, 1fr);
-    column-gap: clamp(24px, 3vw, 40px);
+    column-gap: clamp(var(--space-5), 3vw, 40px);
     padding: 0 var(--page-x);
   }
   html[data-large-text] .screen.sub.has-banner {
