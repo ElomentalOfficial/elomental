@@ -262,16 +262,17 @@ export function homeCard(): HomeCard {
     }
     // from layout, not the screen: the card swings in on a transform (tileSprites.ts placeIn)
     flag.style.left = `${placeIn(el, nameEl).x}px`;
-    // in a short card (a tablet's) the flag shrinks so the name still fits under it, down to two
-    // thirds of its size
+    // in a short card (a tablet's, a phone's with little height) the flag shrinks so the name still
+    // fits under it, down to half its size
     const content = placeIn(el, name.firstElementChild as HTMLElement).h;
     const room = name.offsetTop + name.clientHeight - content - 8 - flag.offsetTop;
-    if (flag.offsetHeight > room) flag.style.width = `${Math.max((flag.offsetWidth * 2) / 3, room * FLAG_RATIO)}px`;
+    if (flag.offsetHeight > room) flag.style.width = `${Math.max(flag.offsetWidth / 2, room * FLAG_RATIO)}px`;
     // the name's block is centred in its cell: padding the cell's top by twice what's missing
-    // brings its top to 8 px under the flag's gem
+    // brings its top to 8 px under the flag's gem; never past the cell's foot, so the name and
+    // title never reach the hairline under them
     const need = flag.offsetTop + flag.offsetHeight + 8 - name.offsetTop;
     const free = (name.clientHeight - content) / 2;
-    if (need > free) name.style.paddingTop = `${2 * need - name.clientHeight + content}px`;
+    if (need > free) name.style.paddingTop = `${Math.min(2 * need - name.clientHeight + content, name.clientHeight - content)}px`;
   };
 
   // ---- the name, fitted to its cell as laid out
