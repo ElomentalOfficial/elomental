@@ -163,6 +163,7 @@ export function homeCard(): HomeCard {
     chooseSide.hidden = !!side || !account;
     stats.classList.toggle('two', !account);
     if (side) {
+      sideStat.className = `pc-stat pc-faction el-${side}`;
       sideMark.innerHTML = elementMark(side);
       sideName.textContent = copy.forge.elements[side];
     }

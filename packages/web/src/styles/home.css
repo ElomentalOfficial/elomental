@@ -246,7 +246,7 @@
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: var(--space-1) var(--space-2);
+  gap: var(--space-1);
   height: 100%;
 }
 .pc-cap {
@@ -265,13 +265,24 @@
 .pc-elo::before,
 .pc-level::before,
 .pc-elo::after,
-.pc-level::after {
+.pc-level::after,
+.pc-faction:not(.pc-choose)::after {
   content: '';
   position: absolute;
   left: 0;
   bottom: 0;
   height: 3px;
 }
+/* the faction's line along its foot too, all the way across in its own colour, so the three read
+   as one row (owner, 2026-10-24); it measures nothing, so it doesn't fill */
+.pc-faction:not(.pc-choose)::after {
+  right: 0;
+  background: var(--side-line);
+}
+.pc-faction.el-fire { --side-line: var(--el-fire-line); }
+.pc-faction.el-water { --side-line: var(--el-water-line); }
+.pc-faction.el-earth { --side-line: var(--el-earth-line); }
+.pc-faction.el-air { --side-line: var(--el-air-line); }
 .pc-elo::before,
 .pc-level::before {
   right: 0;
@@ -295,8 +306,8 @@
 .pc-mark {
   display: block;
   font-size: min(var(--fs-label), 24cqi);
-  width: 1.2em;
-  height: 1.2em;
+  width: 1.1em;
+  height: 1.1em;
   color: var(--faction-mark);
 }
 .pc-mark svg {
