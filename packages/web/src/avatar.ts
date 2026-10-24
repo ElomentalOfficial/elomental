@@ -8,6 +8,7 @@ import firePlain from './art/elements/plain/fire.svg';
 import waterPlain from './art/elements/plain/water.svg';
 import earthPlain from './art/elements/plain/earth.svg';
 import airPlain from './art/elements/plain/air.svg';
+import airPlainLight from './art/elements/plain/air-light.svg';
 import { sunburstPath } from './rays.ts';
 
 /**
@@ -19,10 +20,18 @@ import { sunburstPath } from './rays.ts';
 const EMBLEMS: Record<Element, string> = { fire: fireEmblem, water: waterEmblem, earth: earthEmblem, air: airEmblem };
 /** An element's emblem, as an image URL. */
 export const emblemUrl = (element: Element): string => EMBLEMS[element];
-/** The emblems plain, no gold edge, a mild gradient of their colour (the faction flag on Home). */
-const PLAIN: Record<Element, string> = { fire: firePlain, water: waterPlain, earth: earthPlain, air: airPlain };
-/** An element's plain emblem, as an image URL. */
-export const plainEmblemUrl = (element: Element): string => PLAIN[element];
+/**
+ * The emblems plain, no gold edge, a mild gradient of their colour (the faction flag on Home), for
+ * each theme: the light theme's differs only where the emblem's own colour is too pale for it (Air).
+ */
+const PLAIN: Record<Element, { dark: string; light: string }> = {
+  fire: { dark: firePlain, light: firePlain },
+  water: { dark: waterPlain, light: waterPlain },
+  earth: { dark: earthPlain, light: earthPlain },
+  air: { dark: airPlain, light: airPlainLight },
+};
+/** An element's plain emblem for each theme, as image URLs. */
+export const plainEmblemUrls = (element: Element): { dark: string; light: string } => PLAIN[element];
 
 /** The avatar pictures (art/faces/<name>.svg), by name. */
 const FACES: Record<string, string> = Object.fromEntries(

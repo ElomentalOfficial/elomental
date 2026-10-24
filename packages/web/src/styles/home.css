@@ -186,8 +186,8 @@
 .pc-flag {
   position: absolute;
   top: calc(var(--pc-frame) * 0.2);
-  width: calc(46px * var(--wide-zoom, 1));
-  aspect-ratio: 44 / 92;
+  width: calc(50px * var(--wide-zoom, 1));
+  aspect-ratio: 52 / 80;
   pointer-events: none;
 }
 .pc-flag svg {
@@ -210,6 +210,23 @@
 .pc-flag-gem {
   fill: var(--frame-line);
   fill-opacity: 0.35;
+}
+/* the burst of blades behind the emblem: hairlines in the frame's ink, fainter than the outline */
+.pc-flag-blades {
+  fill: none;
+  stroke: var(--frame-line);
+  stroke-opacity: 0.2;
+  stroke-width: 0.8;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+/* the emblem in the theme's picture (homeCard.ts FLAG: Air's is a darker grey on light) */
+.pc-flag-light,
+:root[data-theme='light'] .pc-flag-dark {
+  display: none;
+}
+:root[data-theme='light'] .pc-flag-light {
+  display: inline;
 }
 .pc-flag.el-fire { --flag-hue: var(--el-fire-fill); }
 .pc-flag.el-water { --flag-hue: var(--el-water-fill); }

@@ -1,4 +1,4 @@
-import { avatarSvg, plainEmblemUrl } from '../avatar.ts';
+import { avatarSvg, plainEmblemUrls } from '../avatar.ts';
 import { cachedAccount, registered } from '../backend/account.ts';
 import { cachedLoadout, cachedPolish } from '../backend/forge.ts';
 import { myBadges } from '../backend/leaderboard.ts';
@@ -51,14 +51,40 @@ const ADD =
   '<path class="pc-add-plus" d="M-0.75 -0.75L-0.3 -4.4H0.3L0.75 -0.75L4.4 -0.3V0.3L0.75 0.75L0.3 4.4H-0.3L-0.75 0.75L-4.4 0.3V-0.3Z"/></svg>';
 
 /**
- * Your faction's flag (owner, 2026-10-24, the banner of an earlier version of the card): a pennant
- * 44 × 92 units, its cloth coming to a point with a step inside its tip and a gem under it, the
- * emblem high on the cloth. Its top edge runs under the frame's top line (home.css .pc-flag).
+ * The burst behind the flag's emblem (owner's reference, 2026-10-24): sixteen slim blades round
+ * its centre (26, 32), long and short in turn, each a lozenge widest a third of the way out, in the
+ * flag's units. Not the sunburst: that stands beside it, behind your avatar.
  */
-const FLAG = (emblem: string) =>
-  '<svg viewBox="0 0 44 92" aria-hidden="true"><path class="pc-flag-cloth" d="M1 0V66L22 82L43 66V0Z"/>' +
-  '<path class="pc-flag-lines" d="M1 0V66L22 82L43 66V0M9 63L22 72.5L35 63"/><path class="pc-flag-gem" d="M22 85L25 88L22 91L19 88Z"/>' +
-  `<image href="${emblem}" x="8" y="24" width="28" height="28"/></svg>`;
+const BLADES = Array.from({ length: 16 }, (_, k) => {
+  const a = (k * Math.PI) / 8;
+  const [c, s] = [Math.cos(a), Math.sin(a)];
+  const from = 16;
+  const to = k % 2 ? 23 : 31;
+  const mid = from + (to - from) / 3;
+  const w = k % 2 ? 1.1 : 1.6;
+  const at = (r: number, side = 0) => `${(26 + c * r - s * side).toFixed(2)} ${(32 + s * r + c * side).toFixed(2)}`;
+  return `M${at(from)}L${at(mid, w)}L${at(to)}L${at(mid, -w)}Z`;
+}).join('');
+
+/** The flag's cloth: 52 × 80 units with its gem (owner: wider and shorter than its first 44 × 92). */
+const CLOTH = 'M1 0V56L26 70L51 56V0Z';
+/** Its width for its height (home.css .pc-flag aspect-ratio, homeCard.ts placeFlag). */
+const FLAG_RATIO = 52 / 80;
+
+/**
+ * Your faction's flag (owner, 2026-10-24, the banner of an earlier version of the card): a pennant,
+ * its cloth coming to a point with a step inside its tip and a gem under it, the emblem high on
+ * the cloth on its burst of blades (kept to the cloth), one picture of it for each theme (home.css
+ * shows the theme's). Its top starts above the frame's top line and lies over it (home.css
+ * .pc-flag).
+ */
+const FLAG = (emblem: { dark: string; light: string }) =>
+  `<svg viewBox="0 0 52 80" aria-hidden="true"><clipPath id="pc-flag-clip"><path d="${CLOTH}"/></clipPath>` +
+  `<path class="pc-flag-cloth" d="${CLOTH}"/>` +
+  `<path class="pc-flag-blades" clip-path="url(#pc-flag-clip)" d="${BLADES}"/>` +
+  '<path class="pc-flag-lines" d="M1 0V56L26 70L51 56V0M10 53L26 62L42 53"/><path class="pc-flag-gem" d="M26 73L29 76L26 79L23 76Z"/>' +
+  `<image class="pc-flag-dark" href="${emblem.dark}" x="12" y="18" width="28" height="28"/>` +
+  `<image class="pc-flag-light" href="${emblem.light}" x="12" y="18" width="28" height="28"/></svg>`;
 
 export function homeCard(): HomeCard {
   /** Your badges when you haven't chosen three: your newest, fetched once a visit to Home. */
@@ -151,7 +177,7 @@ export function homeCard(): HomeCard {
     flag.hidden = !side;
     if (side) {
       flag.className = `pc-flag el-${side}`;
-      flag.innerHTML = FLAG(plainEmblemUrl(side));
+      flag.innerHTML = FLAG(plainEmblemUrls(side));
       flag.setAttribute('aria-label', copy.home.card.faction(copy.forge.elements[side]));
     }
     // your three chosen badges (Profile > Badges), or your newest until you choose
@@ -195,7 +221,7 @@ export function homeCard(): HomeCard {
     // thirds of its size
     const content = placeIn(el, name.firstElementChild as HTMLElement).h;
     const room = name.offsetTop + name.clientHeight - content - 8 - flag.offsetTop;
-    if (flag.offsetHeight > room) flag.style.width = `${Math.max((flag.offsetWidth * 2) / 3, (room * 44) / 92)}px`;
+    if (flag.offsetHeight > room) flag.style.width = `${Math.max((flag.offsetWidth * 2) / 3, room * FLAG_RATIO)}px`;
     // the name's block is centred in its cell: padding the cell's top by twice what's missing
     // brings its top to 8 px under the flag's gem
     const need = flag.offsetTop + flag.offsetHeight + 8 - name.offsetTop;
