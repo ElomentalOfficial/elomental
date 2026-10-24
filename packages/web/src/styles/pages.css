@@ -778,7 +778,7 @@ html:not([data-large-text]) .daily-body > .daily-art {
 }
 /* Wide landscape screens: as on Casual, the page widens into two columns, the calendar
    on the left as tall as the cards, the cards unchanged on the right. */
-@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+@media (min-width: 900px) and (min-height: 540px) and (min-aspect-ratio: 5/4) {
   html:not([data-large-text]) .screen.daily:not(.has-banner) {
     max-width: calc(820px * var(--text-scale, 1));
   }
@@ -1060,7 +1060,7 @@ html:not([data-large-text]) .daily-body > .daily-art {
  * themes' squares (yours on top), the text sizes (yours ringed), your card with its eye, the
  * app on a phone, the players under review.
  */
-@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+@media (min-width: 900px) and (min-height: 540px) and (min-aspect-ratio: 5/4) {
   .setup-banner-art {
     display: block;
   }
@@ -1297,7 +1297,7 @@ html:not([data-large-text]) .daily-body > .daily-art {
  * Daily on a wide screen (daily.ts, banner.css): the calendar on the banner with the
  * month's count at its foot; the month beside today's door (one click plays it) and the badge.
  */
-@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+@media (min-width: 900px) and (min-height: 540px) and (min-aspect-ratio: 5/4) {
   /* on the layout grid (banner.css .field-grid): the month on 7 columns, today and the badge on 5;
      one under the other at large text */
   .daily-field {

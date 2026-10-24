@@ -32,7 +32,9 @@ export function pageBanner(header: HTMLElement, banner: Banner, onBack: () => vo
     withRays(h('div', { class: 'banner-art', attrs: { 'aria-hidden': 'true' } }, banner.art)),
     banner.foot ? h('div', { class: 'banner-foot' }, banner.foot) : null,
   );
-  const el = h('div', { class: 'page-banner' }, inner);
+  // (scrollable: at its longest, on a short window at a large Text size, what it carries scrolls
+  // under its outline rather than being cut off)
+  const el = h('div', { class: 'page-banner scrollable' }, inner);
   el.style.setProperty('--ribbon', RIBBON_MASK);
   // room for the tail under the contents, however tall they grow (a foot that loads later, Text size)
   const fit = () => {

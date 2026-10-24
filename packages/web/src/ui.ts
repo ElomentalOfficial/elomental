@@ -1,4 +1,5 @@
 import { reducedMotion } from './a11y.ts';
+import { WIDE_QUERY } from './scale.ts';
 import backArt from './art/screens/back.svg';
 import { ICONS } from './icons.ts';
 import { turnstileIn, turnstileOut } from './motion.ts';
@@ -140,7 +141,7 @@ function tilesIn(field: HTMLElement, backward: boolean): void {
 }
 
 /** The wide layout (wide.css): tablets on their side, laptops and desktops. */
-const wideMedia = matchMedia('(min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4)');
+const wideMedia = matchMedia(WIDE_QUERY);
 export const wideLayout = (): boolean => wideMedia.matches;
 /** Calls `fn` when the window crosses into or out of the wide layout; returns the way to stop. */
 export function onWideChange(fn: () => void): () => void {

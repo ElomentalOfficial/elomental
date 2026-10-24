@@ -7,12 +7,19 @@
  */
 import { a11yPrefs, onA11yChange } from './a11y.ts';
 
+/**
+ * The wide layout (Banner and Doors pages, the wide Home and game): a window 900 wide or more,
+ * landscape (5:4 or wider) and 540 tall or more, so a 1280 x 720 laptop's maximised browser
+ * (about 585 tall) gets it. The stylesheets repeat this query (CSS has no shared media queries).
+ */
+export const WIDE_QUERY = '(min-width: 900px) and (min-height: 540px) and (min-aspect-ratio: 5/4)';
+
 const PHONE_WIDTH = 440;
 const PHONE_HEIGHT = 800;
 const MAX_ZOOM = 2;
 
 export function installUiScale(): void {
-  const wide = matchMedia('(min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4)');
+  const wide = matchMedia(WIDE_QUERY);
   const update = () => {
     const fit = Math.min(innerWidth / PHONE_WIDTH, innerHeight / PHONE_HEIGHT);
     const zoom = wide.matches || innerWidth < 600 ? 1 : Math.min(MAX_ZOOM, Math.max(1, fit));

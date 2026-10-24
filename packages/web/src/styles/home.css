@@ -481,7 +481,7 @@
 .area-casual,
 .area-ranked { --frame-corner: 34px; }
 /* The wide-screen tiles are about twice the size: their frame corners grow too. */
-@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+@media (min-width: 900px) and (min-height: 540px) and (min-aspect-ratio: 5/4) {
   .home-grid {
     --frame-zoom: 1.6;
   }
@@ -703,18 +703,19 @@ html[data-reduce-motion] .promotion .rank-name {
   animation: none;
 }
 /* Short phones (an iPhone SE, 375×667, a 360×640 Android, and shorter; never the wide layout,
-   which starts at 900 × 600): the profile card's share of the screen is too short for you, your
-   name and your givens. Home takes its natural height instead, every tile a little more compact,
-   so it still fits on one screen down to 640 (shorter ones scroll a little, as at large text).
-   The card's rows then take their content's height: the portrait sets its own size. */
-@media (max-height: 599px), (max-height: 700px) and (max-width: 899px) {
+   which starts at 900 × 540): the profile card's share of the screen is too short for you, your
+   name and your givens, so it takes its content's height (the portrait sets its own size). The
+   tiles share what's left in their usual proportions, never under a comfortable tap (44 px, the
+   play tiles twice that), so the play tiles stay the largest and nothing pools empty under the
+   grid; a screen too short for all of it scrolls a little, as at large text. */
+@media (max-height: 539px), (max-height: 700px) and (max-width: 899px) {
   .screen.home {
     overflow-y: auto;
     scrollbar-width: none;
   }
   .home-grid {
-    flex: none;
-    grid-template-rows: none;
+    flex: 1 0 auto;
+    grid-template-rows: minmax(44px, 70fr) auto minmax(44px, 70fr) minmax(44px, 71fr) minmax(88px, 153fr);
   }
   .profile-card {
     grid-template-rows: auto;

@@ -5,6 +5,7 @@
  */
 
 import { reducedMotion } from './a11y.ts';
+import { WIDE_QUERY } from './scale.ts';
 
 const PERSPECTIVE = 'perspective(900px)';
 const EASE_OUT = 'cubic-bezier(0.1, 0.9, 0.2, 1)';
@@ -31,7 +32,7 @@ function inReadingOrder(items: HTMLElement[]): { el: HTMLElement; rect: DOMRect 
 }
 
 /** The wide home grid (same query as styles.css and scale.ts). */
-const wideLayout = () => matchMedia('(min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4)').matches;
+const wideLayout = () => matchMedia(WIDE_QUERY).matches;
 
 /**
  * Phones: pivot every tile on the same vertical hinge, the left edge of

@@ -53,7 +53,9 @@ export async function topEdgeProblems(page: Page, where: string): Promise<string
     const out: string[] = [];
     for (const area of document.querySelectorAll<HTMLElement>('.scrollable')) {
       if (area.scrollTop > 0 || !area.offsetParent) continue;
-      const first = area.querySelector<HTMLElement>('button, [href], input, textarea, select, [tabindex]:not([tabindex="-1"])');
+      // the first control that's drawn (a hidden one, such as the banner's small Back when the big one
+      // shows under its tail, has no box to cut)
+      const first = [...area.querySelectorAll<HTMLElement>('button, [href], input, textarea, select, [tabindex]:not([tabindex="-1"])')].find((el) => el.getClientRects().length);
       if (!first) continue;
       const box = (first.closest('.review-search') ?? first).getBoundingClientRect();
       const top = area.getBoundingClientRect().top;

@@ -18,7 +18,7 @@
   pointer-events: none;
 }
 /* Wide Home: the Setup tile is about twice the size, and so is the room in its corner. */
-@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+@media (min-width: 900px) and (min-height: 540px) and (min-aspect-ratio: 5/4) {
   .area-setup .beta-tag {
     top: var(--space-3);
     right: var(--space-3);

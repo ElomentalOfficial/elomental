@@ -653,7 +653,7 @@ html[data-reduce-motion] .part-reveal * {
  * field, how parts come and the Spirits as two cards side by side, then the season's parts,
  * larger and more to a row.
  */
-@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+@media (min-width: 900px) and (min-height: 540px) and (min-aspect-ratio: 5/4) {
   .forge-purse-foot {
     align-self: stretch;
     display: flex;

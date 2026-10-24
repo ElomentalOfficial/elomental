@@ -9,7 +9,7 @@
  * when clicked. They're laid out at the window's own size, not zoomed (wide.css zooms the
  * other pages), so the type scale keeps its steps and Text size works as on a phone.
  */
-@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+@media (min-width: 900px) and (min-height: 540px) and (min-aspect-ratio: 5/4) {
   .screen.sub.has-banner {
     --banner-w: clamp(272px, 25vw, 380px);
     --page-x: clamp(24px, 4vw, 64px);
@@ -43,7 +43,9 @@
     -webkit-mask: var(--ribbon) 0 0 / 100% 100% no-repeat;
     mask: var(--ribbon) 0 0 / 100% 100% no-repeat;
     text-align: center;
-    overflow: hidden;
+    /* what doesn't fit (a short window at a large Text size) scrolls under the outline, never cut;
+       nothing runs out sideways */
+    overflow: hidden auto;
     /* Everything on the cloth is in its ink: the page's colours are for the page (a dark focus
        ring and the rank metals would vanish or clash on it) */
     --focus: var(--cloth-ink);

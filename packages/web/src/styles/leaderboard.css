@@ -887,7 +887,7 @@ html[data-large-text] .lb-me .lb-avatar {
  * the lists and the search on one row; the top three on a podium beside the month's pennants;
  * then everyone else in rows.
  */
-@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+@media (min-width: 900px) and (min-height: 540px) and (min-aspect-ratio: 5/4) {
   .leaderboard.has-banner .banner-art {
     width: calc(100% + 2 * var(--space-5));
     margin-inline: calc(-1 * var(--space-5));

@@ -96,7 +96,7 @@ html[data-large-text] .profile-section h2 {
  * rank, the next rank and level, your side); in the field, the Forge and the name plates as two
  * doors, then the stats, collection and badges.
  */
-@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+@media (min-width: 900px) and (min-height: 540px) and (min-aspect-ratio: 5/4) {
   .profile-banner-foot {
     display: flex;
     flex-direction: column;

@@ -16,7 +16,7 @@
 .toast {
   zoom: var(--ui-zoom, 1);
 }
-@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+@media (min-width: 900px) and (min-height: 540px) and (min-aspect-ratio: 5/4) {
   /*
    * Home, wide (Figma desktop home): the profile card on the left with the Forge,
    * a short tile, under it; on the right a short row of Store and Setup, then
@@ -129,7 +129,10 @@
    * extra air above and below the keypad; ~30px type over the board.
    */
   :root {
-    --board: min(calc(100dvh - 300px), 48vw, 760px);
+    /* The window's height less room for the banner and the clock row, never over 680 (a bigger
+       board only adds eye travel at desk distance); on a short window (under 700 tall) at least
+       as tall as the controls column, 400, while the window has room for it. */
+    --board: min(max(calc(100dvh - 300px), min(calc(100dvh - 140px), 400px)), 48vw, 680px);
     --g: calc(var(--board) * 0.022);
     --split: calc(var(--board) * 0.15);
     --side: clamp(170px, calc(var(--board) * 0.4), 320px);

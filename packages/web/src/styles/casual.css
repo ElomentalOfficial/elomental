@@ -80,7 +80,7 @@ html:not([data-large-text]) .casual-feather-art {
    up, so a single column of cards would use all the height and squeeze the feather to a
    speck. The page widens into two columns instead: the feather and tagline on the left,
    as tall as the cards, the cards unchanged on the right. */
-@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+@media (min-width: 900px) and (min-height: 540px) and (min-aspect-ratio: 5/4) {
   html:not([data-large-text]) .screen.casual:not(.has-banner) {
     max-width: calc(820px * var(--text-scale, 1));
   }
@@ -504,7 +504,7 @@ html[data-reduce-motion] .clash-live .brush-art {
  * its own dealt a little crooked; your waiting square sits over them, Clash and Square code
  * under them.
  */
-@media (min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4) {
+@media (min-width: 900px) and (min-height: 540px) and (min-aspect-ratio: 5/4) {
   .casual.has-banner .casual-new {
     flex: 1 0 auto;
   }
