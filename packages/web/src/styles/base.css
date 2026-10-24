@@ -86,8 +86,10 @@ body {
   top: 0;
   left: 0;
   right: 0;
-  /* Extended by the measured shortfall of fixed layers in home-screen mode (viewport.ts). */
-  bottom: calc(-1 * var(--standalone-gap, 0px));
+  bottom: 0;
+  /* Home-screen mode: the whole screen (viewport.ts --screen-h), since iOS ends fixed layers
+     short of the bottom there; with a height set, bottom gives way to it. */
+  height: var(--screen-h, 100%);
 }
 /*
  * Home-screen mode draws under the status bar. Clear it with the reported
@@ -209,8 +211,8 @@ html.standalone:not(.welcome-active) #status-tint {
  * the theme sets their colour; z-index -1 keeps them under the content but
  * over #app's own background (#app is its own stacking context).
  *
- * Pinned to the whole screen, 60px past the top and bottom edges (and the
- * home-screen app's bottom gap), so they run under the status bar and the
+ * Pinned to the whole screen, 60px past the top and bottom edges, so they
+ * run under the status bar and the
  * home indicator too. #status-tint draws the same layer in the same place
  * (below), so the lines carry on through the status-bar strip.
  */
@@ -221,7 +223,7 @@ html.standalone:not(.welcome-active) #status-tint {
   width: 100%;
   top: -60px;
   /* Home-screen mode: the real screen height (viewport.ts), because iOS under-reports 100lvh there. */
-  height: calc(var(--screen-h, calc(100lvh + var(--standalone-gap, 0px))) + 120px);
+  height: calc(var(--screen-h, 100lvh) + 120px);
   pointer-events: none;
   background: var(--grain-color);
   -webkit-mask: var(--grain) center / cover no-repeat;
