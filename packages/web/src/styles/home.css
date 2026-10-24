@@ -210,8 +210,8 @@
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
 }
-/* the burst behind the emblem, fainter and finer than the outline */
-.pc-flag-burst {
+/* the dial behind the emblem, fainter and finer than the outline */
+.pc-flag-dial {
   stroke-opacity: 0.25;
   stroke-width: 0.7;
 }
@@ -219,8 +219,10 @@
   fill: var(--frame-line);
   fill-opacity: 0.4;
 }
+/* a little see-through, so it doesn't outshout the name (owner) */
 .pc-flag-mark {
   color: var(--flag-mark);
+  opacity: 0.75;
 }
 /* Your name (its plate shows on the Profile, not here), your title and rank under it, from the
    avatar's side. */

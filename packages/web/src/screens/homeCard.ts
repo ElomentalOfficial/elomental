@@ -59,9 +59,9 @@ const FLAG_RATIO = 52 / 80;
 
 /**
  * The flag's lines in the Home tiles' worn pen (tileSprites.ts: uneven dashes, a few dropped, some
- * fainter; owner, 2026-10-24): its outline and the step in its tip, and the burst behind the emblem,
- * sixteen single hairline rays round its centre (26, 32), long and short in turn (owner: the
- * two-line blades were too thick).
+ * fainter; owner, 2026-10-24): its outline and the step in its tip, and behind the emblem a dial
+ * face (owner's pick of three: the sunburst was repeating too often), two fine rings round its
+ * centre (26, 32) with the twelve hour ticks between them, the four quarters a little longer.
  */
 const FLAG_EDGE = (() => {
   const p = pen(83);
@@ -69,10 +69,12 @@ const FLAG_EDGE = (() => {
   p.steps([[10, 53], [26, 62], [42, 53]]);
   return p.ink();
 })();
-/** (the burst is kept to the cloth: FLAG clips it) */
-const FLAG_BURST = (() => {
+/** (the dial is kept to the cloth: FLAG clips it) */
+const FLAG_DIAL = (() => {
   const p = pen(89);
-  for (let k = 0; k < 16; k++) p.ray(26, 32, k * 22.5, 17, k % 2 ? 23 : 30);
+  p.arc(26, 32, 17, 17, 0, 360);
+  p.arc(26, 32, 22, 22, 0, 360);
+  for (let k = 0; k < 12; k++) p.ray(26, 32, k * 30 - 90, k % 3 ? 18.5 : 17, k % 3 ? 20.5 : 24);
   return p.ink();
 })();
 
@@ -118,14 +120,14 @@ const FLAG_WEAR = (() => {
 /**
  * Your faction's flag (owner, 2026-10-24, the banner of an earlier version of the card): a pennant,
  * its cloth coming to a point with a step inside its tip and a gem under it, the emblem high on
- * the cloth on its burst of rays, with no colour anywhere: the cloth is the card's, the emblem light
+ * the cloth on its dial face, with no colour anywhere: the cloth is the card's, the emblem light
  * on dark and dark on light (home.css). Worn all over (FLAG_WEAR). Its top starts above the frame's top line
  * and lies over it (home.css .pc-flag).
  */
 const FLAG = (side: Faction) =>
   `<svg viewBox="0 0 52 80" aria-hidden="true"><clipPath id="pc-flag-clip"><path d="${CLOTH}"/></clipPath>${FLAG_WEAR}` +
   `<g mask="url(#pc-flag-wear)"><path class="pc-flag-cloth" d="${CLOTH}"/>` +
-  `<g class="pc-flag-lines pc-flag-burst" clip-path="url(#pc-flag-clip)"><path d="${FLAG_BURST.strong}"/><path d="${FLAG_BURST.faint}" opacity="0.5"/></g>` +
+  `<g class="pc-flag-lines pc-flag-dial" clip-path="url(#pc-flag-clip)"><path d="${FLAG_DIAL.strong}"/><path d="${FLAG_DIAL.faint}" opacity="0.5"/></g>` +
   `<g class="pc-flag-lines"><path d="${FLAG_EDGE.strong}"/><path d="${FLAG_EDGE.faint}" opacity="0.5"/></g>` +
   `<path class="pc-flag-gem" d="M26 73L29 76L26 79L23 76Z"/>` +
   `<g class="pc-flag-mark">${elementMarkAt(side, 13, 19, 26)}</g></g></svg>`;
