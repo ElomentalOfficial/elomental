@@ -124,7 +124,8 @@
      the crests' gold (owner) */
   --pc-level-fill: linear-gradient(90deg, var(--c-gold-400), var(--c-gold-100));
   /* an empty badge slot's rim: a faint dashed line, a little lighter than the card (owner) */
-  --pc-slot-edge: color-mix(in srgb, var(--c-stone-300) 30%, transparent);  /* the faction's emblem on the profile card (home.css .pc-side-mark): no colour, light on dark (owner) */
+  --pc-slot-edge: color-mix(in srgb, var(--c-stone-300) 30%, transparent);
+  /* the faction's emblem on the profile card (home.css .pc-mark): no colour, light on dark (owner) */
   --faction-mark: var(--c-bright);
   --profile-text: var(--c-bright);
   --chip-bg: rgba(38, 39, 33, 0.35);
