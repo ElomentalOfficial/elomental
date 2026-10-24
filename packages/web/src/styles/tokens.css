@@ -20,6 +20,8 @@
   --fs-label: calc(20px * var(--text-scale)); /* buttons, tile labels, card titles, stat numbers */
   --fs-title: calc(24px * var(--text-scale)); /* screen and sheet titles, names, Home/Concede */
   --fs-display: calc(30px * var(--text-scale)); /* timer, keypad numbers, big codes */
+  /* Line height for running text (paragraphs, help lines, notes): one value everywhere. */
+  --lh-body: 1.45;
   /*
    * Spacing scale: every gap and padding in a page layout is one of these. Pick by
    * relationship, the closer two things belong together, the smaller the step:

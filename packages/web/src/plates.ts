@@ -1,4 +1,4 @@
-import { h } from './ui.ts';
+import { h, nameParts } from './ui.ts';
 import * as copy from './copy/en.ts';
 
 /**
@@ -187,7 +187,7 @@ export function paintPlate(el: HTMLElement, name: string, plate: number, level?:
   if (t || level != null) el.classList.add('name-plate', `tier-${t}`, `band-${plateBand(t)}`);
   if (level != null && TIERS[t].sun) el.classList.add('has-sun');
   el.replaceChildren(
-    h('span', { class: 'plate-text', text: name }),
+    h('span', { class: 'plate-text' }, ...nameParts(name)),
     // (Blank's plain line only with its level: a row without a plate shows none)
     (t || level != null ? plateFrame(t) : null) ?? '',
     level != null ? plateMedal(level, t) : '',

@@ -26,8 +26,11 @@
   width: 36px;
   padding: 9px 7px;
 }
+/* The clock in Montserrat, whose figures are all one width (Federo has none), so it doesn't
+   shift as it counts. */
 .timer {
-  font-family: var(--serif);
+  font-family: var(--font);
+  font-weight: 500;
   font-size: var(--fs-display);
   font-variant-numeric: tabular-nums;
 }

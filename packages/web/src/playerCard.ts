@@ -6,7 +6,7 @@ import { ICONS } from './icons.ts';
 import { rankName } from './rankName.ts';
 import { paintPlate } from './plates.ts';
 import { rankTier } from './profile.ts';
-import { closeButton, h, openModal, toast } from './ui.ts';
+import { closeButton, fitWords, h, openModal, toast } from './ui.ts';
 import * as copy from './copy/en.ts';
 
 /**
@@ -44,6 +44,7 @@ export function cardBody(c: PlayerCard, opts: { large?: boolean } = {}): HTMLEle
   const t = copy.leaderboard.card;
   const tier = rankTier(c.elo, c.tier);
   const name = h('h2', { class: 'card-name', attrs: { 'data-slot': 'name-effect' } });
+  fitWords(name);
   paintPlate(name, c.name, c.plate, c.level ?? null);
   const facts: (HTMLElement | null)[] = [
     h('span', { class: 'card-fact' }, rankName(tier.tier, tier.label, c.title)),

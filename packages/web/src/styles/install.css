@@ -31,7 +31,6 @@
   padding: 0 var(--space-2);
   font-family: var(--serif);
   font-size: var(--fs-small);
-  font-weight: 700;
   color: var(--text);
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -91,7 +90,7 @@
 .install-sheet > p {
   font-family: var(--serif);
   font-size: var(--fs-body);
-  line-height: 1.45;
+  line-height: var(--lh-body);
   color: var(--muted);
 }
 .install-steps {

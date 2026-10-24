@@ -23,7 +23,7 @@
 .profile-plate {
   font-size: var(--fs-title);
   font-weight: 800;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 /* the title and rank under the name, at its size: the name stays first by its weight (as on
    Home, .profile-rank) */
@@ -149,7 +149,7 @@ html[data-large-text] .profile-section h2 {
     max-width: 90cqi;
     font-family: var(--serif);
     font-size: var(--fs-label);
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .profile-page.has-banner .profile-stats-list {
     grid-template-columns: repeat(auto-fill, minmax(calc(160px * var(--text-scale)), 1fr));

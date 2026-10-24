@@ -41,7 +41,7 @@
   padding: 0 var(--space-1);
   font-family: var(--serif);
   font-size: var(--fs-body);
-  line-height: 1.45;
+  line-height: var(--lh-body);
   color: var(--muted);
 }
 /* A group: a small title over its card. Groups sit --space-6 apart, so each title clearly belongs below. */
@@ -65,9 +65,6 @@
 .setting-group > .group-help {
   margin-top: calc(var(--space-1) - var(--space-3));
   padding: 0 var(--space-1);
-  font-size: var(--fs-small);
-  line-height: 1.45;
-  color: var(--muted);
 }
 /* Back on phones and tablets (ui.ts subPage): the owner's Deco arrowhead in the usual chip, a
    little larger than a line icon, moved 7% left to look centred (its weight is in its right-hand
@@ -104,7 +101,8 @@
   text-align: center;
   line-height: 1.15;
   text-wrap: balance;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 .subbar > h1.long {
   font-size: var(--fs-label);
@@ -201,14 +199,28 @@ html.standalone .screen.scrollable {
   border-radius: var(--radius);
   background: var(--surface);
 }
-/* The card-title role (M25): one style for a card's title on every settings page, in sentence
-   case, as Accessibility already wrote them. Page titles (.subbar h1) and group titles
-   (.setting-group > h2) are the other two roles. */
+/* The card-title role (M25): one style for a card's title on every settings page (Setup's cards,
+   the Account card, Accessibility's choices), in sentence case, in the text ink so it stands
+   over its help line. Page titles (.subbar h1) and group titles (.setting-group > h2) are the
+   other two roles. */
 .setting h2,
-.setting p {
+.setting .signup-head h2,
+.choice > h3 {
+  font-family: var(--font);
+  font-size: var(--fs-body);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text);
+}
+/* The help-line role: the serif at body size, a little room between lines, secondary ink. */
+.setting p,
+.choice > p,
+.setting-group > .group-help {
   font-family: var(--serif);
   font-size: var(--fs-body);
-  line-height: 1.45;
+  line-height: var(--lh-body);
   color: var(--muted);
 }
 /* A hint under a field in a card: a step smaller than the card's lines */
@@ -468,6 +480,7 @@ html.standalone .screen.scrollable {
   background: none;
 }
 .signup-head h2 {
+  font-family: var(--font);
   font-size: var(--fs-body);
   font-weight: 700;
   text-transform: uppercase;
@@ -1076,7 +1089,7 @@ html:not([data-large-text]) .daily-body > .daily-art {
     font-family: var(--serif);
     font-size: var(--fs-title);
     font-weight: 400;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   .page-banner .build-line {
     margin-top: 0;

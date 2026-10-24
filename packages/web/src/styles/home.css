@@ -206,8 +206,8 @@
   font-weight: 400;
   text-transform: none;
   letter-spacing: 0.01em;
-  /* a long name with nowhere to break (no _ or -) still keeps inside the card, at large text */
-  overflow-wrap: anywhere;
+  /* a long name with nowhere to break (no _ . or -) still keeps inside the card, at large text */
+  overflow-wrap: break-word;
 }
 /* the title and rank: the sans, smaller and spaced, so it reads apart from the name */
 .pc-name .profile-rank {

@@ -31,6 +31,62 @@ export function h<K extends keyof HTMLElementTagNameMap>(
   return el;
 }
 
+/** Where a player name (no spaces) may break: after each _ . or -, never inside a word. */
+export const NAME_BREAKS = /(?<=[_.-])/;
+
+/** A player name as text with a line-break chance after each _ . or - (NAME_BREAKS). */
+export const nameParts = (name: string): (string | HTMLElement)[] =>
+  name.split(NAME_BREAKS).flatMap((part, i) => (i ? [h('wbr'), part] : [part]));
+
+/**
+ * Keeps every word of `el` (a heading, a name) whole: when its longest word, or a name's longest
+ * part (NAME_BREAKS), is wider than the line, the type steps down until it fits, never below
+ * --fs-small (past that a word may break). Lines still wrap between words. Follows the element's
+ * width and Setup's Text size while it's on screen: the fitted size is written in Text-size
+ * units, so a new Text size resizes the element and it is measured again.
+ */
+export function fitWords(el: HTMLElement): void {
+  let measured = '';
+  let shown = false;
+  const draw = () => {
+    // (built before it's on the page: wait for it; once taken off the page, let it go)
+    if (!el.isConnected) return shown && observer.disconnect();
+    shown = true;
+    const scale = parseFloat(getComputedStyle(el).getPropertyValue('--text-scale')) || 1;
+    if (`${el.clientWidth}|${scale}` === measured) return;
+    // the brand fonts not in yet: measure again once they are (the fallback is a different width)
+    if (document.fonts?.status === 'loading') {
+      void document.fonts.ready.then(() => {
+        measured = '';
+        requestAnimationFrame(draw);
+      });
+    }
+    el.style.fontSize = '';
+    const s = getComputedStyle(el);
+    // (a pixel spare: the width is rounded, and a word sized to the exact width can still tip over)
+    const room = el.clientWidth - parseFloat(s.paddingLeft) - parseFloat(s.paddingRight) - 1;
+    // measured in the words' own box (a plate's name sits in a span with its own case)
+    const words = document.createTreeWalker(el, NodeFilter.SHOW_TEXT).nextNode()?.parentElement ?? el;
+    const probe = h('span');
+    probe.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap';
+    words.append(probe);
+    let longest = 0;
+    for (const word of (el.textContent ?? '').split(/\s+/).flatMap((w) => w.split(NAME_BREAKS))) {
+      probe.textContent = word;
+      // (layout width: a rect would take in the page's turn animation and the screen's zoom)
+      longest = Math.max(longest, probe.offsetWidth);
+    }
+    probe.remove();
+    if (longest > room) {
+      const px = Math.max(14 * scale, (parseFloat(s.fontSize) * room) / longest);
+      el.style.fontSize = `calc(${(px / scale).toFixed(2)}px * var(--text-scale))`;
+    }
+    measured = `${el.clientWidth}|${scale}`;
+  };
+  const observer = new ResizeObserver(() => requestAnimationFrame(draw));
+  observer.observe(el);
+}
+
 export interface Screen {
   el: HTMLElement;
   /** The page title's first part ("Daily Square" → "Daily Square · Elomental"); Home leaves it out. */
@@ -124,8 +180,14 @@ export interface Banner {
  * `banner`, a wide screen hangs the header in a banner beside the body instead.
  */
 export function subPage(options: { className: string; title: string | HTMLElement; onBack: () => void; banner?: Banner }, ...body: Child[]): HTMLElement {
-  // long titles ("Leaderboard and card") take the smaller size, so they fit in two short lines
-  const title = typeof options.title === 'string' ? h('h1', { class: options.title.length > 16 ? 'long' : '', text: options.title }) : options.title;
+  // long titles ("Leaderboard and card") take the smaller size, so they fit in two short lines; a
+  // word too wide for a narrow screen steps the size down instead of splitting, and a player's
+  // name (a player page) breaks only after its _ . or -
+  let title = options.title;
+  if (typeof title === 'string') {
+    title = h('h1', { class: title.length > 16 ? 'long' : '' }, ...nameParts(title));
+    fitWords(title);
+  }
   const wide = !!options.banner && wideLayout();
   // Back: the owner's Deco arrowhead on phones and tablets; on the ribbon the plain chevron, the
   // arrowhead being the big Back right under it (pageBanner.ts)

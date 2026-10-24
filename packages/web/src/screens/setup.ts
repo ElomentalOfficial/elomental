@@ -21,7 +21,7 @@ import { miniBoard, sampleGivens } from '../miniBoard.ts';
 import { notesWheelOn } from '../settings.ts';
 import { getTheme, type Theme } from '../theme.ts';
 import { deviceInfo } from '../viewport.ts';
-import { closeButton, goBack, h, mount, openModal, rebuildOnLayout, subPage, toast, wideLayout, type Banner, type Screen } from '../ui.ts';
+import { closeButton, goBack, h, mount, nameParts, openModal, rebuildOnLayout, subPage, toast, wideLayout, type Banner, type Screen } from '../ui.ts';
 import { accessibilityScreen } from './accessibility.ts';
 import { homeScreen } from './home.ts';
 import { reminderSetting } from './reminderSetting.ts';
@@ -119,7 +119,7 @@ export function setupBanner(help: string): Banner {
   // a new name, a sign-out or a sign-in shows at once
   const paint = () => {
     avatar.innerHTML = avatarSvg(cachedLoadout(), cachedPolish());
-    name.textContent = cachedAccount()?.name ?? '';
+    name.replaceChildren(...nameParts(cachedAccount()?.name ?? ''));
     name.hidden = !name.textContent;
   };
   paint();

@@ -9,7 +9,7 @@ import { levelStep } from '../level.ts';
 import { loadProfile, nextRank, rankTier } from '../profile.ts';
 import { rankName } from '../rankName.ts';
 import { withRays } from '../rays.ts';
-import { h } from '../ui.ts';
+import { h, NAME_BREAKS, nameParts } from '../ui.ts';
 import { xpLevel } from '../xp.ts';
 import * as copy from '../copy/en.ts';
 
@@ -140,7 +140,7 @@ export function homeCard(): HomeCard {
     // the name alone: its plate shows on the Profile and the player card, not here (owner,
     // 2026-10-23); a long name that has to wrap breaks after its _ or -, not inside a word
     shown = p.name;
-    nameEl.replaceChildren(...p.name.split(/(?<=[_-])/).flatMap((part, i) => (i ? [h('wbr'), part] : [part])));
+    nameEl.replaceChildren(...nameParts(p.name));
     const tier = rankTier(p.elo, p.tier);
     rankEl.replaceChildren(rankName(tier.tier, tier.label, p.title));
     // Elo, its line in your rank's metal filling toward the next rank once you've played Ranked
@@ -194,7 +194,7 @@ export function homeCard(): HomeCard {
     if (!el.isConnected || !el.offsetWidth) return;
     const fit = name.clientWidth / zoomOf(name.firstElementChild!) - 16;
     // a long name shrinks to keep to one line, down to the label size; past that it wraps after
-    // its _ or - (see paint), sized so its longest part keeps to a line, down to the body size
+    // its _ . or - (see paint), sized so its longest part keeps to a line, down to the body size
     // (both still over the title's)
     nameEl.style.fontSize = '';
     const measure = (s: string) => {
@@ -208,7 +208,7 @@ export function homeCard(): HomeCard {
     const full = measure(shown);
     if (full > fit) {
       const size = parseFloat(getComputedStyle(nameEl).fontSize);
-      const longest = Math.max(...shown.split(/(?<=[_-])/).map(measure));
+      const longest = Math.max(...shown.split(NAME_BREAKS).map(measure));
       const one = (size * fit) / full;
       nameEl.style.fontSize = `${one >= (size * 20) / 30 ? one : Math.max((size * 16) / 30, Math.min((size * 20) / 30, (size * fit) / longest))}px`;
     }

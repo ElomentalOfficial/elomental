@@ -68,7 +68,8 @@ html.standalone .backdrop {
   font-size: var(--fs-title);
   text-transform: uppercase;
 }
-.sheet p {
+/* a sheet's plain paragraphs (:where, so a line with its own class keeps its own type) */
+:where(.sheet) p {
   font-family: var(--serif);
   font-size: var(--fs-body);
 }
@@ -280,6 +281,7 @@ html[data-reduce-motion] .sword-live .sword-flame {
 }
 /* "10 Elo to Adept" in the Ranks sheet: the one line about you. */
 .tier-next {
+  font-family: var(--font);
   font-weight: 700;
   font-size: var(--fs-small);
 }

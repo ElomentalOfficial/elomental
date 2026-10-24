@@ -13,8 +13,12 @@
   padding-top: var(--space-5);
   border-top: 1px solid var(--modal-border);
 }
-.choice p {
-  font-size: var(--fs-small);
+/* (the title and help line take the settings pages' card-title and help-line roles, pages.css) */
+.choice > h3 + p {
+  margin-top: var(--space-1);
+}
+.choice > p + .btn {
+  margin-top: var(--space-3);
 }
 .choice .segmented {
   margin-top: var(--space-3);

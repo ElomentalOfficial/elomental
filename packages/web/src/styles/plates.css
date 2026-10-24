@@ -18,10 +18,11 @@
   margin-bottom: calc(var(--medal-d) / 2 - var(--rule) / 2 + var(--space-1));
   text-align: center;
 }
-/* a name as long as names may be (20 letters, no spaces) wraps inside its plate */
+/* a name as long as names may be (20 letters, no spaces) wraps inside its plate, after its _ . or -
+   (nameParts, ui.ts); only a part too long for a line on its own breaks inside */
 .name-plate .plate-text {
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 /* a short name still gets a frame wide enough for its ornaments and its sun (rows have no medallion) */
 .name-plate.has-medal {
@@ -324,6 +325,7 @@ button.plate-card:active {
 }
 .plate-card.state-yours .plate-state,
 .plate-card.is-blueprint .plate-state {
+  font-family: var(--font);
   font-weight: 700;
   color: var(--text);
 }
@@ -365,9 +367,6 @@ button.plate-card:active {
   align-items: center;
   gap: var(--space-2);
   width: min(100%, 16rem);
-}
-.plates-row-title {
-  font-weight: 700;
 }
 .plates-row-count {
   margin-left: auto;

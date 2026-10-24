@@ -268,11 +268,10 @@
   .game .notes-toggle { grid-area: 9 / 5 / 10 / 9; }
   .game .actions-row > :nth-child(1) { grid-area: 10 / 3 / 11 / 6; }
   .game .actions-row > :nth-child(2) { grid-area: 10 / 6 / 11 / 9; }
-  /* Keypad digits in Federo, as in the Figma desktop frame. */
+  /* Keypad digits as on phones and tablets (game.css .key): Montserrat, the serif's 4 and 1 being
+     too stylised to read at a glance. */
   .game .key {
     height: auto;
-    font-family: var(--serif);
-    font-weight: 400;
     font-size: calc(var(--key) * 0.44);
   }
   .game .key-erase svg {

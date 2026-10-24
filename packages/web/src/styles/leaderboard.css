@@ -427,6 +427,11 @@ html[data-large-text] .lb-meta-row {
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+/* (a name's break chances, nameParts in ui.ts, would wrap it even so: off in a row, unless the
+   text is large, where the row lets the name wrap) */
+html:not([data-large-text]) .lb-name wbr {
+  display: none;
+}
 .lb-sub {
   display: inline-flex;
   align-items: center;
@@ -475,7 +480,7 @@ html[data-large-text] .lb-name,
 html[data-large-text] .lb-name.name-plate .plate-text {
   white-space: normal;
   overflow: visible;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 html[data-large-text] .lb-sub {
   flex-wrap: wrap;
@@ -641,7 +646,7 @@ html[data-large-text] .lb-me .lb-avatar {
 .faction-top li .link-btn {
   min-width: 0;
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   text-align: left;
 }
 .faction-top li > span {
@@ -782,7 +787,8 @@ html[data-large-text] .lb-me .lb-avatar {
   font-family: var(--serif);
   font-size: var(--fs-small);
   line-height: 1.25;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  hyphens: auto;
 }
 .badge-tag {
   font-size: var(--fs-small);
