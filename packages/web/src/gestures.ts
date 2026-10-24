@@ -51,8 +51,9 @@ export function installZoomGuards(): void {
   document.addEventListener(
     'touchmove',
     (event) => {
-      // With large text (Setup > Accessibility) every screen can scroll.
-      const area = (event.target as Element | null)?.closest?.<HTMLElement>('.scrollable, html[data-large-text] :is(.screen, .coach-card)');
+      // With large text (Setup > Accessibility) every screen can scroll, and the game screen can on
+      // a short upright screen (game.css)
+      const area = (event.target as Element | null)?.closest?.<HTMLElement>('.scrollable, html[data-large-text] :is(.screen, .coach-card), .screen.game');
       if (area && area.scrollHeight > area.clientHeight + 1) return;
       event.preventDefault();
     },

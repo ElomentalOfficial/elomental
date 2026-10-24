@@ -108,19 +108,29 @@ export function runTutorial(steps: TutorialStep[]): Promise<void> {
 
       // Place the card where it fits inside the *visible* area (Safari's toolbars
       // can cover part of the layout viewport): below the spotlight, else above,
-      // else pinned to the bottom of what is visible, overlapping the spotlight.
+      // else beside it where there's room (a side-by-side game: the board on one
+      // side, the keys on the other), else pinned to the bottom of what is
+      // visible, overlapping the spotlight.
       const view = window.visualViewport;
       const viewTop = view?.offsetTop ?? 0;
       const viewBottom = viewTop + (view?.height ?? innerHeight);
       const gap = 14;
       const edge = 12;
-      card.style.top = '0px';
-      card.style.bottom = '';
+      const narrowest = 240;
+      Object.assign(card.style, { top: '0px', bottom: '', left: '', right: '', margin: '', width: '' });
       const cardHeight = card.offsetHeight;
       let top: number;
+      const roomRight = innerWidth - edge - (r.right + gap);
+      const roomLeft = r.left - gap - edge;
       if (r.bottom + gap + cardHeight <= viewBottom - edge) top = r.bottom + gap;
       else if (r.top - gap - cardHeight >= viewTop + edge) top = r.top - gap - cardHeight;
-      else top = viewBottom - edge - cardHeight;
+      else if (Math.max(roomRight, roomLeft) >= narrowest) {
+        const width = Math.min(card.offsetWidth, Math.max(roomRight, roomLeft));
+        const left = roomRight >= roomLeft ? r.right + gap : r.left - gap - width;
+        Object.assign(card.style, { width: `${width}px`, left: `${left}px`, right: 'auto', margin: '0' });
+        // level with the spotlight's middle, inside what is visible (measured again at the new width)
+        top = Math.min(viewBottom - edge - card.offsetHeight, r.top + r.height / 2 - card.offsetHeight / 2);
+      } else top = viewBottom - edge - cardHeight;
       card.style.top = `${Math.max(viewTop + edge, top)}px`;
       card.classList.remove('enter');
       void card.offsetWidth;

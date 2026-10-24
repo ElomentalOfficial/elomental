@@ -121,6 +121,15 @@
     zoom: var(--modal-zoom, 1);
   }
 
+}
+
+/*
+ * The wide game: on a wide screen, and on any short landscape screen (a phone held sideways, a
+ * short desktop window, a desktop at 200% zoom), where the phone column would leave the board too
+ * small: board on the left, controls on the right, sized from --board. The short landscape sizes
+ * follow below.
+ */
+@media (min-width: 900px) and (min-height: 540px) and (min-aspect-ratio: 5/4), (orientation: landscape) and (max-height: 539.98px) and (min-aspect-ratio: 4/3) {
   /* On the root so overlays outside the game (the hint card) can line up with it. */
   /*
    * Proportions from the Figma "Desktop" frame, as fractions of the board
@@ -156,8 +165,12 @@
   .hint-card {
     left: var(--side-left);
     right: auto;
-    width: var(--side);
     bottom: var(--game-margin);
+  }
+  /* as wide as the controls column (--hint-w), never past the screen's edge, at any Text size (:root
+     .hint-layer: over the tutorial card's large-text width, a class it shares) */
+  :root .hint-layer .hint-card {
+    width: min(var(--hint-w, var(--side)), calc(100vw - var(--side-left) - var(--space-3)));
   }
   .screen.game {
     position: relative;
@@ -341,5 +354,62 @@
   }
   .game .brand-ribbon path {
     fill: var(--accent); /* Lava, as on the splash */
+  }
+}
+
+/*
+ * The game on a short landscape screen: the same grid, sized from the height (there's no room for
+ * the hanging banner, air round the keypad or a tall clock row). The board takes the height less
+ * the clock row and the two gaps under it, never so wide that the controls run off the side (the
+ * grid is about 1.6 boards wide); the six control rows (Home and Pause, three key rows, Erase and
+ * Notes, Hint and Undo) share the board's height exactly, top and bottom level with it.
+ * (Growing a window past 540 tall brings the banner back, and with it the wide game's own sizes.)
+ */
+@media (orientation: landscape) and (max-height: 539.98px) and (min-aspect-ratio: 4/3) {
+  :root {
+    --status-h: 32px;
+    --board: min(
+      calc((100dvh - var(--status-h) - var(--space-4) - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 1.044),
+      calc((100vw - var(--space-6) - env(safe-area-inset-left) - env(safe-area-inset-right)) / 1.62)
+    );
+    --split: calc(var(--board) * 0.08);
+    --air: 0px;
+    --side-room: 0px;
+    --key: calc((var(--board) - 7 * var(--g)) / 6);
+    --col: calc((var(--key) - var(--g)) / 2);
+    --side: calc(6 * var(--col) + 5 * var(--g));
+    --game-margin: calc((100dvh - var(--status-h) - 2 * var(--g) - var(--board)) / 2);
+  }
+  /* level with Home and Pause, not one gap above them */
+  .game .board-wrap {
+    grid-row: 3 / -1;
+  }
+  /* clear of a sideways phone's notch and rounded corners */
+  .screen.game {
+    padding-inline: max(var(--space-4), env(safe-area-inset-left)) max(var(--space-4), env(safe-area-inset-right));
+  }
+  /* the installed app: an iPhone hides its status bar sideways, so no room is kept for it */
+  html.standalone {
+    --status-clear: env(safe-area-inset-top, 0px);
+    --status-gap: 0px;
+  }
+  html.standalone .screen.game:not(.welcome) {
+    padding-top: 0;
+  }
+  .game .brand-banner {
+    display: none;
+  }
+  /* Hint and its count share a narrow button: the icon keeps its size, the count follows the button */
+  .game .action svg {
+    flex: none;
+  }
+  .game .hint-count {
+    min-width: 0;
+    font-size: calc(var(--bar) * 0.3);
+  }
+  /* the hint card over the controls, wide enough for Close and Next side by side: past the narrow
+     column to the right (and never past the screen's edge, above) */
+  .hint-card {
+    --hint-w: max(var(--side), 15em);
   }
 }

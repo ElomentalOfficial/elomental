@@ -110,12 +110,15 @@
   height: auto;
 }
 
-/* The board shrinks on short screens so the controls always fit without scrolling. */
+/* The board shrinks on short screens so the controls fit without scrolling, but never past cells a
+   finger can hit (252 across: 25.8 px cells, over the 24 px minimum); under that the game screen
+   scrolls (below). --top-taken is
+   what the screen's top padding takes beyond the usual 16 px (the installed app's status bar). */
 .board-wrap {
   position: relative;
   flex: none;
   align-self: center;
-  width: min(100%, calc(77dvh - 154px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));
+  width: min(100%, max(252px, calc(77dvh - 154px - var(--top-taken) - var(--safe-bottom))));
   aspect-ratio: 1;
   container-type: inline-size;
 }
@@ -128,7 +131,9 @@
 .board {
   --tracks: repeat(3, minmax(0, 1fr)) 0 repeat(3, minmax(0, 1fr)) 0 repeat(3, minmax(0, 1fr));
   width: 100%;
-  height: 100%;
+  /* square by its own width (a height taken from the aspect-ratio box would count as unknown, and
+     the rows would grow to fit a cell's notes when the cells are small) */
+  aspect-ratio: 1;
   display: grid;
   grid-template-columns: var(--tracks);
   grid-template-rows: var(--tracks);
@@ -324,6 +329,41 @@
   flex-direction: column;
   gap: 8px;
   padding: 0 4px;
+}
+/* Short and not wide (under 540 tall, no wider than 4:3: a phone upright with its browser bars out,
+   a split screen, a squarish window): the board
+   keeps its 24 px cells, the keypad goes to one row of ten (1 to 9 and Erase) and the gaps tighten,
+   so the whole game fits down to about 450 tall; shorter than that the game screen scrolls, as it
+   does at a large Text size (a wider one gets the side-by-side game instead, wide.css). */
+@media (max-height: 539.98px) and (max-aspect-ratio: 1333/1000) {
+  /* (.screen.game: these come before the general rules below, and must win over them) */
+  .screen.game {
+    --key-h: 40px;
+    --action-h: 40px;
+    gap: 6px;
+  }
+  .screen.game .pad {
+    grid-template-columns: repeat(10, 1fr);
+  }
+  .screen.game .key {
+    font-size: calc(var(--key-h) * 0.6);
+  }
+  .screen.game .key-erase svg {
+    width: 22px;
+    height: 23px;
+  }
+  .screen.game {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    touch-action: pan-y;
+  }
+  .screen.game::-webkit-scrollbar {
+    display: none;
+  }
+  .screen.game :is(button, a) {
+    touch-action: pan-y;
+  }
 }
 /* On a tall phone the board stops growing at the column's width: the height left over goes above
    the status line, under the header, so the status line, the board and its keypad stay one group

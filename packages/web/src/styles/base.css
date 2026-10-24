@@ -99,9 +99,13 @@ body {
  */
 :root {
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  /* what a screen's top padding takes beyond its usual 16 px, for layouts sized to the height (the
+     game's board): the inset in a browser, the status bar's clearance in the installed app */
+  --top-taken: env(safe-area-inset-top, 0px);
 }
 html.standalone {
   --safe-bottom: max(0px, env(safe-area-inset-bottom, 0px) - var(--standalone-gap, 0px));
+  --top-taken: calc(var(--status-clear) + var(--status-gap) - 16px);
 }
 /*
  * Home-screen mode draws under the status bar. Clear it with the reported
