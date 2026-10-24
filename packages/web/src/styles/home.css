@@ -201,10 +201,11 @@
 .pc-flag-cloth {
   fill: var(--profile-bg);
 }
+/* the outline a step stronger than the frame's own lines, so the flag reads as a shape on a phone */
 .pc-flag-lines {
   fill: none;
   stroke: var(--frame-line);
-  stroke-opacity: 0.4;
+  stroke-opacity: 0.65;
   stroke-width: 1;
   stroke-linecap: round;
   stroke-linejoin: round;
@@ -212,17 +213,18 @@
 }
 /* the dial behind the emblem, fainter and finer than the outline */
 .pc-flag-dial {
-  stroke-opacity: 0.25;
+  stroke-opacity: 0.35;
   stroke-width: 0.7;
 }
 .pc-flag-gem {
   fill: var(--frame-line);
-  fill-opacity: 0.4;
+  fill-opacity: 0.65;
 }
-/* a little see-through, so it doesn't outshout the name (owner) */
+/* only just see-through (owner: first a little transparency, then more visible): it reads on a
+   phone and still sits under the name */
 .pc-flag-mark {
   color: var(--flag-mark);
-  opacity: 0.75;
+  opacity: 0.92;
 }
 /* Your name (its plate shows on the Profile, not here), your title and rank under it, from the
    avatar's side. */

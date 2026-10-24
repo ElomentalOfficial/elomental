@@ -61,7 +61,9 @@ const FLAG_RATIO = 52 / 80;
  * The flag's lines in the Home tiles' worn pen (tileSprites.ts: uneven dashes, a few dropped, some
  * fainter; owner, 2026-10-24): its outline and the step in its tip, and behind the emblem a dial
  * face (owner's pick of three: the sunburst was repeating too often), two fine rings round its
- * centre (26, 32) with the twelve hour ticks between them, the four quarters a little longer.
+ * centre (26, 32) with the twelve hour ticks between them, the four quarters a little longer. The
+ * rings sit just outside the emblem, which takes most of the cloth's width (owner: it must read
+ * on a phone, where the flag is small).
  */
 const FLAG_EDGE = (() => {
   const p = pen(83);
@@ -72,9 +74,9 @@ const FLAG_EDGE = (() => {
 /** (the dial is kept to the cloth: FLAG clips it) */
 const FLAG_DIAL = (() => {
   const p = pen(89);
-  p.arc(26, 32, 17, 17, 0, 360);
-  p.arc(26, 32, 22, 22, 0, 360);
-  for (let k = 0; k < 12; k++) p.ray(26, 32, k * 30 - 90, k % 3 ? 18.5 : 17, k % 3 ? 20.5 : 24);
+  p.arc(26, 32, 20, 20, 0, 360);
+  p.arc(26, 32, 24, 24, 0, 360);
+  for (let k = 0; k < 12; k++) p.ray(26, 32, k * 30 - 90, k % 3 ? 21.2 : 20, k % 3 ? 22.8 : 26);
   return p.ink();
 })();
 
@@ -130,7 +132,7 @@ const FLAG = (side: Faction) =>
   `<g class="pc-flag-lines pc-flag-dial" clip-path="url(#pc-flag-clip)"><path d="${FLAG_DIAL.strong}"/><path d="${FLAG_DIAL.faint}" opacity="0.5"/></g>` +
   `<g class="pc-flag-lines"><path d="${FLAG_EDGE.strong}"/><path d="${FLAG_EDGE.faint}" opacity="0.5"/></g>` +
   `<path class="pc-flag-gem" d="M26 73L29 76L26 79L23 76Z"/>` +
-  `<g class="pc-flag-mark">${elementMarkAt(side, 13, 19, 26)}</g></g></svg>`;
+  `<g class="pc-flag-mark">${elementMarkAt(side, 9, 15, 34)}</g></g></svg>`;
 
 export function homeCard(): HomeCard {
   /** Your badges when you haven't chosen three: your newest, fetched once a visit to Home. */
