@@ -46,7 +46,7 @@
     overflow: hidden;
     /* Everything on the cloth is in its ink: the page's colours are for the page (a crimson focus
        ring and the rank metals would vanish or clash on it) */
-    --focus: currentColor;
+    --focus: var(--cloth-ink);
     --text: var(--cloth-ink);
     --muted: var(--cloth-ink);
     --accent-text: var(--cloth-ink);
@@ -375,8 +375,8 @@
   transition: none;
   transform: none;
 }
+/* the app's focus ring (base.css), a little further out round the door's frame */
 .door:focus-visible {
-  outline: 2px solid var(--focus);
   outline-offset: 3px;
 }
 /* the picture: what's behind the door, at a glance (never read out: the words say it) */
@@ -555,7 +555,6 @@ html[data-reduce-motion] .dealt {
   transform: translateX(-2px) scale(0.97);
 }
 .banner-back:focus-visible {
-  outline: 2px solid var(--focus);
   outline-offset: 6px;
 }
 

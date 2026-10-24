@@ -20,7 +20,7 @@ import {
   stageIntroduces,
   stageRating,
 } from '../profile.ts';
-import { closeButton, h, hiddenHeading, mount, navigatingBack, openModal, toast, type Screen } from '../ui.ts';
+import { closeButton, h, hiddenHeading, mount, navigatingBack, onWideChange, openModal, toast, wideLayout, type Screen } from '../ui.ts';
 import { handleEmailLink } from '../emailLink.ts';
 import { ensureAccount, onAccountChange, refreshAccountIfStale, signedIn } from '../backend.ts';
 import { casualScreen } from './casual.ts';
@@ -102,13 +102,19 @@ export function homeScreen(): Screen {
   const ranked = tile('ranked', copy.home.tiles.ranked, (el) => openRanked((go) => leave(el, go)));
   const setup = tile('setup', copy.home.tiles.setup, (el) => leave(el, () => mount(setupScreen())), betaTag());
 
-  const tiles = [forge, setup, profileCard, daily, store, leader, casual, ranked];
+  // In reading order, so Tab and screen readers follow what's drawn: the phone's column, or the
+  // wide grid row by row (wide.css: the card on the left, the Forge under it).
+  const inOrder = () =>
+    wideLayout() ? [profileCard, store, setup, leader, daily, casual, ranked, forge] : [forge, setup, profileCard, daily, store, leader, casual, ranked];
+  const tiles = inOrder();
   const grid = h('div', { class: 'home-grid' }, ...tiles);
   // A few visits after the first game, on phones in the browser: Add to Home Screen (install.ts).
   const note = addToHomeNote();
   // The note turns in and out with the tiles, last in reading order.
   const animated = note ? [...tiles, note] : tiles;
   const el = h('div', { class: 'screen home' }, hiddenHeading(copy.common.appName), grid, note);
+  // across the wide layout's edge the reading order changes: the same tiles, put back in order
+  const stopOrder = onWideChange(() => grid.append(...inOrder()));
 
   /** Home fits the screen without scrolling, so on a short one (browser bars) the note
       would squeeze the tiles until the profile's stats spill out: there it stays away. */
@@ -150,6 +156,7 @@ export function homeScreen(): Screen {
     el,
     destroy: () => {
       stopProfile();
+      stopOrder();
       card.destroy();
     },
   };

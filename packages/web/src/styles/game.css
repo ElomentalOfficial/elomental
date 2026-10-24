@@ -168,6 +168,10 @@
 .cell.selected {
   box-shadow: inset 0 0 0 2px var(--select), inset 0 0 0 4px var(--select-inner);
 }
+/* above its neighbours, so the focus ring shows on all four sides (the cells after it would cover it) */
+.cell:focus-visible {
+  z-index: 1;
+}
 /* The player's own numbers: their own colour and a lighter weight than the givens. */
 .cell.filled {
   color: var(--cell-user);

@@ -100,6 +100,8 @@ export function leaderboardScreen(start?: { view?: LbView; focus?: string }): Sc
     body,
   );
   rebuildOnLayout(el, () => leaderboardScreen({ view }));
+  // phones: the You bar is pinned over the list's foot, so a focused row keeps clear of it
+  if (!wide) new ResizeObserver(() => el.style.setProperty('--lb-me-h', `${meBar.offsetHeight}px`)).observe(meBar);
 
   const myElement = (): Element | null => cachedAccount()?.affinity ?? null;
 

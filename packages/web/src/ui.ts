@@ -86,6 +86,11 @@ function tilesIn(field: HTMLElement, backward: boolean): void {
 /** The wide layout (wide.css): tablets on their side, laptops and desktops. */
 const wideMedia = matchMedia('(min-width: 900px) and (min-height: 600px) and (min-aspect-ratio: 5/4)');
 export const wideLayout = (): boolean => wideMedia.matches;
+/** Calls `fn` when the window crosses into or out of the wide layout; returns the way to stop. */
+export function onWideChange(fn: () => void): () => void {
+  wideMedia.addEventListener('change', fn);
+  return () => wideMedia.removeEventListener('change', fn);
+}
 
 /**
  * A page built for one layout (a banner page on a wide screen, the column on a phone) is
@@ -206,9 +211,12 @@ export function holdFocus(box: HTMLElement, options: { onEscape?: () => void; in
 }
 
 let labelIds = 0;
-/** Points `dialog`'s accessible name at its first heading (giving the heading an id). */
+/**
+ * Points `dialog`'s accessible name at its first heading (giving it an id); a confirm with no
+ * heading is named by its question (WCAG 4.1.2: every dialog has a name).
+ */
 export function labelByHeading(dialog: HTMLElement): void {
-  const heading = dialog.querySelector<HTMLElement>('h1, h2, h3');
+  const heading = dialog.querySelector<HTMLElement>('h1, h2, h3') ?? dialog.querySelector<HTMLElement>('.confirm > p');
   if (!heading) return;
   heading.id ||= `dialog-title-${++labelIds}`;
   if (dialog.getAttribute('aria-labelledby') !== heading.id) dialog.setAttribute('aria-labelledby', heading.id);

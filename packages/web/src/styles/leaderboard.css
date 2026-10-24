@@ -226,10 +226,6 @@ html[data-large-text] .lb-strength-legend {
   color: var(--text);
   box-shadow: inset 0 0 0 2px var(--select);
 }
-.lb-tab:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
-}
 /* where four don't fit one row (the narrowest phones, large text): two by two */
 @media (max-width: 359px) {
   .lb-tab {
@@ -521,6 +517,13 @@ html:not([data-large-text]) .screen.leaderboard:not(.has-banner) > .sub-body.fad
   --fade-b: 0px;
 }
 /* Larger text: the bar is the last thing in the list, not pinned over it, and loses the avatar. */
+/* A row reached by Tab scrolls clear of the pinned You bar (its height: leaderboard.ts). */
+.screen.leaderboard .sub-body {
+  scroll-padding-bottom: var(--lb-me-h, 0px);
+}
+html[data-large-text] .screen.leaderboard .sub-body {
+  scroll-padding-bottom: 0;
+}
 html[data-large-text] .lb-me {
   position: static;
   flex-wrap: wrap;
@@ -983,10 +986,6 @@ html[data-large-text] .lb-me .lb-avatar {
     color: inherit;
     font: inherit;
     cursor: var(--cursor-pointer);
-  }
-  .lb-podium-btn:focus-visible {
-    outline: 2px solid var(--focus);
-    outline-offset: 2px;
   }
   .lb-podium-avatar {
     width: 72px;
