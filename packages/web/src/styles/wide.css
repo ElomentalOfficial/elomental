@@ -60,7 +60,7 @@
   }
   /* the card's badges are pictures: they grow with the window, never with Text size */
   :is(.pc-badge-art, .pc-socket, .pc-badge-btn) {
-    zoom: calc(var(--wide-zoom, 1) * var(--wide-icon-zoom, 1));
+    zoom: var(--wide-zoom, 1);
   }
   /* Firefox draws a custom cursor at the zoom of what's under it: the zoomed insides of a tile
      or the card let the pointer through to the unzoomed tile, so the gem keeps one size (a
@@ -101,8 +101,17 @@
   html[data-large-text] .home-grid > .tile {
     padding-inline: var(--space-2);
   }
+  /* One size for every tile's name (one rule for the set): as large as the longest, LEADERBOARD, fits
+     its narrow tile. cqi is the grid's width here, not each tile's; the name sits in the tile's zoomed
+     face, so the zoom is taken back out. */
+  html[data-large-text] .home-grid {
+    container-type: inline-size;
+  }
+  html[data-large-text] .home-grid > .tile {
+    container-type: normal;
+  }
   html[data-large-text] .home-grid > .tile .tile-label {
-    font-size: min(var(--fs-label), 13cqi);
+    font-size: min(var(--fs-label), calc(2.2cqi / var(--wide-zoom, 1)));
   }
   /* The other pages keep their phone column, a little larger. */
   .screen.daily,
@@ -151,7 +160,8 @@
     --bar: var(--key);
     /* Extra air above and below the keypad: with the gaps either side, half a key in all. */
     --air: max(0px, calc(var(--key) * 0.5 - 2 * var(--g)));
-    --status-h: calc(var(--key) * 0.75);
+    /* the clock row: grows with Text size (its clock and skulls with it) */
+    --status-h: calc(var(--key) * 0.75 * var(--text-scale));
     --total: calc(var(--board) + var(--split) + var(--side));
     /* Left edge of the controls column, and the space above/below the centred game. */
     --side-left: calc(50% - var(--total) / 2 + var(--board) + var(--split));
@@ -208,11 +218,11 @@
   }
   .game .mistakes {
     justify-self: start;
-    gap: calc(var(--key) * 0.06);
+    gap: calc(var(--key) * 0.06 * var(--text-scale));
   }
   .game .timer {
     justify-self: center;
-    font-size: calc(var(--key) * 0.44);
+    font-size: calc(var(--key) * 0.44 * var(--text-scale));
   }
   .game .puzzle-info {
     justify-self: end;
@@ -224,11 +234,11 @@
     gap: 0.12em;
   }
   .game .square-code {
-    font-size: 0.5em;
+    font-size: calc(0.5em * var(--text-scale));
   }
   .game .skull {
-    width: calc(var(--key) * 0.3);
-    height: calc(var(--key) * 0.29);
+    width: calc(var(--key) * 0.3 * var(--text-scale));
+    height: calc(var(--key) * 0.29 * var(--text-scale));
   }
   .game .board-wrap {
     grid-area: 2 / 1 / -1 / 2;
@@ -236,7 +246,8 @@
     align-self: start;
   }
   .game .cell {
-    font-size: 5.4cqi;
+    /* grows with Text size as far as the cell allows, as on phones (game.css) */
+    font-size: min(calc(5.4cqi * var(--text-scale)), 9cqi);
   }
   /*
    * Rounded corners keep the phone's proportions as everything grows: a
@@ -267,6 +278,7 @@
     width: auto;
     padding: calc(var(--bar) * 0.3);
   }
+  /* (Home or Concede, and Hint, Undo and Notes fill their buttons already at 100%: they keep their size) */
   .game .bar-btn {
     height: auto;
     font-size: calc(var(--bar) * 0.44);
@@ -367,7 +379,7 @@
  */
 @media (orientation: landscape) and (max-height: 539.98px) and (min-aspect-ratio: 4/3) {
   :root {
-    --status-h: 32px;
+    --status-h: calc(32px * var(--text-scale));
     --board: min(
       calc((100dvh - var(--status-h) - var(--space-4) - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 1.044),
       calc((100vw - var(--space-6) - env(safe-area-inset-left) - env(safe-area-inset-right)) / 1.62)

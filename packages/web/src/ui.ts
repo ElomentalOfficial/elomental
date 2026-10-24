@@ -47,6 +47,8 @@ export const nameParts = (name: string): (string | HTMLElement)[] =>
  * units, so a new Text size resizes the element and it is measured again.
  */
 export function fitWords(el: HTMLElement): void {
+  if (el.dataset.fitWords) return;
+  el.dataset.fitWords = '';
   let measured = '';
   let shown = false;
   const draw = () => {
@@ -64,8 +66,11 @@ export function fitWords(el: HTMLElement): void {
     }
     el.style.fontSize = '';
     const s = getComputedStyle(el);
-    // (a pixel spare: the width is rounded, and a word sized to the exact width can still tip over)
-    const room = el.clientWidth - parseFloat(s.paddingLeft) - parseFloat(s.paddingRight) - 1;
+    // its own width, or its parent's where that's narrower (a centred item is only as wide as its
+    // longest word); a pixel spare: the width is rounded, and a word sized to the exact width can tip over
+    const inner = (box: HTMLElement, st: CSSStyleDeclaration) => box.clientWidth - parseFloat(st.paddingLeft) - parseFloat(st.paddingRight);
+    const parent = el.parentElement;
+    const room = Math.min(inner(el, s), parent ? inner(parent, getComputedStyle(parent)) : Infinity) - 1;
     // measured in the words' own box (a plate's name sits in a span with its own case)
     const words = document.createTreeWalker(el, NodeFilter.SHOW_TEXT).nextNode()?.parentElement ?? el;
     const probe = h('span');
@@ -370,6 +375,7 @@ export function openModal(content: HTMLElement, options: { dismissible?: boolean
   const close = () => {
     openModals.delete(close);
     relabel.disconnect();
+    refit.disconnect();
     backdrop.remove();
     release();
     syncScrimEdges();
@@ -382,6 +388,14 @@ export function openModal(content: HTMLElement, options: { dismissible?: boolean
   openModals.add(close);
   document.body.append(backdrop);
   labelByHeading(panel);
+  // its title keeps every word whole at any Text size (a sheet that loads its title later fits it then)
+  const fitTitle = () => {
+    const title = panel.querySelector<HTMLElement>('h2');
+    if (title) fitWords(title);
+  };
+  fitTitle();
+  const refit = new MutationObserver(fitTitle);
+  refit.observe(panel, { childList: true, subtree: true });
   relabel.observe(panel, { childList: true, subtree: true });
   release = holdFocus(panel, { onEscape: dismissible ? close : undefined });
   syncScrimEdges();

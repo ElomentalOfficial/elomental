@@ -322,9 +322,9 @@ html[data-large-text] .bar-btn {
   line-height: 1.15;
 }
 /*
- * Titles that are one long word (ACCESSIBILITY, KEYBOARD, LEADERBOARD) can't
- * wrap, so they grow only as far as their row has room for: cqi is a share
- * of the box they sit in.
+ * Words that can't wrap (a tile's name, a calendar's numbers) grow only as far as their box has room
+ * for: cqi is a share of the box they sit in. Page and pop-up titles step down only as far as their
+ * longest word needs instead (ui.ts fitWords).
  */
 html[data-large-text] :is(.subbar, .modal, .casual-card, .home-grid > .tile, .calendar) {
   container-type: inline-size;
@@ -340,14 +340,8 @@ html[data-large-text] .subbar > :is(h1, h2, div) {
   min-width: 0;
   text-align: left;
 }
-html[data-large-text] .subbar h1 {
-  font-size: min(var(--fs-title), 9.5cqi);
-}
 html[data-large-text] .subbar > .icon-btn-spacer {
   display: none;
-}
-html[data-large-text] .modal h2 {
-  font-size: min(var(--fs-title), 12.5cqi);
 }
 html[data-large-text] .home-grid > .tile .tile-label {
   min-width: 0;
@@ -373,14 +367,31 @@ html[data-large-text] .month-count {
 html[data-large-text] .calendar {
   grid-template-columns: repeat(7, minmax(0, 1fr));
 }
+/* (a day's column is a seventh of the calendar, 14cqi: two figures fill about two thirds of it) */
 html[data-large-text] .day-num {
-  font-size: min(var(--fs-small), 6cqi);
+  font-size: min(var(--fs-small), 8.5cqi);
 }
 html[data-large-text] .day.today .day-num {
-  font-size: min(var(--fs-body), 6.5cqi);
+  font-size: min(var(--fs-body), 9cqi);
 }
 html[data-large-text] .weekday {
-  font-size: min(var(--fs-small), 5cqi);
+  font-size: min(var(--fs-small), 6.5cqi);
+}
+/* The board's numbers can only grow as far as a cell (game.css): at a large Text size they get
+   heavier strokes too, the givens a step heavier than your own, as at 100%. */
+html[data-large-text] .cell {
+  font-weight: 700;
+}
+html[data-large-text] .cell.filled {
+  font-weight: 600;
+}
+/* The Factions sheet: each side's standing under its name, so the name and its players and
+   influence have the row's width. */
+html[data-large-text] .faction-standings li {
+  grid-template-columns: 1.6em 28px minmax(0, 1fr);
+}
+html[data-large-text] .faction-standings .fs-standing {
+  grid-column: 3;
 }
 /* Pop-ups get wider (up to the screen) so the larger words have room. */
 html[data-large-text] .modal {

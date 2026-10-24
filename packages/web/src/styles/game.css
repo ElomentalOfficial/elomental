@@ -164,8 +164,10 @@
   color: var(--cell-text);
   /* Semi-bold (Figma): bold made the digits look cramped. */
   font-weight: 600;
-  /* 28px on a phone-sized board, scaling down on smaller ones. */
-  font-size: min(28px, 8.2cqi);
+  /* 28px on a phone-sized board, scaling down on smaller ones; with Text size it grows as far as
+     the cell allows (9cqi: about 85% of a cell; the board is the size of the screen, so a cell sets
+     the limit, not the setting) */
+  font-size: min(calc(28px * var(--text-scale)), 9cqi);
   line-height: 1;
   cursor: var(--cursor-pointer);
   transition: background 0.12s ease;
@@ -276,7 +278,8 @@
   grid-template: repeat(3, minmax(0, 1fr)) / repeat(3, minmax(0, 1fr));
   place-items: center;
   padding: 6% 10%;
-  font-size: clamp(9px, calc(2.3cqi * var(--text-scale)), 3cqi);
+  /* with Text size, as far as three rows fit a cell (3.2cqi) */
+  font-size: clamp(9px, calc(2.3cqi * var(--text-scale)), 3.2cqi);
   font-weight: 700;
   color: var(--cell-text);
 }

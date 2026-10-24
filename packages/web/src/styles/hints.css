@@ -12,7 +12,16 @@
 }
 /* The card sits over the number pad, which isn't needed while reading. */
 .hint-card {
-  bottom: max(16px, calc(env(safe-area-inset-bottom) + 8px));
+  bottom: max(var(--space-4), calc(env(safe-area-inset-bottom) + var(--space-2)));
+}
+/* ...or at the top, over the clock, where over the pad it would hide the squares it explains
+   (hintCoach.ts) */
+.hint-card.at-top {
+  top: max(var(--space-4), calc(env(safe-area-inset-top) + var(--space-2)));
+  bottom: auto;
+}
+html.standalone .hint-card.at-top {
+  top: calc(var(--status-clear) + var(--space-2));
 }
 /* Everything outside the explanation fades back so the logic stands out. */
 .board.explaining .cell {

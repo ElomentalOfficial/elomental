@@ -67,6 +67,8 @@ html.standalone .backdrop {
 .sheet h2 {
   font-size: var(--fs-title);
   text-transform: uppercase;
+  /* a title that runs to two lines breaks into even ones, never a short word left alone */
+  text-wrap: balance;
 }
 /* a sheet's plain paragraphs (:where, so a line with its own class keeps its own type) */
 :where(.sheet) p {

@@ -40,6 +40,25 @@ export function runHintCoach(options: {
     labelByHeading(card);
     const release = holdFocus(card, { onEscape: () => finish(false), initial: next });
 
+    // The card sits over the number pad (hints.css), unless there it hides squares the hint explains
+    // (a tall card at a large Text size over a low board): then at the top of the screen, over the
+    // clock, if that hides fewer of them. Decided once for the whole hint, from every stage's
+    // squares, so the card (and Next under the thumb) stays put from stage to stage.
+    const explained = [...new Set(stages.flatMap(({ marks: m }) => [...(m.focus ?? []), ...(m.ring ?? []), ...(m.target !== undefined ? [m.target] : [])]))];
+    const covered = () => {
+      const r = card.getBoundingClientRect();
+      return explained
+        .map((i) => document.querySelector(`[data-cell="${i}"]`)?.getBoundingClientRect())
+        .filter((c) => c && c.bottom > r.top + 1 && c.top < r.bottom - 1 && c.right > r.left + 1 && c.left < r.right - 1).length;
+    };
+    const place = () => {
+      card.classList.remove('at-top');
+      const below = covered();
+      if (!below) return;
+      card.classList.add('at-top');
+      if (covered() >= below) card.classList.remove('at-top');
+    };
+
     const show = () => {
       const stage = stages[index];
       counter.textContent = copy.hints.counter(index + 1, stages.length);
@@ -52,9 +71,12 @@ export function runHintCoach(options: {
       card.classList.add('enter');
     };
 
+    // (a window that changes size moves the board under it: placed again)
+    addEventListener('resize', place);
     const finish = (placed: boolean) => {
       if (done) return;
       done = true;
+      removeEventListener('resize', place);
       release();
       layer.classList.add('closing');
       setTimeout(() => layer.remove(), 180);
@@ -75,5 +97,6 @@ export function runHintCoach(options: {
     next.addEventListener('click', (event) => event.detail === 0 && advance());
     close.addEventListener('click', (event) => event.detail === 0 && finish(false));
     show();
+    place();
   });
 }
