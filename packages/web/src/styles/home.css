@@ -288,13 +288,14 @@
   right: 0;
   background: var(--pc-track);
 }
-/* the fill brightens toward its head, which ends in a crisp cap (no glow: owner, 2026-10-24), so
-   where you stand reads at a glance against the track still to go */
+/* the fill brightens toward its head, which ends in a cap (no glow: owner, 2026-10-24), so where
+   you stand reads at a glance against the track still to go; the cap softened across, never up
+   and down, so it isn't a hard block (owner) */
 .pc-elo::after,
 .pc-level::after {
   width: calc(var(--fill) * 100%);
   background:
-    linear-gradient(var(--line-cap), var(--line-cap)) right / 2px 100% no-repeat,
+    linear-gradient(90deg, transparent, var(--line-cap) 55%, color-mix(in oklab, var(--line-cap) 55%, transparent)) right / 6px 100% no-repeat,
     linear-gradient(90deg, var(--line-lo), var(--line-hi) calc(100% - 12px), var(--line-head));
 }
 .pc-elo {
