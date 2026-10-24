@@ -223,8 +223,8 @@ html[data-large-text] .pc-faction {
   grid-column: 1 / -1;
 }
 /* (its emblem at the numbers' size: the tile is as wide as both, so half their share of it) */
-html[data-large-text] .pc-faction .pc-num {
-  font-size: min(var(--fs-display), 16cqi);
+html[data-large-text] .pc-faction .pc-mark {
+  font-size: min(var(--fs-label), 12cqi);
 }
 html[data-large-text] .tile-label {
   overflow-wrap: break-word;

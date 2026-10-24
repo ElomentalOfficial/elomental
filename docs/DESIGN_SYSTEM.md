@@ -77,13 +77,14 @@ order inside the tile's frame. Who you are leads and takes the spare height: the
 sunburst (`withRays`), the name (no plate here: plates show on the Profile and the player card)
 and the rank beside it. The whole card sits on one grid of three equal columns (2026-10-24): the
 avatar in the first, the name from the second's edge, and under them two rows of three recessed
-tiles on the same columns and gap. The first row is how you're doing, each tile a caption over a
-ring with the value at its centre: Elo's ring fills in the rank's metal toward the next rank,
-Level's in gold toward the next level (on one track, `--pc-track`; what's left is read out to
-screen readers, not printed), and your faction's ring is closed, in the frame's ink, round its
-emblem (no colour: light on dark, dark on light, `--faction-mark`), its name the caption. With no
-faction yet the tile is the way to choose one, its "+" the badge slots' own; a guest on this
-device alone has Elo and Level only. At large text the faction tile
+tiles on the same columns and gap. The first row is the quiet one, how you're doing: three short
+tiles, each one line, value then caption ("295 ELO", "3 LEVEL", the faction's emblem then its
+name; no colour on the emblem: light on dark, dark on light, `--faction-mark`). Elo and Level
+fill a fine line along their tile's foot, on the track (`--pc-track`): Elo's in the rank's metal
+toward the next rank, Level's in gold toward the next level; what's left is read out to screen
+readers, not printed. With no faction yet the tile is the way to choose one, its "+" the badge
+slots' own; a guest on this device alone has Elo and Level only. The second row is the badges,
+the card's big icons (72 px, 56 px on short phones), larger than anything above them. At large text the faction tile
 takes a row under the other two. (It replaced a flag hung over the name, which grew too small to
 read on a phone.) Last, the three
 badges, each in a recessed slot and each a button to the badge choice (`badgePicker.ts`). The

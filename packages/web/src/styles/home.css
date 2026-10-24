@@ -216,9 +216,11 @@
   font-weight: 600;
   letter-spacing: 0.04em;
 }
-/* Elo, Level and your faction: three tiles on the badges' columns and gap, recessed like their
-   slots; each centred, its caption over a ring (owner, 2026-10-24: the bars and their lines were
-   cramped in a narrow tile). A guest on this device alone has two, Elo and Level, sharing the row. */
+/* Elo, Level and your faction: three short tiles on the badges' columns and gap, recessed like
+   their slots, the quiet row over the badges' big icons (owner, 2026-10-24). Each one centred line,
+   its value then its caption, wrapping to two in a very narrow tile. Elo's and Level's progress is
+   a fine line along the tile's foot, on the track: Elo's in your rank's metal toward the next rank,
+   Level's in gold toward the next level. A guest on this device alone has two, Elo and Level. */
 .pc-stats {
   grid-area: stats;
   display: grid;
@@ -229,19 +231,22 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .pc-stat {
+  --fill: 0;
+  position: relative;
+  overflow: hidden;
   min-width: 0;
   container-type: inline-size;
-  padding: var(--space-3) var(--space-2);
+  padding: var(--space-2);
   border-radius: var(--radius-lg);
   background: var(--pc-socket);
   text-align: center;
 }
 .pc-stat .pc-in {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  justify-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
-  row-gap: var(--space-2);
+  gap: var(--space-1) var(--space-2);
   height: 100%;
 }
 .pc-cap {
@@ -253,53 +258,45 @@
 }
 .pc-num {
   font-family: var(--serif);
-  font-size: min(var(--fs-display), 32cqi);
+  font-size: min(var(--fs-label), 24cqi);
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
-/* The ring: one shape for all three, the value at its centre. Elo's fills in your rank's metal
-   toward the next rank, Level's in gold toward the next level, each from the top, clockwise, on
-   the bars' own track; the faction's is closed, in the frame's ink, a seal round its emblem. */
-.pc-ring {
-  --fill: 0;
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 2.4em;
-  aspect-ratio: 1;
-}
-.pc-ring::before {
+.pc-elo::before,
+.pc-level::before,
+.pc-elo::after,
+.pc-level::after {
   content: '';
   position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: conic-gradient(var(--ring-lo) 0, var(--ring-hi) calc(var(--fill) * 100%), var(--pc-track) 0);
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
-  mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  left: 0;
+  bottom: 0;
+  height: 3px;
 }
-.pc-ring-rank {
-  --ring-lo: var(--rank-lo);
-  --ring-hi: var(--rank-hi);
+.pc-elo::before,
+.pc-level::before {
+  right: 0;
+  background: var(--pc-track);
 }
-.pc-ring-level {
-  --ring-lo: var(--pc-level-lo);
-  --ring-hi: var(--pc-level-hi);
+.pc-elo::after,
+.pc-level::after {
+  width: calc(var(--fill) * 100%);
+  background: linear-gradient(90deg, var(--line-lo), var(--line-hi));
 }
-.pc-ring-seal::before {
-  background: color-mix(in srgb, var(--frame-line) 60%, transparent);
-  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
-  mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
+.pc-elo {
+  --line-lo: var(--rank-lo);
+  --line-hi: var(--rank-hi);
 }
-.pc-ring-val {
-  position: relative;
-  font-size: 0.8em;
+.pc-level {
+  --line-lo: var(--pc-level-lo);
+  --line-hi: var(--pc-level-hi);
 }
-/* the faction's emblem, light on dark and dark on light (no colour: owner) */
+/* the faction's emblem, as tall as the numbers beside it, light on dark and dark on light (no
+   colour: owner) */
 .pc-mark {
-  position: relative;
   display: block;
-  width: 1.3em;
-  height: 1.3em;
+  font-size: min(var(--fs-label), 24cqi);
+  width: 1.2em;
+  height: 1.2em;
   color: var(--faction-mark);
 }
 .pc-mark svg {
@@ -315,15 +312,15 @@
   cursor: var(--cursor-pointer);
 }
 .pc-choose .pc-mark {
-  width: 1em;
-  height: 1em;
   color: var(--muted);
 }
-/* Your three chosen badges (Profile > Badges), each in a slot recessed a shade into the card. */
+/* Your three chosen badges (Profile > Badges), each in a slot recessed a shade into the card: the
+   card's big icons, larger than the stats over them (owner, 2026-10-24), up to the slot's width. */
 .pc-showcase {
   grid-area: showcase;
 }
 .pc-badges {
+  --pc-badge: 72px;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-2);
@@ -333,11 +330,12 @@
 }
 /* every slot as tall as a badge, filled or not, so the row keeps its height */
 .pc-badge {
+  container-type: inline-size;
   display: grid;
   place-items: center;
-  min-height: 48px;
+  min-height: calc(var(--pc-badge) + 2 * var(--space-3));
   /* room for an empty slot's inset rim to clear its socket */
-  padding: var(--space-4) 0;
+  padding: var(--space-3) 0;
   border-radius: var(--radius-lg);
   background: var(--pc-socket);
 }
@@ -364,16 +362,16 @@
 }
 .pc-badge-art {
   display: block;
-  width: 48px;
-  height: 48px;
+  width: min(var(--pc-badge), 76cqi);
+  height: min(var(--pc-badge), 76cqi);
 }
 /* A signed-in player's badge slots: each a button to the badge choice (homeCard.ts), a badge or,
    empty, a "+" in a fine hexagon socket in the muted ink, brightening under the pointer. */
 .pc-badge-btn {
   display: grid;
   place-items: center;
-  width: 48px;
-  height: 48px;
+  width: min(var(--pc-badge), 76cqi);
+  height: min(var(--pc-badge), 76cqi);
   padding: 0;
   border-radius: var(--radius);
   background: none;
@@ -420,7 +418,7 @@
   grid-column: 1 / -1;
   display: grid;
   place-items: center;
-  min-height: 48px;
+  min-height: calc(var(--pc-badge) + 2 * var(--space-3));
   font-family: var(--serif);
   font-size: var(--fs-small);
   color: var(--muted);
@@ -700,13 +698,7 @@ html[data-reduce-motion] .promotion .rank-name {
   .pc-medallion {
     width: min(84cqw, 96px);
   }
-  .pc-badge,
-  .pc-badges-note {
-    min-height: 40px;
-  }
-  .pc-badge-art,
-  .pc-badge-btn {
-    width: 40px;
-    height: 40px;
+  .pc-badges {
+    --pc-badge: 56px;
   }
 }

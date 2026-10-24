@@ -128,8 +128,9 @@ test('Home: the card holds you, your Level and Elo, your badges; the Forge tile 
   await expect(page.locator('.profile-rank .rank-name')).toHaveText('Adept');
   await expect(page.locator('.home-line')).toHaveCount(0);
   // the account level in a cell of its own (1200 XP: level 11), the plate holds the name alone
-  await expect(page.locator('.pc-level')).toHaveText(/Level\s*11/);
-  await expect(page.locator('.pc-elo')).toHaveText(/Elo\s*930/);
+  // each tile one line, its value then its caption; what's left to the next is for screen readers
+  await expect(page.locator('.pc-level')).toHaveText(/^11\s*Level/);
+  await expect(page.locator('.pc-elo')).toHaveText(/^930\s*Elo/);
   await expect(page.locator('.profile-card .plate-medal')).toHaveCount(0);
   // the faction, a third tile beside Elo and Level, read as its caption and name
   await expect(page.locator('.pc-faction:not(.pc-choose)')).toHaveText(/Faction\s*Fire/);
