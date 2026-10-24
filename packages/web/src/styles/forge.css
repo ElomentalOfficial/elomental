@@ -730,4 +730,8 @@ html[data-reduce-motion] .part-reveal * {
 }
 .page-banner .forge-purse {
   --rule-ink: var(--cloth-ink);
+  --purse-gold-hi: var(--purse-gold-cloth-hi);
+  --purse-gold-lo: var(--purse-gold-cloth-lo);
+  --purse-red-hi: var(--purse-red-cloth-hi);
+  --purse-red-lo: var(--purse-red-cloth-lo);
 }

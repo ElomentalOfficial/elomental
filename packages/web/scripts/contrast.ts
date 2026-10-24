@@ -50,7 +50,7 @@ export const PAIRS: Pair[] = [
   // The Forge purse (forge.css): its words in a gradient, both ends checked, on the banner (a tile's
   // colour) and on the phone's Forge card
   ...(['gold', 'red'] as const).flatMap((c) => (['hi', 'lo'] as const).flatMap((e) => [
-    [`Purse ${c} text (${e}) on a banner`, `--purse-${c}-${e}`, '--cloth', 4.5] as Pair,
+    [`Purse ${c} text (${e}) on a banner`, `--purse-${c}-cloth-${e}`, '--cloth', 4.5] as Pair,
     [`Purse ${c} text (${e}) on a card`, `--purse-${c}-${e}`, '--surface', 4.5] as Pair,
   ])),
   ['Privacy door eye (inked disc)', '--surface', '--text', 3],

@@ -36,7 +36,7 @@
     display: flex;
     flex-direction: column;
     padding: max(var(--space-5), env(safe-area-inset-top)) var(--space-5) 120px;
-    /* the cloth (tokens.css --cloth): a deep forest on dark, the Home tiles' colour on light (owner,
+    /* the cloth (tokens.css --cloth): the main forest on dark, the Home tiles' colour on light (owner,
        for contrast: the accent cloth left coloured text too little room) */
     background: var(--cloth);
     color: var(--cloth-ink);
