@@ -102,8 +102,37 @@ function sessionAal(token: string): string | null {
   }
 }
 
-/** Re-reads the profile and won daily squares from the server into the cache. */
-export async function refreshAccount(session?: Session | null): Promise<Account | null> {
+let refreshing: Promise<Account | null> | null = null;
+let refreshedAt = 0;
+/** How long a refresh stays fresh for the background ones (launch, Home). */
+const FRESH_MS = 30_000;
+
+/**
+ * Re-reads the profile and won daily squares from the server into the cache. Always reads:
+ * call it after anything that changed the account (a game, a choice, a sign-in).
+ */
+export function refreshAccount(session?: Session | null): Promise<Account | null> {
+  const run = readAccount(session);
+  refreshing = run;
+  void run.finally(() => {
+    if (refreshing === run) refreshing = null;
+    refreshedAt = Date.now();
+  });
+  return run;
+}
+
+/**
+ * The background refresh (the app opening, Home showing): shares one already running and skips
+ * one that ran in the last half minute, so opening the app and coming Home don't read the
+ * account three times over.
+ */
+export function refreshAccountIfStale(session?: Session | null): Promise<Account | null> {
+  if (refreshing) return refreshing;
+  if (Date.now() - refreshedAt < FRESH_MS) return Promise.resolve(cachedAccount());
+  return refreshAccount(session);
+}
+
+async function readAccount(session?: Session | null): Promise<Account | null> {
   const s = session ?? (await supabase.auth.getSession()).data.session;
   if (!s) {
     if (cachedAccount()) {
@@ -167,18 +196,37 @@ export function initBackend(): void {
       removeKey(ACCOUNT_KEY);
       clearAccountData();
       notify();
-    } else if (event === 'INITIAL_SESSION' && !session) {
-      // First launch (or after signing out): become an anonymous guest account.
-      setTimeout(() => void startGuestAccount(), 0);
-    } else if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'USER_UPDATED') {
+    } else if (event === 'INITIAL_SESSION' && session) {
+      // Opening the app: Home asks for the same refresh, so it's shared (refreshAccountIfStale).
       // Outside the callback: supabase-js must not be awaited from inside it.
+      setTimeout(() => void refreshAccountIfStale(session), 0);
+    } else if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
       setTimeout(() => void refreshAccount(session), 0);
     }
+    // No session at launch: a local guest until the server is first needed (ensureAccount).
   });
 }
 
+let guestStarting: Promise<boolean> | null = null;
+
+/**
+ * The account this device plays through. A guest's is made here, on first need (a server game,
+ * the Leaderboard, the Forge), not when the app opens: a visitor who leaves at once doesn't
+ * become an account (billed as a monthly user, and a row in the database). True once there is
+ * one; false when it can't be made (offline, beta, no captcha), and the guest stays local.
+ */
+export function ensureAccount(): Promise<boolean> {
+  if (signedIn()) return Promise.resolve(true);
+  guestStarting ??= (async () => {
+    if (!(await supabase.auth.getSession()).data.session) await startGuestAccount();
+    await refreshAccount();
+    return signedIn();
+  })().finally(() => (guestStarting = null));
+  return guestStarting;
+}
+
 /** Anonymous account for a guest; quietly stays a local guest if that's off or offline. */
-export async function startGuestAccount(): Promise<void> {
+async function startGuestAccount(): Promise<void> {
   // Beta has no guests: invited testers only (beta.ts).
   if (IS_BETA) return;
   // Opened from an email link: that link signs this browser in (signIn.ts), and a
@@ -198,8 +246,7 @@ export async function signOut(): Promise<string | null> {
   removeKey(ACCOUNT_KEY);
   clearAccountData();
   notify();
-  // Back to a fresh guest account, so play keeps going through the server.
-  void startGuestAccount();
+  // A local guest again; a fresh guest account follows on first need (ensureAccount).
   return null;
 }
 

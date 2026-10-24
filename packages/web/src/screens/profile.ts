@@ -3,7 +3,7 @@ import { avatarSvg, emblemUrl } from '../avatar.ts';
 import { badgeArt, badgeLabel } from '../badges.ts';
 import { myBadges } from '../backend/leaderboard.ts';
 import { openBadgePicker } from '../badgePicker.ts';
-import { cachedAccount, refreshAccount } from '../backend/account.ts';
+import { cachedAccount, refreshAccountIfStale } from '../backend/account.ts';
 import { affinityDue, canSwitchAffinity } from '../backend/affinity.ts';
 import { cachedLoadout, cachedPolish, loadForge } from '../backend/forge.ts';
 import { ICONS } from '../icons.ts';
@@ -152,7 +152,7 @@ export function profileScreen(start?: { at?: 'badges' }): Screen {
   }
 
   if (account) {
-    void refreshAccount();
+    void refreshAccountIfStale();
     void canSwitchAffinity().then((open) => {
       if (!open || !side) return;
       side.append(h('button', { class: 'link-btn', text: copy.affinity.change, attrs: { type: 'button', 'aria-label': copy.affinity.a11yChange }, onclick: () => mount(affinityScreen(profileScreen)) }));

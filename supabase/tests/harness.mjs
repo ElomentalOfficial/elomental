@@ -22,7 +22,8 @@ await db.exec(`
     raw_user_meta_data jsonb default '{}', created_at timestamptz default now(), last_sign_in_at timestamptz);
   create table auth.mfa_factors (id uuid primary key default gen_random_uuid(), user_id uuid not null, status text not null default 'unverified',
     factor_type text default 'totp', created_at timestamptz default now());
-  create table auth.sessions (id uuid primary key default gen_random_uuid(), user_id uuid not null, factor_id uuid, aal text default 'aal1');
+  create table auth.sessions (id uuid primary key default gen_random_uuid(), user_id uuid not null, factor_id uuid, aal text default 'aal1',
+    created_at timestamptz default now(), updated_at timestamptz default now(), refreshed_at timestamp);
   create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('test.uid', true), '')::uuid $$;
   -- the session's assurance level: 'aal2' once an authenticator code was given (test.aal),
   -- and which session this is (test.session)

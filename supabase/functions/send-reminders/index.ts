@@ -1,9 +1,9 @@
 // Daily reminders (migration daily_reminders).
 //
-//   POST {} + header x-cron-secret   (pg_cron, hourly: private.call_reminders)
+//   POST {} + header x-cron-secret   (pg_cron, every 15 minutes: private.call_reminders)
 //     -> answers 202 at once, then takes the due list in chunks (public.reminders_take, which
 //        marks each one sent for today) and sends each player a web push on every device they
-//        turned it on for, and/or an email.
+//        turned it on for, and/or an email; at most PER_RUN players a run.
 //   GET ?off=<token>                 (a mail app opening the List-Unsubscribe link)
 //     -> to the site's own turn-off screen, SITE_URL/?reminders-off=<token>.
 //   POST ?off=<token>                (that screen, or a mail app's one-click unsubscribe)
@@ -113,13 +113,18 @@ async function sendEmails(list: Due[]): Promise<number> {
   return sent;
 }
 
-/** Takes the due list chunk by chunk until it's empty, sending each chunk. */
+/**
+ * Takes the due list chunk by chunk, sending each chunk, until it's empty or this run has
+ * sent PER_RUN players: the cron runs every 15 minutes and a player stays due all their hour, so
+ * the next run takes the rest, and one call never outlasts its 2 s of CPU (about 1 ms a push).
+ */
+const PER_RUN = 800;
 async function run() {
   let due = 0;
   let pushes = 0;
   let emails = 0;
-  for (;;) {
-    const { data, error } = await admin.rpc('reminders_take', { p_limit: 200 });
+  while (due < PER_RUN) {
+    const { data, error } = await admin.rpc('reminders_take', { p_limit: Math.min(200, PER_RUN - due) });
     if (error) return console.error('reminders_take', error.message);
     const chunk = (data ?? []) as Due[];
     if (!chunk.length) break;

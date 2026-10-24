@@ -44,8 +44,8 @@ import {
   finishServerGame,
   pauseServerGame,
   resumeServerGame,
+  ensureAccount,
   saveSettings,
-  signedIn,
   squareCodeFor,
   startServerGame,
   type ServerStart,
@@ -184,7 +184,9 @@ export async function startGame(options: {
   // A sudoku string has no stored difficulty: its grade sets it. A code keeps the original's.
   if (shared && !options.square?.code) options = { ...options, difficulty: shared.difficulty };
   let server: ServerStart | undefined;
-  if (signedIn()) {
+  // A new guest's first game makes their account (backend/account.ts ensureAccount); the loading
+  // screen covers the wait. Offline, it stays a local game.
+  if (await ensureAccount()) {
     // A result still waiting on this phone goes first: starting Ranked would otherwise
     // forfeit a solved game as a loss, and a new Casual or Clash game would close it.
     if (pendingResults().length) {

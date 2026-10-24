@@ -1,8 +1,8 @@
 import { TURNSTILE_SITE_KEY } from './client.ts';
 
 /**
- * Captcha for the auth calls that create or open accounts (a guest account at
- * launch, a sign-in email), so bots can't fill the database with accounts.
+ * Captcha for the auth calls that create or open accounts (a guest's account on
+ * first need, a sign-in email), so bots can't fill the database with accounts.
  * Cloudflare Turnstile, invisible for almost everyone: it shows a checkbox
  * only when it can't tell, at the bottom of the screen, and then waits for the
  * tick however long it takes (a guest account starts once it's ticked).

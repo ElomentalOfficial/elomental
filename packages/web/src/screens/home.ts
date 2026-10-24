@@ -22,7 +22,7 @@ import {
 } from '../profile.ts';
 import { closeButton, h, hiddenHeading, mount, navigatingBack, openModal, toast, type Screen } from '../ui.ts';
 import { handleEmailLink } from '../emailLink.ts';
-import { onAccountChange, refreshAccount, signedIn } from '../backend.ts';
+import { ensureAccount, onAccountChange, refreshAccountIfStale, signedIn } from '../backend.ts';
 import { casualScreen } from './casual.ts';
 import { handleClashLink } from './clashSheet.ts';
 import { dailyScreen } from './daily.ts';
@@ -45,6 +45,9 @@ export function homeScreen(): Screen {
   const leave = async (from: HTMLElement, then: () => void) => {
     if (leaving) return;
     leaving = true;
+    // A guest's account is made once they go anywhere (backend/account.ts ensureAccount): started
+    // now, it's usually ready by the time the next screen needs it.
+    void ensureAccount();
     await turnstileOut(grid, animated, from);
     then();
   };
@@ -79,11 +82,12 @@ export function homeScreen(): Screen {
   const daily = tile('daily', copy.home.tiles.daily, (el) => leave(el, () => mount(dailyScreen())));
   // Forge and Setup share the top row (the owner's Home frame): the Forge in reach without the Profile.
   // (its name alone, like every tile: your Stardust and Spirits show in the Forge itself; owner, 2026-10-23)
-  const forge = tile('forge', copy.home.tiles.forge, (el) => leave(el, () => mount(forgeScreen())));
+  // The Forge reads the account: a new guest's is waited for, so it never opens as offline.
+  const forge = tile('forge', copy.home.tiles.forge, (el) => leave(el, () => void ensureAccount().then(() => mount(forgeScreen()))));
   // Signed in, the card's numbers come from the server cache and update when it refreshes.
   card.paint();
   const stopProfile = onAccountChange(() => card.paint());
-  if (signedIn()) void refreshAccount();
+  if (signedIn()) void refreshAccountIfStale();
   // a season or faction month ended while the player was away: say what came of it, once
   showAwayNews();
   // the leaderboard is split off the main script (lazy.ts): fetched ahead, it opens at once
@@ -91,7 +95,9 @@ export function homeScreen(): Screen {
   // The Store stays, so players know it's coming (the owner's call on D1).
   const store = tile('store', copy.home.tiles.store, () => toast(copy.home.storeLater));
   const leader = tile('leader', copy.home.tiles.leaderboard, (el) =>
-    signedIn() ? openLazy(() => import('./leaderboard.ts'), (m) => leave(el, () => mount(m.leaderboardScreen()))) : toast(copy.leaderboard.offline));
+    void ensureAccount().then((ok) =>
+      ok ? openLazy(() => import('./leaderboard.ts'), (m) => leave(el, () => mount(m.leaderboardScreen()))) : toast(copy.leaderboard.offline),
+    ));
   const casual = tile('casual', copy.home.tiles.casual, (el) => leave(el, () => mount(casualScreen())));
   const ranked = tile('ranked', copy.home.tiles.ranked, (el) => openRanked((go) => leave(el, go)));
   const setup = tile('setup', copy.home.tiles.setup, (el) => leave(el, () => mount(setupScreen())), betaTag());

@@ -1,4 +1,4 @@
-import { cachedAccount, refreshAccount, registered, startGuestAccount } from './account.ts';
+import { cachedAccount, refreshAccount, registered } from './account.ts';
 import { captchaToken } from './captcha.ts';
 import { supabase } from './client.ts';
 import * as copy from '../copy/en.ts';
@@ -59,11 +59,8 @@ export async function signInFromEmailLink(): Promise<{ used: boolean; error: str
   history.replaceState(null, '', `${location.pathname}${query ? `?${query}` : ''}${location.hash}`);
   if (!tokenHash) return { used: false, error: null, kind };
   const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: kind });
-  if (error) {
-    // This browser has no account now: start the guest one it skipped at launch.
-    if (!(await supabase.auth.getSession()).data.session) await startGuestAccount();
-    return { used: true, error: copy.emailLink.expiredText, kind };
-  }
+  // No account now: a local guest, whose account follows on first need (account.ts ensureAccount).
+  if (error) return { used: true, error: copy.emailLink.expiredText, kind };
   await refreshAccount();
   return { used: true, error: null, kind };
 }
