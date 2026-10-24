@@ -61,6 +61,14 @@
   text-transform: uppercase;
   color: var(--muted);
 }
+/* the group's lead line: tight under its title (--space-1), then the group's --space-3 to the card */
+.setting-group > .group-help {
+  margin-top: calc(var(--space-1) - var(--space-3));
+  padding: 0 var(--space-1);
+  font-size: var(--fs-small);
+  line-height: 1.45;
+  color: var(--muted);
+}
 /* Back on phones and tablets (ui.ts subPage): the owner's Deco arrowhead in the usual chip, a
    little larger than a line icon, moved 7% left to look centred (its weight is in its right-hand
    panels, as on the wide pages' big Back), nudging left under the pointer */

@@ -67,6 +67,9 @@ export function segmented<T>(opts: {
 export const choice = (id: string, title: string, help: string | null, ...controls: HTMLElement[]): HTMLElement =>
   h('div', { class: 'choice' }, h('h3', { text: title, attrs: { id } }), help ? h('p', { text: help }) : null, ...controls);
 
-/** A titled group: a small title over one card (a framed panel) holding its choices. `card` is the card's class. */
-export const settingGroup = (title: string, items: (HTMLElement | null)[], card = 'setting choice-list'): HTMLElement =>
-  h('section', { class: 'setting-group' }, h('h2', { text: title }), h('div', { class: `panel ${card}` }, ...items));
+/**
+ * A titled group: a small title over one card (a framed panel) holding its choices. `card` is the
+ * card's class; `help`, a line under the title saying what the whole group does.
+ */
+export const settingGroup = (title: string, items: (HTMLElement | null)[], card = 'setting choice-list', help?: string): HTMLElement =>
+  h('section', { class: 'setting-group' }, h('h2', { text: title }), help ? h('p', { class: 'group-help', text: help }) : null, h('div', { class: `panel ${card}` }, ...items));

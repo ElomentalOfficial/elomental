@@ -13,7 +13,7 @@ import {
   signOut,
 } from '../backend.ts';
 import { cachedLoadout, cachedPolish } from '../backend/forge.ts';
-import { choice, segmented } from '../controls.ts';
+import { choice, segmented, settingGroup } from '../controls.ts';
 import { ICONS } from '../icons.ts';
 import { addToHome, canAddToHome } from '../install.ts';
 import { openLazy } from '../lazy.ts';
@@ -24,6 +24,7 @@ import { deviceInfo } from '../viewport.ts';
 import { closeButton, goBack, h, mount, openModal, rebuildOnLayout, subPage, toast, wideLayout, type Banner, type Screen } from '../ui.ts';
 import { accessibilityScreen } from './accessibility.ts';
 import { homeScreen } from './home.ts';
+import { reminderSetting } from './reminderSetting.ts';
 import { founderUnlocked, hasAuthenticator, startEnrolment, verifyCode } from '../backend/founder.ts';
 import { IS_BETA } from '../backend/client.ts';
 import * as copy from '../copy/en.ts';
@@ -49,6 +50,7 @@ export function setupScreen(): Screen {
     devSection(),
     themeRow,
     wheelRow,
+    reminderSetting(),
     accessibilityLink(),
     privacyLink(),
     addToHomeRow(),
@@ -91,15 +93,16 @@ function lookSections(): HTMLElement[] {
       toast(copy.setup.tutorialQueued);
     },
   });
-  // a wide screen's Look and play page: one card of choices, as Accessibility's (the banner beside it
-  // gives the title)
+  // a wide screen's Look and play page: titled groups of choices, as Accessibility's
   if (wideLayout()) {
     return [
-      h('div', { class: 'panel setting choice-list' },
+      settingGroup(copy.setup.lookGroup, [
         choice('setup-theme', copy.setup.theme, copy.setup.themeHelp, theme.el),
         choice('setup-wheel', copy.setup.notesWheel, copy.setup.notesWheelHelp, wheel.el),
-        choice('setup-tutorial', copy.setup.tutorial, copy.setup.tutorialHelp, tutorial)),
-    ];
+        choice('setup-tutorial', copy.setup.tutorial, copy.setup.tutorialHelp, tutorial),
+      ]),
+      reminderSetting(),
+    ].filter((x): x is HTMLElement => !!x);
   }
   return [
     h('section', { class: 'panel setting' }, h('div', {}, h('h2', { text: copy.setup.theme }), h('p', { text: copy.setup.themeHelp })), theme.el),

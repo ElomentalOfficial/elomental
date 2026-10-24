@@ -20,6 +20,8 @@ import { dailyScreen } from './daily.ts';
 import { forgeScreen } from './forge.ts';
 import { startGame, type SavedGame } from './game.ts';
 import { homeScreen } from './home.ts';
+import { REMINDER_ASKED_KEY } from './reminderSetting.ts';
+import { hourLabel, nearestHour, pushBlocked, remindAt } from '../reminders.ts';
 import * as copy from '../copy/en.ts';
 
 /**
@@ -217,7 +219,7 @@ export function showResult(game: SavedGame, won: boolean, reason: FinishReason, 
       // a player's first wins say what they earned is for, under what it paid (not with a moment
       // that explains itself; a new level is the one its XP line explains)
       hero && hero !== 'level' ? null : learnLines(won, outcome),
-      resultExtra(won, !!hero),
+      resultExtra(won, !!hero, config.mode === 'daily'),
       h('div', { class: 'actions' }, again, h('button', { class: 'btn', text: copy.common.home, onclick: () => void goBack(homeScreen) })),
     ),
     { dismissible: false },
@@ -236,9 +238,34 @@ function markLine(outcome: Outcome): HTMLElement | null {
  * otherwise, for guests, the sign-up line. Each counts only the results it was offered on,
  * so the two never land together.
  */
-function resultExtra(won: boolean, busy: boolean): HTMLElement | null {
+function resultExtra(won: boolean, busy: boolean, daily = false): HTMLElement | null {
   if (busy) return null;
-  return sideLine(won) ?? addToHomeResultNote(won) ?? signupPrompt();
+  return sideLine(won) ?? reminderOffer(won && daily) ?? addToHomeResultNote(won) ?? signupPrompt();
+}
+
+/**
+ * Once, on a solved Daily with an account and no reminder set: one tap sets one for about the time
+ * they just played (push here, else email). Held back, without counting, where neither works yet
+ * (an iPhone browser guest): it comes back once one does.
+ */
+function reminderOffer(solvedDaily: boolean): HTMLElement | null {
+  if (!solvedDaily || !cachedAccount() || readJson<boolean>(REMINDER_ASKED_KEY)) return null;
+  if (pushBlocked() && !registered()) return null;
+  writeJson(REMINDER_ASKED_KEY, true);
+  const hour = nearestHour();
+  const box = h('div', { class: 'first-win' }, h('p', { text: copy.reminders.offer }));
+  const yes = h('button', {
+    class: 'link-btn',
+    text: copy.reminders.offerYes(hourLabel(hour)),
+    attrs: { type: 'button' },
+    onclick: async () => {
+      yes.disabled = true;
+      const line = await remindAt(hour);
+      box.replaceChildren(h('p', { text: line, attrs: { role: 'status' } }));
+    },
+  });
+  box.append(yes);
+  return box;
 }
 
 const SIDE_ASKED_KEY = 'elomental:affinity-result';

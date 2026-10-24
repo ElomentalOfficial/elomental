@@ -974,6 +974,8 @@ export const setup = {
   tutorialHelp: 'How to pick a cell, fill it in and take notes.',
   tutorialReplay: 'Show again next game',
   tutorialQueued: 'The tutorial plays at the start of your next game.',
+  /** Wide screens: Look and play's first group (theme, notes wheel, tutorial). */
+  lookGroup: 'Theme and play',
   /** Wide screens (banner pages): the banner's line, and the doors with what's set behind each. */
   bannerHelp: 'Make Elomental yours.',
   doors: {
@@ -982,7 +984,7 @@ export const setup = {
     signedIn: 'Signed in',
     guest: 'Playing as a guest',
     look: 'Look and play',
-    lookLine: 'Theme, notes wheel, tutorial',
+    lookLine: 'Theme, notes wheel, reminder, tutorial',
     a11yLine: 'Text size, contrast, motion, sound',
     privacyLine: 'What other players see',
     lookState: (theme: string, wheel: boolean) => `${theme} · notes wheel ${wheel ? 'on' : 'off'}`,
@@ -1048,6 +1050,51 @@ export const setup = {
   openDev: 'Open founder tools',
   /** The bottom of Setup: which version this is (vite.config.ts), e.g. "Version 352" or "Version 352 · Beta". */
   build: (n: string, beta: boolean) => `Version ${n}${beta ? ' · Beta' : ''}`,
+};
+
+// --- Daily reminders (reminders.ts, Setup, the Daily's result) ----------------------
+// Settings voice: neutral, says what happens. The reminder's own words (the notification and
+// the email) are in supabase/functions/_shared/reminderCopy.ts, in the same voice.
+
+export const reminders = {
+  title: 'Daily reminder',
+  /** The group's lead line: the promise. */
+  help: 'At the time you pick, only on days you haven’t solved the Daily Square yet.',
+  time: 'Time',
+  timeHelp: 'In your own time zone.',
+  push: 'On this device',
+  pushHelp: 'A notification on this phone or computer. Turn it on on each device you use.',
+  /** Push is on for the player's other devices, not this one. */
+  pushElsewhere: (n: number) => `On for ${n} other ${n === 1 ? 'device' : 'devices'}. Turn it on here too if you like.`,
+  email: 'By email',
+  emailHelp: 'One short email to your account’s address, with a link to turn the emails off.',
+  emailGuest: 'Sign up with your email to get reminders by email.',
+  /** Toasts, saying what changed: "Reminder set for 6:00 PM." */
+  saved: (time: string) => `Reminder set for ${time}.`,
+  emailOn: (time: string) => `Email reminder on, at ${time}.`,
+  emailOffToast: 'Email reminder off.',
+  offHere: 'Reminder off on this device.',
+  off: 'Daily reminder off.',
+  noEmail: 'Sign up with your email to get reminders by email.',
+  offline: 'Couldn’t save your reminder. Check your connection and try again.',
+  loadFailed: 'Couldn’t load your reminder. Check your connection and try again.',
+  pushUnavailable: 'This browser can’t show notifications.',
+  pushIos: 'On iPhone and iPad, notifications work once Elomental is on your Home Screen.',
+  pushDenied: 'Notifications are blocked for Elomental. Allow them in your device or browser settings, then try again.',
+  pushFailed: 'Couldn’t turn on notifications here. Try again in a moment.',
+  /** The first solved Daily's result, once: one tap sets a reminder near the time they played. */
+  offer: 'Want a reminder for tomorrow’s square?',
+  offerYes: (time: string) => `Remind me at ${time}`,
+  offerDone: (time: string) => `Reminder set for ${time}. Change it in Setup.`,
+  /** A reminder tapped in the middle of a game: the game stays. */
+  waiting: 'Today’s square is waiting on Home when you’re done.',
+  /** The email's turn-off link (SITE/?reminders-off=…): a question, then what happened. */
+  offAsk: 'Turn off Daily reminder emails?',
+  offYes: 'Turn off emails',
+  offKeep: 'Keep them',
+  offDone: 'Email reminders are off. You can turn them back on in Setup.',
+  offUnknown: 'That link isn’t valid any more. You can turn reminders off in Setup.',
+  offError: 'Couldn’t turn off the emails just now. Check your connection and try again.',
 };
 
 // --- Leaderboard (screens/leaderboard.ts, playerCard.ts) ------------------------

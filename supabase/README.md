@@ -101,6 +101,22 @@ elomental.online and mail scanners that pre-open links can't use the token up;
 the app verifies it on load (`signInFromEmailLink`). Paste them into the
 dashboard only once an app version with `signInFromEmailLink` is live.
 
+**Daily reminders** (migration `daily_reminders`, Edge Function `send-reminders`,
+deployed with `verify_jwt` off). pg_cron calls the function every hour; it does
+nothing until all of these are set, per project:
+
+- Vault (SQL editor): `select vault.create_secret('<project URL>', 'project_url');`
+  and `select vault.create_secret('<32 random bytes, hex>', 'reminder_cron_secret');`
+- Edge Function secrets: `CRON_SECRET` (the same value as `reminder_cron_secret`),
+  `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` (`https://elomental.online`),
+  `SITE_URL` (the site the links open), and for email `RESEND_API_KEY` and
+  `REMINDER_FROM` (`Elomental <daily@…>` on a domain verified in Resend).
+- The site build: `VITE_VAPID_PUBLIC_KEY`, the same public key (packages/web/.env.beta,
+  elomental-beta's deploy.yml). Each project has its own VAPID pair.
+
+Push goes only to the known push services (`private.push_host_ok`); email only to a
+confirmed address. A half-hour time zone gets its reminder 30 minutes after the hour.
+
 ## Reviewing flagged players
 
 Ranked wins typed in from a solver are left unrated and flagged (Edge

@@ -137,6 +137,8 @@ export async function signedIn(page: Page, opts: { affinity?: string | null; tex
     faction_board: { month: '2026-10-01', endsAt: '2026-11-01T00:00:00Z', mine: affinity, myInfluence: 54, mySolves: 9, myPlace: 12, standings,
       top: rows(1, 10, 0).map((r, i) => ({ id: r.id, name: r.name, influence: 300 - i * 20 })), lastWinner: { month: '2026-09-01', winner: 'fire', winners: ['fire', 'water'] } },
     affinity_standings: standings,
+    // no Daily reminder set yet (migration daily_reminders)
+    reminder_get: { hour: null, tz: null, push: false, email: false, emailOk: !anonymous, devices: 0 },
     player_card: { id: 'x', name: LONG_NAME, title: 'Founder', elo: 1612, tier: 4, plate: 5, level: 82, avatar: 's0-avatar-calm', frame: 's0-frame-epic', alive: true, peak: 1640, place: 2, notRanked: false,
       affinity: 'fire', country: 'RO', stats: { solved: 2840, ranked: 1120 }, badges: ['win-2026-09-water', 'daily-2026-10', 'win-2026-07-earth'], showcase: ['win-2026-09-water', 'daily-2026-10', 'win-2026-07-earth'], following: false, me: false },
   };

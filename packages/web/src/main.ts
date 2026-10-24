@@ -4,6 +4,7 @@ import { cachedAccount, initBackend, onAccountChange, refreshAccount } from './b
 import { readJson, writeJson } from './storage.ts';
 import { flushPending, pendingResults } from './backend/pending.ts';
 import { installWheelScroll, installZoomGuards } from './gestures.ts';
+import { dailyScreen } from './screens/daily.ts';
 import { homeScreen } from './screens/home.ts';
 import { splashDue, welcomeScreen } from './screens/welcome.ts';
 import { installA11y } from './a11y.ts';
@@ -17,6 +18,7 @@ import { applyGrain } from './grain.ts';
 import { installAddToHome } from './install.ts';
 import { installUpdateCheck } from './update.ts';
 import { betaGateScreen, betaLocked, installBetaMark } from './beta.ts';
+import { emailOff } from './reminders.ts';
 
 applyTheme();
 installBetaMark();
@@ -79,10 +81,46 @@ onAccountChange(() => {
   else if (!betaLocked() && gate) mount(homeScreen());
 });
 
+// A Daily reminder's tap or link (?open=daily, reminders.ts) opens straight at the Daily Square;
+// the email's turn-off link (?reminders-off=<token>) asks first, then turns the emails off.
+const params = new URLSearchParams(location.search);
+const openDaily = params.get('open') === 'daily';
+const offToken = params.get('reminders-off');
+if (openDaily || offToken) history.replaceState(null, '', location.pathname);
+
+// A reminder tapped while the game is open (public/sw.js): the Daily, unless a game is in progress.
+navigator.serviceWorker?.addEventListener('message', (event: MessageEvent<{ type?: string }>) => {
+  if (event.data?.type !== 'open-daily' || betaLocked()) return;
+  if (document.querySelector('.screen.game')) toast(copy.reminders.waiting);
+  else mount(dailyScreen());
+});
+
+/** The turn-off link's question, over whatever screen opened. */
+function askEmailOff(token: string) {
+  const t = copy.reminders;
+  const result = h('p', { attrs: { role: 'status' } });
+  const done = h('button', { class: 'btn', text: copy.common.close, attrs: { type: 'button' }, onclick: () => close() });
+  const yes = h('button', {
+    class: 'btn btn-primary',
+    text: t.offYes,
+    attrs: { type: 'button' },
+    onclick: async () => {
+      yes.disabled = true;
+      result.textContent = await emailOff(token);
+      actions.replaceChildren(done);
+      done.focus();
+    },
+  });
+  const actions = h('div', { class: 'actions' }, yes, h('button', { class: 'btn', text: t.offKeep, attrs: { type: 'button' }, onclick: () => close() }));
+  const close = openModal(h('div', { class: 'confirm' }, h('h2', { text: t.offAsk }), result, actions));
+}
+
 // The splash once a day (full review M21); other launches fade straight into Home.
 if (betaLocked()) mount(betaGateScreen());
+else if (openDaily) mount(dailyScreen());
 else if (splashDue()) mount(welcomeScreen());
 else {
   mount(homeScreen());
   document.querySelector('.screen.home')?.classList.add('launch');
 }
+if (offToken) askEmailOff(offToken);
