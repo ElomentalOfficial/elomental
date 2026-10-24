@@ -118,11 +118,12 @@
   --profile-bg: var(--c-highlight-2);
   /* the profile card's empty badge socket (home.css .pc-add-socket): a shade into the card */
   --pc-socket: color-mix(in srgb, var(--c-bg) 40%, transparent);
-  /* the profile card's bars' track (home.css .pc-next): a step into the card */
+  /* the profile card's rings' track (home.css .pc-ring): a step into the card */
   --pc-track: var(--c-bg);
-  /* and their fills, each brightening towards its leading edge: Elo in the rank's ember, Level in
-     the crests' gold (owner) */
-  --pc-level-fill: linear-gradient(90deg, var(--c-gold-400), var(--c-gold-100));
+  /* and the Level ring's fill, brightening as it goes round, in the crests' gold (Elo's is the
+     rank's own metal) (owner) */
+  --pc-level-lo: var(--c-gold-400);
+  --pc-level-hi: var(--c-gold-100);
   /* an empty badge slot's rim: a faint dashed line, a little lighter than the card (owner) */
   --pc-slot-edge: color-mix(in srgb, var(--c-stone-300) 30%, transparent);
   /* the faction's emblem on the profile card (home.css .pc-mark): no colour, light on dark (owner) */
@@ -247,7 +248,8 @@
   --profile-bg: var(--c-second-bright);
   --pc-socket: color-mix(in srgb, var(--c-mud) 60%, transparent);
   --pc-track: var(--bar-bg);
-  --pc-level-fill: linear-gradient(90deg, var(--c-gold-500), var(--c-gold-300));
+  --pc-level-lo: var(--c-gold-500);
+  --pc-level-hi: var(--c-gold-300);
   --pc-slot-edge: color-mix(in srgb, var(--c-sand-500) 40%, transparent);
   --faction-mark: var(--c-stone-800);
   --profile-text: var(--c-crimson);

@@ -94,6 +94,12 @@ export function xpRow(xp: XpGain, hero = false): HTMLElement {
   return row;
 }
 
+/** How far into the level you are (0 to 1) and what the next one needs, in words (Home's ring). */
+export function levelStep(total: number): { share: number; text: string } {
+  const l = xpLevel(total);
+  return { share: l.into / l.need, text: toNext(l.need - l.into, l.level + 1) };
+}
+
 /** The Profile's progress: the bar and what the next level needs (no gain). */
 export function levelProgress(total: number): HTMLElement {
   const l = xpLevel(total);

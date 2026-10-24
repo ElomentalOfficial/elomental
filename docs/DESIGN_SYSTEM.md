@@ -77,12 +77,13 @@ order inside the tile's frame. Who you are leads and takes the spare height: the
 sunburst (`withRays`), the name (no plate here: plates show on the Profile and the player card)
 and the rank beside it. The whole card sits on one grid of three equal columns (2026-10-24): the
 avatar in the first, the name from the second's edge, and under them two rows of three recessed
-tiles on the same columns and gap. The first row is how you're doing: Elo and Level, each its
-caption, its number, its bar and what's next (the Profile's own `rankProgress` and
-`levelProgress`, on one track, `--pc-track`), and your faction, its emblem the value, struck in a
-fine double ring like a seal (no colour: light on dark, dark on light, `--faction-mark`), its name
-the line under it. With no faction yet the tile is the way to choose one, its "+" the badge
-slots' own; a guest on this device alone has Elo and Level only. At large text the faction tile
+tiles on the same columns and gap. The first row is how you're doing, each tile a caption over a
+ring with the value at its centre: Elo's ring fills in the rank's metal toward the next rank,
+Level's in gold toward the next level (on one track, `--pc-track`; what's left is read out to
+screen readers, not printed), and your faction's ring is closed, in the frame's ink, round its
+emblem (no colour: light on dark, dark on light, `--faction-mark`), its name the caption. With no
+faction yet the tile is the way to choose one, its "+" the badge slots' own; a guest on this
+device alone has Elo and Level only. At large text the faction tile
 takes a row under the other two. (It replaced a flag hung over the name, which grew too small to
 read on a phone.) Last, the three
 badges, each in a recessed slot and each a button to the badge choice (`badgePicker.ts`). The

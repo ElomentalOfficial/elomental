@@ -217,9 +217,8 @@
   letter-spacing: 0.04em;
 }
 /* Elo, Level and your faction: three tiles on the badges' columns and gap, recessed like their
-   slots; each centred, its caption, its value on one line across the row, and its line at the
-   foot (the rows of the tile's own grid line them up tile to tile). A guest on this device alone
-   has two, Elo and Level, sharing the row. */
+   slots; each centred, its caption over a ring (owner, 2026-10-24: the bars and their lines were
+   cramped in a narrow tile). A guest on this device alone has two, Elo and Level, sharing the row. */
 .pc-stats {
   grid-area: stats;
   display: grid;
@@ -232,73 +231,18 @@
 .pc-stat {
   min-width: 0;
   container-type: inline-size;
-  padding: var(--space-2);
+  padding: var(--space-3) var(--space-2);
   border-radius: var(--radius-lg);
   background: var(--pc-socket);
   text-align: center;
 }
 .pc-stat .pc-in {
   display: grid;
-  grid-template-rows: auto auto 1fr;
+  grid-template-rows: auto 1fr;
   justify-items: center;
-  row-gap: var(--space-1);
+  align-items: center;
+  row-gap: var(--space-2);
   height: 100%;
-}
-.pc-stat .pc-next {
-  align-self: end;
-  width: 100%;
-  /* a line that wraps in a narrow tile breaks into even halves, never one word left alone */
-  text-wrap: balance;
-}
-/* the faction's emblem is its value, as tall as the numbers beside it, light on dark and dark on
-   light (no colour: owner), struck in a fine double ring like a seal, so it reads as a badge
-   beside the badges under it; its name the line under it, in the text's own ink: it is what the
-   tile says, not a note */
-.pc-mark {
-  display: block;
-  width: 1em;
-  height: 1em;
-  color: var(--faction-mark);
-}
-.pc-faction:not(.pc-choose) .pc-mark {
-  /* its two rings in the frame's ink (set on the card's frame), the inner one fainter */
-  --pc-seal: color-mix(in srgb, var(--frame-line) 60%, transparent);
-  --pc-seal-inner: color-mix(in srgb, var(--frame-line) 30%, transparent);
-  box-sizing: border-box;
-  width: 1.3em;
-  height: 1.3em;
-  /* (room for the outer ring, clear of the caption) */
-  margin-top: var(--space-1);
-  padding: 0.2em;
-  border: 1px solid var(--pc-seal);
-  border-radius: 50%;
-  outline: 1px solid var(--pc-seal-inner);
-  outline-offset: 2px;
-}
-.pc-mark svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-.pc-side-name {
-  font-family: var(--serif);
-  font-size: var(--fs-small);
-  color: var(--profile-text);
-}
-/* no faction yet: the tile is the way to choose one, its "+" the badge slots' own (homeCard.ts ADD),
-   brightening under the pointer like theirs */
-.pc-choose {
-  font: inherit;
-  color: inherit;
-  cursor: var(--cursor-pointer);
-}
-.pc-choose .pc-mark {
-  color: var(--muted);
-}
-.pc-choose .pc-next {
-  font-family: var(--serif);
-  font-size: var(--fs-small);
-  color: var(--muted);
 }
 .pc-cap {
   font-size: var(--fs-caption);
@@ -313,60 +257,67 @@
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
-/* what's next (rankBar.ts, level.ts): the bar across the whole column, its line under it in the
-   caption size; the two bars on one track, each in its own fill (rank, level) */
-.pc-next .rank-progress,
-.pc-next .level-progress {
-  width: 100%;
-  gap: var(--space-1);
-}
-.pc-next .rank-progress-text {
-  order: 1;
-}
-.pc-next :is(.rank-progress-text, .xp-caption) {
-  font-family: var(--serif);
-  font-size: var(--fs-small);
-  color: var(--muted);
-}
-.pc-next :is(.rank-bar, .xp-bar) {
-  height: 6px;
-  border-radius: 3px;
-  background: var(--pc-track);
-}
-/* each fill brightens towards its leading edge (tokens.css), and ends in a small bright knob with
-   a soft glow, so where it stands reads at a glance (owner) */
-.pc-next .rank-bar span {
-  --knob: var(--rank-hi);
-  --knob-deep: var(--rank-lo);
-}
-.pc-next .xp-bar span {
-  --knob: var(--c-gold-100);
-  --knob-deep: var(--c-gold-600);
-  background: var(--pc-level-fill);
-}
-/* the fill ends square, so its bright head reads as a fine line, not a rounded cap (owner) */
-.pc-next :is(.rank-bar, .xp-bar) span {
+/* The ring: one shape for all three, the value at its centre. Elo's fills in your rank's metal
+   toward the next rank, Level's in gold toward the next level, each from the top, clockwise, on
+   the bars' own track; the faction's is closed, in the frame's ink, a seal round its emblem. */
+.pc-ring {
+  --fill: 0;
   position: relative;
-  border-start-end-radius: 1px;
-  border-end-end-radius: 1px;
+  display: grid;
+  place-items: center;
+  width: 2.4em;
+  aspect-ratio: 1;
 }
-.pc-next :is(.rank-bar, .xp-bar) span::after {
+.pc-ring::before {
   content: '';
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 2px;
-  height: 100%;
-  background: var(--c-bright);
-  opacity: 0.8;
-  box-shadow: 0 0 3px var(--knob);
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(var(--ring-lo) 0, var(--ring-hi) calc(var(--fill) * 100%), var(--pc-track) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px));
 }
-/* on the light theme a bright head on the pale track reads as a gap (owner): there it is a deeper
-   shade of the bar's own metal, with no glow */
-:root[data-theme='light'] .pc-next :is(.rank-bar, .xp-bar) span::after {
-  background: color-mix(in oklab, var(--knob-deep) 70%, var(--c-stone-900));
-  opacity: 1;
-  box-shadow: none;
+.pc-ring-rank {
+  --ring-lo: var(--rank-lo);
+  --ring-hi: var(--rank-hi);
+}
+.pc-ring-level {
+  --ring-lo: var(--pc-level-lo);
+  --ring-hi: var(--pc-level-hi);
+}
+.pc-ring-seal::before {
+  background: color-mix(in srgb, var(--frame-line) 60%, transparent);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px));
+}
+.pc-ring-val {
+  position: relative;
+  font-size: 0.8em;
+}
+/* the faction's emblem, light on dark and dark on light (no colour: owner) */
+.pc-mark {
+  position: relative;
+  display: block;
+  width: 1.3em;
+  height: 1.3em;
+  color: var(--faction-mark);
+}
+.pc-mark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+/* no faction yet: the tile is the way to choose one, its "+" the badge slots' own (homeCard.ts ADD),
+   brightening under the pointer like theirs */
+.pc-choose {
+  font: inherit;
+  color: inherit;
+  cursor: var(--cursor-pointer);
+}
+.pc-choose .pc-mark {
+  width: 1em;
+  height: 1em;
+  color: var(--muted);
 }
 /* Your three chosen badges (Profile > Badges), each in a slot recessed a shade into the card. */
 .pc-showcase {

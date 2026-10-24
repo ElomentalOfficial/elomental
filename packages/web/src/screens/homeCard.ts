@@ -5,9 +5,8 @@ import { cachedLoadout, cachedPolish } from '../backend/forge.ts';
 import { myBadges } from '../backend/leaderboard.ts';
 import { badgeArt, badgeLabel } from '../badges.ts';
 import { openBadgePicker } from '../badgePicker.ts';
-import { levelProgress } from '../level.ts';
-import { loadProfile, rankTier } from '../profile.ts';
-import { rankProgress } from '../rankBar.ts';
+import { levelStep } from '../level.ts';
+import { loadProfile, nextRank, rankTier } from '../profile.ts';
 import { rankName } from '../rankName.ts';
 import { withRays } from '../rays.ts';
 import { h } from '../ui.ts';
@@ -18,8 +17,8 @@ import * as copy from '../copy/en.ts';
  * Home's profile card, "Ledger" (owner, 2026-10-23): one reading order inside the tile's own Art
  * Deco frame. Who you are leads and takes the room: your avatar on a sunburst, your name and your
  * rank beside it. Under them two rows of three recessed tiles on one grid (owner, 2026-10-24): how
- * you are doing, Elo, Level and your faction (it replaced the flag over the name), then the three
- * badges you show off.
+ * you are doing, Elo, Level and your faction, each a caption over a ring (it replaced the flag over
+ * the name), then the three badges you show off.
  * Stardust and Spirits live on the Forge tile, where they are spent (home.ts).
  */
 export interface HomeCard {
@@ -68,24 +67,32 @@ export function homeCard(): HomeCard {
   const rankEl = h('span', { class: 'profile-rank' });
   const name = h('div', { class: 'pc-cell pc-name' }, h('div', { class: 'pc-in' }, nameEl, rankEl));
 
-  // ---- how you're doing: three tiles cut like the badge slots under them, each its caption, its
-  // value and a line under it (owner, 2026-10-24): Elo and Level with their bars and what's next,
-  // and your faction, its emblem the value and its name the line; without one, a tile to choose
-  const eloNum = h('span', { class: 'pc-num' });
-  const eloNext = h('div', { class: 'pc-next' });
-  const levelNum = h('span', { class: 'pc-num' });
-  const levelNext = h('div', { class: 'pc-next' });
-  const sideMark = h('span', { class: 'pc-num pc-mark', attrs: { 'aria-hidden': 'true' } });
-  const sideName = h('div', { class: 'pc-next pc-side-name' });
-  const tileIn = (cap: string, value: HTMLElement, next: HTMLElement) => h('div', { class: 'pc-in' }, h('span', { class: 'pc-cap', text: cap }), value, next);
-  const stat = (cls: string, cap: string, num: HTMLElement, next: HTMLElement) => h('div', { class: `pc-stat ${cls}` }, tileIn(cap, num, next));
-  const sideStat = stat('pc-faction', copy.home.card.factionCap, sideMark, sideName);
+  // ---- how you're doing: three tiles cut like the badge slots under them, each its caption over a
+  // ring (owner, 2026-10-24): Elo and Level, the number inside a ring that fills as the next rank or
+  // level nears (what's left, in words, for screen readers only: the ring shows it), and your
+  // faction, its name the caption and its emblem in a closed ring; without one, a tile to choose
+  const ring = (cls: string, inner: HTMLElement) => h('span', { class: `pc-num pc-ring ${cls}` }, inner);
+  const eloNum = h('span', { class: 'pc-ring-val' });
+  const eloRing = ring('pc-ring-rank', eloNum);
+  const eloLeft = h('span', { class: 'sr-only' });
+  const levelNum = h('span', { class: 'pc-ring-val' });
+  const levelRing = ring('pc-ring-level', levelNum);
+  const levelLeft = h('span', { class: 'sr-only' });
+  const sideMark = h('span', { class: 'pc-mark', attrs: { 'aria-hidden': 'true' } });
+  const sideName = h('span');
+  const tile = (cls: string, cap: Node, value: HTMLElement, left: HTMLElement | null) =>
+    h('div', { class: `pc-stat ${cls}` }, h('div', { class: 'pc-in' }, h('span', { class: 'pc-cap' }, cap), value, left));
+  // (the faction's caption is its name, read as "Faction Air")
+  const sideStat = tile('pc-faction', h('span', {}, h('span', { class: 'sr-only', text: `${copy.home.card.factionCap} ` }), sideName), ring('pc-ring-seal', sideMark), null);
   const chooseSide = h(
     'button',
     { class: 'pc-stat pc-faction pc-choose', attrs: { type: 'button', 'aria-label': copy.home.line.chooseSide } },
-    tileIn(copy.home.card.factionCap, h('span', { class: 'pc-num pc-mark', html: ADD }), h('div', { class: 'pc-next', text: copy.home.card.factionChoose })),
+    h('div', { class: 'pc-in' }, h('span', { class: 'pc-cap', text: copy.home.card.factionCap }), ring('pc-ring-seal', h('span', { class: 'pc-mark', html: ADD }))),
   );
-  const stats = h('div', { class: 'pc-cell pc-stats' }, stat('pc-elo', copy.common.elo, eloNum, eloNext), stat('pc-level', copy.level.cap, levelNum, levelNext), sideStat, chooseSide);
+  const stats = h('div', { class: 'pc-cell pc-stats' },
+    tile('pc-elo', document.createTextNode(copy.common.elo), eloRing, eloLeft),
+    tile('pc-level', document.createTextNode(copy.level.cap), levelRing, levelLeft),
+    sideStat, chooseSide);
 
   // ---- what you show off: your three badges, each in its own recessed slot
   const badges = h('ul', { class: 'pc-badges', attrs: { 'aria-label': copy.home.card.badges } });
@@ -139,13 +146,19 @@ export function homeCard(): HomeCard {
     nameEl.replaceChildren(...p.name.split(/(?<=[_-])/).flatMap((part, i) => (i ? [h('wbr'), part] : [part])));
     const tier = rankTier(p.elo, p.tier);
     rankEl.replaceChildren(rankName(tier.tier, tier.label, p.title));
-    // Elo, and how far the next rank is once you've played Ranked (as on the Profile)
+    // Elo, its ring in your rank's metal filling toward the next rank once you've played Ranked
+    // (as the Profile's bar); full at the top rank
     eloNum.textContent = copy.formatNumber(p.elo);
-    eloNext.replaceChildren(...[p.rankedGames > 0 ? rankProgress(p.elo, p.tier) : null].filter((n): n is HTMLElement => !!n));
-    // the level, and what the next one needs
+    const next = p.rankedGames > 0 ? nextRank(p.elo, p.tier) : null;
+    eloRing.className = `pc-num pc-ring pc-ring-rank rank-${tier.tier}`;
+    eloRing.style.setProperty('--fill', String(next ? next.share : p.rankedGames > 0 ? 1 : 0));
+    eloLeft.textContent = next ? copy.common.toNextRank(next.gap, next.label) : '';
+    // the level, its ring filling toward the next
     const xp = account?.xp ?? 0;
+    const step = levelStep(xp);
     levelNum.textContent = String(xpLevel(xp).level);
-    levelNext.replaceChildren(levelProgress(xp));
+    levelRing.style.setProperty('--fill', String(step.share));
+    levelLeft.textContent = step.text;
     // your faction's tile; with an account and no faction yet, the tile to choose one; a guest on
     // this device alone has neither, and Elo and Level share the row
     const side = account?.affinity ?? null;
