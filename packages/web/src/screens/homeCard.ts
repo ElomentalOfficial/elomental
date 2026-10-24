@@ -1,6 +1,5 @@
 import { avatarSvg, emblemUrl } from '../avatar.ts';
 import { cachedAccount, registered } from '../backend/account.ts';
-import { elementMark } from '../elementMarks.ts';
 import { cachedLoadout, cachedPolish } from '../backend/forge.ts';
 import { myBadges } from '../backend/leaderboard.ts';
 import { badgeArt, badgeLabel } from '../badges.ts';
@@ -9,6 +8,7 @@ import { levelProgress } from '../level.ts';
 import { loadProfile, rankTier } from '../profile.ts';
 import { rankProgress } from '../rankBar.ts';
 import { rankName } from '../rankName.ts';
+import { placeIn } from '../tileSprites.ts';
 import { withRays } from '../rays.ts';
 import { h } from '../ui.ts';
 import { xpLevel } from '../xp.ts';
@@ -16,8 +16,8 @@ import * as copy from '../copy/en.ts';
 
 /**
  * Home's profile card, "Ledger" (owner, 2026-10-23): one reading order inside the tile's own Art
- * Deco frame. Who you are leads and takes the room: your avatar on a sunburst with your faction's
- * coin on its ring, your name and your rank beside it. Under a hairline, how you are
+ * Deco frame. Who you are leads and takes the room: your avatar on a sunburst, your name and your
+ * rank beside it under your faction's flag (owner, 2026-10-24). Under a hairline, how you are
  * doing: Elo and Level, each with its bar and what's next. Last, the three badges you show off,
  * each in a recessed slot.
  * Stardust and Spirits live on the Forge tile, where they are spent (home.ts).
@@ -50,6 +50,16 @@ const ADD =
   '<path class="pc-add-inner" d="M0 -9.6L8.3 -4.8V4.8L0 9.6L-8.3 4.8V-4.8Z"/>' +
   '<path class="pc-add-plus" d="M-0.75 -0.75L-0.3 -4.4H0.3L0.75 -0.75L4.4 -0.3V0.3L0.75 0.75L0.3 4.4H-0.3L-0.75 0.75L-4.4 0.3V-0.3Z"/></svg>';
 
+/**
+ * Your faction's flag (owner, 2026-10-24, the banner of an earlier version of the card): a pennant
+ * 44 × 92 units, its cloth coming to a point with a step inside its tip and a gem under it, the
+ * emblem high on the cloth. Its top edge runs under the frame's top line (home.css .pc-flag).
+ */
+const FLAG = (emblem: string) =>
+  '<svg viewBox="0 0 44 92" aria-hidden="true"><path class="pc-flag-cloth" d="M1 0V66L22 82L43 66V0Z"/>' +
+  '<path class="pc-flag-lines" d="M1 0V66L22 82L43 66V0M9 63L22 72.5L35 63"/><path class="pc-flag-gem" d="M22 85L25 88L22 91L19 88Z"/>' +
+  `<image href="${emblem}" x="8" y="24" width="28" height="28"/></svg>`;
+
 export function homeCard(): HomeCard {
   /** Your badges when you haven't chosen three: your newest, fetched once a visit to Home. */
   let newest: string[] | null = null;
@@ -59,14 +69,11 @@ export function homeCard(): HomeCard {
   /** The name as painted, for fitting it to its cell (draw). */
   let shown = '';
 
-  // ---- who you are: the avatar on its sunburst, your faction's coin on its ring; name and rank
+  // ---- who you are: the avatar on its sunburst; name and rank, your faction's flag over them
   const avatar = h('button', { class: 'avatar avatar-btn worn', attrs: { type: 'button', 'aria-label': copy.profile.a11yAvatar } });
-  // your faction's coin: on dark its full-colour emblem, on light its mark alone in the hue
-  // (home.css .pc-faction); read out once, from the coin
-  const coinArt = h('img', { class: 'pc-faction-art', attrs: { alt: '' } }) as HTMLImageElement;
-  const coinMark = h('span', { class: 'pc-faction-mark' });
-  const coin = h('span', { class: 'pc-faction', attrs: { role: 'img' } }, coinArt, coinMark);
-  const portrait = h('div', { class: 'pc-cell pc-portrait' }, withRays(h('span', { class: 'pc-medallion' }, avatar, coin)));
+  const portrait = h('div', { class: 'pc-cell pc-portrait' }, withRays(h('span', { class: 'pc-medallion' }, avatar)));
+  // your faction's flag over your name (draw places it), read out after it; none without a faction
+  const flag = h('span', { class: 'pc-flag', attrs: { role: 'img' } });
   const nameEl = h('strong', { class: 'profile-name' });
   const rankEl = h('span', { class: 'profile-rank' });
   const name = h('div', { class: 'pc-cell pc-name' }, h('div', { class: 'pc-in' }, nameEl, rankEl));
@@ -84,7 +91,7 @@ export function homeCard(): HomeCard {
   const badges = h('ul', { class: 'pc-badges', attrs: { 'aria-label': copy.home.card.badges } });
   const showcase = h('div', { class: 'pc-cell pc-showcase' }, badges);
 
-  const el = h('section', { class: 'profile-card area-profile' }, portrait, name, stats, showcase);
+  const el = h('section', { class: 'profile-card area-profile' }, portrait, name, flag, stats, showcase);
 
   /** Opens the badge choice (badgePicker.ts) with every badge you own. */
   const chooseBadges = () => {
@@ -139,14 +146,13 @@ export function homeCard(): HomeCard {
     const xp = account?.xp ?? 0;
     levelNum.textContent = String(xpLevel(xp).level);
     levelNext.replaceChildren(levelProgress(xp));
-    // your faction's coin on the avatar's ring, read out after your name
+    // your faction's flag over your name, read out after it
     const side = account?.affinity ?? null;
-    coin.hidden = !side;
+    flag.hidden = !side;
     if (side) {
-      coinArt.src = emblemUrl(side);
-      coinMark.innerHTML = elementMark(side);
-      coin.className = `pc-faction el-${side}`;
-      coin.setAttribute('aria-label', copy.home.card.faction(copy.forge.elements[side]));
+      flag.className = `pc-flag el-${side}`;
+      flag.innerHTML = FLAG(emblemUrl(side));
+      flag.setAttribute('aria-label', copy.home.card.faction(copy.forge.elements[side]));
     }
     // your three chosen badges (Profile > Badges), or your newest until you choose
     const chosen = account?.showcase ?? [];
@@ -169,10 +175,39 @@ export function homeCard(): HomeCard {
     schedule();
   };
 
+  // ---- the flag, placed as laid out: beside you, its left edge on your name's first letter, the
+  // name brought down just enough to clear it; stacked (large text, the name centred under you),
+  // in the top right corner, clear of the frame's corner ornament
+  const placeFlag = () => {
+    name.style.paddingTop = '';
+    flag.style.width = '';
+    if (flag.hidden) return;
+    const css = getComputedStyle(el);
+    const stacked = css.gridTemplateColumns.trim().split(/\s+/).length < 2;
+    if (stacked) {
+      const corner = (parseFloat(css.getPropertyValue('--frame-corner')) || 44) * (parseFloat(css.getPropertyValue('--frame-zoom')) || 1);
+      flag.style.left = `${el.clientWidth - corner - 8 - flag.offsetWidth}px`;
+      return;
+    }
+    // from layout, not the screen: the card swings in on a transform (tileSprites.ts placeIn)
+    flag.style.left = `${placeIn(el, nameEl).x}px`;
+    // in a short card (a tablet's) the flag shrinks so the name still fits under it, down to two
+    // thirds of its size
+    const content = placeIn(el, name.firstElementChild as HTMLElement).h;
+    const room = name.offsetTop + name.clientHeight - content - 8 - flag.offsetTop;
+    if (flag.offsetHeight > room) flag.style.width = `${Math.max((flag.offsetWidth * 2) / 3, (room * 44) / 92)}px`;
+    // the name's block is centred in its cell: padding the cell's top by twice what's missing
+    // brings its top to 8 px under the flag's gem
+    const need = flag.offsetTop + flag.offsetHeight + 8 - name.offsetTop;
+    const free = (name.clientHeight - content) / 2;
+    if (need > free) name.style.paddingTop = `${2 * need - name.clientHeight + content}px`;
+  };
+
   // ---- the name, fitted to its cell as laid out
   const zoomOf = (node: Element) => parseFloat(getComputedStyle(node).zoom || '1') || 1;
   const draw = () => {
     if (!el.isConnected || !el.offsetWidth) return;
+    placeFlag();
     const fit = name.clientWidth / zoomOf(name.firstElementChild!) - 16;
     // a long name shrinks to keep to one line, down to the label size; past that it wraps after
     // its _ or - (see paint), sized so its longest part keeps to a line, down to the body size

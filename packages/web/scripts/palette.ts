@@ -115,16 +115,14 @@ interface Swatch {
   steps?: Partial<Record<string, number>>;
   /** the deep role from another ramp (themeRoles): `dark` a `ramp-step`, `tint` the ramp light's is tinted with */
   deep?: { dark: string; tint: string };
-  /** the coin-mark role on light from another ramp (themeRoles), a `ramp-step` */
-  coinMark?: string;
 }
 export const SWATCHES: Swatch[] = [
   { id: 'el-fire', ramp: 'lava', fill: 500 },
   { id: 'el-water', ramp: 'tide', fill: 400 },
   { id: 'el-earth', ramp: 'forest', fill: 500 },
   // Air's deep is the plain grey neutral at its siblings' steps: mist's own shades read as Water's
-  // blue (owner); its coin's mark on light a light neutral grey, not mist's dark blue (owner)
-  { id: 'el-air', ramp: 'mist', fill: 200, steps: { 'line-light': 600, 'line-hc-light': 700 }, deep: { dark: 'stone-700', tint: 'stone' }, coinMark: 'steel-500' },
+  // blue (owner)
+  { id: 'el-air', ramp: 'mist', fill: 200, steps: { 'line-light': 600, 'line-hc-light': 700 }, deep: { dark: 'stone-700', tint: 'stone' } },
   { id: 'r-common', ramp: 'iron', fill: 500 },
   { id: 'r-rare', ramp: 'azure', fill: 500 },
   { id: 'r-epic', ramp: 'amethyst', fill: 500 },
@@ -163,12 +161,6 @@ function themeRoles(s: Swatch, t: 'dark' | 'light'): Record<string, string> {
     deep: t === 'dark'
       ? deepDark(s)
       : `color-mix(in oklab, ${v(s.deep?.tint ?? s.ramp, 700)} 30%, var(--c-stone-700))`,
-    // a small coin (Home's faction coin; owner, 2026-10-23): on dark the deep, flat, under the
-    // full-colour emblem; on light a pale disc of the hue, lit at the top (coin-lit 100) to its
-    // foot (coin 200), under the mark alone in the hue's 600 (coin-mark)
-    coin: t === 'dark' ? deepDark(s) : v(s.ramp, 200),
-    'coin-lit': t === 'dark' ? deepDark(s) : v(s.ramp, 100),
-    'coin-mark': t === 'dark' ? `var(--${s.id}-fill)` : s.coinMark ? `var(--c-${s.coinMark})` : v(s.ramp, 600),
   };
 }
 /**
@@ -294,8 +286,6 @@ export function paletteCss(): string {
       '   *         them (none on dark, a deeper shade of the hue on light), so a set never mixes rims',
       '   *   deep  a ground for art drawn on it (a crest disc): the hue at its darkest (900) on dark,',
       '   *         its 700 at 30% in stone 700 on light',
-      '   *   coin  a small coin (Home\'s faction coin): on dark the deep; on light the pale 200 at its',
-      '   *         foot, coin-lit 100 at its top, and coin-mark 600 for the mark on it',
       '   * Always shown with the name or the crest, never colour alone.',
       '   */',
       ...SWATCHES.flatMap((s) => [`  --${s.id}-fill: ${v(s.ramp, s.fill)};`, `  --${s.id}-on: var(${lightFill(s) ? '--c-stone-900' : '--c-sand-50'});`]),

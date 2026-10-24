@@ -222,7 +222,7 @@ const COMPOSITIONS: Record<Area, Compose> = {
  * any zoomed box between): the turnstile's swing and the press tilt are transforms, which layout
  * ignores, so the name can be measured the moment the tile is laid out, mid-swing or not.
  */
-function placeIn(tile: HTMLElement, el: HTMLElement): { x: number; y: number; w: number; h: number } {
+export function placeIn(tile: HTMLElement, el: HTMLElement): { x: number; y: number; w: number; h: number } {
   let x = 0;
   let y = 0;
   let zoom = 1;
