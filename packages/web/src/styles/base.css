@@ -120,7 +120,7 @@ html body {
 }
 html[data-theme='light'],
 html[data-theme='light'] body {
-  background: #ffffe5;
+  background: #f9f7ef;
 }
 /* Home-screen app: the background lines on the page itself too (grain.ts), so a strip
    the app's layers don't reach at the bottom still has them. */
@@ -152,7 +152,7 @@ html.standalone[data-theme='light'] {
   background: #262721;
 }
 html[data-theme='light'] #status-tint {
-  background: #ffffe5;
+  background: #f9f7ef;
 }
 html.standalone #status-tint {
   z-index: 5;
@@ -177,13 +177,13 @@ html {
   --coach-page: #1a1b16;
 }
 html[data-theme='light'] {
-  /* Frosted glass: a smoky Rock over the softly blurred page, a step darker than the
+  /* Frosted glass: a smoky paper 300 over the softly blurred page, a step darker than the
      page (the dark theme's frost is a step lighter), so the pop-up stands forward. */
-  --frost: rgba(179, 181, 160, 0.45);
-  /* Bright under that frost */
-  --scrim-top: #dddec6;
-  --scrim-bottom: #dddec6;
-  --coach-page: #5f5f55;
+  --frost: rgba(208, 207, 193, 0.45);
+  /* the page under that frost */
+  --scrim-top: #e7e5da;
+  --scrim-bottom: #e7e5da;
+  --coach-page: #5d5d58;
 }
 html.modal-open,
 html.modal-open body {

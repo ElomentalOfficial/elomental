@@ -213,7 +213,7 @@ html[data-reduce-motion] .sword-live .sword-flame {
 .good {
   color: var(--accent-text);
 }
-/* Ranked pop-up: "Start" is the theme's primary button (crimson light, lava dark). */
+/* Ranked pop-up: "Start" is the theme's primary button (lava in both themes). */
 .btn-start {
   margin-top: 6px;
 }

@@ -7,7 +7,8 @@
  * Steps are set by luminance, not by look, so step N of any hue has the same contrast against
  * every surface as step N of any other: one mapping rule (roleStep) covers every hue.
  *   200 ink on dark, High contrast · 300 ink on dark · 400 line on dark, or a light fill
- *   500 fill under Bright text, line on light · 600 ink on light · 700 ink on light, High contrast
+ *   450 line on light · 500 fill under Bright text · 550 ink on light
+ *   600 line on light, High contrast · 700 ink on light, High contrast
  *   800, 900 the dark surfaces and their tints
  * Existing colours are anchors, kept to the hex; every other step is generated in OKLCH at the
  * ramp's own hue and chroma. Designed with the ui-designer and an illustrator review
@@ -23,10 +24,16 @@ import { oklch, parseHex, solveY, toHex } from './colour.ts';
 
 /** WCAG relative luminance of each step. */
 const BANDS: Record<number, number> = { 50: 0.95, 100: 0.78, 200: 0.64, 300: 0.44, 400: 0.3, 500: 0.14, 600: 0.082, 700: 0.052, 800: 0.035, 900: 0.02, 950: 0.0075 };
-const STEPS = [100, 200, 300, 400, 500, 600, 700, 800, 900];
-const METAL = [100, 200, 300, 400, 500, 600, 700];
-/** How much of a hue's chroma each step carries: tints and shades are quieter, as in the Figma set. */
-const PROFILE: Record<number, number> = { 50: 0.2, 100: 0.35, 200: 0.6, 300: 0.9, 375: 1, 400: 1, 425: 1, 450: 1, 500: 1, 600: 0.95, 700: 0.85, 800: 0.45, 900: 0.3, 950: 0.2 };
+const STEPS = [100, 200, 300, 400, 450, 500, 550, 600, 700, 800, 900];
+const METAL = [100, 200, 300, 400, 450, 500, 550, 600, 700];
+/**
+ * How much of a hue's chroma each step carries: tints and shades are quieter, as in the Figma set.
+ * 450 and 550 are the light theme's line and ink: they carry more than the spine (15% and 25%), so a
+ * hue stays itself as small text on a pale page, never past CHROMA_CEILING, the palette's earthy
+ * limit. 150 is the light board's row and column.
+ */
+const PROFILE: Record<number, number> = { 50: 0.2, 100: 0.35, 150: 0.47, 200: 0.6, 300: 0.9, 375: 1, 400: 1, 425: 1, 450: 1.15, 500: 1, 550: 1.25, 600: 0.95, 700: 0.85, 800: 0.45, 900: 0.3, 950: 0.2 };
+const CHROMA_CEILING = 0.15;
 const FLAT: Record<number, number> = Object.fromEntries(Object.keys(PROFILE).map((k) => [k, 1]));
 
 /** An existing colour kept exactly (hex), or a generated one: hue, chroma and optionally its own luminance. */
@@ -44,11 +51,21 @@ export const RAMPS: Ramp[] = [
   { name: 'stone', what: 'dark-theme neutrals', steps: [100, 200, 300, 375, 425, 450, 500, 600, 700, 800, 900, 950], profile: FLAT,
     anchors: { 950: '#141511', 900: '#262721', 800: '#343530', 700: '#40413c', 500: '#6d6d5f', 450: '#77786e', 425: '#85867c', 375: '#9a9b8f' } },
   { name: 'iron', what: 'Common: a warm iron grey, off the Forest hue', steps: STEPS, profile: FLAT, anchors: { 500: { C: 0.012, H: 70 } } },
-  { name: 'sand', what: 'light-theme neutrals', steps: [50, 100, 200, 300, 400, 450, 500, 600, 700, 800, 900], profile: FLAT,
+  { name: 'sand', what: 'the bright neutrals: keys and text on dark', steps: [50, 100, 200, 300, 400, 450, 500, 600, 700, 800, 900], profile: FLAT,
     anchors: { 50: '#ffffe5', 100: '#e8e8ce', 200: '#dadbb9', 300: '#b3b5a0', 400: '#8c8d76', 450: '#7a7b64', 500: '#6b6c58' } },
-  { name: 'lava', what: 'Fire, Ranked, the dark accent', steps: STEPS, anchors: { 300: '#e69c74', 500: '#a85b37', 800: '#413226' } },
+  // a third of sand's chroma at the neutrals' hue, so the light page reads as paper, not yellow
+  { name: 'paper', what: 'light-theme ground: a warm off-white', steps: [50, 100, 200, 300, 400, 600], profile: FLAT,
+    anchors: {
+      50: { C: 0.011, H: 98, Y: 0.93 }, // the page and pop-ups
+      100: { C: 0.013, H: 98, Y: 0.82 }, // cards
+      200: { C: 0.016, H: 98, Y: 0.735 }, // fields, segments, cells, tiles
+      300: { C: 0.018, H: 100, Y: 0.62 }, // hairlines (1.2:1 on a card, as dark)
+      400: { C: 0.018, H: 100, Y: 0.205 }, // field edges and the 3x3 outline (3:1 on every light surface)
+      600: { C: 0.016, H: 105, Y: 0.1 }, // secondary text (4.5:1 on every light surface)
+    } },
+  { name: 'lava', what: 'Fire, Ranked, the accent', steps: [100, 150, ...STEPS.slice(1)], anchors: { 300: '#e69c74', 500: '#a85b37', 800: '#413226' } },
   { name: 'forest', what: 'Earth, Casual, what is on', steps: STEPS, anchors: { 200: '#c9d09d', 500: '#636945' } },
-  { name: 'crimson', what: 'Daily, the light theme ink and accent', steps: STEPS, anchors: { 600: '#794341' } },
+  { name: 'crimson', what: 'Daily, a wrong number, errors', steps: STEPS, anchors: { 600: '#794341' } },
   { name: 'tide', what: 'Water: a dusty sea blue, a light fill', steps: STEPS, anchors: { 400: { C: 0.08, H: 230 } } },
   { name: 'mist', what: 'Air: a cool grey-white, cloud rather than paper', steps: STEPS, profile: FLAT, anchors: { 200: { C: 0.02, H: 220 }, 500: { C: 0.035, H: 225 } } },
   { name: 'azure', what: 'Rare: a deep slate blue', steps: STEPS, anchors: { 500: { C: 0.0731, H: 249.5, Y: 0.15 } } },
@@ -102,7 +119,10 @@ for (const r of RAMPS) {
     const above = spine.find((s) => s.step > step);
     const [x, y] = [below ?? above!, above ?? below!];
     const t = x.step === y.step ? 0 : (step - x.step) / (y.step - x.step);
-    PRIM[name] = toHex(solveY(bandY(step), (x.Cp + (y.Cp - x.Cp) * t) * p[step], x.H + (y.H - x.H) * t));
+    const spineC = x.Cp + (y.Cp - x.Cp) * t;
+    // a step above 1 in the profile lifts chroma only up to the ceiling (or the spine, if higher)
+    const C = r.profile ? spineC : Math.min(spineC * p[step], Math.max(CHROMA_CEILING, spineC));
+    PRIM[name] = toHex(solveY(bandY(step), C, x.H + (y.H - x.H) * t));
   }
 }
 
@@ -122,7 +142,7 @@ export const SWATCHES: Swatch[] = [
   { id: 'el-earth', ramp: 'forest', fill: 500 },
   // Air's deep is the plain grey neutral at its siblings' steps: mist's own shades read as Water's
   // blue (owner)
-  { id: 'el-air', ramp: 'mist', fill: 200, steps: { 'line-light': 600, 'line-hc-light': 700 }, deep: { dark: 'stone-700', tint: 'stone' } },
+  { id: 'el-air', ramp: 'mist', fill: 200, steps: { 'line-light': 550, 'line-hc-light': 700 }, deep: { dark: 'stone-700', tint: 'stone' } },
   { id: 'r-common', ramp: 'iron', fill: 500 },
   { id: 'r-rare', ramp: 'azure', fill: 500 },
   { id: 'r-epic', ramp: 'amethyst', fill: 500 },
@@ -133,12 +153,13 @@ export const SWATCHES: Swatch[] = [
 ];
 /** A light fill (400 or lighter) takes dark text; a deep one Bright. */
 export const lightFill = (s: Swatch) => s.fill <= 400;
-const WASH_ALPHA = { dark: 0.18, light: 0.14 };
+/** On the off-white paper a 10% wash reads as dark's 18%, and lines keep 3:1 on it. */
+const WASH_ALPHA = { dark: 0.18, light: 0.1 };
 
 function roleStep(s: Swatch, role: 'ink' | 'line' | 'ink-hc' | 'line-hc', theme: 'dark' | 'light'): number {
   return (
     s.steps?.[`${role}-${theme}`] ??
-    { ink: { dark: 300, light: 600 }, line: { dark: 400, light: 500 }, 'ink-hc': { dark: 200, light: 700 }, 'line-hc': { dark: 300, light: 600 } }[role][theme]
+    { ink: { dark: 300, light: 550 }, line: { dark: 400, light: 450 }, 'ink-hc': { dark: 200, light: 700 }, 'line-hc': { dark: 300, light: 600 } }[role][theme]
   );
 }
 const v = (ramp: string, step: number) => `var(--c-${ramp}-${step})`;
@@ -184,7 +205,7 @@ type PlateTheme = 'dark' | 'light' | 'dark-hc' | 'light-hc';
  * `chosen` on your own row, a step deeper on the light theme where that fill is a mid green.
  */
 const MEDALS = ['bronze', 'silver', 'gold'];
-const MEDAL_STEP: Record<PlateTheme, [number, number]> = { dark: [300, 300], light: [500, 600], 'dark-hc': [200, 200], 'light-hc': [600, 700] };
+const MEDAL_STEP: Record<PlateTheme, [number, number]> = { dark: [300, 300], light: [500, 550], 'dark-hc': [200, 200], 'light-hc': [600, 700] };
 const medalRoles = (t: PlateTheme): string[] =>
   MEDALS.flatMap((m) => [`  --medal-${m}: ${v(m, MEDAL_STEP[t][0])};`, `  --medal-${m}-chosen: ${v(m, MEDAL_STEP[t][1])};`]);
 
@@ -195,11 +216,11 @@ const medalRoles = (t: PlateTheme): string[] =>
  * (Starforged, flame), at the star's steps. Each band a step per theme, [line, on a chosen card].
  */
 const PLATE_BANDS: Record<string, Record<PlateTheme, [string, number, number]>> = {
-  steel: { dark: ['steel', 300, 300], light: ['steel', 500, 600], 'dark-hc': ['steel', 200, 200], 'light-hc': ['steel', 600, 700] },
-  gilt: { dark: ['star', 300, 300], light: ['star', 600, 700], 'dark-hc': ['star', 200, 200], 'light-hc': ['star', 700, 700] },
-  star: { dark: ['star', 200, 200], light: ['star', 700, 700], 'dark-hc': ['star', 100, 100], 'light-hc': ['star', 700, 700] },
-  epic: { dark: ['amethyst', 200, 200], light: ['amethyst', 700, 700], 'dark-hc': ['amethyst', 200, 200], 'light-hc': ['amethyst', 700, 800] },
-  mythic: { dark: ['flame', 200, 200], light: ['flame', 700, 700], 'dark-hc': ['flame', 200, 200], 'light-hc': ['flame', 700, 800] },
+  steel: { dark: ['steel', 300, 300], light: ['steel', 450, 550], 'dark-hc': ['steel', 200, 200], 'light-hc': ['steel', 600, 700] },
+  gilt: { dark: ['star', 300, 300], light: ['star', 550, 600], 'dark-hc': ['star', 200, 200], 'light-hc': ['star', 700, 700] },
+  star: { dark: ['star', 200, 200], light: ['star', 600, 600], 'dark-hc': ['star', 100, 100], 'light-hc': ['star', 700, 700] },
+  epic: { dark: ['amethyst', 200, 200], light: ['amethyst', 600, 600], 'dark-hc': ['amethyst', 200, 200], 'light-hc': ['amethyst', 700, 800] },
+  mythic: { dark: ['flame', 200, 200], light: ['flame', 600, 600], 'dark-hc': ['flame', 200, 200], 'light-hc': ['flame', 700, 800] },
 };
 /** How see-through a plate's frame is on the dark and light themes (contrast.ts measures it so):
  *  traces of metal behind the name (owner, 2026-10-21). */

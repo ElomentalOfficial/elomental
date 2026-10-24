@@ -15,8 +15,10 @@ import { RIBBON_PATH as RIBBON } from './ribbon.ts';
 
 const RIBBON_TOP = 0;
 const RIBBON_BOTTOM = 740;
-/** The ribbon's colour is the theme's accent (Lava in dark, Crimson in light), as on the static splash. */
+/** The ribbon's colour is the theme's accent (Lava in both themes), as on the static splash. */
 const front = () => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#a85b37';
+/** The letters on it: the theme's ink on the accent. */
+const ink = () => getComputedStyle(document.documentElement).getPropertyValue('--on-accent').trim() || '#ffffe5';
 /** Its back: the same colour, about 28% darker. */
 function darker(hex: string): string {
   const m = hex.match(/^#([0-9a-f]{6})$/i);
@@ -72,7 +74,7 @@ function createPeel(art: SVGSVGElement): { canvas: HTMLCanvasElement; draw(t: nu
   const frontFace = ribbonCanvas(srcW, srcH, k, (ctx) => {
     ctx.fillStyle = colour;
     ctx.fill(path);
-    ctx.fillStyle = '#ffffe5';
+    ctx.fillStyle = ink();
     ctx.font = '400 62px Federo, Georgia, serif';
     ctx.textAlign = 'center';
     for (const [ch, x, y] of LETTERS) ctx.fillText(ch, x, y);

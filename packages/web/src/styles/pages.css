@@ -509,7 +509,7 @@ html[data-large-text] .lb-me .lb-jump {
   margin-right: 0.35em;
   text-indent: 0;
   vertical-align: -0.2em;
-  background: var(--accent-text);
+  background: var(--error);
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-1.2 5h2.4v7h-2.4zm0 9h2.4v2.4h-2.4z'/%3E%3C/svg%3E") center / contain no-repeat;
   mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm-1.2 5h2.4v7h-2.4zm0 9h2.4v2.4h-2.4z'/%3E%3C/svg%3E") center / contain no-repeat;
 }
@@ -1013,7 +1013,8 @@ html:not([data-large-text]) .daily-body > .daily-art {
   padding: 13px;
   flex: none;
   border-radius: 50%;
-  background: var(--c-mud);
+  background: var(--reward-disc);
+  color: var(--muted);
 }
 .avatar-reward.unlocked {
   background: var(--accent);

@@ -726,7 +726,7 @@ html[data-reduce-motion] .part-reveal * {
   }
 }
 
-/* the rules' ink: the frames' ink on a card (Bright dark, Crimson light), the cloth's on a banner */
+/* the rules' ink: the frames' ink on a card (Bright dark, the text ink light), the cloth's on a banner */
 .forge-purse {
   --rule-ink: var(--frame-line, var(--tile-text));
 }

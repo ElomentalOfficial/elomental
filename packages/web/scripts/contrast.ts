@@ -84,6 +84,8 @@ export const PAIRS: Pair[] = [
   ['Notes wheel number', '--wheel-text', '--wheel-bg', 4.5],
   ['Daily: missed day', '--muted', '--modal-bg', 4.5],
   ['Daily: future day', '--muted', '--bg', 4.5],
+  ['UI: Daily badge lock on its disc', '--muted', '--reward-disc', 3],
+  ['UI: Daily badge disc vs its card', '--reward-disc', '--profile-bg', 3],
   // Non-text: 3:1.
   ['UI: grid box line vs page', '--grid-line', '--bg', 3],
   ['UI: wrong fill vs cell', '--wrong-bg', '--cell', 3],
@@ -96,6 +98,10 @@ export const PAIRS: Pair[] = [
   ['UI: mistake used vs page', '--mistake-on', '--bg', 3],
   ['UI: mistake unused vs page', '--mistake-off', '--bg', 3],
   ['UI: keypad key vs page', '--key-bg', '--bg', 3],
+  // an error's alert mark beside its words (pages.css .field-error)
+  ['UI: error mark on page', '--error', '--bg', 3],
+  ['UI: error mark on a card', '--error', '--surface', 3],
+  ['UI: error mark on modal', '--error', '--modal-bg', 3],
   ['UI: text field border vs modal', '--field-border', '--modal-bg', 3],
   ['UI: text field border vs surface (Setup cards)', '--field-border', '--surface', 3],
   ['UI: Clash code box edge vs modal (as a text field)', '--field-border', '--modal-bg', 3],
@@ -192,7 +198,12 @@ export const ACCEPTED: Record<string, string> = {
   'UI: modal border': 'decorative hairline',
   'UI: XP bar track vs modal': 'the fill carries the progress (3:1 on the track) and the caption says it in words',
   'UI: selection ring vs same-number fill': 'the inner ring (--select-inner) carries it there',
+  'UI: Daily badge disc vs its card': 'a backdrop: the lock on it (3:1) and the words beside it carry the badge',
 };
+// The light theme's same-number fill is light: there the outer ring (--select, the deep neutral)
+// carries the selection, and the inner ring is for the deep fills.
+for (const theme of ['light', 'light-hc'])
+  ACCEPTED[`${theme}: UI: selection inner ring vs same-number fill`] = 'the outer ring (--select) carries the selection on the light same-number fill';
 // The deep fills keep their Figma depth on the dark theme: as bare shapes there (a ring, a dot,
 // a bar segment) they sit under 3:1, as Lava always has. On the light theme they must pass.
 for (const s of SWATCHES.filter((s) => !lightFill(s)))

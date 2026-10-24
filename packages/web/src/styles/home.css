@@ -564,11 +564,11 @@
   --f-side: var(--f-side-b);
 }
 :root[data-theme='light'] .home-grid > .profile-card {
-  --f-blr: var(--f-blr-c);
-  --f-brr: var(--f-brr-c);
-  --f-side: var(--f-side-c);
+  --f-blr: var(--f-blr-i);
+  --f-brr: var(--f-brr-i);
+  --f-side: var(--f-side-i);
 }
-/* Which ink: Bright on the dark theme, Crimson on the light one (frames.css gives each
+/* Which ink: Bright on the dark theme, the text ink on the light one (frames.css gives each
    frame its pair; the coloured mode tiles keep Bright in both). */
 :is(.home-grid > .tile, .profile-card, .door, .panel) {
   --f-tl: var(--f-tl-b);
@@ -578,11 +578,11 @@
   --frame-line: var(--fl-b);
 }
 :root[data-theme='light'] :is(.home-grid > .tile, .profile-card, .door, .panel) {
-  --f-tl: var(--f-tl-c);
-  --f-tr: var(--f-tr-c);
-  --f-bl: var(--f-bl-c);
-  --f-br: var(--f-br-c);
-  --frame-line: var(--fl-c);
+  --f-tl: var(--f-tl-i);
+  --f-tr: var(--f-tr-i);
+  --f-bl: var(--f-bl-i);
+  --f-br: var(--f-br-i);
+  --frame-line: var(--fl-i);
 }
 .avatar {
   width: clamp(72px, 14dvh, 120px);

@@ -3,7 +3,7 @@ import { readJson, writeJson } from './storage.ts';
 export type Theme = 'dark' | 'light';
 
 const KEY = 'elomental:theme';
-const BAR_COLOR: Record<Theme, string> = { dark: '#262721', light: '#FFFFE5' };
+const BAR_COLOR: Record<Theme, string> = { dark: '#262721', light: '#F9F7EF' };
 
 /** Dark is the default; light is opt-in from Setup. */
 export function getTheme(): Theme {

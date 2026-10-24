@@ -338,6 +338,6 @@
     z-index: -1;
   }
   .game .brand-ribbon path {
-    fill: var(--accent); /* Lava in dark, Crimson in light, as on the splash */
+    fill: var(--accent); /* Lava, as on the splash */
   }
 }

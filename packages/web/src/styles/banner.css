@@ -44,7 +44,7 @@
     mask: var(--ribbon) 0 0 / 100% 100% no-repeat;
     text-align: center;
     overflow: hidden;
-    /* Everything on the cloth is in its ink: the page's colours are for the page (a crimson focus
+    /* Everything on the cloth is in its ink: the page's colours are for the page (a dark focus
        ring and the rank metals would vanish or clash on it) */
     --focus: var(--cloth-ink);
     --text: var(--cloth-ink);

@@ -24,7 +24,7 @@
   transform-origin: 50% 0;
   animation: ribbon-in 0.75s cubic-bezier(0.2, 0.8, 0.3, 1) 0.05s forwards;
 }
-/* The logo ribbon takes the theme's main colour: Lava in dark, Crimson in light. */
+/* The logo ribbon takes the theme's main colour: Lava in both themes. */
 .ribbon path {
   fill: var(--accent);
 }

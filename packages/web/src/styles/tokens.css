@@ -47,9 +47,9 @@
   --board-dark-cell: var(--c-highlight-2);
   --board-dark-given: var(--c-bright);
   --board-dark-yours: var(--c-forest-highlight);
-  --board-light-line: var(--c-sand-400);
-  --board-light-cell: var(--c-mud);
-  --board-light-given: var(--c-crimson);
+  --board-light-line: var(--c-paper-400);
+  --board-light-cell: var(--c-paper-200);
+  --board-light-given: var(--c-stone-900);
   --board-light-yours: var(--c-forest);
 }
 
@@ -59,8 +59,8 @@
   color-scheme: dark;
   --bg: var(--c-bg);
   --text: var(--c-bright);
-  /* One accent per theme: Lava in dark, Crimson in light. Text on the Figma
-     Lava is Bright, which reads clearly on it. */
+  /* Lava is the accent in both themes. Text on the Figma Lava is Bright, which reads clearly
+     on it. */
   --accent: var(--c-lava);
   --on-accent: var(--c-bright);
   /* The accent as text (titles, counts, links): Lava is a fill colour, too dark to read as
@@ -133,6 +133,9 @@
   --avatar-bg: var(--c-highlight);
   --avatar-ring: rgba(255, 255, 229, 0.14);
   --bar-bg: var(--c-highlight-2);
+  /* The Daily badge still to earn (pages.css .avatar-reward): a disc a shade into its card, the
+     lock on it in the secondary ink. */
+  --reward-disc: var(--c-bg);
   /* The account level (level.css): in ink, never a metal, in both themes (these follow
      --muted and --text, which each theme sets). One bar style for the set. */
   --level-line: var(--muted);
@@ -177,6 +180,8 @@
   --key-text: var(--c-bg);
   --erase-bg: var(--key-bg);
   --erase-text: var(--key-text);
+  /* An error's alert mark (pages.css .field-error), beside its words. */
+  --error: var(--accent-text);
   --action-bg: var(--c-highlight-2);
   --action-text: var(--c-bright);
   --notes-on-bg: var(--c-lava);
@@ -214,106 +219,112 @@
 
 :root[data-theme='light'] {
   color-scheme: light;
-  --bg: var(--c-bright);
-  --text: var(--c-crimson);
-  /* Light theme is one family: crimson ink, beige surfaces (Figma light game
-     frame). Forest marks what's on: same-number highlights, Notes on, Casual. */
-  --accent: var(--c-crimson);
+  /* Light is dark turned over: warm off-white paper for the page, near-black ink (the dark
+     theme's page) for text, Lava the accent as in dark, Crimson for what went wrong. */
+  --bg: var(--c-paper-50);
+  --text: var(--c-stone-900);
+  --accent: var(--c-lava);
   --on-accent: var(--c-bright);
-  --accent-text: var(--c-crimson);
-  /* Chosen things wear the board's selection colour here: Forest, brightened. */
-  --chosen-bg: var(--c-forest-highlight);
-  /* 0.92 keeps small secondary text at 4.5:1 or more on Mud too (4.70:1), 6.3:1 on the page. */
-  --muted: rgba(121, 67, 65, 0.92);
-  /* On the Forest-highlight chosen fill the see-through muted drops to 4.2:1: solid ink there. */
-  --muted-chosen: var(--c-crimson);
-  --line: var(--c-second-bright);
-  --surface: var(--c-second-bright);
-  --surface-2: var(--c-mud);
-  --tile: var(--c-mud);
-  --tile-text: var(--c-crimson);
+  /* Lava as text: half a step deeper than its fill, 4.5:1 on every light surface. */
+  --accent-text: var(--c-lava-550);
+  --chosen-bg: var(--tone-lava-wash);
+  /* Secondary text, solid: 4.5:1 or more on every surface, a chosen card's wash included. */
+  --muted: var(--c-paper-600);
+  --muted-chosen: var(--muted);
+  --line: var(--c-paper-300); /* a hairline you can just see (1.2:1 on a card, as dark) */
+  --surface: var(--c-paper-100);
+  --surface-2: var(--c-paper-200);
+  --tile: var(--c-paper-200);
+  --tile-text: var(--text);
   --cloth: var(--tile);
   --cloth-ink: var(--tile-text);
-  --purse-gold-hi: var(--c-gold-600);
-  --purse-gold-lo: var(--c-gold-700);
-  --purse-red-hi: var(--c-flame-600);
-  --purse-red-lo: var(--c-flame-700);
+  --purse-gold-hi: var(--c-gold-550);
+  --purse-gold-lo: var(--c-gold-600);
+  --purse-red-hi: var(--c-flame-550);
+  --purse-red-lo: var(--c-flame-600);
   --purse-gold-cloth-hi: var(--purse-gold-hi);
   --purse-gold-cloth-lo: var(--purse-gold-lo);
   --purse-red-cloth-hi: var(--purse-red-hi);
   --purse-red-cloth-lo: var(--purse-red-lo);
-  --tile-shadow: color-mix(in srgb, var(--c-rock) 45%, transparent);
+  --tile-shadow: color-mix(in srgb, var(--c-paper-300) 70%, transparent);
   /* a dark drop doubles dark text on the light tiles: a light one presses it in the same way */
-  --tile-label-shadow: 0.06em 0.08em 0.06em color-mix(in srgb, var(--c-bright) 50%, transparent);
-  --feather-shadow: color-mix(in srgb, var(--c-rock) 30%, transparent);
-  --profile-bg: var(--c-second-bright);
-  --pc-socket: color-mix(in srgb, var(--c-mud) 60%, transparent);
+  --tile-label-shadow: 0.06em 0.08em 0.06em color-mix(in srgb, var(--c-paper-50) 50%, transparent);
+  --feather-shadow: color-mix(in srgb, var(--c-paper-300) 45%, transparent);
+  --profile-bg: var(--c-paper-100);
+  --pc-socket: color-mix(in srgb, var(--c-paper-200) 60%, transparent);
   /* a soft step deeper than the tile it runs along: the track still to go reads, quietly (owner) */
-  --pc-track: var(--c-sand-300);
+  --pc-track: var(--c-paper-300);
   --pc-level-lo: var(--c-gold-500);
   --pc-level-hi: var(--c-gold-300);
-  --pc-slot-edge: color-mix(in srgb, var(--c-sand-500) 40%, transparent);
+  --pc-slot-edge: color-mix(in srgb, var(--c-paper-400) 40%, transparent);
   --faction-mark: var(--c-stone-800);
-  --profile-text: var(--c-crimson);
+  --profile-text: var(--text);
   --chip-bg: rgba(38, 39, 33, 0.07);
-  --avatar-bg: var(--c-bright);
-  --avatar-ring: var(--c-mud);
-  --bar-bg: var(--c-mud);
+  --avatar-bg: var(--c-paper-50);
+  --avatar-ring: var(--c-paper-200);
+  --bar-bg: var(--c-paper-200);
+  --reward-disc: var(--c-paper-300);
   /* the account level, as in the dark theme */
   --level-line: var(--muted);
   --plate-ink: var(--muted);
   --plate-ink-chosen: var(--muted-chosen);
-  /* the medallion's disc paler than every light surface */
-  --medal-fill: var(--c-sand-50);
+  /* the medallion's disc: the page's paper, paler than every card */
+  --medal-fill: var(--c-paper-50);
   --medal-ink: var(--text);
   --level-ink: var(--text);
   --xp-fill: var(--text);
   --cell: var(--board-light-cell);
-  /* The selected cell's row and column. */
-  --cell-cross: var(--c-forest-highlight);
+  /* The selected cell's row and column: a pale Lava, as dark warms its cells with Lava's deepest. */
+  --cell-cross: var(--c-lava-150);
   --cell-text: var(--board-light-given);
   /* The player's own numbers: Forest, a lighter weight than the givens. */
   --cell-user: var(--board-light-yours);
-  --same-bg: var(--c-forest);
-  --same-text: var(--c-bright);
-  --wrong-bg: var(--accent);
-  --wrong-text: var(--on-accent);
-  --select: var(--c-crimson);
-  /* Bright inside the Crimson ring keeps the selection visible on a Forest same-number fill. */
+  /* Same number: a light Lava fill with the number in ink (dark's is its Lava fill). */
+  --same-bg: var(--c-ember);
+  --same-text: var(--text);
+  /* A wrong number inverts to the deepest cell, in Crimson, the error colour. */
+  --wrong-bg: var(--c-crimson);
+  --wrong-text: var(--c-bright);
+  /* The selection and focus: the deep neutral, 9:1 or more on every light surface. */
+  --select: var(--c-stone-800);
+  /* Bright inside the ring keeps the selection visible on the deep fills (a wrong number). */
   --select-inner: var(--c-bright);
-  --focus: var(--c-crimson);
-  /* 3.5:1 on surface, 4.3:1 on the page, 3:1 on mud. */
-  --field-border: var(--c-sand-450);
+  --focus: var(--c-stone-800);
+  /* Field edges and the 3x3 outline: 3:1 on every light surface. */
+  --field-border: var(--c-paper-400);
   --grid-line: var(--board-light-line);
-  --key-bg: var(--c-crimson);
+  /* The keys are the page turned over, as in dark: the deep neutral with bright numbers. */
+  --key-bg: var(--c-stone-800);
   --key-text: var(--c-bright);
   --erase-bg: var(--key-bg);
   --erase-text: var(--key-text);
-  --action-bg: var(--c-second-bright);
-  --action-text: var(--c-crimson);
-  --notes-on-bg: var(--c-forest);
-  --notes-on-text: var(--c-bright);
-  --grain-color: rgba(121, 67, 65, 0.075);
-  --wheel-bg: var(--c-crimson);
-  --wheel-text: var(--c-bright);
+  --error: var(--c-crimson-550);
+  --action-bg: var(--c-paper-100);
+  --action-text: var(--text);
+  --notes-on-bg: var(--accent);
+  --notes-on-text: var(--on-accent);
+  --grain-color: rgba(38, 39, 33, 0.055);
+  --wheel-bg: var(--key-bg);
+  --wheel-text: var(--key-text);
   --wheel-on: var(--accent);
-  --glass-bg: rgba(255, 255, 229, 0.42);
+  --glass-bg: rgba(249, 247, 239, 0.42);
   --glass-border: rgba(255, 255, 255, 0.7);
   --glass-sheen: rgba(255, 255, 255, 0.55);
-  --glass-hover: rgba(121, 67, 65, 0.1);
-  --glass-divider: rgba(121, 67, 65, 0.16);
-  --glass-hub: rgba(255, 255, 229, 0.55);
-  --modal-bg: var(--c-bright);
-  --modal-border: rgba(121, 67, 65, 0.18);
+  --glass-hover: rgba(38, 39, 33, 0.08);
+  --glass-divider: rgba(38, 39, 33, 0.14);
+  --glass-hub: rgba(249, 247, 239, 0.55);
+  --modal-bg: var(--c-paper-50);
+  --modal-border: rgba(38, 39, 33, 0.14);
   --primary-bg: var(--accent);
-  --primary-text: var(--c-bright);
-  --separator: var(--c-sand-100);
+  --primary-text: var(--on-accent);
+  --separator: var(--c-paper-300);
   --mistake-off: var(--muted);
   --mistake-on: var(--c-lava);
-  --eraser-shade: rgba(255, 255, 229, 0.55);
+  /* the eraser's shade follows the key: its number's colour, half strength */
+  --eraser-shade: color-mix(in srgb, var(--key-text) 55%, transparent);
   --seg-on-bg: var(--surface);
   --disabled-bg: transparent;
   --disabled-text: var(--muted);
-  --shadow: rgba(121, 67, 65, 0.18);
+  --shadow: rgba(38, 39, 33, 0.16);
   --coach-shade: rgba(20, 21, 17, 0.68);
 }
