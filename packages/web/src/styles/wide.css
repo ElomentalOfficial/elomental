@@ -214,7 +214,7 @@
   .game .puzzle-info {
     grid-area: 1 / 1;
     align-self: center;
-    line-height: 1;
+    line-height: var(--lh-tight);
   }
   .game .mistakes {
     justify-self: start;
@@ -339,7 +339,7 @@
     font-family: var(--serif);
     /* Three lines must fit above the tail. */
     font-size: min(calc(var(--side) * 0.17), calc(var(--banner-h) * 0.17));
-    line-height: 1;
+    line-height: var(--lh-tight);
     letter-spacing: 0.45em;
     /* letter-spacing trails each line; this re-centres it. */
     text-indent: 0.45em;
@@ -362,7 +362,7 @@
   .game .brand-ribbon {
     position: absolute;
     inset: 0;
-    z-index: -1;
+    z-index: var(--z-below);
   }
   .game .brand-ribbon path {
     fill: var(--accent); /* Lava, as on the splash */

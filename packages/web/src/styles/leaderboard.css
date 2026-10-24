@@ -29,9 +29,9 @@
 }
 .lb-faction-head h2 {
   font-size: var(--fs-body);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--ls-caps);
 }
 /* The month's strength (leaderboard.ts): the leader, one bar of four shares adding to 100%,
    and each side named with its share. Element colours sit only on shapes; all the text is
@@ -82,7 +82,7 @@
 .strength-seg {
   flex-basis: 0;
   min-width: 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--el);
   /* every fill's edge, the same for each element (palette.css edge) */
   box-shadow: inset 0 0 0 1px var(--el-edge);
@@ -146,7 +146,7 @@ html[data-large-text] .lb-strength-legend {
   place-items: center;
   width: 18px;
   height: 18px;
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   background: var(--el);
   color: var(--el-on);
   box-shadow: inset 0 0 0 1px var(--el-edge);
@@ -158,7 +158,7 @@ html[data-large-text] .lb-strength-legend {
 }
 .lb-strength-legend strong {
   font-size: var(--fs-body);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   font-variant-numeric: tabular-nums;
 }
 /* In place of the bar while nobody has influence. */
@@ -217,7 +217,7 @@ html[data-large-text] .lb-strength-legend {
   color: var(--muted);
   font: inherit;
   font-size: var(--fs-small);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   white-space: nowrap;
   cursor: var(--cursor-pointer);
 }
@@ -338,7 +338,7 @@ html[data-large-text] .lb-meta-row {
 .lb-place {
   justify-self: center;
   font-size: var(--fs-body);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   font-variant-numeric: tabular-nums;
 }
 /* The top three: a metal ring with the number inside (the number carries it, not colour). */
@@ -347,7 +347,7 @@ html[data-large-text] .lb-meta-row {
   place-items: center;
   width: 2.2em;
   height: 2.2em;
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   box-shadow: inset 0 0 0 3px var(--medal);
 }
 .medal-1 { --medal: var(--medal-gold); }
@@ -382,7 +382,7 @@ html[data-large-text] .lb-meta-row {
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: var(--fs-body);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
 }
 /* plates on rows: no frame and no medallion (the level is the card's), just the band's colour as
    a rule under the name: one line in ink, two from steel; none without a plate */
@@ -457,7 +457,7 @@ html:not([data-large-text]) .lb-name wbr {
 .lb-score span {
   white-space: nowrap;
   font-size: var(--fs-caption);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: var(--muted);
 }
 /* Larger text: a row is place and name, with the score on its own line under the name; no
@@ -501,7 +501,7 @@ html[data-large-text] .lb-leader-pct {
   position: sticky;
   /* (the page's bottom padding, --sub-end, already keeps it above the home indicator) */
   bottom: 0;
-  z-index: 2;
+  z-index: var(--z-raised-2);
   display: flex;
   align-items: center;
   gap: var(--space-3);
@@ -547,7 +547,7 @@ html[data-large-text] .lb-me .lb-avatar {
 .lb-me-text strong {
   font-size: var(--fs-small);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--ls-caps);
 }
 .lb-jump {
   flex: none;
@@ -707,7 +707,7 @@ html[data-large-text] .lb-me .lb-avatar {
 .card-numbers {
   font-family: var(--font);
   font-size: var(--fs-body);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   font-variant-numeric: tabular-nums;
 }
 .card-stats {
@@ -726,12 +726,12 @@ html[data-large-text] .lb-me .lb-avatar {
 .card-badges h2 {
   font-size: var(--fs-small);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--ls-caps);
   color: var(--muted);
 }
 .profile-section.card-badges h2 {
   font-size: var(--fs-label);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   color: var(--text);
 }
 .card-badges ul {
@@ -792,9 +792,9 @@ html[data-large-text] .lb-me .lb-avatar {
 }
 .badge-tag {
   font-size: var(--fs-small);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--ls-caps);
 }
 .badge-art {
   display: block;
@@ -1012,23 +1012,23 @@ html[data-large-text] .lb-me .lb-avatar {
   .lb-podium-who .lb-name {
     font-family: var(--serif);
     font-size: var(--fs-label);
-    font-weight: 400;
+    font-weight: var(--fw-regular);
   }
   .lb-podium-who .lb-name.name-plate {
     text-align: center;
   }
   .lb-podium-score {
     font-size: var(--fs-small);
-    font-weight: 700;
+    font-weight: var(--fw-bold);
     color: var(--muted);
   }
   .lb-podium-you {
     margin-bottom: var(--space-2);
     padding: 0 var(--space-2);
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     background: var(--surface-2);
     font-size: var(--fs-caption);
-    font-weight: 800;
+    font-weight: var(--fw-heavy);
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
@@ -1042,7 +1042,7 @@ html[data-large-text] .lb-me .lb-avatar {
     background: var(--surface-2);
     font-family: var(--serif);
     font-size: var(--fs-display);
-    line-height: 1;
+    line-height: var(--lh-tight);
   }
   /* (each holds its number at any Text size) */
   .lb-place-1 .lb-step { height: max(112px, 2.4em); }
@@ -1081,7 +1081,7 @@ html[data-large-text] .lb-me .lb-avatar {
     left: var(--space-3);
     right: var(--space-3);
     height: 3px;
-    border-radius: 2px;
+    border-radius: var(--radius-xs);
     background: var(--line);
   }
   .pennant {
@@ -1105,7 +1105,7 @@ html[data-large-text] .lb-me .lb-avatar {
     content: '';
     position: absolute;
     inset: 1px;
-    z-index: -1;
+    z-index: var(--z-below);
     background: var(--el);
     clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 13px), 0 100%);
   }
@@ -1121,11 +1121,11 @@ html[data-large-text] .lb-me .lb-avatar {
   .pennant strong {
     font-family: var(--serif);
     font-size: var(--fs-label);
-    font-weight: 400;
+    font-weight: var(--fw-regular);
   }
   .pennant span:last-child {
     font-size: var(--fs-caption);
-    font-weight: 800;
+    font-weight: var(--fw-heavy);
     letter-spacing: 0.03em;
     text-transform: uppercase;
   }

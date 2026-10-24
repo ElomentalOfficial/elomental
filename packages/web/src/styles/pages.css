@@ -56,7 +56,7 @@
 .setting-group > h2 {
   padding: 0 var(--space-1);
   font-size: var(--fs-small);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
@@ -99,7 +99,7 @@
   flex: 1 1 auto;
   min-width: 0;
   text-align: center;
-  line-height: 1.15;
+  line-height: var(--lh-title);
   text-wrap: balance;
   overflow-wrap: break-word;
   hyphens: auto;
@@ -208,8 +208,8 @@ html.standalone .screen.scrollable {
 .choice > h3 {
   font-family: var(--font);
   font-size: var(--fs-body);
-  font-weight: 700;
-  line-height: 1.3;
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-snug);
   letter-spacing: 0;
   text-transform: none;
   color: var(--text);
@@ -374,7 +374,7 @@ html.standalone .screen.scrollable {
 .review-pill {
   flex: none;
   padding: 4px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   font-size: var(--fs-caption);
   text-transform: uppercase;
   white-space: nowrap;
@@ -482,9 +482,9 @@ html.standalone .screen.scrollable {
 .signup-head h2 {
   font-family: var(--font);
   font-size: var(--fs-body);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: var(--ls-tight);
   /* (a title can hold an email address, which has no spaces to wrap at) */
   overflow-wrap: anywhere;
 }
@@ -547,7 +547,7 @@ html[data-large-text] .lb-me .lb-jump {
   left: 50%;
   bottom: calc(var(--space-4) + env(safe-area-inset-bottom));
   transform: translateX(-50%);
-  z-index: 1000;
+  z-index: var(--z-captcha);
 }
 /* The result's one-line invitation: the line, then Sign up (opens the form in place). */
 .signup-line {
@@ -680,7 +680,7 @@ html[data-large-text] .lb-me .lb-jump {
   height: 52px;
   border-radius: var(--radius);
   background: var(--surface-2);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   text-transform: uppercase;
   font-size: var(--fs-small);
 }
@@ -886,9 +886,9 @@ html:not([data-large-text]) .daily-body > .daily-art {
 }
 .month-head h2 {
   font-size: var(--fs-label);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: var(--ls-tight);
   color: var(--accent-text);
 }
 /* "Tap a missed day to fill it in…", under the calendar while there are missed days. */
@@ -909,7 +909,7 @@ html:not([data-large-text]) .daily-body > .daily-art {
 }
 .month-progress {
   height: 4px;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   background: var(--surface-2);
   overflow: hidden;
 }
@@ -929,12 +929,12 @@ html:not([data-large-text]) .daily-body > .daily-art {
   padding-bottom: 2px;
   text-align: center;
   font-size: var(--fs-small);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: var(--muted);
 }
 .day {
   aspect-ratio: 1;
-  border-radius: 6px;
+  border-radius: var(--radius);
   background: var(--surface-2);
   display: grid;
   place-items: center;
@@ -946,7 +946,7 @@ html:not([data-large-text]) .daily-body > .daily-art {
 }
 .day-num {
   font-size: var(--fs-small);
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 .day-icon {
   width: 46%;
@@ -988,7 +988,7 @@ html:not([data-large-text]) .daily-body > .daily-art {
 }
 .day.today .day-num {
   font-size: var(--fs-body);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
 }
 .day.future {
   background: transparent;
@@ -1012,7 +1012,7 @@ html:not([data-large-text]) .daily-body > .daily-art {
 }
 .reward-card strong {
   font-size: var(--fs-body);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   text-transform: uppercase;
 }
 .reward-card p {
@@ -1025,7 +1025,7 @@ html:not([data-large-text]) .daily-body > .daily-art {
   height: 50px;
   padding: 13px;
   flex: none;
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   background: var(--reward-disc);
   color: var(--muted);
 }
@@ -1039,7 +1039,7 @@ html:not([data-large-text]) .daily-body > .daily-art {
   justify-content: center;
   gap: 10px;
   min-height: 52px;
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   text-transform: uppercase;
   font-size: var(--fs-small);
 }
@@ -1088,7 +1088,7 @@ html:not([data-large-text]) .daily-body > .daily-art {
     max-width: 100%;
     font-family: var(--serif);
     font-size: var(--fs-title);
-    font-weight: 400;
+    font-weight: var(--fw-regular);
     overflow-wrap: break-word;
   }
   .page-banner .build-line {
@@ -1163,17 +1163,17 @@ html:not([data-large-text]) .daily-body > .daily-art {
   .look-pic > .as-dark {
     left: 4%;
     top: 5%;
-    z-index: 2;
+    z-index: var(--z-raised-2);
     transform: rotate(-6deg);
   }
   .look-pic > .as-light {
     left: 34%;
     top: 16%;
-    z-index: 1;
+    z-index: var(--z-raised);
     transform: rotate(7deg);
   }
   .look-pic.light-on-top > .as-light {
-    z-index: 3;
+    z-index: var(--z-raised-3);
   }
   /* each square in its own theme's board colours, whichever theme is on (tokens.css) */
   .as-dark .mini-board {
@@ -1193,7 +1193,7 @@ html:not([data-large-text]) .daily-body > .daily-art {
     align-items: flex-end;
     gap: var(--space-2);
     font-family: var(--serif);
-    line-height: 1;
+    line-height: var(--lh-tight);
   }
   /* the four Text sizes, each drawn at its own scale */
   .a11y-pic > span {
@@ -1239,7 +1239,7 @@ html:not([data-large-text]) .daily-body > .daily-art {
     width: 44px;
     height: 44px;
     padding: 10px;
-    border-radius: 50%;
+    border-radius: var(--radius-round);
     background: var(--text);
     color: var(--surface);
   }
@@ -1279,7 +1279,7 @@ html:not([data-large-text]) .daily-body > .daily-art {
     height: calc(88 * var(--u));
     margin: calc(-48 * var(--u)) 0 0 calc(-46 * var(--u));
     border: calc(5 * var(--u)) solid currentColor;
-    border-radius: 50%;
+    border-radius: var(--radius-round);
   }
   .founder-pic .lens::after {
     content: '';

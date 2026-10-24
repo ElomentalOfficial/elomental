@@ -122,7 +122,7 @@
   place-items: center;
   width: var(--medal-d);
   height: var(--medal-d);
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   background: var(--medal-fill);
   box-shadow: inset 0 0 0 1.5px var(--plate, var(--plate-ink));
   transform: translate(-50%, 50%);
@@ -139,9 +139,9 @@
   position: relative;
   font-family: var(--serif);
   font-size: var(--fs-label);
-  font-weight: 400;
+  font-weight: var(--fw-regular);
   font-variant-numeric: lining-nums tabular-nums;
-  line-height: 1;
+  line-height: var(--lh-tight);
   letter-spacing: 0;
   /* the line trimmed to the figures' own height (lining figures: cap height to baseline), so the
      disc centres the ink, not Federo's uneven ascent and descent */
@@ -217,7 +217,7 @@
 }
 .plates-head .name-plate {
   font-size: var(--fs-title);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
 }
 .plates-intro {
   font-family: var(--serif);
@@ -231,9 +231,9 @@
 }
 .plate-group h2 {
   font-size: var(--fs-body);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--ls-caps);
 }
 .plate-grid {
   display: grid;
@@ -281,7 +281,7 @@ button.plate-card:active {
 .plate-card .name-plate {
   --medal-d: calc(32px * var(--text-scale));
   font-size: var(--fs-small);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
 }
 .plate-card .name-plate .plate-text {
   overflow-wrap: normal;
@@ -326,7 +326,7 @@ button.plate-card:active {
 .plate-card.state-yours .plate-state,
 .plate-card.is-blueprint .plate-state {
   font-family: var(--font);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: var(--text);
 }
 .plate-state svg {
@@ -348,12 +348,12 @@ button.plate-card:active {
   align-items: center;
   gap: var(--space-1);
   padding: 2px var(--space-2);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   box-shadow: inset 0 0 0 1.5px currentColor;
   color: var(--text);
   font-size: var(--fs-caption);
-  font-weight: 800;
-  letter-spacing: 0.04em;
+  font-weight: var(--fw-heavy);
+  letter-spacing: var(--ls-caps);
   text-transform: uppercase;
 }
 .plate-new svg {
@@ -390,12 +390,12 @@ button.plate-card:active {
 }
 .plate-hero-title {
   font-size: var(--fs-body);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
 }
 .plate-hero .name-plate {
   margin-top: var(--space-3);
   font-size: var(--fs-label);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
 }
 .plate-hero-line {
   font-family: var(--serif);

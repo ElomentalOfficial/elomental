@@ -154,7 +154,7 @@ html.standalone[data-theme='light'] {
   left: 0;
   right: 0;
   height: 14px;
-  z-index: 0;
+  z-index: var(--z-base);
   pointer-events: none;
   background: #262721;
 }
@@ -162,7 +162,7 @@ html[data-theme='light'] #status-tint {
   background: #f9f7ef;
 }
 html.standalone #status-tint {
-  z-index: 5;
+  z-index: var(--z-status);
   height: calc(var(--status-clear) + var(--status-gap) - var(--space-1));
 }
 html.standalone.welcome-active #status-tint {
@@ -212,7 +212,7 @@ html.standalone:not(.welcome-active) #status-tint {
 /* Fill the fixed body (more reliable on iOS than 100dvh). */
 #app {
   position: relative;
-  z-index: 1;
+  z-index: var(--z-raised);
   background: var(--bg);
   height: 100%;
   display: flex;
@@ -247,7 +247,7 @@ html.standalone:not(.welcome-active) #status-tint {
 }
 #app::before {
   position: fixed;
-  z-index: -1;
+  z-index: var(--z-below);
 }
 #status-tint {
   overflow: hidden;
@@ -288,7 +288,7 @@ button:focus-visible,
   position: absolute;
   top: 8px;
   left: 50%;
-  z-index: 30;
+  z-index: var(--z-overlay);
   padding: 10px 16px;
   border-radius: var(--radius);
   background: var(--primary-bg);
@@ -342,7 +342,7 @@ svg {
 }
 h1,
 h2 {
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
 }
 /* Running text: paragraphs, list items and descriptions get room between their lines. */
 :is(p, li, dd) {

@@ -22,7 +22,7 @@
 }
 .profile-plate {
   font-size: var(--fs-title);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   overflow-wrap: break-word;
 }
 /* the title and rank under the name, at its size: the name stays first by its weight (as on
@@ -53,9 +53,9 @@
 }
 .profile-section h2 {
   font-size: var(--fs-label);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--ls-caps);
 }
 /* Larger text: a section title grows only as far as its card has room for ("COLLECTION" on a small phone). */
 html[data-large-text] .profile-section {
@@ -78,7 +78,7 @@ html[data-large-text] .profile-section h2 {
 .profile-stat dd {
   margin: 0;
   font-size: var(--fs-label);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   font-variant-numeric: tabular-nums;
 }
 .profile-collection-line {
@@ -115,7 +115,7 @@ html[data-large-text] .profile-section h2 {
   .profile-banner-foot .profile-plate {
     max-width: 100%;
     font-family: var(--serif);
-    font-weight: 400;
+    font-weight: var(--fw-regular);
     font-size: min(var(--fs-display), calc(8.5cqi * var(--text-scale)));
   }
   .profile-banner-foot .profile-tier {

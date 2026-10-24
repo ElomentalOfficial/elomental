@@ -117,9 +117,9 @@
   place-items: center;
   width: 1.6em;
   height: 1.6em;
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   background: var(--surface-2);
   font-family: var(--font);
   font-size: var(--fs-small);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
 }

@@ -17,7 +17,7 @@
 .bar-btn {
   height: 40px;
   padding: 0 10px;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   background: var(--bar-bg);
   font-family: var(--serif);
   font-size: var(--fs-title);
@@ -30,7 +30,7 @@
    shift as it counts. */
 .timer {
   font-family: var(--font);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   font-size: var(--fs-display);
   font-variant-numeric: tabular-nums;
 }
@@ -95,7 +95,7 @@
   gap: 4px;
   font: inherit;
   font-size: 0.86em;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--ls-caps);
   color: var(--muted);
   /* A 24px+ tap target around the small text, without moving it. */
   padding: 8px 0;
@@ -159,16 +159,16 @@
   overflow: hidden;
   display: grid;
   place-items: center;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   background: var(--cell);
   color: var(--cell-text);
   /* Semi-bold (Figma): bold made the digits look cramped. */
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   /* 28px on a phone-sized board, scaling down on smaller ones; with Text size it grows as far as
      the cell allows (9cqi: about 85% of a cell; the board is the size of the screen, so a cell sets
      the limit, not the setting) */
   font-size: min(calc(28px * var(--text-scale)), 9cqi);
-  line-height: 1;
+  line-height: var(--lh-tight);
   cursor: var(--cursor-pointer);
   transition: background 0.12s ease;
 }
@@ -180,12 +180,12 @@
 }
 /* above its neighbours, so the focus ring shows on all four sides (the cells after it would cover it) */
 .cell:focus-visible {
-  z-index: 1;
+  z-index: var(--z-raised);
 }
 /* The player's own numbers: their own colour and a lighter weight than the givens. */
 .cell.filled {
   color: var(--cell-user);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
 }
 /* Figma: every square holding the focused digit, given or entered, is filled.
    Comes after .filled so the player's own digits light up too. */
@@ -280,7 +280,7 @@
   padding: 6% 10%;
   /* with Text size, as far as three rows fit a cell (3.2cqi) */
   font-size: clamp(9px, calc(2.3cqi * var(--text-scale)), 3.2cqi);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: var(--cell-text);
 }
 .won .cell {
@@ -322,7 +322,7 @@
   width: 64px;
   height: 64px;
   padding: 18px 16px 18px 20px;
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   background: var(--accent);
   color: var(--on-accent);
 }
@@ -381,14 +381,14 @@
 }
 .key {
   height: var(--key-h);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: var(--key-bg);
   color: var(--key-text);
   /* Montserrat reads at a glance on the keys; the serif's 4 and 1 are too stylised. */
   font-family: var(--font);
-  font-weight: 500;
+  font-weight: var(--fw-medium);
   font-size: var(--fs-display);
-  line-height: 1;
+  line-height: var(--lh-tight);
   transition: transform 0.06s ease, filter 0.15s ease, opacity 0.2s ease;
 }
 .key:active {
@@ -439,7 +439,7 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: var(--action-bg);
   color: var(--action-text);
   font-family: var(--serif);
@@ -494,12 +494,12 @@ html[data-reduce-motion] .key[data-digit] span {
 .hint-count {
   min-width: 22px;
   padding: 1px 6px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: var(--accent);
   color: var(--on-accent);
   font-family: var(--font);
   font-size: var(--fs-small);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
 }
 
 /* Windows contrast themes: fills and shadows are painted over, so the board draws its states as

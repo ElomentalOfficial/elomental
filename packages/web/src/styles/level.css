@@ -8,7 +8,7 @@
   gap: var(--space-1);
   padding: var(--space-1) var(--space-3);
   color: var(--level-ink);
-  line-height: 1;
+  line-height: var(--lh-tight);
   white-space: nowrap;
 }
 .level-frame {
@@ -49,8 +49,8 @@
 .level-cap {
   font-family: var(--font);
   font-size: var(--fs-caption);
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--ls-caps-wide);
   text-transform: uppercase;
   color: var(--muted);
 }
@@ -87,7 +87,7 @@ html[data-reduce-motion] .level-badge.stamp {
 }
 .xp-gain {
   font-size: var(--fs-body);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   font-variant-numeric: tabular-nums;
 }
 .xp-bar {
@@ -153,7 +153,7 @@ html[data-reduce-motion] .xp-bar span {
 }
 .spirit-text strong {
   font-size: var(--fs-body);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
 }
 .spirit-text span {
   font-family: var(--serif);

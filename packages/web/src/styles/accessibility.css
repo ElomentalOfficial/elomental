@@ -83,12 +83,12 @@
 kbd {
   min-width: 28px;
   padding: 3px 7px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   box-shadow: inset 0 0 0 1px var(--field-border);
   background: var(--surface-2);
   font-family: var(--font);
   font-size: var(--fs-small);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   text-align: center;
 }
 
@@ -319,7 +319,7 @@ html[data-large-text] .bar-btn {
   height: auto;
   min-height: 40px;
   padding-block: 2px;
-  line-height: 1.15;
+  line-height: var(--lh-title);
 }
 /*
  * Words that can't wrap (a tile's name, a calendar's numbers) grow only as far as their box has room
@@ -380,10 +380,10 @@ html[data-large-text] .weekday {
 /* The board's numbers can only grow as far as a cell (game.css): at a large Text size they get
    heavier strokes too, the givens a step heavier than your own, as at 100%. */
 html[data-large-text] .cell {
-  font-weight: 700;
+  font-weight: var(--fw-bold);
 }
 html[data-large-text] .cell.filled {
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
 }
 /* The Factions sheet: each side's standing under its name, so the name and its players and
    influence have the row's width. */

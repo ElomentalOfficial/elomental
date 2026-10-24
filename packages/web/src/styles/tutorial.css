@@ -3,7 +3,7 @@
 .coach-layer {
   position: absolute;
   inset: 0;
-  z-index: 40;
+  z-index: var(--z-coach);
   touch-action: none;
   animation: fade 0.25s ease;
   transition: opacity 0.2s ease;
@@ -27,7 +27,7 @@
   width: 26px;
   height: 26px;
   margin: -13px 0 0 -13px;
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   background: color-mix(in srgb, var(--c-bright) 85%, transparent);
   box-shadow: 0 0 0 6px color-mix(in srgb, var(--c-lava) 45%, transparent);
   pointer-events: none;
@@ -95,14 +95,14 @@ html[data-large-text] .coach-actions {
 }
 .coach-count {
   font-size: var(--fs-small);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   color: var(--accent-text);
-  letter-spacing: 0.08em;
+  letter-spacing: var(--ls-caps-wide);
 }
 .coach-card h3 {
   margin: 4px 0 6px;
   font-size: var(--fs-label);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   text-transform: uppercase;
 }
 .coach-card p {
@@ -125,7 +125,7 @@ html[data-large-text] .coach-actions {
 }
 .coach-skip {
   padding: 10px 4px;
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   font-size: var(--fs-small);
   text-transform: uppercase;
   color: var(--muted);

@@ -48,9 +48,9 @@
 }
 .affinity-name {
   font-size: var(--fs-label);
-  font-weight: 800;
+  font-weight: var(--fw-heavy);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: var(--ls-caps);
 }
 .affinity-line {
   font-family: var(--serif);
@@ -62,12 +62,12 @@
   top: var(--space-2);
   right: var(--space-2);
   padding: 2px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   /* ink on page colours, not the accent: the page's accent is for its button (M24) */
   background: var(--text);
   color: var(--bg);
   font-size: var(--fs-small);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
 }
 .forge-affinity {
   display: inline-flex;
@@ -112,11 +112,11 @@
   align-items: center;
   gap: var(--space-2);
   font-family: var(--serif);
-  font-weight: 400;
+  font-weight: var(--fw-regular);
   text-align: left;
 }
 .odds td {
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   text-align: right;
 }
 .odds-section {
@@ -131,7 +131,7 @@
 .odds-section h3 {
   font-family: inherit;
   font-size: var(--fs-body);
-  font-weight: 400;
+  font-weight: var(--fw-regular);
   color: var(--text);
 }
 .forge-balances .link-btn,

@@ -8,7 +8,7 @@
 .backdrop {
   position: absolute;
   inset: 0;
-  z-index: 10;
+  z-index: var(--z-modal);
   /* Frosted glass: a light blur keeps the shapes behind readable, and the
      theme's frost tint (above) frosts them over. */
   background: var(--frost);
@@ -79,7 +79,7 @@ html.standalone .backdrop {
   width: 72px;
   height: 72px;
   padding: 16px;
-  border-radius: 50%;
+  border-radius: var(--radius-round);
   color: var(--c-bright);
 }
 .sheet-icon.casual {
@@ -187,7 +187,7 @@ html[data-reduce-motion] .sword-live .sword-flame {
 }
 .ranked-facts li:first-child {
   font-family: var(--font);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   color: var(--text);
 }
 /* Once per technique family: what the squares from here can need (home.ts newTechnique). */
@@ -284,7 +284,7 @@ html[data-reduce-motion] .sword-live .sword-flame {
 /* "10 Elo to Adept" in the Ranks sheet: the one line about you. */
 .tier-next {
   font-family: var(--font);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   font-size: var(--fs-small);
 }
 /* One strip for everything earned (game.ts): it wraps onto a second line when narrow. */
@@ -309,7 +309,7 @@ html[data-reduce-motion] .sword-live .sword-flame {
   color: var(--text);
   font-family: var(--font);
   font-size: var(--fs-small);
-  font-weight: 700;
+  font-weight: var(--fw-bold);
   font-variant-numeric: tabular-nums;
 }
 .reward svg,
