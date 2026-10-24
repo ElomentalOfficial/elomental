@@ -501,3 +501,55 @@ html[data-reduce-motion] .key[data-digit] span {
   font-size: var(--fs-small);
   font-weight: 800;
 }
+
+/* Windows contrast themes: fills and shadows are painted over, so the board draws its states as
+   outlines (the box frames already are), each a step heavier: every cell a fine grey one, the row and
+   column dashed, the same number solid, a wrong number doubled with its slash as a line. The selected
+   cell takes the system's own selection, Highlight behind HighlightText, so it never competes with an
+   outline (a selected wrong number: its outline and slash in Highlight); Notes on is edged in Highlight like any chosen option (its outline stays free for focus) */
+@media (forced-colors: active) {
+  .cell {
+    outline: 1px solid GrayText;
+    outline-offset: -1px;
+  }
+  .cell.cross {
+    outline: 1px dashed CanvasText;
+    outline-offset: -1px;
+  }
+  .cell.same {
+    outline: 2px solid CanvasText;
+    outline-offset: -2px;
+  }
+  .cell.wrong {
+    outline: 4px double CanvasText;
+    outline-offset: -4px;
+  }
+  .cell.wrong::before {
+    top: 21%;
+    background: none;
+    border-top: 2px solid CanvasText;
+    height: 0;
+    transform: rotate(-45deg);
+  }
+  .cell.selected:not(.wrong) {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+  /* (the setting is inherited: its notes take the selection's text colour too) */
+  .cell.selected:not(.wrong) .notes {
+    color: HighlightText;
+  }
+  /* a selected wrong number stays in the theme's colours (its fade sets its own fill): its double
+     outline and slash turn Highlight instead */
+  .cell.selected.wrong {
+    outline-color: Highlight;
+  }
+  .cell.selected.wrong::before {
+    border-color: Highlight;
+  }
+  .action.notes-toggle.on {
+    border-width: 3px;
+    border-color: Highlight;
+  }
+}

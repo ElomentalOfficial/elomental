@@ -57,3 +57,15 @@ html.standalone .hint-card.at-top {
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 35%, transparent);
   }
 }
+
+/* Windows contrast themes: the explanation's marks as outlines (fills and rings are painted over) */
+@media (forced-colors: active) {
+  .cell.hx-ring {
+    outline: 2px solid CanvasText;
+    outline-offset: -2px;
+  }
+  .cell.hx-target {
+    outline: 3px solid Highlight;
+    outline-offset: -3px;
+  }
+}

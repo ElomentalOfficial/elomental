@@ -1338,3 +1338,20 @@ html:not([data-large-text]) .daily-body > .daily-art {
     background: var(--surface);
   }
 }
+
+/* Windows contrast themes: a missed day keeps its slash as a line (a gradient is painted over) and
+   today its ring as a Highlight edge (its outline stays free for focus); days that can't be tapped are edged in grey (base.css) */
+@media (forced-colors: active) {
+  .day.missed::after {
+    height: 0;
+    width: 60%;
+    aspect-ratio: auto;
+    background: none;
+    border-top: 1.5px solid CanvasText;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    opacity: 1;
+  }
+  .day.today {
+    border: 3px solid Highlight;
+  }
+}

@@ -414,3 +414,15 @@ h2 {
     opacity: 1;
   }
 }
+
+/* Windows contrast themes paint over every fill, so a control keeps its edge as a border in the button
+   text colour, one that can't be used yet in the grey text colour (a text link and the welcome screen
+   keep none) */
+@media (forced-colors: active) {
+  :is(button, .btn):not(.link-btn, .screen) {
+    border: 1px solid ButtonText;
+  }
+  :is(button, .btn):not(.link-btn, .screen):is(:disabled, [aria-disabled='true']) {
+    border-color: GrayText;
+  }
+}
