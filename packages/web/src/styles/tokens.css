@@ -165,8 +165,9 @@
   --wrong-bg: var(--c-bright);
   --wrong-text: var(--c-crimson);
   --select: var(--c-second-bright);
-  /* A second ring inside the selection, for fills the selection colour is too close to. */
-  --select-inner: transparent;
+  /* A second ring inside the selection, in the page colour: it keeps the selection visible on
+     fills the selection colour is too close to (the bright wrong number). */
+  --select-inner: var(--c-bg);
   /* Keyboard focus: one colour on every surface (9.9:1 on modals, 12:1 on the page). */
   --focus: var(--c-second-bright);
   /* Field edges and the 3x3 box outline: 3:1 against what they sit on. */
@@ -197,8 +198,8 @@
   --primary-text: var(--on-accent);
   /* Colours taken from the Figma icon exports (eraser shade follows the accent). */
   --separator: var(--c-stone-700);
-  /* Mistake skulls: filled; an unused one in Highlight2, a used one in Lava. */
-  --mistake-off: var(--c-highlight-2);
+  /* Mistake skulls: an unused one outlined in --muted, a used one filled in Lava (game.css). */
+  --mistake-off: var(--muted);
   --mistake-on: var(--c-lava);
   --eraser-shade: rgba(38, 39, 33, 0.45);
   /* The selected option of a segmented control: a neutral fill, a ring and a check (one accent per screen). */
@@ -307,7 +308,7 @@
   --primary-bg: var(--accent);
   --primary-text: var(--c-bright);
   --separator: var(--c-sand-100);
-  --mistake-off: var(--c-mud);
+  --mistake-off: var(--muted);
   --mistake-on: var(--c-lava);
   --eraser-shade: rgba(255, 255, 229, 0.55);
   --seg-on-bg: var(--surface);

@@ -158,11 +158,6 @@ html[data-contrast='high'] .box-frame {
 html[data-contrast='high'] :is(button, [href], [tabindex]:not([tabindex='-1']), .text-field):focus-visible {
   outline-width: 6px;
 }
-/* High contrast: the empty mistake slots show clearly too. */
-html[data-contrast='high'] .skull:not(.used) {
-  color: var(--muted);
-}
-
 /*
  * Large text (125% and up): screens that can outgrow the phone scroll, and
  * rows of buttons wrap instead of squeezing their labels.

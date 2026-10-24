@@ -309,6 +309,8 @@ export const game = {
     column: (n: number) => `column ${n}`,
     box: (n: number) => `box ${n}`,
     hintPlaced: (n: number, row: number, column: number) => `Hint: ${n} in row ${row}, column ${column}.`,
+    /** Ranked: the clock passed the square's par (no speed bonus from here); said once. */
+    pastPar: 'Past par: no speed bonus from here.',
     pausedNow: 'Game paused.',
     resumedNow: 'Game resumed.',
     notesMode: (on: boolean) => (on ? 'Notes on.' : 'Notes off.'),

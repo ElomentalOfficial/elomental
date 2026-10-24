@@ -874,7 +874,12 @@ function gameScreen(game: SavedGame): Screen {
     }
     last = now;
     timer.textContent = formatTime(game.elapsedMs);
-    if (ranked) timer.classList.toggle('over-par', game.elapsedMs > parMs(config.target ?? config.rating));
+    if (ranked) {
+      const over = game.elapsedMs > parMs(config.target ?? config.rating);
+      // said once as it happens (the clock itself is never announced)
+      if (over && !timer.classList.contains('over-par') && !finished) announce(copy.game.a11y.pastPar);
+      timer.classList.toggle('over-par', over);
+    }
   }
   const clock = setInterval(tick, 250);
   const autosave = setInterval(save, 2000);
@@ -1019,26 +1024,38 @@ function gameScreen(game: SavedGame): Screen {
   });
 
   /**
-   * Touch and mouse act on pointerdown, with no tap delay. Keyboards, switch
-   * access and screen readers only send a click, so a click counts too, unless
-   * it's the click that follows a press already handled.
+   * Touch and mouse act when the finger or button lifts over the control it went down on, with
+   * no tap delay: sliding off first cancels, so a slip costs nothing (WCAG 2.5.2). `pick` names
+   * the control under a point (a key of the pad). Keyboards, switch access and screen readers
+   * only send a click, so a click counts too, unless it follows a press already handled.
    */
-  const onPress = (target: HTMLElement, act: (event: Event) => void) => {
-    let pressedAt = -Infinity;
+  const onPress = (target: HTMLElement, act: (control: HTMLElement) => void, pick = (at: Element): HTMLElement | null => (target.contains(at) ? target : null)) => {
+    let down: HTMLElement | null = null;
+    let handledAt = -Infinity;
     target.addEventListener('pointerdown', (event) => {
       event.preventDefault();
-      pressedAt = event.timeStamp;
-      act(event);
+      down = pick(event.target as Element);
+    });
+    target.addEventListener('pointercancel', () => (down = null));
+    target.addEventListener('pointerup', (event) => {
+      const from = down;
+      down = null;
+      const at = document.elementFromPoint(event.clientX, event.clientY);
+      if (!from || !at || pick(at) !== from) return;
+      handledAt = event.timeStamp;
+      act(from);
     });
     target.addEventListener('click', (event) => {
-      if (event.timeStamp - pressedAt < 1000) return;
-      act(event);
+      if (event.timeStamp - handledAt < 1000) return;
+      const control = pick(event.target as Element);
+      if (control) act(control);
     });
   };
-  onPress(pad, (event) => {
-    const key = (event.target as HTMLElement).closest<HTMLElement>('[data-digit]');
-    if (key) input(Number(key.dataset.digit));
-  });
+  onPress(
+    pad,
+    (key) => input(Number(key.dataset.digit)),
+    (at) => at.closest<HTMLElement>('[data-digit]'),
+  );
   hintButton.addEventListener('click', () => void hint());
   onPress(notesButton, () => {
     if (finished || paused) return;

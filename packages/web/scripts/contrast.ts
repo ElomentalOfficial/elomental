@@ -69,7 +69,7 @@ export const PAIRS: Pair[] = [
   ['Hint count badge', '--on-accent', '--accent', 4.5],
   ['Toast', '--on-accent', '--accent', 4.5],
   ['Keypad number (30px)', '--key-text', '--key-bg', 3],
-  ['Keypad number, all nine placed (55% opacity)', '--key-text', '--key-bg', 3, '--bg', 0.55],
+  ['Keypad number, all nine placed (hollow key)', '--key-bg', '--bg', 3],
   ['Timer (30px)', '--text', '--bg', 3],
   ['Puzzle type (14px)', '--text', '--bg', 4.5],
   ['Square code chip (12px)', '--muted', '--bg', 4.5],
@@ -90,6 +90,7 @@ export const PAIRS: Pair[] = [
   ['UI: selection ring vs cell', '--select', '--cell', 3],
   ['UI: selection ring vs same-number fill', '--select', '--same-bg', 3],
   ['UI: selection inner ring vs same-number fill', '--select-inner', '--same-bg', 3],
+  ['UI: selection inner ring vs wrong number', '--select-inner', '--wrong-bg', 3],
   ['UI: focus outline vs page', '--focus', '--bg', 3],
   ['UI: focus outline vs modal', '--focus', '--modal-bg', 3],
   ['UI: mistake used vs page', '--mistake-on', '--bg', 3],
@@ -190,8 +191,7 @@ export const ACCEPTED: Record<string, string> = {
   'UI: action button vs page': 'buttons are identified by their text label',
   'UI: modal border': 'decorative hairline',
   'UI: XP bar track vs modal': 'the fill carries the progress (3:1 on the track) and the caption says it in words',
-  'UI: mistake unused vs page': 'an empty slot: used skulls (Lava, 3:1 and scaled up) carry the count, the row label says it, and High contrast fills the slots in --muted',
-  'UI: selection ring vs same-number fill': 'light theme: the inner ring (--select-inner) carries it there',
+  'UI: selection ring vs same-number fill': 'the inner ring (--select-inner) carries it there',
 };
 // The deep fills keep their Figma depth on the dark theme: as bare shapes there (a ring, a dot,
 // a bar segment) they sit under 3:1, as Lava always has. On the light theme they must pass.
