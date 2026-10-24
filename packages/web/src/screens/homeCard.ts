@@ -60,8 +60,8 @@ const FLAG_RATIO = 52 / 80;
 /**
  * The flag's lines in the Home tiles' worn pen (tileSprites.ts: uneven dashes, a few dropped, some
  * fainter; owner, 2026-10-24): its outline and the step in its tip, and the burst behind the emblem,
- * sixteen slim blades round its centre (26, 32), long and short in turn, each a lozenge widest a
- * third of the way out. Not the sunburst: that stands beside it, behind your avatar.
+ * sixteen single hairline rays round its centre (26, 32), long and short in turn (owner: the
+ * two-line blades were too thick).
  */
 const FLAG_EDGE = (() => {
   const p = pen(83);
@@ -72,15 +72,7 @@ const FLAG_EDGE = (() => {
 /** (the burst is kept to the cloth: FLAG clips it) */
 const FLAG_BURST = (() => {
   const p = pen(89);
-  for (let k = 0; k < 16; k++) {
-    const a = (k * Math.PI) / 8;
-    const [c, s] = [Math.cos(a), Math.sin(a)];
-    const [from, to] = [16, k % 2 ? 23 : 31];
-    const mid = from + (to - from) / 3;
-    const w = k % 2 ? 0.9 : 1.3;
-    const at = (r: number, side = 0): [number, number] => [26 + c * r - s * side, 32 + s * r + c * side];
-    p.steps([at(from), at(mid, w), at(to), at(mid, -w), at(from)]);
-  }
+  for (let k = 0; k < 16; k++) p.ray(26, 32, k * 22.5, 17, k % 2 ? 23 : 30);
   return p.ink();
 })();
 
@@ -126,8 +118,8 @@ const FLAG_WEAR = (() => {
 /**
  * Your faction's flag (owner, 2026-10-24, the banner of an earlier version of the card): a pennant,
  * its cloth coming to a point with a step inside its tip and a gem under it, the emblem high on
- * the cloth on its burst of blades (kept to the cloth), with no colour of its own: light on dark,
- * dark on light (home.css). Worn all over (FLAG_WEAR). Its top starts above the frame's top line
+ * the cloth on its burst of rays, with no colour anywhere: the cloth is the card's, the emblem light
+ * on dark and dark on light (home.css). Worn all over (FLAG_WEAR). Its top starts above the frame's top line
  * and lies over it (home.css .pc-flag).
  */
 const FLAG = (side: Faction) =>
@@ -228,7 +220,6 @@ export function homeCard(): HomeCard {
     const side = account?.affinity ?? null;
     flag.hidden = !side;
     if (side) {
-      flag.className = `pc-flag el-${side}`;
       flag.innerHTML = FLAG(side);
       flag.setAttribute('aria-label', copy.home.card.faction(copy.forge.elements[side]));
     }

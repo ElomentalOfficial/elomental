@@ -76,8 +76,8 @@ The profile card (`screens/homeCard.ts`, owner's pick of three directions, 2026-
 order inside the tile's frame. Who you are leads and takes the spare height: the avatar on a
 sunburst (`withRays`), the name (no plate here: plates show on the Profile and the player card)
 and the rank beside it, under the faction's flag (2026-10-24): a pennant lined up with the name's
-first letter, its cloth the card with 5% of the faction's colour, its emblem with no colour of
-its own (light on dark, dark on light) on a burst of slim blades, every line in the tiles' worn pen
+first letter, with no colour anywhere: its cloth the card's own, its emblem light on dark and dark
+on light, on a burst of hairline rays, every line in the tiles' worn pen
 and the whole flag worn with specks and scratches, lying over the frame's top line (none without a
 faction; in the top right corner when the card stacks). Under a hairline with a diamond, Elo and Level, each with its bar and what's next (the
 Profile's own `rankProgress` and `levelProgress`, on one track, `--pc-track`). Last, the three
