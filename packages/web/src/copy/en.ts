@@ -272,6 +272,8 @@ export const game = {
   noHintsLeft: (max: number) => `No hints left: ${max} per game.`,
   noHintStep: 'No hint fits this position. Try notes on the busiest box.',
   hintEloCut: (percent: number) => `Hints this game: Elo gain −${percent}%`,
+  /** Once, after a player's first hint outside Ranked (the coach no longer has a Hints card). */
+  hintStardust: (max: number) => `Each hint trims this square’s Stardust. ${max} per game.`,
   /** Ranked: asked before the first hint of a game. */
   hintConfirmTitle: 'Use a hint?',
   hintConfirmText: (percent: number) => `In Ranked, each hint cuts this game’s Elo gain by ${percent}%. The clock keeps running while the hint is open.`,
@@ -628,17 +630,9 @@ export const tutorial = {
   start: 'Let’s play',
   counter: (n: number, of: number) => `${n} / ${of}`,
   pick: { title: 'Pick a cell', text: 'Tap an empty cell to select it. Its row and column light up. Tap a filled cell to highlight every matching number.' },
-  fill: { title: 'Fill it in', text: 'Tap a number to place it in the selected cell. A wrong number fades away and costs a mistake (the skulls at the top). Three mistakes and the square is lost.' },
-  notesButton: { title: 'Take notes', text: 'Tap Notes, then numbers, to pencil small notes into the cell. The keys shrink to show it. Tap Notes again to go back.' },
-  notesWheel: { title: 'Notes wheel', text: 'Or hold an empty cell, slide onto a number and let go to add or remove that note. Dragging toward the number opens the wheel right away.' },
-  erase: { title: 'Erase', text: 'Clears the selected cell: its number or its notes.' },
-  undo: { title: 'Undo', text: 'Takes back your last move. Mistakes still count.' },
-  hints: {
-    title: 'Hints',
-    text: (max: number, rankedCut?: number) =>
-      `Fills in the next logical cell. ${max} per game, and each one trims your Stardust.` +
-      (rankedCut !== undefined ? ` In Ranked, each also cuts your Elo gain by ${rankedCut}%.` : ''),
-  },
+  fill: { title: 'Fill it in', text: 'Tap a number to place it in the selected cell. A wrong number costs a mistake, shown at the top. Three mistakes and the square is lost.' },
+  notes: { title: 'Take notes', text: 'Tap Notes, then numbers, to pencil small notes into the cell. Tap Notes again to go back.' },
+  notesWithWheel: { title: 'Take notes', text: 'Tap Notes, then numbers, to pencil small notes into the cell. Or hold an empty cell and slide onto a number.' },
 };
 
 type Unit = 'row' | 'column' | 'box' | 'line';
@@ -975,7 +969,7 @@ export const setup = {
   notesWheel: 'Notes wheel',
   notesWheelHelp: 'Long-press a cell to open the notes wheel. The Notes button works either way.',
   tutorial: 'Tutorial',
-  tutorialHelp: 'How to fill cells, take notes, erase and undo.',
+  tutorialHelp: 'How to pick a cell, fill it in and take notes.',
   tutorialReplay: 'Show again next game',
   tutorialQueued: 'The tutorial plays at the start of your next game.',
   /** Wide screens (banner pages): the banner's line, and the doors with what's set behind each. */

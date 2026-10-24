@@ -124,6 +124,8 @@ const PAUSE_WAIT_MS = 5 * 60_000;
  * Ranked one. `elomental:game` was the single slot before; loadSavedGame moves it over.
  */
 const SAVE_PREFIX = 'elomental:game';
+/** Set once a player has been told what a hint costs outside Ranked. */
+const HINT_TOLD_KEY = 'elomental:hint-told';
 const saveKey = (mode: Mode) => `${SAVE_PREFIX}:${mode}`;
 const MAX_MISTAKES = 3;
 /** Hints per game, in every mode. Each one trims Stardust; in Ranked it also costs Elo (profile.ts). */
@@ -656,6 +658,11 @@ function gameScreen(game: SavedGame): Screen {
       announce(copy.game.a11y.hintPlaced(next.digit, ROW_OF[next.cell] + 1, COL_OF[next.cell] + 1));
     } else render();
     if (ranked) toast(copy.game.hintEloCut(Math.round(HINT_ELO_PENALTY * 100 * game.hints)));
+    // what a hint costs elsewhere, said once, at the first one (owner, 2026-10-24: in context, not in the coach)
+    else if (!readJson<boolean>(HINT_TOLD_KEY)) {
+      writeJson(HINT_TOLD_KEY, true);
+      toast(copy.game.hintStardust(MAX_HINTS));
+    }
   }
 
   /** Ranked's first hint of a game: its cost, then Use hint or Keep playing (the default). */
@@ -1112,29 +1119,9 @@ function gameScreen(game: SavedGame): Screen {
         ...copy.tutorial.fill,
         gesture: 'tap',
       },
-      {
-        target: notesButton,
-        ...copy.tutorial.notesButton,
-        gesture: 'tap',
-      },
-      // The wheel only when it's on in Setup.
-      ...(useWheel ? [{ target: board, ...copy.tutorial.notesWheel, gesture: 'hold-slide' as const }] : []),
-      {
-        target: pad.querySelector<HTMLElement>('.key-erase')!,
-        ...copy.tutorial.erase,
-        gesture: 'tap',
-      },
-      {
-        target: undoButton,
-        ...copy.tutorial.undo,
-        gesture: 'tap',
-      },
-      {
-        target: hintButton,
-        title: copy.tutorial.hints.title,
-        text: copy.tutorial.hints.text(MAX_HINTS, ranked ? Math.round(HINT_ELO_PENALTY * 100) : undefined),
-        gesture: 'tap',
-      },
+      // notes, with the wheel when it's on in Setup. Three cards in all (owner, 2026-10-24): Erase
+      // and Undo say what they do on their keys, and a hint's cost is told at the first one (hint)
+      { target: notesButton, ...(useWheel ? copy.tutorial.notesWithWheel : copy.tutorial.notes), gesture: 'tap' },
     ];
     // Wait for the page turnstile to settle so the spotlight lands on the final positions.
     setTimeout(() => {

@@ -103,7 +103,8 @@ for (const device of DEVICES) {
       await expect(card).toBeVisible({ timeout: 20_000 });
       const found: string[] = [];
       const steps = Number((await page.locator('.coach-count').textContent())?.split('/')[1]);
-      expect(steps).toBeGreaterThan(3);
+      // pick a cell, fill it in, take notes (owner, 2026-10-24)
+      expect(steps).toBe(3);
       for (let step = 1; step <= steps; step++) {
         await expect(page.locator('.coach-count')).toHaveText(`${step} / ${steps}`);
         // the spotlight glides to its control and the card rises: wait until both have stopped

@@ -51,7 +51,7 @@ Taps are counted from Home. Severity: **C**ritical / **H**igh / **M**edium / **L
 | Feature | Player goal | Taps | First-timer clarity | Friction / readability | Sev |
 | --- | --- | --- | --- | --- | --- |
 | Welcome splash | Get to the game | 0 (≈3s, tap skips) | Pretty, branded | Plays on **every** launch; 3s of 5-minute sessions | M |
-| Tutorial (first game) | Learn the controls | 7 steps, skippable | Clear and literal | Fine; notes wheel is advanced for step 4 of 7 | L |
+| Tutorial (first game) | Learn the controls | 3 steps, skippable (2026-10-24: was 7; a hint's cost is told at the first one) | Clear and literal | Fine | L |
 | Home / mode choice | Pick something to play | — | Tiles are clear | **Store and Leaderboard are dead ends** (toast). The avatar is the only way into the Forge, and nothing says so | H |
 | Casual | Start a square | 2 (tile, Play) | Clear | "Clash a friend" and "Square code" are jargon to a newcomer | L |
 | Ranked | Climb | 2 (tile, Start) | "Elo" isn't explained anywhere in plain words | Tier names (Adept II) shown without what's next or how far | M |
