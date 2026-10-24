@@ -226,6 +226,7 @@ function openRanked(leave: (go: () => void) => void) {
     r.stakes(eloDelta(profile.elo, rankedOpponent(profile.elo), true), -eloDelta(profile.elo, rankedOpponent(profile.elo), false)),
     comeback ? r.comeback : null,
     r.pauses,
+    r.fair,
   ].filter((f): f is string => !!f);
   // the first square from a stage that brings in a technique family: a word on it, once
   const fresh = newTechnique(stage);

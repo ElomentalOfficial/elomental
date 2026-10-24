@@ -185,6 +185,8 @@ export const home = {
       finned: 'From now on, a square can need a Finned Swordfish or a Finned Jellyfish. A hint shows you how, for a smaller Elo gain.',
     },
     pauses: '3 pauses of up to 5 minutes.',
+    /** Ranked's promise (owner, 2026-10-24): parts and Stardust are looks, and the Store will sell looks only. */
+    fair: 'Skill only: nothing you forge or buy ever changes your Elo.',
     start: 'Start',
   },
 };
