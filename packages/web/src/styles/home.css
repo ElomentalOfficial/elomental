@@ -271,7 +271,7 @@
   position: absolute;
   left: 0;
   bottom: 0;
-  height: 3px;
+  height: 4px;
 }
 /* the faction's line along its foot too, all the way across in its own colour, so the three read
    as one row (owner, 2026-10-24); it measures nothing, so it doesn't fill */
@@ -288,10 +288,14 @@
   right: 0;
   background: var(--pc-track);
 }
+/* the fill brightens toward its head, which ends in a crisp cap (no glow: owner, 2026-10-24), so
+   where you stand reads at a glance against the track still to go */
 .pc-elo::after,
 .pc-level::after {
   width: calc(var(--fill) * 100%);
-  background: linear-gradient(90deg, var(--line-lo), var(--line-hi));
+  background:
+    linear-gradient(var(--line-cap), var(--line-cap)) right / 2px 100% no-repeat,
+    linear-gradient(90deg, var(--line-lo), var(--line-hi) calc(100% - 12px), var(--line-head));
 }
 .pc-elo {
   --line-lo: var(--rank-lo);
@@ -300,6 +304,17 @@
 .pc-level {
   --line-lo: var(--pc-level-lo);
   --line-hi: var(--pc-level-hi);
+}
+.pc-elo,
+.pc-level {
+  --line-head: color-mix(in oklab, var(--line-hi) 55%, var(--c-bright));
+  --line-cap: var(--c-bright);
+}
+/* on the light theme a bright cap on the pale track reads as a gap (owner): there the head is the
+   bar's own metal and its cap a deeper shade of it */
+:root[data-theme='light'] :is(.pc-elo, .pc-level) {
+  --line-head: var(--line-hi);
+  --line-cap: color-mix(in oklab, var(--line-lo) 70%, var(--c-stone-900));
 }
 /* the faction's emblem, as tall as the numbers beside it, light on dark and dark on light (no
    colour: owner) */

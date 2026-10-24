@@ -247,7 +247,8 @@
   --feather-shadow: color-mix(in srgb, var(--c-rock) 30%, transparent);
   --profile-bg: var(--c-second-bright);
   --pc-socket: color-mix(in srgb, var(--c-mud) 60%, transparent);
-  --pc-track: var(--bar-bg);
+  /* a step deeper than the tile it runs along, so the track still to go reads (owner) */
+  --pc-track: var(--c-sand-500);
   --pc-level-lo: var(--c-gold-500);
   --pc-level-hi: var(--c-gold-300);
   --pc-slot-edge: color-mix(in srgb, var(--c-sand-500) 40%, transparent);
