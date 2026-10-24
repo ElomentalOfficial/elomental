@@ -17,15 +17,17 @@ import * as copy from '../copy/en.ts';
 /**
  * Home's profile card, "Ledger" (owner, 2026-10-23): one reading order inside the tile's own Art
  * Deco frame. Who you are leads and takes the room: your avatar on a sunburst, your name and your
- * rank beside it. Under a hairline, how you are doing: Elo and Level, each with its bar and what's
- * next, and your faction, its emblem beside its name (owner, 2026-10-24: it replaced the flag over
- * the name). Last, the three badges you show off, each in a recessed slot.
+ * rank beside it. Under them two rows of three recessed tiles on one grid (owner, 2026-10-24): how
+ * you are doing, Elo, Level and your faction (it replaced the flag over the name), then the three
+ * badges you show off.
  * Stardust and Spirits live on the Forge tile, where they are spent (home.ts).
  */
 export interface HomeCard {
   el: HTMLElement;
   /** Your avatar: the way into your Profile (home.ts wires it). */
   avatar: HTMLButtonElement;
+  /** The faction tile's choice, shown while you have none (home.ts wires it). */
+  chooseSide: HTMLButtonElement;
   /** Repaint from the account cache. */
   paint(): void;
   /** The lowest edge of the card's content, to tell whether it fits (home.ts fitNote). */
@@ -66,18 +68,24 @@ export function homeCard(): HomeCard {
   const rankEl = h('span', { class: 'profile-rank' });
   const name = h('div', { class: 'pc-cell pc-name' }, h('div', { class: 'pc-in' }, nameEl, rankEl));
 
-  // ---- how you're doing: Elo and Level, each with its bar and what's next, then your faction
-  // (owner, 2026-10-24: a stat like the others, its emblem beside its name; none without one)
+  // ---- how you're doing: three tiles cut like the badge slots under them, each its caption, its
+  // value and a line under it (owner, 2026-10-24): Elo and Level with their bars and what's next,
+  // and your faction, its emblem the value and its name the line; without one, a tile to choose
   const eloNum = h('span', { class: 'pc-num' });
   const eloNext = h('div', { class: 'pc-next' });
   const levelNum = h('span', { class: 'pc-num' });
   const levelNext = h('div', { class: 'pc-next' });
-  const sideMark = h('span', { class: 'pc-side-mark', attrs: { 'aria-hidden': 'true' } });
-  const sideName = h('span');
-  const stat = (cls: string, cap: string, num: HTMLElement, next: HTMLElement | null) =>
-    h('div', { class: `pc-stat ${cls}` }, h('div', { class: 'pc-in' }, h('span', { class: 'pc-cap', text: cap }), num, next));
-  const sideStat = stat('pc-faction', copy.home.card.factionCap, h('span', { class: 'pc-num pc-side' }, sideMark, sideName), null);
-  const stats = h('div', { class: 'pc-cell pc-stats' }, stat('pc-elo', copy.common.elo, eloNum, eloNext), stat('pc-level', copy.level.cap, levelNum, levelNext), sideStat);
+  const sideMark = h('span', { class: 'pc-num pc-mark', attrs: { 'aria-hidden': 'true' } });
+  const sideName = h('div', { class: 'pc-next pc-side-name' });
+  const tileIn = (cap: string, value: HTMLElement, next: HTMLElement) => h('div', { class: 'pc-in' }, h('span', { class: 'pc-cap', text: cap }), value, next);
+  const stat = (cls: string, cap: string, num: HTMLElement, next: HTMLElement) => h('div', { class: `pc-stat ${cls}` }, tileIn(cap, num, next));
+  const sideStat = stat('pc-faction', copy.home.card.factionCap, sideMark, sideName);
+  const chooseSide = h(
+    'button',
+    { class: 'pc-stat pc-faction pc-choose', attrs: { type: 'button', 'aria-label': copy.home.line.chooseSide } },
+    tileIn(copy.home.card.factionCap, h('span', { class: 'pc-num pc-mark', html: ADD }), h('div', { class: 'pc-next', text: copy.home.card.factionChoose })),
+  );
+  const stats = h('div', { class: 'pc-cell pc-stats' }, stat('pc-elo', copy.common.elo, eloNum, eloNext), stat('pc-level', copy.level.cap, levelNum, levelNext), sideStat, chooseSide);
 
   // ---- what you show off: your three badges, each in its own recessed slot
   const badges = h('ul', { class: 'pc-badges', attrs: { 'aria-label': copy.home.card.badges } });
@@ -138,10 +146,12 @@ export function homeCard(): HomeCard {
     const xp = account?.xp ?? 0;
     levelNum.textContent = String(xpLevel(xp).level);
     levelNext.replaceChildren(levelProgress(xp));
-    // your faction, a third column; without one the two stats keep the row
+    // your faction's tile; with an account and no faction yet, the tile to choose one; a guest on
+    // this device alone has neither, and Elo and Level share the row
     const side = account?.affinity ?? null;
     sideStat.hidden = !side;
-    stats.classList.toggle('has-faction', !!side);
+    chooseSide.hidden = !!side || !account;
+    stats.classList.toggle('two', !account);
     if (side) {
       sideMark.innerHTML = elementMark(side);
       sideName.textContent = copy.forge.elements[side];
@@ -206,6 +216,7 @@ export function homeCard(): HomeCard {
   return {
     el,
     avatar,
+    chooseSide,
     paint,
     contentBottom: () => badges.getBoundingClientRect().bottom,
     destroy: () => {

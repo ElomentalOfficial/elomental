@@ -30,6 +30,7 @@ import { loadSavedGame, resumeGame, startGame } from './game.ts';
 import { setupScreen } from './setup.ts';
 import { forgeScreen } from './forge.ts';
 import { homeCard } from './homeCard.ts';
+import { affinityScreen } from './affinity.ts';
 import { betaTag } from '../beta.ts';
 import { showAwayNews } from '../awayNews.ts';
 import * as copy from '../copy/en.ts';
@@ -58,19 +59,20 @@ export function homeScreen(): Screen {
     return el;
   }
 
-  // The profile card (homeCard.ts): you, your Level and Elo, your badges, your faction's banner.
-  // The avatar is the way into your Profile.
+  // The profile card (homeCard.ts): you, your Elo, Level and faction, your badges. The avatar is
+  // the way into your Profile; the faction tile, while you have none, the way to choose one.
   const card = homeCard();
   const profileCard = card.el;
   if (signedIn()) void loadLoadout().then((l) => l && el.isConnected && card.paint());
   card.avatar.addEventListener('click', () => leave(profileCard, () => mount(profileScreen())));
+  card.chooseSide.addEventListener('click', () => leave(profileCard, () => mount(affinityScreen())));
   enableTilt(card.avatar, 6);
   // The whole card looks like a tile, so a tap anywhere on it goes in too (by pointer: the avatar
   // stays the one control for the keyboard and screen readers). The card's own buttons do their
   // own thing: the avatar, and the badge slots, which open the badge choice (homeCard.ts).
   profileCard.addEventListener('click', (event) => {
     const at = event.target as Element;
-    if (at.closest('.avatar-btn, .pc-badge-btn')) return;
+    if (at.closest('.avatar-btn, .pc-badge-btn, .pc-choose')) return;
     leave(profileCard, () => mount(profileScreen(at.closest('.pc-badges') ? { at: 'badges' } : undefined)));
   });
 

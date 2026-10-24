@@ -73,10 +73,6 @@
   .area-forge {
     margin-right: var(--gap);
   }
-  /* the card is wide here: the portrait takes a little less of it */
-  .profile-card {
-    grid-template-columns: minmax(0, 42fr) minmax(0, 58fr);
-  }
   /* Corners grow with the tiles, by the same factor as their contents (the
      tiles' frames follow through --frame-zoom). */
   .home-grid > .tile,

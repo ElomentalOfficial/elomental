@@ -121,8 +121,10 @@ export const home = {
     a11yAddBadge: 'Add a badge to your card',
     /** A badge on the card, a button that opens the badge choice. */
     a11yBadge: (badge: string) => `${badge}. Change the badges on your card`,
-    /** The third stat's caption, over the faction's name. */
+    /** The third tile's caption, over the faction's emblem. */
     factionCap: 'Faction',
+    /** The third tile's line while no faction is chosen (the tile opens the choice). */
+    factionChoose: 'Choose one',
   },
   /** The way to choose a side, where one isn't chosen yet (Profile, the result). */
   line: {

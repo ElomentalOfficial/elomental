@@ -127,8 +127,10 @@
 }
 /*
  * The profile card, "Ledger" (homeCard.ts, owner 2026-10-23): inside the tile's own frame, one
- * reading order. Who you are leads and takes all the spare height: your avatar on its sunburst
- * beside your name and rank. Under a hairline, Elo and Level with what's next. Last, your badges.
+ * reading order on one grid of three columns (owner, 2026-10-24). Who you are leads and takes all
+ * the spare height: your avatar on its sunburst in the first column, your name and rank from the
+ * second's edge. Under it two rows of three recessed tiles: Elo, Level and your faction, then
+ * your badges, every tile the same width on the same gap.
  */
 .profile-card {
   grid-area: profile;
@@ -141,13 +143,15 @@
   --pc-frame: calc(var(--frame-corner) * var(--frame-zoom, 1) * 11 / 40);
   --pc-gap: calc(var(--space-3) * var(--frame-zoom, 1));
   display: grid;
-  grid-template-columns: minmax(0, 46fr) minmax(0, 54fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: minmax(0, 1fr) auto auto;
   grid-template-areas:
-    'portrait name'
-    'stats stats'
-    'showcase showcase';
-  gap: var(--pc-gap);
+    'portrait name name'
+    'stats stats stats'
+    'showcase showcase showcase';
+  /* the tiles' gap across, the card's own gap down */
+  column-gap: var(--space-2);
+  row-gap: var(--pc-gap);
   padding: calc(var(--pc-frame) + var(--pc-gap));
   /* a tap anywhere on it opens your Profile (home.ts); the avatar is its control */
   cursor: var(--cursor-pointer);
@@ -212,68 +216,89 @@
   font-weight: 600;
   letter-spacing: 0.04em;
 }
-/* Elo and Level side by side under a hairline with a diamond at its middle, in the frame's ink at
-   the frames' faintness; each a caption, the number, its bar and what's next. With a faction, a
-   third, narrower column: its caption, then its emblem beside its name, no bar (owner, 2026-10-24). */
+/* Elo, Level and your faction: three tiles on the badges' columns and gap, recessed like their
+   slots; each centred, its caption, its value on one line across the row, and its line at the
+   foot (the rows of the tile's own grid line them up tile to tile). A guest on this device alone
+   has two, Elo and Level, sharing the row. */
 .pc-stats {
   grid-area: stats;
   display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+.pc-stats.two {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-5);
-  padding-top: var(--pc-gap);
-}
-.pc-stats.has-faction {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.8fr);
-  gap: var(--space-4);
-}
-/* the faction's name in the numbers' serif, sized so the longest (Water, Earth) keeps to its column;
-   its emblem as tall as its capitals, light on dark and dark on light (no colour: owner) */
-.pc-side {
-  display: flex;
-  align-items: center;
-  gap: 0.25em;
-  font-size: min(var(--fs-display), 22cqi);
-  white-space: nowrap;
-}
-.pc-side-mark {
-  flex: none;
-  width: 0.8em;
-  height: 0.8em;
-  color: var(--faction-mark);
-}
-.pc-stats::before,
-.pc-stats::after {
-  content: '';
-  position: absolute;
-  pointer-events: none;
-  opacity: calc(var(--ornament-opacity) * 2);
-}
-/* the hairline runs up to the diamond's points and stops there, so the diamond stands clear and
-   the line meets it (owner) */
-.pc-stats::before {
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, var(--frame-line) calc(50% - 6px), transparent calc(50% - 6px) calc(50% + 6px), var(--frame-line) calc(50% + 6px));
-}
-.pc-stats::after {
-  top: -4px;
-  left: calc(50% - 4px);
-  width: 7px;
-  height: 7px;
-  transform: rotate(45deg);
-  border: 1px solid var(--frame-line);
-  opacity: calc(var(--ornament-opacity) * 4);
 }
 .pc-stat {
   min-width: 0;
   container-type: inline-size;
+  padding: var(--space-2);
+  border-radius: var(--radius-lg);
+  background: var(--pc-socket);
+  text-align: center;
 }
 .pc-stat .pc-in {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  justify-items: center;
+  row-gap: var(--space-1);
+  height: 100%;
+}
+.pc-stat .pc-next {
+  align-self: end;
+  width: 100%;
+  /* a line that wraps in a narrow tile breaks into even halves, never one word left alone */
+  text-wrap: balance;
+}
+/* the faction's emblem is its value, as tall as the numbers beside it, light on dark and dark on
+   light (no colour: owner), struck in a fine double ring like a seal, so it reads as a badge
+   beside the badges under it; its name the line under it, in the text's own ink: it is what the
+   tile says, not a note */
+.pc-mark {
+  display: block;
+  width: 1em;
+  height: 1em;
+  color: var(--faction-mark);
+}
+.pc-faction:not(.pc-choose) .pc-mark {
+  /* its two rings in the frame's ink (set on the card's frame), the inner one fainter */
+  --pc-seal: color-mix(in srgb, var(--frame-line) 60%, transparent);
+  --pc-seal-inner: color-mix(in srgb, var(--frame-line) 30%, transparent);
+  box-sizing: border-box;
+  width: 1.3em;
+  height: 1.3em;
+  /* (room for the outer ring, clear of the caption) */
+  margin-top: var(--space-1);
+  padding: 0.2em;
+  border: 1px solid var(--pc-seal);
+  border-radius: 50%;
+  outline: 1px solid var(--pc-seal-inner);
+  outline-offset: 2px;
+}
+.pc-mark svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.pc-side-name {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--profile-text);
+}
+/* no faction yet: the tile is the way to choose one, its "+" the badge slots' own (homeCard.ts ADD),
+   brightening under the pointer like theirs */
+.pc-choose {
+  font: inherit;
+  color: inherit;
+  cursor: var(--cursor-pointer);
+}
+.pc-choose .pc-mark {
+  color: var(--muted);
+}
+.pc-choose .pc-next {
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--muted);
 }
 .pc-cap {
   font-size: var(--fs-caption);
@@ -435,7 +460,8 @@
   transform: scale(0.94);
 }
 @media (hover: hover) {
-  .pc-badge-btn:hover {
+  .pc-badge-btn:hover,
+  .pc-choose:hover .pc-mark {
     color: var(--text);
   }
 }
