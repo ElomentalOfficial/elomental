@@ -216,7 +216,7 @@ export function dailyScreen(): Screen {
     : earned
       ? copy.daily.badgeEarned
       : reach < need
-        ? copy.daily.badgeOutOfReach(nextMonth)
+        ? copy.daily.badgeOutOfReach(need, nextMonth)
         : copy.daily.badgeHow(need);
   const mendHint =
     account && !earned && bySolving < need && reach >= need ? h('p', { class: 'note mend-hint', text: copy.daily.mendHint(MEND_COST, mendsLeft) }) : null;

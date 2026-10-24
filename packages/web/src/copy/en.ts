@@ -204,13 +204,14 @@ export const daily = {
   monthBadge: (month: string) => `${month} badge`,
   badgeEarned: 'Earned. It’s on your Profile.',
   badgeHow: (need: number) => `Solve or fill in ${need} days this month to earn it.`,
-  badgeOutOfReach: (nextMonth: string) => `Out of reach this month. A fresh month starts ${nextMonth} 1.`,
+  /** Not reachable this month (a player who joined late, or missed too many days): why, then what's next (owner, 2026-10-24). */
+  badgeOutOfReach: (need: number, nextMonth: string) => `It needs ${need} days, more than this month has left. ${nextMonth}’s badge starts on the 1st.`,
   badgeNeedsAccount: 'Badges are kept with an account. Connect and sign in to earn this one.',
   mendBadgeHeld: (month: string) => `The ${month} badge is already yours, so this only fills in the calendar.`,
   mendHint: (stardust: number, left: number) => `Tap a missed day to fill it in: ${stardust} Stardust each, ${left} left this month.`,
   /** In the fill-in sheet: what this fill-in does for the month's badge. */
   mendToward: (after: number, need: number) => `Brings you to ${after} of ${need} for the badge.`,
-  mendNoBadge: (month: string) => `The ${month} badge is out of reach this month, so this only fills in the calendar.`,
+  mendNoBadge: (month: string) => `The ${month} badge needs more days than this month has left, so this only fills in the calendar and your streak.`,
   nextIn: (hours: number, minutes: number) => `New square in ${hours}h ${minutes}m`,
   /** The streak (days.ts dailyStreak): days in a row solved or filled in, and what keeps it going. */
   streakToday: (days: number) => `${days}-day streak: solve today’s square to make it ${days + 1}.`,
