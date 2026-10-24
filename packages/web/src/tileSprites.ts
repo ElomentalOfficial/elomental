@@ -223,15 +223,23 @@ const COMPOSITIONS: Record<Area, Compose> = {
  * ignores, so the name can be measured the moment the tile is laid out, mid-swing or not.
  */
 export function placeIn(tile: HTMLElement, el: HTMLElement): { x: number; y: number; w: number; h: number } {
+  // the zoom on a box and every box between it and `until` (not counting `until`)
+  const zoomTo = (from: HTMLElement, until: Element | null) => {
+    let z = 1;
+    for (let at: HTMLElement | null = from; at && at !== until; at = at.parentElement) z *= parseFloat(getComputedStyle(at).zoom) || 1;
+    return z;
+  };
+  // an offset is in the unzoomed units of its own box: each step scaled by the zoom between it
+  // and its offset parent (on wide screens a tile's face and the profile card's insides are zoomed)
   let x = 0;
   let y = 0;
-  let zoom = 1;
   for (let at: HTMLElement | null = el; at && at !== tile; at = at.offsetParent as HTMLElement | null) {
-    x += at.offsetLeft;
-    y += at.offsetTop;
+    const z = zoomTo(at, at.offsetParent);
+    x += at.offsetLeft * z;
+    y += at.offsetTop * z;
   }
-  for (let at: HTMLElement | null = el; at && at !== tile; at = at.parentElement) zoom *= parseFloat(getComputedStyle(at).zoom) || 1;
-  return { x: x * zoom, y: y * zoom, w: el.offsetWidth * zoom, h: el.offsetHeight * zoom };
+  const zoom = zoomTo(el, tile);
+  return { x, y, w: el.offsetWidth * zoom, h: el.offsetHeight * zoom };
 }
 
 /**
