@@ -17,7 +17,7 @@ const CLEAR = 8;
 const SEEDS: Record<Area, number> = { daily: 31, casual: 11, ranked: 21, forge: 41, store: 71, leader: 51, setup: 61 };
 
 /** A seeded random number generator (mulberry32): the same seed, the same composition. */
-function seeded(seed: number): () => number {
+export function seeded(seed: number): () => number {
   let s = Math.imul(seed, 0x9e3779b9) >>> 0;
   return () => {
     s = (s + 0x6d2b79f5) >>> 0;
@@ -35,7 +35,7 @@ const rad = (deg: number) => (deg * Math.PI) / 180;
  * The pen a composition draws with, in px. Every stroke is worn: walked in uneven dashes with
  * small gaps, about one dash in twelve dropped, a quarter of the rest in the fainter ink.
  */
-function pen(seed: number) {
+export function pen(seed: number) {
   const rnd = seeded(seed);
   let strong = '';
   let faint = '';

@@ -1,4 +1,6 @@
-import { avatarSvg, plainEmblemUrls } from '../avatar.ts';
+import { avatarSvg } from '../avatar.ts';
+import { elementMarkAt } from '../elementMarks.ts';
+import type { Element as Faction } from '../profile.ts';
 import { cachedAccount, registered } from '../backend/account.ts';
 import { cachedLoadout, cachedPolish } from '../backend/forge.ts';
 import { myBadges } from '../backend/leaderboard.ts';
@@ -8,7 +10,7 @@ import { levelProgress } from '../level.ts';
 import { loadProfile, rankTier } from '../profile.ts';
 import { rankProgress } from '../rankBar.ts';
 import { rankName } from '../rankName.ts';
-import { placeIn } from '../tileSprites.ts';
+import { pen, placeIn, seeded } from '../tileSprites.ts';
 import { withRays } from '../rays.ts';
 import { h } from '../ui.ts';
 import { xpLevel } from '../xp.ts';
@@ -50,41 +52,91 @@ const ADD =
   '<path class="pc-add-inner" d="M0 -9.6L8.3 -4.8V4.8L0 9.6L-8.3 4.8V-4.8Z"/>' +
   '<path class="pc-add-plus" d="M-0.75 -0.75L-0.3 -4.4H0.3L0.75 -0.75L4.4 -0.3V0.3L0.75 0.75L0.3 4.4H-0.3L-0.75 0.75L-4.4 0.3V-0.3Z"/></svg>';
 
-/**
- * The burst behind the flag's emblem (owner's reference, 2026-10-24): sixteen slim blades round
- * its centre (26, 32), long and short in turn, each a lozenge widest a third of the way out, in the
- * flag's units. Not the sunburst: that stands beside it, behind your avatar.
- */
-const BLADES = Array.from({ length: 16 }, (_, k) => {
-  const a = (k * Math.PI) / 8;
-  const [c, s] = [Math.cos(a), Math.sin(a)];
-  const from = 16;
-  const to = k % 2 ? 23 : 31;
-  const mid = from + (to - from) / 3;
-  const w = k % 2 ? 1.1 : 1.6;
-  const at = (r: number, side = 0) => `${(26 + c * r - s * side).toFixed(2)} ${(32 + s * r + c * side).toFixed(2)}`;
-  return `M${at(from)}L${at(mid, w)}L${at(to)}L${at(mid, -w)}Z`;
-}).join('');
-
 /** The flag's cloth: 52 × 80 units with its gem (owner: wider and shorter than its first 44 × 92). */
 const CLOTH = 'M1 0V56L26 70L51 56V0Z';
 /** Its width for its height (home.css .pc-flag aspect-ratio, homeCard.ts placeFlag). */
 const FLAG_RATIO = 52 / 80;
 
 /**
+ * The flag's lines in the Home tiles' worn pen (tileSprites.ts: uneven dashes, a few dropped, some
+ * fainter; owner, 2026-10-24): its outline and the step in its tip, and the burst behind the emblem,
+ * sixteen slim blades round its centre (26, 32), long and short in turn, each a lozenge widest a
+ * third of the way out. Not the sunburst: that stands beside it, behind your avatar.
+ */
+const FLAG_EDGE = (() => {
+  const p = pen(83);
+  p.steps([[1, 0], [1, 56], [26, 70], [51, 56], [51, 0]]);
+  p.steps([[10, 53], [26, 62], [42, 53]]);
+  return p.ink();
+})();
+/** (the burst is kept to the cloth: FLAG clips it) */
+const FLAG_BURST = (() => {
+  const p = pen(89);
+  for (let k = 0; k < 16; k++) {
+    const a = (k * Math.PI) / 8;
+    const [c, s] = [Math.cos(a), Math.sin(a)];
+    const [from, to] = [16, k % 2 ? 23 : 31];
+    const mid = from + (to - from) / 3;
+    const w = k % 2 ? 0.9 : 1.3;
+    const at = (r: number, side = 0): [number, number] => [26 + c * r - s * side, 32 + s * r + c * side];
+    p.steps([at(from), at(mid, w), at(to), at(mid, -w), at(from)]);
+  }
+  return p.ink();
+})();
+
+/**
+ * The flag's wear (owner: a grunge over its edges and inside): specks and short scratches knocked
+ * out of the whole flag, most of them in a band along its edges, a few across the cloth; seeded, so
+ * the same every time. A mask: black takes the flag away, as much as each mark's opacity.
+ */
+const FLAG_WEAR = (() => {
+  const rnd = seeded(87);
+  const edges: [number, number, number, number][] = [[1, 0, 1, 56], [51, 0, 51, 56], [1, 56, 26, 70], [51, 56, 26, 70], [1, 0, 51, 0]];
+  const f = (v: number) => v.toFixed(2);
+  let marks = '';
+  for (let k = 0; k < 110; k++) {
+    let x: number;
+    let y: number;
+    if (rnd() < 0.7) {
+      // along an edge, up to 3 units in from it
+      const [x1, y1, x2, y2] = edges[Math.floor(rnd() * edges.length)];
+      const t = rnd();
+      const len = Math.hypot(x2 - x1, y2 - y1);
+      const inward = rnd() * 3;
+      const [nx, ny] = [-(y2 - y1) / len, (x2 - x1) / len];
+      const toward = Math.sign((26 - x1) * nx + (30 - y1) * ny) || 1;
+      x = x1 + (x2 - x1) * t + nx * inward * toward;
+      y = y1 + (y2 - y1) * t + ny * inward * toward;
+    } else {
+      x = 2 + rnd() * 48;
+      y = 1 + rnd() * 60;
+    }
+    const o = f(0.35 + rnd() * 0.55);
+    if (rnd() < 0.55) {
+      marks += `<circle cx="${f(x)}" cy="${f(y)}" r="${f(0.25 + rnd() * 0.7)}" fill-opacity="${o}"/>`;
+    } else {
+      const a = rnd() * Math.PI;
+      const l = 1 + rnd() * 2.5;
+      marks += `<path d="M${f(x)} ${f(y)}l${f(Math.cos(a) * l)} ${f(Math.sin(a) * l)}" stroke="#000" stroke-width="${f(0.3 + rnd() * 0.4)}" stroke-opacity="${o}"/>`;
+    }
+  }
+  return `<mask id="pc-flag-wear" maskUnits="userSpaceOnUse" x="-2" y="-2" width="56" height="84"><rect x="-2" y="-2" width="56" height="84" fill="#fff"/>${marks}</mask>`;
+})();
+
+/**
  * Your faction's flag (owner, 2026-10-24, the banner of an earlier version of the card): a pennant,
  * its cloth coming to a point with a step inside its tip and a gem under it, the emblem high on
- * the cloth on its burst of blades (kept to the cloth), one picture of it for each theme (home.css
- * shows the theme's). Its top starts above the frame's top line and lies over it (home.css
- * .pc-flag).
+ * the cloth on its burst of blades (kept to the cloth), with no colour of its own: light on dark,
+ * dark on light (home.css). Worn all over (FLAG_WEAR). Its top starts above the frame's top line
+ * and lies over it (home.css .pc-flag).
  */
-const FLAG = (emblem: { dark: string; light: string }) =>
-  `<svg viewBox="0 0 52 80" aria-hidden="true"><clipPath id="pc-flag-clip"><path d="${CLOTH}"/></clipPath>` +
-  `<path class="pc-flag-cloth" d="${CLOTH}"/>` +
-  `<path class="pc-flag-blades" clip-path="url(#pc-flag-clip)" d="${BLADES}"/>` +
-  '<path class="pc-flag-lines" d="M1 0V56L26 70L51 56V0M10 53L26 62L42 53"/><path class="pc-flag-gem" d="M26 73L29 76L26 79L23 76Z"/>' +
-  `<image class="pc-flag-dark" href="${emblem.dark}" x="12" y="18" width="28" height="28"/>` +
-  `<image class="pc-flag-light" href="${emblem.light}" x="12" y="18" width="28" height="28"/></svg>`;
+const FLAG = (side: Faction) =>
+  `<svg viewBox="0 0 52 80" aria-hidden="true"><clipPath id="pc-flag-clip"><path d="${CLOTH}"/></clipPath>${FLAG_WEAR}` +
+  `<g mask="url(#pc-flag-wear)"><path class="pc-flag-cloth" d="${CLOTH}"/>` +
+  `<g class="pc-flag-lines pc-flag-burst" clip-path="url(#pc-flag-clip)"><path d="${FLAG_BURST.strong}"/><path d="${FLAG_BURST.faint}" opacity="0.5"/></g>` +
+  `<g class="pc-flag-lines"><path d="${FLAG_EDGE.strong}"/><path d="${FLAG_EDGE.faint}" opacity="0.5"/></g>` +
+  `<path class="pc-flag-gem" d="M26 73L29 76L26 79L23 76Z"/>` +
+  `<g class="pc-flag-mark">${elementMarkAt(side, 13, 19, 26)}</g></g></svg>`;
 
 export function homeCard(): HomeCard {
   /** Your badges when you haven't chosen three: your newest, fetched once a visit to Home. */
@@ -177,7 +229,7 @@ export function homeCard(): HomeCard {
     flag.hidden = !side;
     if (side) {
       flag.className = `pc-flag el-${side}`;
-      flag.innerHTML = FLAG(plainEmblemUrls(side));
+      flag.innerHTML = FLAG(side);
       flag.setAttribute('aria-label', copy.home.card.faction(copy.forge.elements[side]));
     }
     // your three chosen badges (Profile > Badges), or your newest until you choose

@@ -179,9 +179,10 @@
 }
 /* Your faction's flag (homeCard.ts FLAG; owner, 2026-10-24): a pennant hung over your name, lined
    up with its first letter, its cloth the card with a faint tint of the faction's colour (5%,
-   owner), its emblem plain on it (no gold edge, a mild gradient of its colour). It starts just
-   above the frame's top line and lies over the frame's lines, so the line runs in from under it.
-   Its outline, the step in its tip and the gem under it are in the frame's ink at its faintness.
+   owner), its emblem with no colour of its own, light on dark and dark on light (--flag-mark). It
+   starts just above the frame's top line and lies over the frame's lines, so the line runs in from
+   under it. Its outline, the step in its tip and the burst behind the emblem are drawn in the
+   tiles' worn pen, in the frame's ink at its faintness, and the whole flag is worn (FLAG_WEAR).
    homeCard.ts draw places it. */
 .pc-flag {
   position: absolute;
@@ -202,31 +203,23 @@
 .pc-flag-lines {
   fill: none;
   stroke: var(--frame-line);
-  stroke-opacity: 0.35;
+  stroke-opacity: 0.4;
   stroke-width: 1;
+  stroke-linecap: round;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
+}
+/* the burst behind the emblem, fainter and finer than the outline */
+.pc-flag-burst {
+  stroke-opacity: 0.25;
+  stroke-width: 0.8;
 }
 .pc-flag-gem {
   fill: var(--frame-line);
-  fill-opacity: 0.35;
+  fill-opacity: 0.4;
 }
-/* the burst of blades behind the emblem: hairlines in the frame's ink, fainter than the outline */
-.pc-flag-blades {
-  fill: none;
-  stroke: var(--frame-line);
-  stroke-opacity: 0.2;
-  stroke-width: 0.8;
-  stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
-}
-/* the emblem in the theme's picture (homeCard.ts FLAG: Air's is a darker grey on light) */
-.pc-flag-light,
-:root[data-theme='light'] .pc-flag-dark {
-  display: none;
-}
-:root[data-theme='light'] .pc-flag-light {
-  display: inline;
+.pc-flag-mark {
+  color: var(--flag-mark);
 }
 .pc-flag.el-fire { --flag-hue: var(--el-fire-fill); }
 .pc-flag.el-water { --flag-hue: var(--el-water-fill); }

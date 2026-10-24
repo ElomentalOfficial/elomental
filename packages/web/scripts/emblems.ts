@@ -3,8 +3,7 @@
  * crests, your faction on the Profile card and page): the owner's marks in src/elementMarks.ts,
  * filled flat in their element's colour and edged in gold like the app's gold lettering. The
  * colours come from the palette (palette.css: each element's -fill role, the gold ramp), so the
- * art follows it. Also each emblem plain (src/art/elements/plain/: no edge, a mild gradient of its
- * colour) for the faction flag. Run after changing a mark or the palette:
+ * art follows it. Run after changing a mark or the palette:
  *
  *   node scripts/emblems.ts
  */
@@ -19,11 +18,6 @@ const hex = (name: string): string => {
 };
 /** Each element's fill: its -fill role's step (scripts/palette.ts ELEMENTS). */
 const FILLS = { fire: 'lava-500', water: 'tide-400', earth: 'forest-500', air: 'mist-200' } as const;
-/**
- * A plain emblem's colour on the light theme, where its own is too pale for the pale flag: Air's
- * a neutral steel grey (owner, 2026-10-24), not mist's blue.
- */
-const PLAIN_LIGHT: Partial<Record<keyof typeof FILLS, string>> = { air: 'steel-500' };
 /** The gold edge, light at the top to deep below. */
 const GOLD = [hex('gold-100'), hex('gold-300'), hex('gold-400')];
 const gold = `<defs><linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">${GOLD.map((c, i) => `<stop offset="${i / 2}" stop-color="${c}"/>`).join('')}</linearGradient></defs>`;
@@ -88,18 +82,5 @@ for (const [element, step] of Object.entries(FILLS) as [keyof typeof FILLS, stri
   const fit = `translate(${+(42 - (k * (x0 + x1)) / 2).toFixed(3)} ${+(42 - (k * (y0 + y1)) / 2).toFixed(3)}) scale(${+k.toFixed(5)})`;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84 84">\n${gold}\n<g transform="${fit}">\n${edgedInside(paths, hex(step), EDGE / k)}\n</g>\n</svg>\n`;
   writeFileSync(new URL(`../src/art/elements/${element}.svg`, import.meta.url), svg);
-  // the plain emblem (owner, 2026-10-24: the faction flag): no gold edge, a mild fall of its own
-  // colour, a step lighter at the top to a step deeper at the foot; for the light theme too where
-  // its own colour is too pale for the pale flag (PLAIN_LIGHT)
-  const plain = (at: string) => {
-    const [ramp, n] = at.split('-');
-    const fall = [`${ramp}-${Number(n) - 100}`, `${ramp}-${Number(n) + 100}`].map(hex);
-    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84 84">\n<defs><linearGradient id="fall" x1="0" y1="0" x2="0" y2="1">` +
-      `<stop offset="0" stop-color="${fall[0]}"/><stop offset="1" stop-color="${fall[1]}"/></linearGradient></defs>\n` +
-      `<g transform="${fit}" fill="url(#fall)">${paths.map((d) => `<path d="${d}"/>`).join('')}</g>\n</svg>\n`;
-  };
-  writeFileSync(new URL(`../src/art/elements/plain/${element}.svg`, import.meta.url), plain(step));
-  const light = PLAIN_LIGHT[element];
-  if (light) writeFileSync(new URL(`../src/art/elements/plain/${element}-light.svg`, import.meta.url), plain(light));
 }
 console.log('emblems written');
