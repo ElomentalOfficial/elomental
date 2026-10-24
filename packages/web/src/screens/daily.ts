@@ -1,6 +1,6 @@
 import { reducedMotion } from '../a11y.ts';
 import { ICONS } from '../icons.ts';
-import { dailyBadgeNeed, dailyGoal, dailyKey, dateKey, loadProfile, nextResetIn } from '../profile.ts';
+import { dailyBadgeNeed, dailyGoal, dailyKey, dailyStreak, dateKey, loadProfile, nextResetIn } from '../profile.ts';
 import { badgeMonth } from '../badges.ts';
 import { cachedAccount, refreshAccount } from '../backend/account.ts';
 import { MEND_COST, MENDS_A_MONTH, mendDaily } from '../backend/forge.ts';
@@ -256,6 +256,13 @@ export function dailyScreen(): Screen {
     ? h('div', { class: 'done-today', html: `${ICONS.check}<span>${copy.daily.doneToday}</span>` })
     : h('button', { class: 'btn btn-primary', text: resumable ? copy.daily.continue : copy.daily.play, onclick: playToday });
 
+  // the streak: days in a row, and what keeps it going today (days.ts dailyStreak)
+  const run = dailyStreak(profile.daily, today);
+  const streak = h('p', {
+    class: 'daily-streak',
+    text: run ? (doneToday ? copy.daily.streakTomorrow(run) : copy.daily.streakToday(run)) : copy.daily.streakStart,
+  });
+
   const progress = h('div', { class: 'month-progress', attrs: { 'aria-hidden': 'true' } }, h('span'));
   // the count and bar go toward the badge's 20 until it's earned, then the whole month
   const goal = dailyGoal(done, days);
@@ -271,6 +278,7 @@ export function dailyScreen(): Screen {
       h('span', { class: 'month-count', text: copy.daily.monthCount(done, goal) }),
     ),
     progress,
+    streak,
     calendar,
     mendHint,
   );

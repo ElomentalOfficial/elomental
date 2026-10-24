@@ -212,12 +212,16 @@ export const daily = {
   mendToward: (after: number, need: number) => `Brings you to ${after} of ${need} for the badge.`,
   mendNoBadge: (month: string) => `The ${month} badge is out of reach this month, so this only fills in the calendar.`,
   nextIn: (hours: number, minutes: number) => `New square in ${hours}h ${minutes}m`,
+  /** The streak (days.ts dailyStreak): days in a row solved or filled in, and what keeps it going. */
+  streakToday: (days: number) => `${days}-day streak: solve today’s square to make it ${days + 1}.`,
+  streakTomorrow: (days: number) => `${days}-day streak: back tomorrow for ${days + 1}.`,
+  streakStart: 'Solve today’s square to start a streak.',
   /** Wide screens (banner pages): the banner's line. */
   bannerHelp: 'One square a day, the same for everyone.',
   /** The banner's count: every Daily solved. */
   bannerStat: 'Daily squares solved',
   mendTitle: (date: string) => `Fill in ${date}?`,
-  mendText: 'It counts as solved for this month’s Daily total. Your Elo doesn’t change.',
+  mendText: 'It counts as solved for this month’s Daily total and for your streak. Your Elo doesn’t change.',
   mendLeft: (left: number, stardust: number) => `${left} of 3 left this month · You have ${formatNumber(stardust)} Stardust`,
   mend: (stardust: number) => `Fill in for ${stardust} Stardust`,
   mendNoneLeft: 'You’ve filled in 3 days this month: that’s the most.',
@@ -592,10 +596,21 @@ export const result = {
   keyStep: (technique: string) => `Key step: ${technique}`,
   thisMonth: 'This month',
   monthOf: (done: number, days: number) => `${done} / ${days} squares`,
+  /** A solved Daily: the streak it makes (days.ts dailyStreak). */
+  streak: 'Streak',
+  streakDays: (days: number) => plural(days, 'day'),
   /** Shown once, on the solve or fill-in that earns the month's badge. */
   monthBadgeEarned: (month: string) => `${month} badge earned. It’s on your Profile.`,
-  /** Once, on the first solve: what the rewards are for (full review M14). */
-  firstWin: 'Every 3rd square you solve brings an avatar or a frame. Forge the ones you’re missing with Stardust.',
+  /**
+   * A player's first 3 wins (owner, 2026-10-24): what each thing this result paid is for, one line
+   * each, only for what it paid.
+   */
+  learn: {
+    dust: 'Stardust forges new avatars and frames in the Forge.',
+    xp: 'XP raises your level. Every 5 levels brings a new name plate.',
+    part: (count: number, every: number) => `Every ${ORDINAL(every)} square you solve brings an avatar or a frame: ${count} of ${every} so far.`,
+    influence: 'Influence helps your faction win this month.',
+  },
   /** Once, when it's time to choose a side (3 solves, no faction yet). */
   chooseSide: 'Your squares can count for a side this month.',
   dailyRetry: 'Not solved yet. Try today’s square again: the day counts once you solve it.',

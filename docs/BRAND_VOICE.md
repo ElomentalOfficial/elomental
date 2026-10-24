@@ -125,7 +125,8 @@ One name per concept. Player-facing text uses exactly these.
 | The card | **show-off card** (internal); on screen just the player's name | profile popup, player card | "Full profile" opens the larger page. |
 | The first season | **Season Alpha** | Season 0, Season 1 | Internal ids stay `s0-`; players only ever see the name. |
 | Rarest drop | **Spirit**; plural **Spirits** | Rusted Crown (retired) | It brings an avatar to life. |
-| Monthly Daily progress | **this month** / **monthly Daily progress** | streak (there is no day-to-day streak counter) | *Proposal.* Today's copy says "Daily streak" for the month count. |
+| Monthly Daily progress | **this month** / **monthly Daily progress** | streak (that's the days in a row) | The month's count toward its badge. |
+| Days in a row | **streak**: "5-day streak", "Streak · 6 days" | run, chain, combo | The Daily solved or filled in on consecutive days (2026-10-24); a filled-in day keeps it. |
 | Speed reward | **speed bonus** | | |
 | What a solve brings | a **part** (every 3rd solved, rated square) | loot, drop box, chest, item, skin | Parts are always earned, never bought. |
 | Rarity | **Common**, **Rare**, **Epic**, **Mythic** | Legendary, Scrap, Forged | Familiar from other games on purpose. Always written, on its colour tag; never colour alone. |

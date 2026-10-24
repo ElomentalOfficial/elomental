@@ -1,5 +1,6 @@
 import { RANKED_STAGES, rankedStage, type Difficulty, type ProfileId, type RankedStage } from '@elomental/engine';
 import { cachedAccount } from './backend.ts';
+import { dateKey } from './days.ts';
 import { readJson, writeJson } from './storage.ts';
 import * as copy from './copy/en.ts';
 import { PROTECTED_BELOW, along, eloDelta, rankedOpponent } from './elo.ts';
@@ -207,21 +208,8 @@ export const promoted = (before: number, after: number): boolean => after > befo
 /** Technique families a Ranked stage brings in, from the stage dealt: the first time, a note on the result. */
 export const stageIntroduces = (stage: number): RankedStage['introduces'] => RANKED_STAGES[stage]?.introduces;
 
-/** The daily square rolls over at 3 AM local time. */
-export function dailyKey(now = new Date()): string {
-  const shifted = new Date(now.getTime() - 3 * 3_600_000);
-  return dateKey(shifted.getFullYear(), shifted.getMonth(), shifted.getDate());
-}
-
-export const dateKey = (year: number, month: number, day: number): string =>
-  `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-
-export function nextResetIn(now = new Date()): number {
-  const reset = new Date(now);
-  reset.setHours(3, 0, 0, 0);
-  if (reset.getTime() <= now.getTime()) reset.setDate(reset.getDate() + 1);
-  return reset.getTime() - now.getTime();
-}
+// the Daily's days (days.ts: pure, tested on its own)
+export { dailyKey, dailyStreak, dateKey, nextResetIn } from './days.ts';
 
 interface ResultInput {
   mode: Mode;

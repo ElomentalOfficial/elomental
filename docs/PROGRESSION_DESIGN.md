@@ -149,6 +149,12 @@ it replaces the material-based design in §2, §3.2–3.3, §4.2–4.3, §9–11
   chain solver Elomental on day 38 (about 3% of players). Re-fit the personas and par to real
   Ranked results once there are about 200 wins.
 - **Daily month:** 20 days solved or filled in earns that month's dated badge (`daily_month`).
+- **Daily streak (2026-10-24):** days in a row with the Daily solved or filled in, counted on the
+  client from the same days (`days.ts dailyStreak`); a filled-in day keeps it, and today not yet
+  solved keeps yesterday's run alive. Shown on the Daily page and on a solved Daily's result. A
+  look at progress only: it pays nothing.
+- **First wins explain (2026-10-24):** a player's first 3 wins say, one line each, what that result
+  paid is for (Stardust, XP, the count toward the next part, influence), with the way to the Forge.
 - **Affinities (§13):** chosen after 3 solves, switchable once a month, in your first 5 days in a faction (faction_switch).
   A member counts once they have 5 solves in the month, each with up to 300 influence; the side
   with the most influence per counted member wins the month (ties: all win), and its members with 5+

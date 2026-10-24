@@ -535,7 +535,7 @@ html[data-large-text] .lb-me .lb-jump {
   color: var(--muted);
   text-align: center;
 }
-/* The first solve's line on parts and the Forge (game.ts firstWinLine). */
+/* A first win's lines on what it paid, and the way to the Forge (result.ts learnLines). */
 .first-win {
   display: flex;
   flex-direction: column;
@@ -548,6 +548,14 @@ html[data-large-text] .lb-me .lb-jump {
 }
 .first-win .link-btn {
   font-size: var(--fs-small);
+}
+.learn ul {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 .signup-done {
   font-family: var(--serif);
@@ -870,6 +878,13 @@ html:not([data-large-text]) .daily-body > .daily-art {
   font-family: var(--serif);
   font-size: var(--fs-body);
   color: var(--muted);
+}
+/* The streak (daily.ts): days in a row and what keeps it going, one line under the month's bar. */
+.daily-streak {
+  padding: 0 2px;
+  font-family: var(--serif);
+  font-size: var(--fs-small);
+  color: var(--text);
 }
 .month-progress {
   height: 4px;

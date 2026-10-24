@@ -10,7 +10,7 @@ import { rankName } from '../rankName.ts';
 import { paintPlate } from '../plates.ts';
 import { addToHomeResultNote } from '../install.ts';
 import { TECHNIQUE_BY_ID } from '@elomental/engine';
-import { dailyGoal, nextRank, parMs, promoted, rankTier, type Outcome } from '../profile.ts';
+import { dailyGoal, dailyStreak, loadProfile, nextRank, parMs, promoted, rankTier, type Outcome } from '../profile.ts';
 import { xpRow } from '../level.ts';
 import { dropReveal, influenceLine, partName } from '../reward.ts';
 import { readJson, writeJson } from '../storage.ts';
@@ -139,6 +139,10 @@ export function showResult(game: SavedGame, won: boolean, reason: FinishReason, 
     }
     if (outcome.elo.protectedLoss) rows.push(h('p', { class: 'note', text: copy.result.protectedLoss }));
   }
+  // a solved Daily: the streak it makes, counting today (profile.ts dailyStreak)
+  if (won && config.mode === 'daily' && config.dateKey) {
+    rows.push(statRow(copy.result.streak, copy.result.streakDays(dailyStreak({ ...loadProfile().daily, [config.dateKey]: true }, config.dateKey))));
+  }
   if (outcome.daily) {
     rows.push(statRow(copy.result.thisMonth, copy.result.monthOf(outcome.daily.done, dailyGoal(outcome.daily.done, outcome.daily.days))));
     if (outcome.daily.badgeNew && outcome.daily.badge) rows.push(h('p', { class: 'note good', text: copy.result.monthBadgeEarned(badgeMonth(outcome.daily.badge)) }));
@@ -210,6 +214,9 @@ export function showResult(game: SavedGame, won: boolean, reason: FinishReason, 
       ...caps,
       // the result's one bar: the level (a win on the server pays XP)
       outcome.xp ? xpRow(outcome.xp, hero === 'level') : null,
+      // a player's first wins say what they earned is for, under what it paid (not with a moment
+      // that explains itself; a new level is the one its XP line explains)
+      hero && hero !== 'level' ? null : learnLines(won, outcome),
       resultExtra(won, !!hero),
       h('div', { class: 'actions' }, again, h('button', { class: 'btn', text: copy.common.home, onclick: () => void goBack(homeScreen) })),
     ),
@@ -231,7 +238,7 @@ function markLine(outcome: Outcome): HTMLElement | null {
  */
 function resultExtra(won: boolean, busy: boolean): HTMLElement | null {
   if (busy) return null;
-  return firstWinLine(won) ?? sideLine(won) ?? addToHomeResultNote(won) ?? signupPrompt();
+  return sideLine(won) ?? addToHomeResultNote(won) ?? signupPrompt();
 }
 
 const SIDE_ASKED_KEY = 'elomental:affinity-result';
@@ -248,17 +255,33 @@ function sideLine(won: boolean): HTMLElement | null {
   );
 }
 
-const FIRST_WIN_KEY = 'elomental:first-win';
+const LEARN_KEY = 'elomental:learn-wins';
+/** How many first wins explain what they paid. */
+const LEARN_WINS = 3;
 
-/** Once, on a signed-in player's first solve: what parts and Stardust are for, and the way to the Forge. */
-function firstWinLine(won: boolean): HTMLElement | null {
-  const account = cachedAccount();
-  if (!won || !account || account.solved > 1 || readJson<boolean>(FIRST_WIN_KEY)) return null;
-  writeJson(FIRST_WIN_KEY, true);
+/**
+ * A player's first 3 wins, guests too (owner, 2026-10-24; full review M14): one line for each thing
+ * this result paid (Stardust, XP, the count toward the next part, influence) saying what it's for,
+ * and the way to the Forge. Part of what the result paid, not one of its optional extras; left off
+ * a result whose moment explains itself (a part, a promotion, a Spirit, a plate, a badge; the win
+ * isn't counted). Null once those wins are counted, or when the win paid nothing.
+ */
+function learnLines(won: boolean, outcome: Outcome): HTMLElement | null {
+  const wins = readJson<number>(LEARN_KEY) ?? 0;
+  if (!won || wins >= LEARN_WINS) return null;
+  const lines = [
+    outcome.dust ? copy.result.learn.dust : null,
+    outcome.xp?.gained ? copy.result.learn.xp : null,
+    // the count toward the next part (a part that came shows itself)
+    outcome.progress ? copy.result.learn.part(outcome.progress.count, outcome.progress.every) : null,
+    outcome.influence ? copy.result.learn.influence : null,
+  ].filter((line): line is string => !!line);
+  if (!lines.length) return null;
+  writeJson(LEARN_KEY, wins + 1);
   return h(
     'div',
-    { class: 'first-win' },
-    h('p', { text: copy.result.firstWin }),
+    { class: 'first-win learn' },
+    h('ul', {}, ...lines.map((text) => h('li', { text }))),
     h('button', { class: 'link-btn', text: copy.forge.openForge, attrs: { type: 'button' }, onclick: () => void goBack(forgeScreen) }),
   );
 }
