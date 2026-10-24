@@ -40,7 +40,6 @@
 /* the purse smaller here than on the banner, its rules as wide as the column */
 .forge-head .forge-purse {
   align-self: stretch;
-  gap: var(--space-2);
 }
 .forge-head .balance {
   width: 100%;
@@ -49,10 +48,10 @@
 .forge-hero-col > .spin {
   width: 100%;
   aspect-ratio: 617 / 375;
-  /* its sunburst (rays.ts), as on the wide banner: a little past the icon's sides (clear of the
-     words beside it), twice its height */
+  /* its sunburst (rays.ts): a little past the icon's sides (clear of the words beside it), and
+     only a little above and below it, so it stays inside the card's frame (owner) */
   --rays-w: calc(100% + var(--space-4));
-  --rays-h: 200%;
+  --rays-h: calc(100% + var(--space-4));
 }
 .forge-balances {
   display: flex;
@@ -69,12 +68,15 @@
    grain of specks), fading out at both ends, a small diamond flourish at each rule's middle
    (forge.ts FLOURISH and WORN; the seal and diamond rails pared down). Only the words take colour,
    in a soft top-to-bottom gradient: Stardust a warm gold, Spirits a red (tokens.css --purse-*, both
-   ends 4.5:1 on a tile and on a card). The two a clear step apart, one set. */
+   ends 4.5:1 on a tile and on a card). The two share the rule between them (owner: no gap), one
+   set. */
 .forge-purse {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-3);
+}
+.forge-purse > .balance + .balance > .purse-rule:first-child {
+  display: none;
 }
 .balance {
   /* the rules a whole row each, above and below; the number and its name between them, the name
@@ -663,7 +665,7 @@ html[data-reduce-motion] .part-reveal * {
   .forge-purse-foot .forge-balances {
     align-self: stretch;
     align-items: center;
-    gap: var(--space-1);
+    gap: 0;
   }
   .forge-purse-foot .forge-purse {
     align-self: stretch;
