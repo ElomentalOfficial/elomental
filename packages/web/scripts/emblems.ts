@@ -3,7 +3,8 @@
  * crests, your faction on the Profile card and page): the owner's marks in src/elementMarks.ts,
  * filled flat in their element's colour and edged in gold like the app's gold lettering. The
  * colours come from the palette (palette.css: each element's -fill role, the gold ramp), so the
- * art follows it. Run after changing a mark or the palette:
+ * art follows it. Also each emblem plain (src/art/elements/plain/: no edge, a mild gradient of its
+ * colour) for the faction flag. Run after changing a mark or the palette:
  *
  *   node scripts/emblems.ts
  */
@@ -82,5 +83,13 @@ for (const [element, step] of Object.entries(FILLS) as [keyof typeof FILLS, stri
   const fit = `translate(${+(42 - (k * (x0 + x1)) / 2).toFixed(3)} ${+(42 - (k * (y0 + y1)) / 2).toFixed(3)}) scale(${+k.toFixed(5)})`;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84 84">\n${gold}\n<g transform="${fit}">\n${edgedInside(paths, hex(step), EDGE / k)}\n</g>\n</svg>\n`;
   writeFileSync(new URL(`../src/art/elements/${element}.svg`, import.meta.url), svg);
+  // the plain emblem (owner, 2026-10-24: the faction flag): no gold edge, a mild fall of its own
+  // colour, a step lighter at the top to a step deeper at the foot
+  const [ramp, at] = step.split('-');
+  const fall = [`${ramp}-${Number(at) - 100}`, `${ramp}-${Number(at) + 100}`].map(hex);
+  const plain = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 84 84">\n<defs><linearGradient id="fall" x1="0" y1="0" x2="0" y2="1">` +
+    `<stop offset="0" stop-color="${fall[0]}"/><stop offset="1" stop-color="${fall[1]}"/></linearGradient></defs>\n` +
+    `<g transform="${fit}" fill="url(#fall)">${paths.map((d) => `<path d="${d}"/>`).join('')}</g>\n</svg>\n`;
+  writeFileSync(new URL(`../src/art/elements/plain/${element}.svg`, import.meta.url), plain);
 }
 console.log('emblems written');

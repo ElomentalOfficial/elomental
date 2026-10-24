@@ -178,14 +178,13 @@
   margin: 0;
 }
 /* Your faction's flag (homeCard.ts FLAG; owner, 2026-10-24): a pennant hung over your name, lined
-   up with its first letter, filled with the faction's own hue at its darkest (palette.css deep),
-   its emblem in full colour on it. It starts just above the frame's top line and sits under the
-   frame's lines (z-index under the frame's ::after), so it looks hung from under the frame. Its
-   outline, the step in its tip and the gem under it are in the frame's ink at its faintness.
+   up with its first letter, its cloth the card with a faint tint of the faction's colour (5%,
+   owner), its emblem plain on it (no gold edge, a mild gradient of its colour). It starts just
+   above the frame's top line and lies over the frame's lines, so the line runs in from under it.
+   Its outline, the step in its tip and the gem under it are in the frame's ink at its faintness.
    homeCard.ts draw places it. */
 .pc-flag {
   position: absolute;
-  z-index: -2;
   top: calc(var(--pc-frame) * 0.2);
   width: calc(46px * var(--wide-zoom, 1));
   aspect-ratio: 44 / 92;
@@ -198,7 +197,7 @@
   overflow: visible;
 }
 .pc-flag-cloth {
-  fill: var(--el-deep);
+  fill: color-mix(in oklab, var(--flag-hue) 5%, var(--profile-bg));
 }
 .pc-flag-lines {
   fill: none;
@@ -212,10 +211,10 @@
   fill: var(--frame-line);
   fill-opacity: 0.35;
 }
-.pc-flag.el-fire { --el-deep: var(--el-fire-deep); }
-.pc-flag.el-water { --el-deep: var(--el-water-deep); }
-.pc-flag.el-earth { --el-deep: var(--el-earth-deep); }
-.pc-flag.el-air { --el-deep: var(--el-air-deep); }
+.pc-flag.el-fire { --flag-hue: var(--el-fire-fill); }
+.pc-flag.el-water { --flag-hue: var(--el-water-fill); }
+.pc-flag.el-earth { --flag-hue: var(--el-earth-fill); }
+.pc-flag.el-air { --flag-hue: var(--el-air-fill); }
 /* Your name (its plate shows on the Profile, not here), your title and rank under it, from the
    avatar's side. */
 .pc-name {

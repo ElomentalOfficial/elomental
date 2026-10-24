@@ -1,4 +1,4 @@
-import { avatarSvg, emblemUrl } from '../avatar.ts';
+import { avatarSvg, plainEmblemUrl } from '../avatar.ts';
 import { cachedAccount, registered } from '../backend/account.ts';
 import { cachedLoadout, cachedPolish } from '../backend/forge.ts';
 import { myBadges } from '../backend/leaderboard.ts';
@@ -151,7 +151,7 @@ export function homeCard(): HomeCard {
     flag.hidden = !side;
     if (side) {
       flag.className = `pc-flag el-${side}`;
-      flag.innerHTML = FLAG(emblemUrl(side));
+      flag.innerHTML = FLAG(plainEmblemUrl(side));
       flag.setAttribute('aria-label', copy.home.card.faction(copy.forge.elements[side]));
     }
     // your three chosen badges (Profile > Badges), or your newest until you choose
