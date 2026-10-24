@@ -339,9 +339,11 @@
    a soft glow, so where it stands reads at a glance (owner) */
 .pc-next .rank-bar span {
   --knob: var(--rank-hi);
+  --knob-deep: var(--rank-lo);
 }
 .pc-next .xp-bar span {
   --knob: var(--c-gold-100);
+  --knob-deep: var(--c-gold-600);
   background: var(--pc-level-fill);
 }
 /* the fill ends square, so its bright head reads as a fine line, not a rounded cap (owner) */
@@ -360,6 +362,13 @@
   background: var(--c-bright);
   opacity: 0.8;
   box-shadow: 0 0 3px var(--knob);
+}
+/* on the light theme a bright head on the pale track reads as a gap (owner): there it is a deeper
+   shade of the bar's own metal, with no glow */
+:root[data-theme='light'] .pc-next :is(.rank-bar, .xp-bar) span::after {
+  background: color-mix(in oklab, var(--knob-deep) 70%, var(--c-stone-900));
+  opacity: 1;
+  box-shadow: none;
 }
 /* Your three chosen badges (Profile > Badges), each in a slot recessed a shade into the card. */
 .pc-showcase {
