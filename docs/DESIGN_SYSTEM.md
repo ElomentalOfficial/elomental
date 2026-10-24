@@ -75,13 +75,12 @@ round the name, so it fits every layout and never touches the text.
 The profile card (`screens/homeCard.ts`, owner's pick of three directions, 2026-10-23) reads in one
 order inside the tile's frame. Who you are leads and takes the spare height: the avatar on a
 sunburst (`withRays`), the name (no plate here: plates show on the Profile and the player card)
-and the rank beside it, under the faction's flag (2026-10-24): a pennant lined up with the name's
-first letter, with no colour anywhere: its cloth the card's own, its emblem light on dark and dark
-on light and a little see-through, on a dial face (two fine rings, twelve hour ticks; not a
-sunburst, which stays behind the avatar and on Daily), every line in the tiles' worn pen
-and the whole flag worn with specks and scratches, lying over the frame's top line (none without a
-faction; in the top right corner when the card stacks). Under a hairline with a diamond, Elo and Level, each with its bar and what's next (the
-Profile's own `rankProgress` and `levelProgress`, on one track, `--pc-track`). Last, the three
+and the rank beside it. Under a hairline with a diamond, Elo and Level, each with its bar and
+what's next (the Profile's own `rankProgress` and `levelProgress`, on one track, `--pc-track`),
+and your faction as a third stat (2026-10-24; it replaced a flag hung over the name, which grew
+too small to read on a phone): its caption, then its emblem beside its name in the numbers'
+serif, the emblem with no colour (light on dark, dark on light: `--faction-mark`). No faction, two
+columns; at large text it takes a row under the other two. Last, the three
 badges, each in a recessed slot and each a button to the badge choice (`badgePicker.ts`). The
 card's old walls and plaques are gone.
 

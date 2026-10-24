@@ -1,6 +1,5 @@
 import { avatarSvg } from '../avatar.ts';
-import { elementMarkAt } from '../elementMarks.ts';
-import type { Element as Faction } from '../profile.ts';
+import { elementMark } from '../elementMarks.ts';
 import { cachedAccount, registered } from '../backend/account.ts';
 import { cachedLoadout, cachedPolish } from '../backend/forge.ts';
 import { myBadges } from '../backend/leaderboard.ts';
@@ -10,7 +9,6 @@ import { levelProgress } from '../level.ts';
 import { loadProfile, rankTier } from '../profile.ts';
 import { rankProgress } from '../rankBar.ts';
 import { rankName } from '../rankName.ts';
-import { pen, placeIn, seeded } from '../tileSprites.ts';
 import { withRays } from '../rays.ts';
 import { h } from '../ui.ts';
 import { xpLevel } from '../xp.ts';
@@ -19,9 +17,9 @@ import * as copy from '../copy/en.ts';
 /**
  * Home's profile card, "Ledger" (owner, 2026-10-23): one reading order inside the tile's own Art
  * Deco frame. Who you are leads and takes the room: your avatar on a sunburst, your name and your
- * rank beside it under your faction's flag (owner, 2026-10-24). Under a hairline, how you are
- * doing: Elo and Level, each with its bar and what's next. Last, the three badges you show off,
- * each in a recessed slot.
+ * rank beside it. Under a hairline, how you are doing: Elo and Level, each with its bar and what's
+ * next, and your faction, its emblem beside its name (owner, 2026-10-24: it replaced the flag over
+ * the name). Last, the three badges you show off, each in a recessed slot.
  * Stardust and Spirits live on the Forge tile, where they are spent (home.ts).
  */
 export interface HomeCard {
@@ -52,88 +50,6 @@ const ADD =
   '<path class="pc-add-inner" d="M0 -9.6L8.3 -4.8V4.8L0 9.6L-8.3 4.8V-4.8Z"/>' +
   '<path class="pc-add-plus" d="M-0.75 -0.75L-0.3 -4.4H0.3L0.75 -0.75L4.4 -0.3V0.3L0.75 0.75L0.3 4.4H-0.3L-0.75 0.75L-4.4 0.3V-0.3Z"/></svg>';
 
-/** The flag's cloth: 52 × 80 units with its gem (owner: wider and shorter than its first 44 × 92). */
-const CLOTH = 'M1 0V56L26 70L51 56V0Z';
-/** Its width for its height (home.css .pc-flag aspect-ratio, homeCard.ts placeFlag). */
-const FLAG_RATIO = 52 / 80;
-
-/**
- * The flag's lines in the Home tiles' worn pen (tileSprites.ts: uneven dashes, a few dropped, some
- * fainter; owner, 2026-10-24): its outline and the step in its tip, and behind the emblem a dial
- * face (owner's pick of three: the sunburst was repeating too often), two fine rings round its
- * centre (26, 32) with the twelve hour ticks between them, the four quarters a little longer. The
- * rings sit just outside the emblem, which takes most of the cloth's width (owner: it must read
- * on a phone, where the flag is small).
- */
-const FLAG_EDGE = (() => {
-  const p = pen(83);
-  p.steps([[1, 0], [1, 56], [26, 70], [51, 56], [51, 0]]);
-  p.steps([[10, 53], [26, 62], [42, 53]]);
-  return p.ink();
-})();
-/** (the dial is kept to the cloth: FLAG clips it) */
-const FLAG_DIAL = (() => {
-  const p = pen(89);
-  p.arc(26, 32, 20, 20, 0, 360);
-  p.arc(26, 32, 24, 24, 0, 360);
-  for (let k = 0; k < 12; k++) p.ray(26, 32, k * 30 - 90, k % 3 ? 21.2 : 20, k % 3 ? 22.8 : 26);
-  return p.ink();
-})();
-
-/**
- * The flag's wear (owner: a grunge over its edges and inside): specks and short scratches knocked
- * out of the whole flag, most of them in a band along its edges, a few across the cloth; seeded, so
- * the same every time. A mask: black takes the flag away, as much as each mark's opacity.
- */
-const FLAG_WEAR = (() => {
-  const rnd = seeded(87);
-  const edges: [number, number, number, number][] = [[1, 0, 1, 56], [51, 0, 51, 56], [1, 56, 26, 70], [51, 56, 26, 70], [1, 0, 51, 0]];
-  const f = (v: number) => v.toFixed(2);
-  let marks = '';
-  for (let k = 0; k < 110; k++) {
-    let x: number;
-    let y: number;
-    if (rnd() < 0.7) {
-      // along an edge, up to 3 units in from it
-      const [x1, y1, x2, y2] = edges[Math.floor(rnd() * edges.length)];
-      const t = rnd();
-      const len = Math.hypot(x2 - x1, y2 - y1);
-      const inward = rnd() * 3;
-      const [nx, ny] = [-(y2 - y1) / len, (x2 - x1) / len];
-      const toward = Math.sign((26 - x1) * nx + (30 - y1) * ny) || 1;
-      x = x1 + (x2 - x1) * t + nx * inward * toward;
-      y = y1 + (y2 - y1) * t + ny * inward * toward;
-    } else {
-      x = 2 + rnd() * 48;
-      y = 1 + rnd() * 60;
-    }
-    const o = f(0.35 + rnd() * 0.55);
-    if (rnd() < 0.55) {
-      marks += `<circle cx="${f(x)}" cy="${f(y)}" r="${f(0.25 + rnd() * 0.7)}" fill-opacity="${o}"/>`;
-    } else {
-      const a = rnd() * Math.PI;
-      const l = 1 + rnd() * 2.5;
-      marks += `<path d="M${f(x)} ${f(y)}l${f(Math.cos(a) * l)} ${f(Math.sin(a) * l)}" stroke="#000" stroke-width="${f(0.3 + rnd() * 0.4)}" stroke-opacity="${o}"/>`;
-    }
-  }
-  return `<mask id="pc-flag-wear" maskUnits="userSpaceOnUse" x="-2" y="-2" width="56" height="84"><rect x="-2" y="-2" width="56" height="84" fill="#fff"/>${marks}</mask>`;
-})();
-
-/**
- * Your faction's flag (owner, 2026-10-24, the banner of an earlier version of the card): a pennant,
- * its cloth coming to a point with a step inside its tip and a gem under it, the emblem high on
- * the cloth on its dial face, with no colour anywhere: the cloth is the card's, the emblem light
- * on dark and dark on light (home.css). Worn all over (FLAG_WEAR). Its top starts above the frame's top line
- * and lies over it (home.css .pc-flag).
- */
-const FLAG = (side: Faction) =>
-  `<svg viewBox="0 0 52 80" aria-hidden="true"><clipPath id="pc-flag-clip"><path d="${CLOTH}"/></clipPath>${FLAG_WEAR}` +
-  `<g mask="url(#pc-flag-wear)"><path class="pc-flag-cloth" d="${CLOTH}"/>` +
-  `<g class="pc-flag-lines pc-flag-dial" clip-path="url(#pc-flag-clip)"><path d="${FLAG_DIAL.strong}"/><path d="${FLAG_DIAL.faint}" opacity="0.5"/></g>` +
-  `<g class="pc-flag-lines"><path d="${FLAG_EDGE.strong}"/><path d="${FLAG_EDGE.faint}" opacity="0.5"/></g>` +
-  `<path class="pc-flag-gem" d="M26 73L29 76L26 79L23 76Z"/>` +
-  `<g class="pc-flag-mark">${elementMarkAt(side, 9, 15, 34)}</g></g></svg>`;
-
 export function homeCard(): HomeCard {
   /** Your badges when you haven't chosen three: your newest, fetched once a visit to Home. */
   let newest: string[] | null = null;
@@ -143,29 +59,31 @@ export function homeCard(): HomeCard {
   /** The name as painted, for fitting it to its cell (draw). */
   let shown = '';
 
-  // ---- who you are: the avatar on its sunburst; name and rank, your faction's flag over them
+  // ---- who you are: the avatar on its sunburst; name and rank beside it
   const avatar = h('button', { class: 'avatar avatar-btn worn', attrs: { type: 'button', 'aria-label': copy.profile.a11yAvatar } });
   const portrait = h('div', { class: 'pc-cell pc-portrait' }, withRays(h('span', { class: 'pc-medallion' }, avatar)));
-  // your faction's flag over your name (draw places it), read out after it; none without a faction
-  const flag = h('span', { class: 'pc-flag', attrs: { role: 'img' } });
   const nameEl = h('strong', { class: 'profile-name' });
   const rankEl = h('span', { class: 'profile-rank' });
   const name = h('div', { class: 'pc-cell pc-name' }, h('div', { class: 'pc-in' }, nameEl, rankEl));
 
-  // ---- how you're doing: Elo and Level, each with its bar and what's next
+  // ---- how you're doing: Elo and Level, each with its bar and what's next, then your faction
+  // (owner, 2026-10-24: a stat like the others, its emblem beside its name; none without one)
   const eloNum = h('span', { class: 'pc-num' });
   const eloNext = h('div', { class: 'pc-next' });
   const levelNum = h('span', { class: 'pc-num' });
   const levelNext = h('div', { class: 'pc-next' });
-  const stat = (cls: string, cap: string, num: HTMLElement, next: HTMLElement) =>
+  const sideMark = h('span', { class: 'pc-side-mark', attrs: { 'aria-hidden': 'true' } });
+  const sideName = h('span');
+  const stat = (cls: string, cap: string, num: HTMLElement, next: HTMLElement | null) =>
     h('div', { class: `pc-stat ${cls}` }, h('div', { class: 'pc-in' }, h('span', { class: 'pc-cap', text: cap }), num, next));
-  const stats = h('div', { class: 'pc-cell pc-stats' }, stat('pc-elo', copy.common.elo, eloNum, eloNext), stat('pc-level', copy.level.cap, levelNum, levelNext));
+  const sideStat = stat('pc-faction', copy.home.card.factionCap, h('span', { class: 'pc-num pc-side' }, sideMark, sideName), null);
+  const stats = h('div', { class: 'pc-cell pc-stats' }, stat('pc-elo', copy.common.elo, eloNum, eloNext), stat('pc-level', copy.level.cap, levelNum, levelNext), sideStat);
 
   // ---- what you show off: your three badges, each in its own recessed slot
   const badges = h('ul', { class: 'pc-badges', attrs: { 'aria-label': copy.home.card.badges } });
   const showcase = h('div', { class: 'pc-cell pc-showcase' }, badges);
 
-  const el = h('section', { class: 'profile-card area-profile' }, portrait, name, flag, stats, showcase);
+  const el = h('section', { class: 'profile-card area-profile' }, portrait, name, stats, showcase);
 
   /** Opens the badge choice (badgePicker.ts) with every badge you own. */
   const chooseBadges = () => {
@@ -220,12 +138,13 @@ export function homeCard(): HomeCard {
     const xp = account?.xp ?? 0;
     levelNum.textContent = String(xpLevel(xp).level);
     levelNext.replaceChildren(levelProgress(xp));
-    // your faction's flag over your name, read out after it
+    // your faction, a third column; without one the two stats keep the row
     const side = account?.affinity ?? null;
-    flag.hidden = !side;
+    sideStat.hidden = !side;
+    stats.classList.toggle('has-faction', !!side);
     if (side) {
-      flag.innerHTML = FLAG(side);
-      flag.setAttribute('aria-label', copy.home.card.faction(copy.forge.elements[side]));
+      sideMark.innerHTML = elementMark(side);
+      sideName.textContent = copy.forge.elements[side];
     }
     // your three chosen badges (Profile > Badges), or your newest until you choose
     const chosen = account?.showcase ?? [];
@@ -248,40 +167,10 @@ export function homeCard(): HomeCard {
     schedule();
   };
 
-  // ---- the flag, placed as laid out: beside you, its left edge on your name's first letter, the
-  // name brought down just enough to clear it; stacked (large text, the name centred under you),
-  // in the top right corner, clear of the frame's corner ornament
-  const placeFlag = () => {
-    name.style.paddingTop = '';
-    flag.style.width = '';
-    if (flag.hidden) return;
-    const css = getComputedStyle(el);
-    const stacked = css.gridTemplateColumns.trim().split(/\s+/).length < 2;
-    if (stacked) {
-      const corner = (parseFloat(css.getPropertyValue('--frame-corner')) || 44) * (parseFloat(css.getPropertyValue('--frame-zoom')) || 1);
-      flag.style.left = `${el.clientWidth - corner - 8 - flag.offsetWidth}px`;
-      return;
-    }
-    // from layout, not the screen: the card swings in on a transform (tileSprites.ts placeIn)
-    flag.style.left = `${placeIn(el, nameEl).x}px`;
-    // in a short card (a tablet's, a phone's with little height) the flag shrinks so the name still
-    // fits under it, down to half its size
-    const content = placeIn(el, name.firstElementChild as HTMLElement).h;
-    const room = name.offsetTop + name.clientHeight - content - 8 - flag.offsetTop;
-    if (flag.offsetHeight > room) flag.style.width = `${Math.max(flag.offsetWidth / 2, room * FLAG_RATIO)}px`;
-    // the name's block is centred in its cell: padding the cell's top by twice what's missing
-    // brings its top to 8 px under the flag's gem; never past the cell's foot, so the name and
-    // title never reach the hairline under them
-    const need = flag.offsetTop + flag.offsetHeight + 8 - name.offsetTop;
-    const free = (name.clientHeight - content) / 2;
-    if (need > free) name.style.paddingTop = `${Math.min(2 * need - name.clientHeight + content, name.clientHeight - content)}px`;
-  };
-
   // ---- the name, fitted to its cell as laid out
   const zoomOf = (node: Element) => parseFloat(getComputedStyle(node).zoom || '1') || 1;
   const draw = () => {
     if (!el.isConnected || !el.offsetWidth) return;
-    placeFlag();
     const fit = name.clientWidth / zoomOf(name.firstElementChild!) - 16;
     // a long name shrinks to keep to one line, down to the label size; past that it wraps after
     // its _ or - (see paint), sized so its longest part keeps to a line, down to the body size

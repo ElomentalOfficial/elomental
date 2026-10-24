@@ -131,8 +131,8 @@ test('Home: the card holds you, your Level and Elo, your badges; the Forge tile 
   await expect(page.locator('.pc-level')).toHaveText(/Level\s*11/);
   await expect(page.locator('.pc-elo')).toHaveText(/Elo\s*930/);
   await expect(page.locator('.profile-card .plate-medal')).toHaveCount(0);
-  // the faction's banner, read out literally
-  await expect(page.getByRole('img', { name: 'Faction: Fire' })).toBeVisible();
+  // the faction, a third stat beside Elo and Level, read as its caption and name
+  await expect(page.locator('.pc-faction')).toHaveText(/Faction\s*Fire/);
   // no badges chosen: the newest two, an empty socket for the third
   // each slot a button to the badge choice: the newest two badges, and a "+" to add one
   await expect(page.getByRole('button', { name: /\. Change the badges on your card$/ })).toHaveCount(2);

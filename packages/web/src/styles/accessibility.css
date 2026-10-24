@@ -215,6 +215,18 @@ html[data-large-text] .pc-name {
 html[data-large-text] .pc-name .pc-in {
   align-items: center;
 }
+/* Elo and Level keep their two columns; your faction takes a row of its own under them */
+html[data-large-text] .pc-stats.has-faction {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+html[data-large-text] .pc-faction {
+  grid-column: 1 / -1;
+}
+/* (at the numbers' size: its row is the width of both columns, so half their share of it) */
+html[data-large-text] .pc-side {
+  font-size: min(var(--fs-display), 16cqi);
+}
 html[data-large-text] .tile-label {
   overflow-wrap: break-word;
   hyphens: auto;

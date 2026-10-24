@@ -107,6 +107,7 @@ export const PAIRS: Pair[] = [
   // The account level (level.css): its cartouche line, its number, the XP bar, the reward chips
   ['UI: level badge line on surface', '--level-line', '--surface', 3],
   ['UI: level badge line on profile', '--level-line', '--profile-bg', 3],
+  ['UI: faction emblem on the profile card', '--faction-mark', '--profile-bg', 3],
   ['UI: level badge line on modal', '--level-line', '--modal-bg', 3],
   ['Level number on surface', '--level-ink', '--surface', 4.5],
   ['Level number on modal', '--level-ink', '--modal-bg', 4.5],

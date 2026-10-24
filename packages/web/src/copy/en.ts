@@ -121,7 +121,8 @@ export const home = {
     a11yAddBadge: 'Add a badge to your card',
     /** A badge on the card, a button that opens the badge choice. */
     a11yBadge: (badge: string) => `${badge}. Change the badges on your card`,
-    faction: (name: string) => `Faction: ${name}`,
+    /** The third stat's caption, over the faction's name. */
+    factionCap: 'Faction',
   },
   /** The way to choose a side, where one isn't chosen yet (Profile, the result). */
   line: {

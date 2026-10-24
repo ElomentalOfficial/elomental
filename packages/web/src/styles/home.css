@@ -177,55 +177,6 @@
   height: auto;
   margin: 0;
 }
-/* Your faction's flag (homeCard.ts FLAG; owner, 2026-10-24): a pennant hung over your name, lined
-   up with its first letter, no colour anywhere (owner): its cloth the card's own, its emblem light
-   on dark and dark on light (--flag-mark). It
-   starts just above the frame's top line and lies over the frame's lines, so the line runs in from
-   under it. Its outline, the step in its tip and the burst behind the emblem are drawn in the
-   tiles' worn pen, in the frame's ink at its faintness, and the whole flag is worn (FLAG_WEAR).
-   homeCard.ts draw places it. */
-.pc-flag {
-  position: absolute;
-  top: calc(var(--pc-frame) * 0.2);
-  width: calc(50px * var(--wide-zoom, 1));
-  aspect-ratio: 52 / 80;
-  pointer-events: none;
-}
-.pc-flag svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-/* the card's own colour: it hides the frame's line where the flag lies over it */
-.pc-flag-cloth {
-  fill: var(--profile-bg);
-}
-/* the outline a step stronger than the frame's own lines, so the flag reads as a shape on a phone */
-.pc-flag-lines {
-  fill: none;
-  stroke: var(--frame-line);
-  stroke-opacity: 0.65;
-  stroke-width: 1;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  vector-effect: non-scaling-stroke;
-}
-/* the dial behind the emblem, fainter and finer than the outline */
-.pc-flag-dial {
-  stroke-opacity: 0.35;
-  stroke-width: 0.7;
-}
-.pc-flag-gem {
-  fill: var(--frame-line);
-  fill-opacity: 0.65;
-}
-/* only just see-through (owner: first a little transparency, then more visible): it reads on a
-   phone and still sits under the name */
-.pc-flag-mark {
-  color: var(--flag-mark);
-  opacity: 0.92;
-}
 /* Your name (its plate shows on the Profile, not here), your title and rank under it, from the
    avatar's side. */
 .pc-name {
@@ -262,13 +213,33 @@
   letter-spacing: 0.04em;
 }
 /* Elo and Level side by side under a hairline with a diamond at its middle, in the frame's ink at
-   the frames' faintness; each a caption, the number, its bar and what's next */
+   the frames' faintness; each a caption, the number, its bar and what's next. With a faction, a
+   third, narrower column: its caption, then its emblem beside its name, no bar (owner, 2026-10-24). */
 .pc-stats {
   grid-area: stats;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-5);
   padding-top: var(--pc-gap);
+}
+.pc-stats.has-faction {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.8fr);
+  gap: var(--space-4);
+}
+/* the faction's name in the numbers' serif, sized so the longest (Water, Earth) keeps to its column;
+   its emblem as tall as its capitals, light on dark and dark on light (no colour: owner) */
+.pc-side {
+  display: flex;
+  align-items: center;
+  gap: 0.25em;
+  font-size: min(var(--fs-display), 22cqi);
+  white-space: nowrap;
+}
+.pc-side-mark {
+  flex: none;
+  width: 0.8em;
+  height: 0.8em;
+  color: var(--faction-mark);
 }
 .pc-stats::before,
 .pc-stats::after {
